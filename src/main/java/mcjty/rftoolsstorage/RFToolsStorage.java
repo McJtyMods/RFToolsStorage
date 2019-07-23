@@ -10,7 +10,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(RFToolsStorage.MODID)
 public class RFToolsStorage implements ModBase {
 
-    public static final String MODID = "rftoolspower";
+    public static final String MODID = "rftoolsstorage";
 
     @SuppressWarnings("PublicField")
     public static ModSetup setup = new ModSetup();
