@@ -18,7 +18,7 @@ public class StorageFilterCache {
 
     // Parameter is the filter item.
     StorageFilterCache(ItemStack stack) {
-        NBTTagCompound tagCompound = stack.getTagCompound();
+        CompoundNBT tagCompound = stack.getTagCompound();
         if (tagCompound != null) {
             matchDamage = tagCompound.getBoolean("damageMode");
             oredictMode = tagCompound.getBoolean("oredictMode");
@@ -28,8 +28,8 @@ public class StorageFilterCache {
             NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
             int cnt = 0;
             for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
-                ItemStack s = new ItemStack(nbtTagCompound);
+                CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
+                ItemStack s = new ItemStack(CompoundNBT);
                 if (!s.isEmpty()) {
                     cnt++;
                 }
@@ -37,8 +37,8 @@ public class StorageFilterCache {
             stacks = ItemStackList.create(cnt);
             cnt = 0;
             for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
-                ItemStack s = new ItemStack(nbtTagCompound);
+                CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
+                ItemStack s = new ItemStack(CompoundNBT);
                 if (!s.isEmpty()) {
                     stacks.set(cnt++, s);
                     if (oredictMode) {

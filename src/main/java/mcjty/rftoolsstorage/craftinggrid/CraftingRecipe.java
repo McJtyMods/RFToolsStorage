@@ -1,27 +1,30 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.InventoryCrafting;
+import mcjty.lib.McJtyLib;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.item.crafting.ICraftingRecipe;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
+import java.util.Optional;
+
 public class CraftingRecipe {
-    private InventoryCrafting inv = new InventoryCrafting(new Container() {
+    private CraftingInventory inv = new CraftingInventory(new Container(null, -1) {
         @Override
-        public boolean canInteractWith(EntityPlayer var1) {
+        public boolean canInteractWith(PlayerEntity playerIn) {
             return false;
         }
     }, 3, 3);
     private ItemStack result = ItemStack.EMPTY;
 
     private boolean recipePresent = false;
-    private IRecipe recipe = null;
+    private Optional<ICraftingRecipe> recipe = Optional.empty();
 
     private boolean keepOne = false;
 
@@ -43,24 +46,19 @@ public class CraftingRecipe {
 
     private CraftMode craftMode = CraftMode.EXT;
 
-    public static IRecipe findRecipe(World world, InventoryCrafting inv) {
-        for (IRecipe r : CraftingManager.REGISTRY) {
-            if (r != null && r.matches(inv, world)) {
-                return r;
-            }
-        }
-        return null;
+    public static Optional<ICraftingRecipe> findRecipe(World world, CraftingInventory inv) {
+        return McJtyLib.proxy.getRecipeManager(world).getRecipe(IRecipeType.CRAFTING, inv, world);
     }
 
-    public void readFromNBT(NBTTagCompound tagCompound) {
-        NBTTagList nbtTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0; i < nbtTagList.tagCount(); i++) {
-            NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
-            inv.setInventorySlotContents(i, new ItemStack(nbtTagCompound));
+    public void readFromNBT(CompoundNBT tagCompound) {
+        ListNBT nbtTagList = tagCompound.getList("Items", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < nbtTagList.size(); i++) {
+            CompoundNBT CompoundNBT = nbtTagList.getCompound(i);
+            inv.setInventorySlotContents(i, ItemStack.read(CompoundNBT));
         }
-        NBTTagCompound resultCompound = tagCompound.getCompoundTag("Result");
+        CompoundNBT resultCompound = tagCompound.getCompound("Result");
         if (resultCompound != null) {
-            result = new ItemStack(resultCompound);
+            result = ItemStack.read(resultCompound);
         } else {
             result = ItemStack.EMPTY;
         }
@@ -69,24 +67,24 @@ public class CraftingRecipe {
         recipePresent = false;
     }
 
-    public void writeToNBT(NBTTagCompound tagCompound) {
-        NBTTagList nbtTagList = new NBTTagList();
+    public void writeToNBT(CompoundNBT tagCompound) {
+        ListNBT nbtTagList = new ListNBT();
         for (int i = 0 ; i < 9 ; i++) {
             ItemStack stack = inv.getStackInSlot(i);
-            NBTTagCompound nbtTagCompound = new NBTTagCompound();
+            CompoundNBT CompoundNBT = new CompoundNBT();
             if (!stack.isEmpty()) {
-                stack.writeToNBT(nbtTagCompound);
+                stack.write(CompoundNBT);
             }
-            nbtTagList.appendTag(nbtTagCompound);
+            nbtTagList.add(CompoundNBT);
         }
-        NBTTagCompound resultCompound = new NBTTagCompound();
+        CompoundNBT resultCompound = new CompoundNBT();
         if (!result.isEmpty()) {
-            result.writeToNBT(resultCompound);
+            result.write(resultCompound);
         }
-        tagCompound.setTag("Result", resultCompound);
-        tagCompound.setTag("Items", nbtTagList);
-        tagCompound.setBoolean("Keep", keepOne);
-        tagCompound.setByte("Int", (byte) craftMode.ordinal());
+        tagCompound.put("Result", resultCompound);
+        tagCompound.put("Items", nbtTagList);
+        tagCompound.putBoolean("Keep", keepOne);
+        tagCompound.putByte("Int", (byte) craftMode.ordinal());
     }
 
     public void setRecipe(ItemStack[] items, ItemStack result) {
@@ -97,7 +95,7 @@ public class CraftingRecipe {
         recipePresent = false;
     }
 
-    public InventoryCrafting getInventory() {
+    public CraftingInventory getInventory() {
         return inv;
     }
 
@@ -109,7 +107,7 @@ public class CraftingRecipe {
         return result;
     }
 
-    public IRecipe getCachedRecipe(World world) {
+    public Optional<ICraftingRecipe> getCachedRecipe(World world) {
         if (!recipePresent) {
             recipePresent = true;
             recipe = findRecipe(world, inv);

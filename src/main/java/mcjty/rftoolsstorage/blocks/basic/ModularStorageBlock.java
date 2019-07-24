@@ -2,15 +2,14 @@ package mcjty.rftoolsstorage.blocks.basic;
 
 import mcjty.lib.api.IModuleSupport;
 import mcjty.lib.blocks.BaseBlock;
-import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.builder.BlockBuilder;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.ModuleSupport;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.EnumProperty;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
@@ -24,55 +23,39 @@ import java.util.List;
 
 public class ModularStorageBlock extends BaseBlock {
 
-    public static final PropertyEnum<ModularTypeModule> TYPEMODULE = PropertyEnum.create("type", ModularTypeModule.class);
-    public static final PropertyEnum<ModularAmountOverlay> AMOUNT = PropertyEnum.create("amount", ModularAmountOverlay.class);
+    public static final EnumProperty<ModularTypeModule> TYPEMODULE = EnumProperty.create("type", ModularTypeModule.class);
+    public static final EnumProperty<ModularAmountOverlay> AMOUNT = EnumProperty.create("amount", ModularAmountOverlay.class);
 
     // Clientside
     public static int cntReceived = 1;
     public static String nameModuleReceived = "";
 
     public ModularStorageBlock() {
-        super(Material.IRON, ModularStorageTileEntity.class, ModularStorageContainer::new, "modular_storage", true);
+        super("modular_storage", new BlockBuilder()
+                .tileEntitySupplier(() -> new ModularStorageTileEntity())
+                .infoExtended("todo")   // @todo 1.14
+//        list.add(TextFormatting.WHITE + "This modular storage system can store a lot");
+//        list.add(TextFormatting.WHITE + "of items and allows easy searching and filtering.");
+//        list.add(TextFormatting.WHITE + "You must first insert a storage module item before");
+//        list.add(TextFormatting.WHITE + "you can use it");
+
+        );
+//        super(Material.IRON, ModularStorageTileEntity.class, ModularStorageContainer::new, "modular_storage", true);
     }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public BiFunction<ModularStorageTileEntity, ModularStorageContainer, GenericGuiContainer<? super ModularStorageTileEntity>> getGuiFactory() {
-        return GuiModularStorage::new;
-    }
+//    @SideOnly(Side.CLIENT)
+//    @Override
+//    public BiFunction<ModularStorageTileEntity, ModularStorageContainer, GenericGuiContainer<? super ModularStorageTileEntity>> getGuiFactory() {
+//        return GuiModularStorage::new;
+//    }
 
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void initModel() {
-        // @@@ temporary
-        super.initModel();
-    }
-
-    @Override
-    public int getGuiID() {
-        return GuiProxy.GUI_MODULAR_STORAGE;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void addInformation(ItemStack itemStack, World player, List<String> list, ITooltipFlag whatIsThis) {
-        super.addInformation(itemStack, player, list, whatIsThis);
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
-            list.add(TextFormatting.WHITE + "This modular storage system can store a lot");
-            list.add(TextFormatting.WHITE + "of items and allows easy searching and filtering.");
-            list.add(TextFormatting.WHITE + "You must first insert a storage module item before");
-            list.add(TextFormatting.WHITE + "you can use it");
-        } else {
-            list.add(TextFormatting.WHITE + GuiProxy.SHIFT_MESSAGE);
-        }
-    }
 
     private static long lastTime = 0;
 
+
     @Override
     public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        TileEntity tileEntity = world instanceof ChunkCache ? ((ChunkCache)world).getTileEntity(pos, Chunk.EnumCreateEntityType.CHECK) : world.getTileEntity(pos);
+        TileEntity tileEntity = world instanceof ChunkCache ? ((ChunkCache) world).getTileEntity(pos, Chunk.EnumCreateEntityType.CHECK) : world.getTileEntity(pos);
         if (tileEntity instanceof ModularStorageTileEntity) {
             ModularStorageTileEntity te = (ModularStorageTileEntity) tileEntity;
             ItemStack stack = te.getInventoryHelper().getStackInSlot(ModularStorageContainer.SLOT_TYPE_MODULE);
@@ -180,7 +163,7 @@ public class ModularStorageBlock extends BaseBlock {
 
     @Override
     @Optional.Method(modid = "theoneprobe")
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, IBlockState blockState, IProbeHitData data) {
         super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
         TileEntity te = world.getTileEntity(data.getPos());
         if (te instanceof ModularStorageTileEntity) {
@@ -237,31 +220,30 @@ public class ModularStorageBlock extends BaseBlock {
     }
 
     @Override
-    public Container createServerContainer(EntityPlayer entityPlayer, TileEntity tileEntity) {
+    public Container createServerContainer(PlayerEntity PlayerEntity, TileEntity tileEntity) {
         // Make sure the client has sufficient information to show the data.
         ((ModularStorageTileEntity) tileEntity).markDirtyClient();
-        return super.createServerContainer(entityPlayer, tileEntity);
+        return super.createServerContainer(PlayerEntity, tileEntity);
     }
 
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
-        if (placer instanceof EntityPlayer) {
+        if (placer instanceof PlayerEntity) {
             // @todo achievements
-//            Achievements.trigger((EntityPlayer) placer, Achievements.allTheItems);
+//            Achievements.trigger((PlayerEntity) placer, Achievements.allTheItems);
         }
     }
+
     @Override
-    public boolean hasComparatorInputOverride(IBlockState state)
-    {
+    public boolean hasComparatorInputOverride(IBlockState state) {
         return true;
     }
 
     @Override
-    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
-    {
+    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos) {
         TileEntity te = worldIn.getTileEntity(pos);
-        if(te instanceof ModularStorageTileEntity) {
+        if (te instanceof ModularStorageTileEntity) {
             ModularStorageTileEntity mste = (ModularStorageTileEntity) te;
             return MathHelper.floor(((float) mste.getNumStacks() / mste.getMaxSize()) * 14.0F) + (mste.getNumStacks() > 0 ? 1 : 0);
         }

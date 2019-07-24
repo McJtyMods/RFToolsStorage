@@ -5,8 +5,8 @@ import mcjty.rftools.craftinggrid.CraftingGridInventory;
 import mcjty.rftools.items.storage.StorageFilterItem;
 import mcjty.rftools.items.storage.StorageTypeItem;
 import mcjty.rftools.network.RFToolsMessages;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerEntityMP;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
@@ -52,7 +52,7 @@ public class ModularStorageContainer extends GenericContainer {
         return modularStorageTileEntity;
     }
 
-    public ModularStorageContainer(EntityPlayer player, IInventory containerInventory) {
+    public ModularStorageContainer(PlayerEntity player, IInventory containerInventory) {
         super(factory);
         modularStorageTileEntity = (ModularStorageTileEntity) containerInventory;
 
@@ -102,7 +102,7 @@ public class ModularStorageContainer extends GenericContainer {
                     }
 
                     @Override
-                    public boolean canTakeStack(EntityPlayer player) {
+                    public boolean canTakeStack(PlayerEntity player) {
                         if (getSlotIndex() >= (modularStorageTileEntity.getMaxSize() + SLOT_STORAGE)) {
                             return false;
                         }
@@ -131,7 +131,7 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     @Override
-    public ItemStack slotClick(int index, int button, ClickType mode, EntityPlayer player) {
+    public ItemStack slotClick(int index, int button, ClickType mode, PlayerEntity player) {
         if (index == SLOT_STORAGE_MODULE && !player.getEntityWorld().isRemote) {
             modularStorageTileEntity.copyToModule();
         }
@@ -168,8 +168,8 @@ public class ModularStorageContainer extends GenericContainer {
         String filter = modularStorageTileEntity.getFilter();
 
         for (IContainerListener listener : this.listeners) {
-            if (listener instanceof EntityPlayerMP) {
-                EntityPlayerMP player = (EntityPlayerMP) listener;
+            if (listener instanceof PlayerEntityMP) {
+                PlayerEntityMP player = (PlayerEntityMP) listener;
                 RFToolsMessages.INSTANCE.sendTo(new PacketSyncSlotsToClient(
                         modularStorageTileEntity.getPos(),
                         sortMode, viewMode, groupMode, filter,

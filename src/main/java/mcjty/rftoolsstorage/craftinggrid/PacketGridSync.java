@@ -2,12 +2,8 @@ package mcjty.rftoolsstorage.craftinggrid;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.rftools.blocks.storage.ModularStorageItemContainer;
-import mcjty.rftools.blocks.storage.ModularStorageSetup;
-import mcjty.rftools.blocks.storage.RemoteStorageItemContainer;
-import mcjty.rftools.blocks.storagemonitor.StorageScannerContainer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -69,7 +65,7 @@ public class PacketGridSync {
         recipes = new ArrayList<>();
         for (int i = 0 ; i < 6 ; i++) {
             CraftingRecipe recipe = grid.getRecipe(i);
-            InventoryCrafting inventory = recipe.getInventory();
+            CraftingInventory inventory = recipe.getInventory();
             ItemStack[] stacks = new ItemStack[10];
             stacks[0] = recipe.getResult();
             for (int j = 0 ; j < 9 ; j++) {
@@ -79,23 +75,24 @@ public class PacketGridSync {
         }
     }
 
-    protected CraftingGridProvider handleMessage(World world, EntityPlayer player) {
+    protected CraftingGridProvider handleMessage(World world, PlayerEntity player) {
         CraftingGridProvider provider = null;
         if (pos == null) {
             // Handle tablet version
             ItemStack mainhand = player.getHeldItemMainhand();
-            if (!mainhand.isEmpty() && mainhand.getItem() == ModularStorageSetup.storageModuleTabletItem) {
-                if (player.openContainer instanceof ModularStorageItemContainer) {
-                    ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
-                    provider = storageItemContainer.getCraftingGridProvider();
-                } else if (player.openContainer instanceof RemoteStorageItemContainer) {
-                    RemoteStorageItemContainer storageItemContainer = (RemoteStorageItemContainer) player.openContainer;
-                    provider = storageItemContainer.getCraftingGridProvider();
-                } else if (player.openContainer instanceof StorageScannerContainer) {
-                    StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
-                    provider = storageItemContainer.getStorageScannerTileEntity();
-                }
-            }
+            // @todo 1.14
+//            if (!mainhand.isEmpty() && mainhand.getItem() == ModularStorageSetup.storageModuleTabletItem) {
+//                if (player.openContainer instanceof ModularStorageItemContainer) {
+//                    ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
+//                    provider = storageItemContainer.getCraftingGridProvider();
+//                } else if (player.openContainer instanceof RemoteStorageItemContainer) {
+//                    RemoteStorageItemContainer storageItemContainer = (RemoteStorageItemContainer) player.openContainer;
+//                    provider = storageItemContainer.getCraftingGridProvider();
+//                } else if (player.openContainer instanceof StorageScannerContainer) {
+//                    StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
+//                    provider = storageItemContainer.getStorageScannerTileEntity();
+//                }
+//            }
         } else {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof CraftingGridProvider) {

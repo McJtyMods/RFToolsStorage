@@ -1,11 +1,9 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.lib.varia.ItemStackList;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
 public class CraftingGridInventory implements IInventory {
 
@@ -46,7 +44,7 @@ public class CraftingGridInventory implements IInventory {
         return index >= 0 && index < stacks.size()
                 && !stacks.get(index).isEmpty()
                 && count > 0
-                ? stacks.get(index).splitStack(count)
+                ? stacks.get(index).split(count)
                 : ItemStack.EMPTY;
 //        return ItemStackHelper.getAndSplit(stacks, index, count);
     }
@@ -74,18 +72,9 @@ public class CraftingGridInventory implements IInventory {
 
     }
 
-    public boolean isUsable(EntityPlayer player) {
+    @Override
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return true;
-    }
-
-    @Override
-    public void openInventory(EntityPlayer player) {
-
-    }
-
-    @Override
-    public void closeInventory(EntityPlayer player) {
-
     }
 
     @Override
@@ -94,43 +83,8 @@ public class CraftingGridInventory implements IInventory {
     }
 
     @Override
-    public int getField(int id) {
-        return 0;
-    }
-
-    @Override
-    public void setField(int id, int value) {
-
-    }
-
-    @Override
-    public int getFieldCount() {
-        return 0;
-    }
-
-    @Override
     public void clear() {
 
-    }
-
-    @Override
-    public String getName() {
-        return "grid";
-    }
-
-    @Override
-    public boolean hasCustomName() {
-        return false;
-    }
-
-    @Override
-    public ITextComponent getDisplayName() {
-        return new TextComponentString("grid");
-    }
-
-    @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
-        return isUsable(player);
     }
 
     @Override

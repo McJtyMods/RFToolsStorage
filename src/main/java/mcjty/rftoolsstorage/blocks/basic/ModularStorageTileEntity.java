@@ -159,7 +159,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 
     @Override
     @Nonnull
-    public int[] craft(EntityPlayer player, int n, boolean test) {
+    public int[] craft(PlayerEntity player, int n, boolean test) {
         InventoriesItemSource itemSource = new InventoriesItemSource().add(player.inventory, 0).add(this, ModularStorageContainer.SLOT_STORAGE);
 
         if (test) {
@@ -440,7 +440,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public boolean isUsableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return canPlayerAccess(player);
     }
 
@@ -503,9 +503,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             remoteId = 0;
             return;
         }
-        NBTTagCompound tagCompound = stack.getTagCompound();
+        CompoundNBT tagCompound = stack.getTagCompound();
         if (tagCompound == null) {
-            tagCompound = new NBTTagCompound();
+            tagCompound = new CompoundNBT();
             stack.setTagCompound(tagCompound);
         }
         int cnt = writeBufferToItemNBT(tagCompound);
@@ -524,7 +524,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 
         remoteId = 0;
         if (stack.getItemDamage() == StorageModuleItem.STORAGE_REMOTE) {
-            NBTTagCompound tagCompound = stack.getTagCompound();
+            CompoundNBT tagCompound = stack.getTagCompound();
             if (tagCompound == null || !tagCompound.hasKey("id")) {
                 clearInventory();
                 return;
@@ -544,7 +544,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             setMaxSize(StorageModuleItem.MAXSIZE[storageStack.getItemDamage()]);
         } else {
             setMaxSize(StorageModuleItem.MAXSIZE[stack.getItemDamage()]);
-            NBTTagCompound tagCompound = stack.getTagCompound();
+            CompoundNBT tagCompound = stack.getTagCompound();
             if (tagCompound != null) {
                 readBufferFromItemNBT(tagCompound);
             }
@@ -631,7 +631,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public void readClientDataFromNBT(NBTTagCompound tagCompound) {
+    public void readClientDataFromNBT(CompoundNBT tagCompound) {
         numStacks = tagCompound.getInteger("numStacks");
         maxSize = tagCompound.getInteger("maxSize");
         remoteId = tagCompound.getInteger("remoteId");
@@ -641,7 +641,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 
 
     @Override
-    public void writeClientDataToNBT(NBTTagCompound tagCompound) {
+    public void writeClientDataToNBT(CompoundNBT tagCompound) {
         tagCompound.setInteger("numStacks", numStacks);
         tagCompound.setInteger("maxSize", maxSize);
         tagCompound.setInteger("remoteId", remoteId);
@@ -664,12 +664,12 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tagCompound) {
+    public void readFromNBT(CompoundNBT tagCompound) {
         super.readFromNBT(tagCompound);
     }
 
     @Override
-    public void readRestorableFromNBT(NBTTagCompound tagCompound) {
+    public void readRestorableFromNBT(CompoundNBT tagCompound) {
         super.readRestorableFromNBT(tagCompound);
         numStacks = tagCompound.getInteger("numStacks");
         maxSize = tagCompound.getInteger("maxSize");
@@ -689,21 +689,21 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         }
     }
 
-    private void readBufferFromItemNBT(NBTTagCompound tagCompound) {
+    private void readBufferFromItemNBT(CompoundNBT tagCompound) {
         NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-            NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
-            inventoryHelper.setStackInSlot(i+ModularStorageContainer.SLOT_STORAGE, new ItemStack(nbtTagCompound));
+            CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
+            inventoryHelper.setStackInSlot(i+ModularStorageContainer.SLOT_STORAGE, new ItemStack(CompoundNBT));
         }
     }
 
-    private void readBufferFromNBT(NBTTagCompound tagCompound) {
+    private void readBufferFromNBT(CompoundNBT tagCompound) {
         NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         if (tagCompound.hasKey("SlotStorage")) {
             // This is a new TE with separate NBT tags for the three special slots.
             for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
-                inventoryHelper.setStackInSlot(i+ModularStorageContainer.SLOT_STORAGE, new ItemStack(nbtTagCompound));
+                CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
+                inventoryHelper.setStackInSlot(i+ModularStorageContainer.SLOT_STORAGE, new ItemStack(CompoundNBT));
             }
             inventoryHelper.setStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE, new ItemStack(tagCompound.getCompoundTag("SlotStorage")));
             inventoryHelper.setStackInSlot(ModularStorageContainer.SLOT_TYPE_MODULE, new ItemStack(tagCompound.getCompoundTag("SlotType")));
@@ -712,8 +712,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             // This is an old TE so we have to convert this to the new format.
             int index = 0;
             for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-                NBTTagCompound nbtTagCompound = bufferTagList.getCompoundTagAt(i);
-                inventoryHelper.setStackInSlot(index, new ItemStack(nbtTagCompound));
+                CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
+                inventoryHelper.setStackInSlot(index, new ItemStack(CompoundNBT));
                 index++;
                 if (index == ModularStorageContainer.SLOT_FILTER_MODULE) {
                     index++;    // Skip this slot since this TE will not have that.
@@ -723,13 +723,13 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
+    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         super.writeToNBT(tagCompound);
         return tagCompound;
     }
 
     @Override
-    public void writeRestorableToNBT(NBTTagCompound tagCompound) {
+    public void writeRestorableToNBT(CompoundNBT tagCompound) {
         super.writeRestorableToNBT(tagCompound);
         writeBufferToNBT(tagCompound);
         writeSlot(tagCompound, ModularStorageContainer.SLOT_STORAGE_MODULE, "SlotStorage");
@@ -746,16 +746,16 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         tagCompound.setTag("grid", craftingGrid.writeToNBT());
     }
 
-    private void writeSlot(NBTTagCompound tagCompound, int index, String name) {
-        NBTTagCompound nbtTagCompound = new NBTTagCompound();
+    private void writeSlot(CompoundNBT tagCompound, int index, String name) {
+        CompoundNBT CompoundNBT = new CompoundNBT();
         ItemStack stack = inventoryHelper.getStackInSlot(index);
         if (!stack.isEmpty()) {
-            stack.writeToNBT(nbtTagCompound);
+            stack.writeToNBT(CompoundNBT);
         }
-        tagCompound.setTag(name, nbtTagCompound);
+        tagCompound.setTag(name, CompoundNBT);
     }
 
-    private void writeBufferToNBT(NBTTagCompound tagCompound) {
+    private void writeBufferToNBT(CompoundNBT tagCompound) {
         // If sendToClient is true we have to send dummy information to the client
         // so that it can remotely open gui's.
         boolean sendToClient = isServer() && isRemote();
@@ -766,47 +766,47 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             if (storageTileEntity != null) {
                 ItemStackList slots = storageTileEntity.findStacksForId(remoteId);
                 for (ItemStack stack : slots) {
-                    NBTTagCompound nbtTagCompound = new NBTTagCompound();
+                    CompoundNBT CompoundNBT = new CompoundNBT();
                     if (!stack.isEmpty()) {
-                        stack.writeToNBT(nbtTagCompound);
+                        stack.writeToNBT(CompoundNBT);
                     }
-                    bufferTagList.appendTag(nbtTagCompound);
+                    bufferTagList.appendTag(CompoundNBT);
                 }
             }
         } else {
             for (int i = ModularStorageContainer.SLOT_STORAGE; i < inventoryHelper.getCount(); i++) {
                 ItemStack stack = inventoryHelper.getStackInSlot(i);
-                NBTTagCompound nbtTagCompound = new NBTTagCompound();
+                CompoundNBT CompoundNBT = new CompoundNBT();
                 if (!stack.isEmpty()) {
-                    stack.writeToNBT(nbtTagCompound);
+                    stack.writeToNBT(CompoundNBT);
                 }
-                bufferTagList.appendTag(nbtTagCompound);
+                bufferTagList.appendTag(CompoundNBT);
             }
         }
         tagCompound.setTag("Items", bufferTagList);
     }
 
-    private int writeBufferToItemNBT(NBTTagCompound tagCompound) {
+    private int writeBufferToItemNBT(CompoundNBT tagCompound) {
         int cnt = 0;
         NBTTagList bufferTagList = new NBTTagList();
         for (int i = ModularStorageContainer.SLOT_STORAGE; i < inventoryHelper.getCount(); i++) {
             ItemStack stack = inventoryHelper.getStackInSlot(i);
-            NBTTagCompound nbtTagCompound = new NBTTagCompound();
+            CompoundNBT CompoundNBT = new CompoundNBT();
             if (!stack.isEmpty()) {
-                stack.writeToNBT(nbtTagCompound);
+                stack.writeToNBT(CompoundNBT);
                 // @todo check?
                 if (stack.getCount() > 0) {
                     cnt++;
                 }
             }
-            bufferTagList.appendTag(nbtTagCompound);
+            bufferTagList.appendTag(CompoundNBT);
         }
         tagCompound.setTag("Items", bufferTagList);
         return cnt;
     }
 
     @Override
-    public boolean execute(EntityPlayerMP playerMP, String command, TypedMap params) {
+    public boolean execute(PlayerEntityMP playerMP, String command, TypedMap params) {
         boolean rc = super.execute(playerMP, command, params);
         if (rc) {
             return true;
