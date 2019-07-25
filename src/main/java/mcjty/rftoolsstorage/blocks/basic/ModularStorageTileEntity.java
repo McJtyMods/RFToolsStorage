@@ -57,7 +57,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     private StorageFilterCache filterCache = null;
 
     // @todo Probably needs a custom item handler!
-    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(this::createItemHandler);
+    private LazyOptional<ModularStorageWrappedItemHandler> itemHandler = LazyOptional.of(this::createItemHandler);
 
     private CraftingGrid craftingGrid = new CraftingGrid();
 
@@ -434,17 +434,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         handleNewAmount(containsBefore, index);
     }
 
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-        return canPlayerAccess(player);
-    }
-
-    @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
         if (index >= getSizeInventory()) {
             return false;
@@ -463,18 +452,19 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             return true;
         }
 
-        if (isStorageAvailableRemotely(index)) {
-            index -= ModularStorageContainer.SLOT_STORAGE;
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return false;
-            }
-
-            ItemStackList stacks = storageTileEntity.findStacksForId(remoteId);
-            if (index >= stacks.size()) {
-                return false;
-            }
-        }
+        // @todo 1.14
+//        if (isStorageAvailableRemotely(index)) {
+//            index -= ModularStorageContainer.SLOT_STORAGE;
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return false;
+//            }
+//
+//            ItemStackList stacks = storageTileEntity.findStacksForId(remoteId);
+//            if (index >= stacks.size()) {
+//                return false;
+//            }
+//        }
 
         if (inventoryHelper.containsItem(ModularStorageContainer.SLOT_FILTER_MODULE)) {
             getFilterCache();
@@ -891,8 +881,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         return super.getCapability(capability, facing);
     }
 
-    private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(ModularStorageTileEntity.this, CONTAINER_FACTORY, 2) {
+    private ModularStorageWrappedItemHandler createItemHandler() {
+        return new ModularStorageWrappedItemHandler(ModularStorageTileEntity.this, ModularStorageContainer.factory) {
             @Override
             public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
                 return slot != SLOT_SHARDINPUT || stack.getItem() == ModItems.DIMENSIONALSHARD;
