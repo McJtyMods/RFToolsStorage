@@ -3,7 +3,8 @@ package mcjty.rftoolsstorage.blocks.basic;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.rftoolsbase.items.ModItems;
+import mcjty.rftoolsstorage.items.ModItems;
+import mcjty.rftoolsstorage.items.StorageModuleItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.items.IItemHandler;
@@ -85,11 +86,13 @@ public class ModularStorageWrappedItemHandler extends NoDirectionItemHander {
         if (slot < ModularStorageContainer.SLOT_STORAGE) {
             switch (slot) {
                 case ModularStorageContainer.SLOT_STORAGE_MODULE:
-                    return !stack.isEmpty() && ModularStorageSetup.storageModuleItem == stack.getItem();
-                case ModularStorageContainer.SLOT_FILTER_MODULE:
-                    return !stack.isEmpty() && stack.getItem() instanceof StorageFilterItem;
-                case ModularStorageContainer.SLOT_TYPE_MODULE:
-                    return !stack.isEmpty() && stack.getItem() instanceof StorageTypeItem;
+                    // @todo 1.14 allow all kinds of containers
+                    return !stack.isEmpty() && stack.getItem() instanceof StorageModuleItem;
+                    // @todo 1.14
+//                case ModularStorageContainer.SLOT_FILTER_MODULE:
+//                    return !stack.isEmpty() && stack.getItem() instanceof StorageFilterItem;
+//                case ModularStorageContainer.SLOT_TYPE_MODULE:
+//                    return !stack.isEmpty() && stack.getItem() instanceof StorageTypeItem;
             }
             return super.isItemValid(slot, stack);
         } else {

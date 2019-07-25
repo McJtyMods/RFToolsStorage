@@ -15,8 +15,13 @@ import mcjty.rftoolsstorage.api.general.IInventoryTracker;
 import mcjty.rftoolsstorage.compat.jei.JEIRecipeAcceptor;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGrid;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridProvider;
+import mcjty.rftoolsstorage.craftinggrid.InventoriesItemSource;
+import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
+import mcjty.rftoolsstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
@@ -121,11 +126,12 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     }
 
     private void clearInventory() {
-        setMaxSize(0);
-        numStacks = -1;
-        for (int i = ModularStorageContainer.SLOT_STORAGE; i < ModularStorageContainer.MAXSIZE_STORAGE ; i++) {
-            inventoryHelper.setInventorySlotContents(getInventoryStackLimit(), i, ItemStack.EMPTY);
-        }
+        // @todo 1.14
+//        setMaxSize(0);
+//        numStacks = -1;
+//        for (int i = ModularStorageContainer.SLOT_STORAGE; i < ModularStorageContainer.MAXSIZE_STORAGE ; i++) {
+//            inventoryHelper.setInventorySlotContents(getInventoryStackLimit(), i, ItemStack.EMPTY);
+//        }
     }
 
     @Override
@@ -171,27 +177,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         }
     }
 
-    @Override
-    public int[] getSlotsForFace(EnumFacing side) {
-        if (accessible == null) {
-            accessible = new int[maxSize];
-            for (int i = 0 ; i < maxSize ; i++) {
-                accessible[i] = ModularStorageContainer.SLOT_STORAGE + i;
-            }
-        }
-        return accessible;
-    }
-
-    @Override
-    public boolean canInsertItem(int index, ItemStack stack, EnumFacing direction) {
-        return index >= ModularStorageContainer.SLOT_STORAGE && isItemValidForSlot(index, stack);
-    }
-
-    @Override
-    public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
-        return index >= ModularStorageContainer.SLOT_STORAGE && isItemValidForSlot(index, stack);
-    }
-
     public boolean isGroupMode() {
         return groupMode;
     }
@@ -232,26 +217,23 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         return maxSize;
     }
 
-    @Override
-    public int getSizeInventory() {
-        return ModularStorageContainer.SLOT_STORAGE + maxSize;
-    }
-
     private boolean containsItem(int index) {
-        if (isStorageAvailableRemotely(index)) {
-            index -= ModularStorageContainer.SLOT_STORAGE;
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return false;
-            }
-            ItemStackList slots = storageTileEntity.findStacksForId(remoteId);
-            if (index >= slots.size()) {
-                return false;
-            }
-            return !slots.get(index).isEmpty();
-        } else {
-            return inventoryHelper.containsItem(index);
-        }
+//        if (isStorageAvailableRemotely(index)) {
+//            index -= ModularStorageContainer.SLOT_STORAGE;
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return false;
+//            }
+//            ItemStackList slots = storageTileEntity.findStacksForId(remoteId);
+//            if (index >= slots.size()) {
+//                return false;
+//            }
+//            return !slots.get(index).isEmpty();
+//        } else {
+//            return inventoryHelper.containsItem(index);
+//        }
+        // @todo 1.14
+        return false;
     }
 
     // On server, and if we have a remote storage module and if we're accessing a remote slot we check the remote storage.
@@ -267,25 +249,25 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         return remoteId;
     }
 
-    @Override
-    public ItemStack getStackInSlot(int index) {
-        if (index >= getSizeInventory()) {
-            return ItemStack.EMPTY;
-        }
-        if (isStorageAvailableRemotely(index)) {
-            index -= ModularStorageContainer.SLOT_STORAGE;
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return ItemStack.EMPTY;
-            }
-            ItemStackList slots = storageTileEntity.findStacksForId(remoteId);
-            if (index >= slots.size()) {
-                return ItemStack.EMPTY;
-            }
-            return slots.get(index);
-        }
-        return inventoryHelper.getStackInSlot(index);
-    }
+//    @Override
+//    public ItemStack getStackInSlot(int index) {
+//        if (index >= getSizeInventory()) {
+//            return ItemStack.EMPTY;
+//        }
+//        if (isStorageAvailableRemotely(index)) {
+//            index -= ModularStorageContainer.SLOT_STORAGE;
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return ItemStack.EMPTY;
+//            }
+//            ItemStackList slots = storageTileEntity.findStacksForId(remoteId);
+//            if (index >= slots.size()) {
+//                return ItemStack.EMPTY;
+//            }
+//            return slots.get(index);
+//        }
+//        return inventoryHelper.getStackInSlot(index);
+//    }
 
     private void handleNewAmount(boolean containsBefore, int index) {
         if (index < ModularStorageContainer.SLOT_STORAGE) {
@@ -303,7 +285,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         } else {
             numStacks++;
         }
-        StorageModuleItem.updateStackSize(getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE), numStacks);
+        // @todo 1.14
+//        StorageModuleItem.updateStackSize(getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE), numStacks);
 
         int rlnew = getRenderLevel();
         if (rlold != rlnew) {
@@ -322,136 +305,136 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         return numStacks;
     }
 
-    @Override
-    public ItemStack removeStackFromSlot(int index) {
-        version++;
-        if (isStorageAvailableRemotely(index)) {
-            index -= ModularStorageContainer.SLOT_STORAGE;
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return ItemStack.EMPTY;
-            }
+//    @Override
+//    public ItemStack removeStackFromSlot(int index) {
+//        version++;
+//        if (isStorageAvailableRemotely(index)) {
+//            index -= ModularStorageContainer.SLOT_STORAGE;
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return ItemStack.EMPTY;
+//            }
+//
+//            int si = storageTileEntity.findRemoteIndex(remoteId);
+//            if (si == -1) {
+//                return ItemStack.EMPTY;
+//            }
+//            storageTileEntity.updateVersion();
+//            return storageTileEntity.removeStackFromSlotRemote(si, index);
+//
+//        } else {
+//            boolean containsBefore = containsItem(index);
+//            ItemStack stack = inventoryHelper.removeStackFromSlot(index);
+//            handleNewAmount(containsBefore, index);
+//            return stack;
+//        }
+//    }
 
-            int si = storageTileEntity.findRemoteIndex(remoteId);
-            if (si == -1) {
-                return ItemStack.EMPTY;
-            }
-            storageTileEntity.updateVersion();
-            return storageTileEntity.removeStackFromSlotRemote(si, index);
+//    private ItemStack decrStackSizeHelper(int index, int amount) {
+//        if (isStorageAvailableRemotely(index)) {
+//            index -= ModularStorageContainer.SLOT_STORAGE;
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return ItemStack.EMPTY;
+//            }
+//
+//            int si = storageTileEntity.findRemoteIndex(remoteId);
+//            if (si == -1) {
+//                return ItemStack.EMPTY;
+//            }
+//            storageTileEntity.updateVersion();
+//            return storageTileEntity.decrStackSizeRemote(si, index, amount);
+//        } else {
+//            return inventoryHelper.decrStackSize(index, amount);
+//        }
+//    }
+//
+//    @Override
+//    public ItemStack decrStackSize(int index, int amount) {
+//        version++;
+//        if (index == ModularStorageContainer.SLOT_STORAGE_MODULE) {
+//            if (!getWorld().isRemote) {
+//                copyToModule();
+//            }
+//        }
+//
+//        boolean containsBefore = containsItem(index);
+//        ItemStack itemStack = decrStackSizeHelper(index, amount);
+//        handleNewAmount(containsBefore, index);
+//
+//        if (index == ModularStorageContainer.SLOT_STORAGE_MODULE) {
+//            ItemStack stackInSlot = inventoryHelper.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
+//            // Will probably be null here. Just to be safe
+//            copyFromModule(stackInSlot);
+//        }
+//        return itemStack;
+//    }
+//
+//    private void setInventorySlotContentsHelper(int limit, int index, ItemStack stack) {
+//        if (isStorageAvailableRemotely(index)) {
+//            index -= ModularStorageContainer.SLOT_STORAGE;
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return;
+//            }
+//
+//            int si = storageTileEntity.findRemoteIndex(remoteId);
+//            if (si == -1) {
+//                return;
+//            }
+//            storageTileEntity.updateVersion();
+//            storageTileEntity.updateRemoteSlot(si, limit, index, stack);
+//        } else {
+//            inventoryHelper.setInventorySlotContents(getInventoryStackLimit(), index, stack);
+//        }
+//    }
 
-        } else {
-            boolean containsBefore = containsItem(index);
-            ItemStack stack = inventoryHelper.removeStackFromSlot(index);
-            handleNewAmount(containsBefore, index);
-            return stack;
-        }
-    }
-
-    private ItemStack decrStackSizeHelper(int index, int amount) {
-        if (isStorageAvailableRemotely(index)) {
-            index -= ModularStorageContainer.SLOT_STORAGE;
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return ItemStack.EMPTY;
-            }
-
-            int si = storageTileEntity.findRemoteIndex(remoteId);
-            if (si == -1) {
-                return ItemStack.EMPTY;
-            }
-            storageTileEntity.updateVersion();
-            return storageTileEntity.decrStackSizeRemote(si, index, amount);
-        } else {
-            return inventoryHelper.decrStackSize(index, amount);
-        }
-    }
-
-    @Override
-    public ItemStack decrStackSize(int index, int amount) {
-        version++;
-        if (index == ModularStorageContainer.SLOT_STORAGE_MODULE) {
-            if (!getWorld().isRemote) {
-                copyToModule();
-            }
-        }
-
-        boolean containsBefore = containsItem(index);
-        ItemStack itemStack = decrStackSizeHelper(index, amount);
-        handleNewAmount(containsBefore, index);
-
-        if (index == ModularStorageContainer.SLOT_STORAGE_MODULE) {
-            ItemStack stackInSlot = inventoryHelper.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
-            // Will probably be null here. Just to be safe
-            copyFromModule(stackInSlot);
-        }
-        return itemStack;
-    }
-
-    private void setInventorySlotContentsHelper(int limit, int index, ItemStack stack) {
-        if (isStorageAvailableRemotely(index)) {
-            index -= ModularStorageContainer.SLOT_STORAGE;
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return;
-            }
-
-            int si = storageTileEntity.findRemoteIndex(remoteId);
-            if (si == -1) {
-                return;
-            }
-            storageTileEntity.updateVersion();
-            storageTileEntity.updateRemoteSlot(si, limit, index, stack);
-        } else {
-            inventoryHelper.setInventorySlotContents(getInventoryStackLimit(), index, stack);
-        }
-    }
-
-    @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-        version++;
-        if (index == ModularStorageContainer.SLOT_STORAGE_MODULE) {
-            if (isServer()) {
-                copyToModule();
-            }
-        } else if (index == ModularStorageContainer.SLOT_TYPE_MODULE) {
-            // Make sure front side is updated.
-            IBlockState state = getWorld().getBlockState(getPos());
-            getWorld().notifyBlockUpdate(getPos(), state, state, 3);
-        } else if (index == ModularStorageContainer.SLOT_FILTER_MODULE) {
-            filterCache = null;
-        }
-        boolean containsBefore = containsItem(index);
-
-        setInventorySlotContentsHelper(getInventoryStackLimit(), index, stack);
-
-        if (index == ModularStorageContainer.SLOT_STORAGE_MODULE) {
-//            if ((!isRemote()) || isServer()) {
-            if (isServer()) {
-                copyFromModule(stack);
-            }
-        }
-
-        handleNewAmount(containsBefore, index);
-    }
-
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
-        if (index >= getSizeInventory()) {
-            return false;
-        }
-
-        switch (index) {
-            case ModularStorageContainer.SLOT_STORAGE_MODULE:
-                return !stack.isEmpty() && ModularStorageSetup.storageModuleItem == stack.getItem();
-            case ModularStorageContainer.SLOT_FILTER_MODULE:
-                return !stack.isEmpty() && stack.getItem() instanceof StorageFilterItem;
-            case ModularStorageContainer.SLOT_TYPE_MODULE:
-                return !stack.isEmpty() && stack.getItem() instanceof StorageTypeItem;
-        }
-
-        if (index < ModularStorageContainer.SLOT_STORAGE) {
-            return true;
-        }
-
+//    @Override
+//    public void setInventorySlotContents(int index, ItemStack stack) {
+//        version++;
+//        if (index == ModularStorageContainer.SLOT_STORAGE_MODULE) {
+//            if (isServer()) {
+//                copyToModule();
+//            }
+//        } else if (index == ModularStorageContainer.SLOT_TYPE_MODULE) {
+//            // Make sure front side is updated.
+//            IBlockState state = getWorld().getBlockState(getPos());
+//            getWorld().notifyBlockUpdate(getPos(), state, state, 3);
+//        } else if (index == ModularStorageContainer.SLOT_FILTER_MODULE) {
+//            filterCache = null;
+//        }
+//        boolean containsBefore = containsItem(index);
+//
+//        setInventorySlotContentsHelper(getInventoryStackLimit(), index, stack);
+//
+//        if (index == ModularStorageContainer.SLOT_STORAGE_MODULE) {
+////            if ((!isRemote()) || isServer()) {
+//            if (isServer()) {
+//                copyFromModule(stack);
+//            }
+//        }
+//
+//        handleNewAmount(containsBefore, index);
+//    }
+//
+//    public boolean isItemValidForSlot(int index, ItemStack stack) {
+//        if (index >= getSizeInventory()) {
+//            return false;
+//        }
+//
+//        switch (index) {
+//            case ModularStorageContainer.SLOT_STORAGE_MODULE:
+//                return !stack.isEmpty() && ModularStorageSetup.storageModuleItem == stack.getItem();
+//            case ModularStorageContainer.SLOT_FILTER_MODULE:
+//                return !stack.isEmpty() && stack.getItem() instanceof StorageFilterItem;
+//            case ModularStorageContainer.SLOT_TYPE_MODULE:
+//                return !stack.isEmpty() && stack.getItem() instanceof StorageTypeItem;
+//        }
+//
+//        if (index < ModularStorageContainer.SLOT_STORAGE) {
+//            return true;
+//        }
+//
         // @todo 1.14
 //        if (isStorageAvailableRemotely(index)) {
 //            index -= ModularStorageContainer.SLOT_STORAGE;
@@ -465,176 +448,178 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 //                return false;
 //            }
 //        }
+//
+//        if (inventoryHelper.containsItem(ModularStorageContainer.SLOT_FILTER_MODULE)) {
+//            getFilterCache();
+//            if (filterCache != null) {
+//                return filterCache.match(stack);
+//            }
+//        }
+//
+//        return true;
+//    }
 
-        if (inventoryHelper.containsItem(ModularStorageContainer.SLOT_FILTER_MODULE)) {
-            getFilterCache();
-            if (filterCache != null) {
-                return filterCache.match(stack);
-            }
-        }
+    // @todo 1.14
+//    private void getFilterCache() {
+//        if (filterCache == null) {
+//            filterCache = StorageFilterItem.getCache(inventoryHelper.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE));
+//        }
+//    }
 
-        return true;
-    }
+//    public void copyToModule() {
+//        ItemStack stack = inventoryHelper.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
+//        if (stack.isEmpty()) {
+//            // Should be impossible.
+//            return;
+//        }
+//
+//        if (stack.getItemDamage() == StorageModuleItem.STORAGE_REMOTE) {
+//            remoteId = 0;
+//            return;
+//        }
+//        CompoundNBT tagCompound = stack.getTagCompound();
+//        if (tagCompound == null) {
+//            tagCompound = new CompoundNBT();
+//            stack.setTagCompound(tagCompound);
+//        }
+//        int cnt = writeBufferToItemNBT(tagCompound);
+//        tagCompound.setInteger("count", cnt);
+//    }
+//
+//    public void copyFromModule(ItemStack stack) {
+//        for (int i = ModularStorageContainer.SLOT_STORAGE ; i < inventoryHelper.getCount() ; i++) {
+//            inventoryHelper.setInventorySlotContents(0, i, ItemStack.EMPTY);
+//        }
+//
+//        if (stack.isEmpty()) {
+//            clearInventory();
+//            return;
+//        }
+//
+//        remoteId = 0;
+//        if (stack.getItemDamage() == StorageModuleItem.STORAGE_REMOTE) {
+//            CompoundNBT tagCompound = stack.getTagCompound();
+//            if (tagCompound == null || !tagCompound.hasKey("id")) {
+//                clearInventory();
+//                return;
+//            }
+//            remoteId = tagCompound.getInt("id");
+//            RemoteStorageTileEntity remoteStorageTileEntity = getRemoteStorage(remoteId);
+//            if (remoteStorageTileEntity == null) {
+//                clearInventory();
+//                return;
+//            }
+//            ItemStack storageStack = remoteStorageTileEntity.findStorageWithId(remoteId);
+//            if (storageStack.isEmpty()) {
+//                clearInventory();
+//                return;
+//            }
+//
+//            setMaxSize(StorageModuleItem.MAXSIZE[storageStack.getItemDamage()]);
+//        } else {
+//            setMaxSize(StorageModuleItem.MAXSIZE[stack.getItemDamage()]);
+//            CompoundNBT tagCompound = stack.getTagCompound();
+//            if (tagCompound != null) {
+//                readBufferFromItemNBT(tagCompound);
+//            }
+//        }
+//
+//        updateStackCount();
+//    }
+//
+//    private RemoteStorageTileEntity getRemoteStorage(int id) {
+//        if (id != cachedRemoteStorageId) {
+//            cachedRemoteStorage = null;
+//        }
+//        if (cachedRemoteStorage != null) {
+//            return cachedRemoteStorage;
+//        }
+//
+//        World world = getWorldSafe();
+//        cachedRemoteStorage = RemoteStorageIdRegistry.getRemoteStorage(world, id);
+//        if (cachedRemoteStorage != null) {
+//            cachedRemoteStorageId = id;
+//        } else {
+//            cachedRemoteStorageId = -1;
+//        }
+//
+//        return cachedRemoteStorage;
+//    }
+//
+//    private void updateStackCount() {
+//        numStacks = 0;
+//        if (isServer() && isRemote()) {
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return;
+//            }
+//            int si = storageTileEntity.findRemoteIndex(remoteId);
+//            if (si == -1) {
+//                return;
+//            }
+//            ItemStackList stacks = storageTileEntity.getRemoteStacks(si);
+//            for (int i = 0 ; i < Math.min(maxSize, stacks.size()) ; i++) {
+//                if (!stacks.get(i).isEmpty()) {
+//                    numStacks++;
+//                }
+//            }
+//            storageTileEntity.updateCount(si, numStacks);
+//        } else {
+//            for (int i = ModularStorageContainer.SLOT_STORAGE; i < ModularStorageContainer.SLOT_STORAGE + maxSize; i++) {
+//                if (inventoryHelper.containsItem(i)) {
+//                    numStacks++;
+//                }
+//            }
+//        }
+//        StorageModuleItem.updateStackSize(getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE), numStacks);
+//    }
 
-    private void getFilterCache() {
-        if (filterCache == null) {
-            filterCache = StorageFilterItem.getCache(inventoryHelper.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE));
-        }
-    }
-
-    public void copyToModule() {
-        ItemStack stack = inventoryHelper.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
-        if (stack.isEmpty()) {
-            // Should be impossible.
-            return;
-        }
-
-        if (stack.getItemDamage() == StorageModuleItem.STORAGE_REMOTE) {
-            remoteId = 0;
-            return;
-        }
-        CompoundNBT tagCompound = stack.getTagCompound();
-        if (tagCompound == null) {
-            tagCompound = new CompoundNBT();
-            stack.setTagCompound(tagCompound);
-        }
-        int cnt = writeBufferToItemNBT(tagCompound);
-        tagCompound.setInteger("count", cnt);
-    }
-
-    public void copyFromModule(ItemStack stack) {
-        for (int i = ModularStorageContainer.SLOT_STORAGE ; i < inventoryHelper.getCount() ; i++) {
-            inventoryHelper.setInventorySlotContents(0, i, ItemStack.EMPTY);
-        }
-
-        if (stack.isEmpty()) {
-            clearInventory();
-            return;
-        }
-
-        remoteId = 0;
-        if (stack.getItemDamage() == StorageModuleItem.STORAGE_REMOTE) {
-            CompoundNBT tagCompound = stack.getTagCompound();
-            if (tagCompound == null || !tagCompound.hasKey("id")) {
-                clearInventory();
-                return;
-            }
-            remoteId = tagCompound.getInteger("id");
-            RemoteStorageTileEntity remoteStorageTileEntity = getRemoteStorage(remoteId);
-            if (remoteStorageTileEntity == null) {
-                clearInventory();
-                return;
-            }
-            ItemStack storageStack = remoteStorageTileEntity.findStorageWithId(remoteId);
-            if (storageStack.isEmpty()) {
-                clearInventory();
-                return;
-            }
-
-            setMaxSize(StorageModuleItem.MAXSIZE[storageStack.getItemDamage()]);
-        } else {
-            setMaxSize(StorageModuleItem.MAXSIZE[stack.getItemDamage()]);
-            CompoundNBT tagCompound = stack.getTagCompound();
-            if (tagCompound != null) {
-                readBufferFromItemNBT(tagCompound);
-            }
-        }
-
-        updateStackCount();
-    }
-
-    private RemoteStorageTileEntity getRemoteStorage(int id) {
-        if (id != cachedRemoteStorageId) {
-            cachedRemoteStorage = null;
-        }
-        if (cachedRemoteStorage != null) {
-            return cachedRemoteStorage;
-        }
-
-        World world = getWorldSafe();
-        cachedRemoteStorage = RemoteStorageIdRegistry.getRemoteStorage(world, id);
-        if (cachedRemoteStorage != null) {
-            cachedRemoteStorageId = id;
-        } else {
-            cachedRemoteStorageId = -1;
-        }
-
-        return cachedRemoteStorage;
-    }
-
-    private void updateStackCount() {
-        numStacks = 0;
-        if (isServer() && isRemote()) {
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return;
-            }
-            int si = storageTileEntity.findRemoteIndex(remoteId);
-            if (si == -1) {
-                return;
-            }
-            ItemStackList stacks = storageTileEntity.getRemoteStacks(si);
-            for (int i = 0 ; i < Math.min(maxSize, stacks.size()) ; i++) {
-                if (!stacks.get(i).isEmpty()) {
-                    numStacks++;
-                }
-            }
-            storageTileEntity.updateCount(si, numStacks);
-        } else {
-            for (int i = ModularStorageContainer.SLOT_STORAGE; i < ModularStorageContainer.SLOT_STORAGE + maxSize; i++) {
-                if (inventoryHelper.containsItem(i)) {
-                    numStacks++;
-                }
-            }
-        }
-        StorageModuleItem.updateStackSize(getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE), numStacks);
-    }
-
-    private boolean isServer() {
-        if (getWorld() != null) {
-            return !getWorld().isRemote;
-        } else {
-            return FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER;
-        }
-    }
-
-    private World getWorldSafe() {
-        World world = getWorld();
-        if (world == null) {
-            if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
-                world = RFTools.proxy.getClientWorld();
-            } else {
-                world = DimensionManager.getWorld(0);
-            }
-        }
-        return world;
-    }
+//    private boolean isServer() {
+//        if (getWorld() != null) {
+//            return !getWorld().isRemote;
+//        } else {
+//            return FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER;
+//        }
+//    }
+//
+//    private World getWorldSafe() {
+//        World world = getWorld();
+//        if (world == null) {
+//            if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+//                world = RFTools.proxy.getClientWorld();
+//            } else {
+//                world = DimensionManager.getWorld(0);
+//            }
+//        }
+//        return world;
+//    }
 
 
 
-    private void setMaxSize(int ms) {
-        maxSize = ms;
-        inventoryHelper.setNewCount(ModularStorageContainer.SLOT_STORAGE + maxSize);
-        accessible = null;
-
-        markDirtyClient();
-    }
+//    private void setMaxSize(int ms) {
+//        maxSize = ms;
+//        inventoryHelper.setNewCount(ModularStorageContainer.SLOT_STORAGE + maxSize);
+//        accessible = null;
+//
+//        markDirtyClient();
+//    }
 
     @Override
     public void readClientDataFromNBT(CompoundNBT tagCompound) {
-        numStacks = tagCompound.getInteger("numStacks");
-        maxSize = tagCompound.getInteger("maxSize");
-        remoteId = tagCompound.getInteger("remoteId");
-        inventoryHelper.setNewCount(ModularStorageContainer.SLOT_STORAGE + maxSize);
+        numStacks = tagCompound.getInt("numStacks");
+        maxSize = tagCompound.getInt("maxSize");
+        remoteId = tagCompound.getInt("remoteId");
+        // @todo 1.14
+//        inventoryHelper.setNewCount(ModularStorageContainer.SLOT_STORAGE + maxSize);
     }
 
 
 
     @Override
     public void writeClientDataToNBT(CompoundNBT tagCompound) {
-        tagCompound.setInteger("numStacks", numStacks);
-        tagCompound.setInteger("maxSize", maxSize);
-        tagCompound.setInteger("remoteId", remoteId);
+        tagCompound.putInt("numStacks", numStacks);
+        tagCompound.putInt("maxSize", maxSize);
+        tagCompound.putInt("remoteId", remoteId);
     }
 
     /**
@@ -648,35 +633,32 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         this.numStacks = numStacks;
         this.maxSize = maxSize;
         int newcount = ModularStorageContainer.SLOT_STORAGE + maxSize;
-        if (newcount != inventoryHelper.getCount()) {
-            inventoryHelper.setNewCount(newcount);
-        }
+        // @todo 1.14
+//        if (newcount != inventoryHelper.getCount()) {
+//            inventoryHelper.setNewCount(newcount);
+//        }
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tagCompound) {
-        super.readFromNBT(tagCompound);
-    }
-
-    @Override
-    public void readRestorableFromNBT(CompoundNBT tagCompound) {
-        super.readRestorableFromNBT(tagCompound);
-        numStacks = tagCompound.getInteger("numStacks");
-        maxSize = tagCompound.getInteger("maxSize");
-        remoteId = tagCompound.getInteger("remoteId");
+    public void read(CompoundNBT tagCompound) {
+        super.read(tagCompound);
+        numStacks = tagCompound.getInt("numStacks");
+        maxSize = tagCompound.getInt("maxSize");
+        remoteId = tagCompound.getInt("remoteId");
         sortMode = tagCompound.getString("sortMode");
         viewMode = tagCompound.getString("viewMode");
         groupMode = tagCompound.getBoolean("groupMode");
-        version = tagCompound.getInteger("version");
+        version = tagCompound.getInt("version");
         filter = tagCompound.getString("filter");
-        inventoryHelper.setNewCount(ModularStorageContainer.SLOT_STORAGE + maxSize);
+        // @todo 1.14
+//        inventoryHelper.setNewCount(ModularStorageContainer.SLOT_STORAGE + maxSize);
         accessible = null;
         readBufferFromNBT(tagCompound);
-        craftingGrid.readFromNBT(tagCompound.getCompoundTag("grid"));
+        craftingGrid.readFromNBT(tagCompound.getCompound("grid"));
 
-        if (isServer()) {
-            updateStackCount();
-        }
+//        if (isServer()) {
+//            updateStackCount();
+//        }
     }
 
     private void readBufferFromItemNBT(CompoundNBT tagCompound) {

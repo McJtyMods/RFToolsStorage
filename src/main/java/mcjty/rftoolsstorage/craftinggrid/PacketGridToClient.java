@@ -1,23 +1,20 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import io.netty.buffer.ByteBuf;
-import mcjty.lib.thirteen.Context;
-import mcjty.rftools.RFTools;
+import mcjty.lib.McJtyLib;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PacketGridToClient extends PacketGridSync implements IMessage {
+public class PacketGridToClient extends PacketGridSync {
 
-    @Override
     public void fromBytes(ByteBuf buf) {
         convertFromBytes(buf);
     }
 
-    @Override
     public void toBytes(ByteBuf buf) {
         convertToBytes(buf);
     }
@@ -33,11 +30,11 @@ public class PacketGridToClient extends PacketGridSync implements IMessage {
         init(pos, grid);
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = RFTools.proxy.getClientWorld();
-            PlayerEntity player = RFTools.proxy.getClientPlayer();
+            World world = McJtyLib.proxy.getClientWorld();
+            PlayerEntity player = McJtyLib.proxy.getClientPlayer();
             handleMessage(world, player);
         });
         ctx.setPacketHandled(true);
