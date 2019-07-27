@@ -1,24 +1,23 @@
 package mcjty.rftoolsstorage.blocks.basic;
 
 import mcjty.lib.container.*;
-import mcjty.rftools.craftinggrid.CraftingGridInventory;
-import mcjty.rftools.items.storage.StorageFilterItem;
-import mcjty.rftools.items.storage.StorageTypeItem;
-import mcjty.rftools.network.RFToolsMessages;
+import mcjty.rftoolsstorage.blocks.ModBlocks;
+import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
+import mcjty.rftoolsstorage.items.StorageModuleItem;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntityMP;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.IContainerListener;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ModularStorageContainer extends GenericContainer {
-    public static final String CONTAINER_INVENTORY = "container";
     public static final String CONTAINER_GRID = "grid";
 
     public static final int SLOT_STORAGE_MODULE = 0;
@@ -32,10 +31,10 @@ public class ModularStorageContainer extends GenericContainer {
     public static final ContainerFactory factory = new ContainerFactory() {
         @Override
         protected void setup() {
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, new ItemStack(ModularStorageSetup.storageModuleItem)), CONTAINER_INVENTORY, SLOT_STORAGE_MODULE, 5, 157, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, StorageTypeItem.class), CONTAINER_INVENTORY, SLOT_TYPE_MODULE, 5, 175, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, StorageFilterItem.class), CONTAINER_INVENTORY, SLOT_FILTER_MODULE, 5, 193, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_INPUT), CONTAINER_INVENTORY, SLOT_STORAGE, -500, -500, 30, 0, 10, 0);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CONTAINER, SLOT_STORAGE_MODULE, 5, 157, 1, 18, 1, 18);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CONTAINER, SLOT_TYPE_MODULE, 5, 175, 1, 18, 1, 18);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageFilterItem.class*/), CONTAINER_CONTAINER, SLOT_FILTER_MODULE, 5, 193, 1, 18, 1, 18);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_INPUT), CONTAINER_CONTAINER, SLOT_STORAGE, -500, -500, 30, 0, 10, 0);
             layoutPlayerInventorySlots(91, 157);
             layoutGridInventorySlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
         }
@@ -52,12 +51,15 @@ public class ModularStorageContainer extends GenericContainer {
         return modularStorageTileEntity;
     }
 
-    public ModularStorageContainer(PlayerEntity player, IInventory containerInventory) {
-        super(factory);
-        modularStorageTileEntity = (ModularStorageTileEntity) containerInventory;
+    public ModularStorageContainer(int id, BlockPos pos, PlayerEntity player, ModularStorageTileEntity tileEntity) {
+        super(ModBlocks.CONTAINER_MODULAR_STORAGE, id, factory, pos);
+        modularStorageTileEntity = tileEntity;
+    }
 
-        addInventory(CONTAINER_INVENTORY, containerInventory);
-        addInventory(ContainerFactory.CONTAINER_PLAYER, player.inventory);
+    @Override
+    public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
+        addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);
+        addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         addInventory(CONTAINER_GRID, modularStorageTileEntity.getCraftingGrid().getCraftingGridInventory());
         generateSlots();
     }
@@ -68,14 +70,14 @@ public class ModularStorageContainer extends GenericContainer {
             Slot slot;
             if (CONTAINER_GRID.equals(slotFactory.getInventoryName())) {
                 SlotType slotType = slotFactory.getSlotType();
-                IInventory inventory = this.inventories.get(slotFactory.getInventoryName());
+                IItemHandler inventory = this.inventories.get(slotFactory.getInventoryName());
                 int index = slotFactory.getIndex();
                 int x = slotFactory.getX();
                 int y = slotFactory.getY();
                 slot = this.createSlot(slotFactory, inventory, index, x, y, slotType);
             } else if (slotFactory.getSlotType() == SlotType.SLOT_SPECIFICITEM) {
                 final SlotDefinition slotDefinition = slotFactory.getSlotDefinition();
-                slot = new Slot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
+                slot = new SlotItemHandler(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
                     @Override
                     public boolean isItemValid(ItemStack stack) {
                         return slotDefinition.itemStackMatches(stack);
@@ -114,14 +116,15 @@ public class ModularStorageContainer extends GenericContainer {
                         if (getSlotIndex() >= (modularStorageTileEntity.getMaxSize() + SLOT_STORAGE)) {
                             return false;
                         }
-                        if (!modularStorageTileEntity.isItemValidForSlot(getSlotIndex(), stack)) {
-                            return false;
-                        }
+                        // @todo 1.14
+//                        if (!modularStorageTileEntity.isItemValidForSlot(getSlotIndex(), stack)) {
+//                            return false;
+//                        }
                         return super.isItemValid(stack);
                     }
                 };
             }
-            addSlotToContainer(slot);
+            addSlot(slot);
         }
     }
 
@@ -133,32 +136,34 @@ public class ModularStorageContainer extends GenericContainer {
     @Override
     public ItemStack slotClick(int index, int button, ClickType mode, PlayerEntity player) {
         if (index == SLOT_STORAGE_MODULE && !player.getEntityWorld().isRemote) {
-            modularStorageTileEntity.copyToModule();
+            // @todo 1.14
+//            modularStorageTileEntity.copyToModule();
         }
         return super.slotClick(index, button, mode, player);
     }
 
     @Override
     public void detectAndSendChanges() {
-        List<Pair<Integer, ItemStack>> differentSlots = new ArrayList<>();
-        for (int i = 0; i < this.inventorySlots.size(); ++i) {
-            ItemStack itemstack = this.inventorySlots.get(i).getStack();
-            ItemStack itemstack1 = inventoryItemStacks.get(i);
-
-            if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
-                itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
-                inventoryItemStacks.set(i, itemstack1);
-                differentSlots.add(Pair.of(i, itemstack));
-                if (differentSlots.size() >= 30) {
-                    syncSlotsToListeners(differentSlots);
-                    // Make a new list so that the one we gave to syncSlots is preserved
-                    differentSlots = new ArrayList<>();
-                }
-            }
-        }
-        if (!differentSlots.isEmpty()) {
-            syncSlotsToListeners(differentSlots);
-        }
+        // @todo 1.14
+//        List<Pair<Integer, ItemStack>> differentSlots = new ArrayList<>();
+//        for (int i = 0; i < this.inventorySlots.size(); ++i) {
+//            ItemStack itemstack = this.inventorySlots.get(i).getStack();
+//            ItemStack itemstack1 = inventoryItemStacks.get(i);
+//
+//            if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
+//                itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
+//                inventoryItemStacks.set(i, itemstack1);
+//                differentSlots.add(Pair.of(i, itemstack));
+//                if (differentSlots.size() >= 30) {
+//                    syncSlotsToListeners(differentSlots);
+//                    // Make a new list so that the one we gave to syncSlots is preserved
+//                    differentSlots = new ArrayList<>();
+//                }
+//            }
+//        }
+//        if (!differentSlots.isEmpty()) {
+//            syncSlotsToListeners(differentSlots);
+//        }
     }
 
     private void syncSlotsToListeners(List<Pair<Integer, ItemStack>> differentSlots) {
@@ -167,16 +172,17 @@ public class ModularStorageContainer extends GenericContainer {
         boolean groupMode = modularStorageTileEntity.isGroupMode();
         String filter = modularStorageTileEntity.getFilter();
 
-        for (IContainerListener listener : this.listeners) {
-            if (listener instanceof PlayerEntityMP) {
-                PlayerEntityMP player = (PlayerEntityMP) listener;
-                RFToolsMessages.INSTANCE.sendTo(new PacketSyncSlotsToClient(
-                        modularStorageTileEntity.getPos(),
-                        sortMode, viewMode, groupMode, filter,
-                        modularStorageTileEntity.getMaxSize(),
-                        modularStorageTileEntity.getNumStacks(),
-                        differentSlots), player);
-            }
-        }
+        // @todo 1.14
+//        for (IContainerListener listener : this.listeners) {
+//            if (listener instanceof PlayerEntity) {
+//                PlayerEntity player = (PlayerEntity) listener;
+//                RFToolsMessages.INSTANCE.sendTo(new PacketSyncSlotsToClient(
+//                        modularStorageTileEntity.getPos(),
+//                        sortMode, viewMode, groupMode, filter,
+//                        modularStorageTileEntity.getMaxSize(),
+//                        modularStorageTileEntity.getNumStacks(),
+//                        differentSlots), player);
+//            }
+//        }
     }
 }

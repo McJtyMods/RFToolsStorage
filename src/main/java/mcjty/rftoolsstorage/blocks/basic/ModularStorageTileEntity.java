@@ -2,35 +2,28 @@ package mcjty.rftoolsstorage.blocks.basic;
 
 import mcjty.lib.bindings.DefaultAction;
 import mcjty.lib.bindings.IAction;
-import mcjty.lib.container.InventoryHelper;
-import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
-import mcjty.lib.varia.ItemStackList;
-import mcjty.lib.varia.NullSidedInvWrapper;
-import mcjty.rftoolsbase.items.ModItems;
 import mcjty.rftoolsstorage.api.general.IInventoryTracker;
+import mcjty.rftoolsstorage.blocks.ModBlocks;
 import mcjty.rftoolsstorage.compat.jei.JEIRecipeAcceptor;
-import mcjty.rftoolsstorage.craftinggrid.CraftingGrid;
-import mcjty.rftoolsstorage.craftinggrid.CraftingGridProvider;
-import mcjty.rftoolsstorage.craftinggrid.InventoriesItemSource;
-import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
-import mcjty.rftoolsstorage.items.StorageModuleItem;
+import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ModularStorageTileEntity extends GenericTileEntity implements ITickableTileEntity, IInventoryTracker,
@@ -79,6 +72,10 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 
 //    private RemoteStorageTileEntity cachedRemoteStorage; // @todo
     private int cachedRemoteStorageId;
+
+    public ModularStorageTileEntity() {
+        super(ModBlocks.TYPE_MODULAR_STORAGE);
+    }
 
     @Override
     public void tick() {
@@ -148,7 +145,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     @Override
     public void setGridContents(List<ItemStack> stacks) {
         for (int i = 0 ; i < stacks.size() ; i++) {
-            craftingGrid.getCraftingGridInventory().setInventorySlotContents(i, stacks.get(i));
+            craftingGrid.getCraftingGridInventory().setStackInSlot(i, stacks.get(i));
         }
         markDirty();
     }
@@ -172,7 +169,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             return StorageCraftingTools.testCraftItems(player, n, craftingGrid.getActiveRecipe(), itemSource);
         } else {
             StorageCraftingTools.craftItems(player, n, craftingGrid.getActiveRecipe(), itemSource);
-            updateStackCount();
+            // @todo 1.14
+//            updateStackCount();
             return new int[0];
         }
     }
@@ -661,124 +659,111 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 //        }
     }
 
-    private void readBufferFromItemNBT(CompoundNBT tagCompound) {
-        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-            CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
-            inventoryHelper.setStackInSlot(i+ModularStorageContainer.SLOT_STORAGE, new ItemStack(CompoundNBT));
-        }
-    }
-
-    private void readBufferFromNBT(CompoundNBT tagCompound) {
-        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        if (tagCompound.hasKey("SlotStorage")) {
-            // This is a new TE with separate NBT tags for the three special slots.
-            for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-                CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
-                inventoryHelper.setStackInSlot(i+ModularStorageContainer.SLOT_STORAGE, new ItemStack(CompoundNBT));
-            }
-            inventoryHelper.setStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE, new ItemStack(tagCompound.getCompoundTag("SlotStorage")));
-            inventoryHelper.setStackInSlot(ModularStorageContainer.SLOT_TYPE_MODULE, new ItemStack(tagCompound.getCompoundTag("SlotType")));
-            inventoryHelper.setStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE, new ItemStack(tagCompound.getCompoundTag("SlotFilter")));
-        } else {
-            // This is an old TE so we have to convert this to the new format.
-            int index = 0;
-            for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
-                CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
-                inventoryHelper.setStackInSlot(index, new ItemStack(CompoundNBT));
-                index++;
-                if (index == ModularStorageContainer.SLOT_FILTER_MODULE) {
-                    index++;    // Skip this slot since this TE will not have that.
-                }
-            }
-        }
-    }
+    // @todo 1.14
+//    private void readBufferFromItemNBT(CompoundNBT tagCompound) {
+//        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+//        for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
+//            CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
+//            inventoryHelper.setStackInSlot(i+ModularStorageContainer.SLOT_STORAGE, new ItemStack(CompoundNBT));
+//        }
+//    }
+//
+//    private void readBufferFromNBT(CompoundNBT tagCompound) {
+//        NBTTagList bufferTagList = tagCompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+//        if (tagCompound.hasKey("SlotStorage")) {
+//            // This is a new TE with separate NBT tags for the three special slots.
+//            for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
+//                CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
+//                inventoryHelper.setStackInSlot(i+ModularStorageContainer.SLOT_STORAGE, new ItemStack(CompoundNBT));
+//            }
+//            inventoryHelper.setStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE, new ItemStack(tagCompound.getCompoundTag("SlotStorage")));
+//            inventoryHelper.setStackInSlot(ModularStorageContainer.SLOT_TYPE_MODULE, new ItemStack(tagCompound.getCompoundTag("SlotType")));
+//            inventoryHelper.setStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE, new ItemStack(tagCompound.getCompoundTag("SlotFilter")));
+//        } else {
+//            // This is an old TE so we have to convert this to the new format.
+//            int index = 0;
+//            for (int i = 0 ; i < bufferTagList.tagCount() ; i++) {
+//                CompoundNBT CompoundNBT = bufferTagList.getCompoundTagAt(i);
+//                inventoryHelper.setStackInSlot(index, new ItemStack(CompoundNBT));
+//                index++;
+//                if (index == ModularStorageContainer.SLOT_FILTER_MODULE) {
+//                    index++;    // Skip this slot since this TE will not have that.
+//                }
+//            }
+//        }
+//    }
 
     @Override
-    public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
-        super.writeToNBT(tagCompound);
+    public CompoundNBT write(CompoundNBT tagCompound) {
+        super.write(tagCompound);
+        writeBufferToNBT(tagCompound);
+        itemHandler.ifPresent(h -> tagCompound.put("Items", h.serializeNBT()));
+        tagCompound.putInt("numStacks", numStacks);
+        tagCompound.putInt("maxSize", maxSize);
+        tagCompound.putInt("remoteId", remoteId);
+        tagCompound.putString("sortMode", sortMode);
+        tagCompound.putString("viewMode", viewMode);
+        tagCompound.putBoolean("groupMode", groupMode);
+        tagCompound.putString("filter", filter);
+        tagCompound.putInt("version", version);
+        tagCompound.put("grid", craftingGrid.writeToNBT());
         return tagCompound;
     }
 
-    @Override
-    public void writeRestorableToNBT(CompoundNBT tagCompound) {
-        super.writeRestorableToNBT(tagCompound);
-        writeBufferToNBT(tagCompound);
-        writeSlot(tagCompound, ModularStorageContainer.SLOT_STORAGE_MODULE, "SlotStorage");
-        writeSlot(tagCompound, ModularStorageContainer.SLOT_TYPE_MODULE, "SlotType");
-        writeSlot(tagCompound, ModularStorageContainer.SLOT_FILTER_MODULE, "SlotFilter");
-        tagCompound.setInteger("numStacks", numStacks);
-        tagCompound.setInteger("maxSize", maxSize);
-        tagCompound.setInteger("remoteId", remoteId);
-        tagCompound.setString("sortMode", sortMode);
-        tagCompound.setString("viewMode", viewMode);
-        tagCompound.setBoolean("groupMode", groupMode);
-        tagCompound.setString("filter", filter);
-        tagCompound.setInteger("version", version);
-        tagCompound.setTag("grid", craftingGrid.writeToNBT());
-    }
-
-    private void writeSlot(CompoundNBT tagCompound, int index, String name) {
-        CompoundNBT CompoundNBT = new CompoundNBT();
-        ItemStack stack = inventoryHelper.getStackInSlot(index);
-        if (!stack.isEmpty()) {
-            stack.writeToNBT(CompoundNBT);
-        }
-        tagCompound.setTag(name, CompoundNBT);
-    }
-
     private void writeBufferToNBT(CompoundNBT tagCompound) {
-        // If sendToClient is true we have to send dummy information to the client
-        // so that it can remotely open gui's.
-        boolean sendToClient = isServer() && isRemote();
-
-        NBTTagList bufferTagList = new NBTTagList();
-        if (sendToClient) {
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity != null) {
-                ItemStackList slots = storageTileEntity.findStacksForId(remoteId);
-                for (ItemStack stack : slots) {
-                    CompoundNBT CompoundNBT = new CompoundNBT();
-                    if (!stack.isEmpty()) {
-                        stack.writeToNBT(CompoundNBT);
-                    }
-                    bufferTagList.appendTag(CompoundNBT);
-                }
-            }
-        } else {
-            for (int i = ModularStorageContainer.SLOT_STORAGE; i < inventoryHelper.getCount(); i++) {
-                ItemStack stack = inventoryHelper.getStackInSlot(i);
-                CompoundNBT CompoundNBT = new CompoundNBT();
-                if (!stack.isEmpty()) {
-                    stack.writeToNBT(CompoundNBT);
-                }
-                bufferTagList.appendTag(CompoundNBT);
-            }
-        }
-        tagCompound.setTag("Items", bufferTagList);
+        // @todo 1.14
+//        // If sendToClient is true we have to send dummy information to the client
+//        // so that it can remotely open gui's.
+//        boolean sendToClient = isServer() && isRemote();
+//
+//        NBTTagList bufferTagList = new NBTTagList();
+//        if (sendToClient) {
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity != null) {
+//                ItemStackList slots = storageTileEntity.findStacksForId(remoteId);
+//                for (ItemStack stack : slots) {
+//                    CompoundNBT CompoundNBT = new CompoundNBT();
+//                    if (!stack.isEmpty()) {
+//                        stack.writeToNBT(CompoundNBT);
+//                    }
+//                    bufferTagList.appendTag(CompoundNBT);
+//                }
+//            }
+//        } else {
+//            for (int i = ModularStorageContainer.SLOT_STORAGE; i < inventoryHelper.getCount(); i++) {
+//                ItemStack stack = inventoryHelper.getStackInSlot(i);
+//                CompoundNBT CompoundNBT = new CompoundNBT();
+//                if (!stack.isEmpty()) {
+//                    stack.writeToNBT(CompoundNBT);
+//                }
+//                bufferTagList.appendTag(CompoundNBT);
+//            }
+//        }
+//        tagCompound.setTag("Items", bufferTagList);
     }
 
     private int writeBufferToItemNBT(CompoundNBT tagCompound) {
         int cnt = 0;
-        NBTTagList bufferTagList = new NBTTagList();
-        for (int i = ModularStorageContainer.SLOT_STORAGE; i < inventoryHelper.getCount(); i++) {
-            ItemStack stack = inventoryHelper.getStackInSlot(i);
-            CompoundNBT CompoundNBT = new CompoundNBT();
-            if (!stack.isEmpty()) {
-                stack.writeToNBT(CompoundNBT);
-                // @todo check?
-                if (stack.getCount() > 0) {
-                    cnt++;
-                }
-            }
-            bufferTagList.appendTag(CompoundNBT);
-        }
-        tagCompound.setTag("Items", bufferTagList);
+        // @todo 1.14
+//        NBTTagList bufferTagList = new NBTTagList();
+//        for (int i = ModularStorageContainer.SLOT_STORAGE; i < inventoryHelper.getCount(); i++) {
+//            ItemStack stack = inventoryHelper.getStackInSlot(i);
+//            CompoundNBT CompoundNBT = new CompoundNBT();
+//            if (!stack.isEmpty()) {
+//                stack.writeToNBT(CompoundNBT);
+//                // @todo check?
+//                if (stack.getCount() > 0) {
+//                    cnt++;
+//                }
+//            }
+//            bufferTagList.appendTag(CompoundNBT);
+//        }
+//        tagCompound.setTag("Items", bufferTagList);
         return cnt;
     }
 
     @Override
-    public boolean execute(PlayerEntityMP playerMP, String command, TypedMap params) {
+    public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
         boolean rc = super.execute(playerMP, command, params);
         if (rc) {
             return true;
@@ -796,92 +781,95 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 
     private void clearGrid() {
         CraftingGridInventory inventory = craftingGrid.getCraftingGridInventory();
-        for (int i = 0; i < inventory.getSizeInventory(); i++) {
-            inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            inventory.setStackInSlot(i, ItemStack.EMPTY);
         }
         markDirty();
     }
 
     private void cycle() {
-        if (isRemote()) {
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return;
-            }
-            remoteId = storageTileEntity.cycle(remoteId);
-            getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE).getTagCompound().setInteger("id", remoteId);
-            markDirtyClient();
-        }
+        // @todo 1.14
+//        if (isRemote()) {
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return;
+//            }
+//            remoteId = storageTileEntity.cycle(remoteId);
+//            getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE).getTagCompound().setInteger("id", remoteId);
+//            markDirtyClient();
+//        }
     }
 
     private void compact() {
-        if (isRemote()) {
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return;
-            }
-            storageTileEntity.compact(remoteId);
-        } else {
-            InventoryHelper.compactStacks(inventoryHelper, ModularStorageContainer.SLOT_STORAGE, maxSize);
-        }
-
-        updateStackCount();
-        markDirtyClient();
+        // @todo 1.14
+//        if (isRemote()) {
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return;
+//            }
+//            storageTileEntity.compact(remoteId);
+//        } else {
+//            InventoryHelper.compactStacks(inventoryHelper, ModularStorageContainer.SLOT_STORAGE, maxSize);
+//        }
+//
+//        updateStackCount();
+//        markDirtyClient();
     }
 
     @Override
     public int getVersion() {
-        if (isRemote()) {
-            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-            if (storageTileEntity == null) {
-                return version;
-            }
-            return storageTileEntity.getVersion();
-        } else {
+        // @todo 1.14
+//        if (isRemote()) {
+//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
+//            if (storageTileEntity == null) {
+//                return version;
+//            }
+//            return storageTileEntity.getVersion();
+//        } else {
             return version;
-        }
+//        }
     }
 
+    @Nonnull
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return true;
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
+        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            return itemHandler.cast();
         }
-        return super.hasCapability(capability, facing);
+        return super.getCapability(cap, facing);
     }
 
-    @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            // We always use NullSidedInvWrapper because we don't want automation
-            // to access the storage slots
-            if (invHandlerNull == null) {
-                invHandlerNull = new NullSidedInvWrapper(this);
-            }
-            return (T) invHandlerNull;
-        }
-        return super.getCapability(capability, facing);
-    }
 
     private ModularStorageWrappedItemHandler createItemHandler() {
-        return new ModularStorageWrappedItemHandler(ModularStorageTileEntity.this, ModularStorageContainer.factory) {
-            @Override
-            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-                return slot != SLOT_SHARDINPUT || stack.getItem() == ModItems.DIMENSIONALSHARD;
-            }
-
-            @Override
-            public boolean isItemInsertable(int slot, @Nonnull ItemStack stack) {
-                return CONTAINER_FACTORY.isInputSlot(slot) || CONTAINER_FACTORY.isSpecificItemSlot(slot);
-            }
-
-            @Override
-            public boolean isItemExtractable(int slot, @Nonnull ItemStack stack) {
-                return CONTAINER_FACTORY.isOutputSlot(slot);
-            }
-        };
+        return new ModularStorageWrappedItemHandler(ModularStorageTileEntity.this, ModularStorageContainer.factory);
+        // @todo 1.14
+//        {
+//            @Override
+//            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+//                return slot != SLOT_SHARDINPUT || stack.getItem() == ModItems.DIMENSIONALSHARD;
+//            }
+//
+//            @Override
+//            public boolean isItemInsertable(int slot, @Nonnull ItemStack stack) {
+//                return CONTAINER_FACTORY.isInputSlot(slot) || CONTAINER_FACTORY.isSpecificItemSlot(slot);
+//            }
+//
+//            @Override
+//            public boolean isItemExtractable(int slot, @Nonnull ItemStack stack) {
+//                return CONTAINER_FACTORY.isOutputSlot(slot);
+//            }
+//        };
     }
 
 
+
+    @Nullable
+    @Override
+    public Container createMenu(int windowId, PlayerInventory inventory, PlayerEntity player) {
+        ModularStorageContainer container = new ModularStorageContainer(windowId, getPos(), player, this);
+        itemHandler.ifPresent(h -> container.setupInventories(h, inventory));
+//        energyHandler.ifPresent(e -> e.addIntegerListeners(container));
+        return container;
+    }
 
 }

@@ -1,11 +1,13 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.lib.varia.ItemStackList;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
-public class CraftingGridInventory implements IInventory {
+import javax.annotation.Nonnull;
+
+public class CraftingGridInventory implements IItemHandlerModifiable {
 
     public static int SLOT_GHOSTOUTPUT = 0;
     public static int SLOT_GHOSTINPUT = 1;
@@ -30,65 +32,41 @@ public class CraftingGridInventory implements IInventory {
     }
 
     @Override
-    public int getSizeInventory() {
-        return 10;
+    public int getSlots() {
+        return 20;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+        // @todo 1.14
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack extractItem(int slot, int amount, boolean simulate) {
+        // @todo 1.14
+        return null;
+    }
+
+    @Override
+    public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+        stacks.set(slot, stack);
+    }
+
+    @Override
+    public int getSlotLimit(int slot) {
+        return 0;
+    }
+
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+        return false;
     }
 
     @Override
     public ItemStack getStackInSlot(int index) {
         return stacks.get(index);
-    }
-
-    @Override
-    public ItemStack decrStackSize(int index, int count) {
-        return index >= 0 && index < stacks.size()
-                && !stacks.get(index).isEmpty()
-                && count > 0
-                ? stacks.get(index).split(count)
-                : ItemStack.EMPTY;
-//        return ItemStackHelper.getAndSplit(stacks, index, count);
-    }
-
-    @Override
-    public ItemStack removeStackFromSlot(int index) {
-        return index >= 0 && index < stacks.size()
-                ? stacks.set(index, ItemStack.EMPTY)
-                : ItemStack.EMPTY;
-//        return ItemStackHelper.getAndRemove(stacks, index);
-    }
-
-    @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-        stacks.set(index, stack);
-    }
-
-    @Override
-    public int getInventoryStackLimit() {
-        return 64;
-    }
-
-    @Override
-    public void markDirty() {
-
-    }
-
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-        return true;
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
-        return true;
-    }
-
-    @Override
-    public void clear() {
-
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return false;
     }
 }

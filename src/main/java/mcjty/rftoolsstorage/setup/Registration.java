@@ -1,7 +1,11 @@
 package mcjty.rftoolsstorage.setup;
 
 
+import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.blocks.ModBlocks;
+import mcjty.rftoolsstorage.blocks.basic.ModularStorageBlock;
+import mcjty.rftoolsstorage.blocks.basic.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.items.StorageModuleItem;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
@@ -29,10 +33,12 @@ public class Registration {
 
     @SubscribeEvent
     public static void registerTiles(RegistryEvent.Register<TileEntityType<?>> event) {
+        event.getRegistry().register(TileEntityType.Builder.create(ModularStorageTileEntity::new, ModBlocks.MODULAR_STORAGE).build(null).setRegistryName(ModularStorageBlock.REGNAME));
     }
 
     @SubscribeEvent
     public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
+        event.getRegistry().register(GenericContainer.createContainerType(ModularStorageBlock.REGNAME));
     }
 
 }

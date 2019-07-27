@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.blocks.basic;
 
-import mcjty.lib.thirteen.ConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -12,33 +12,33 @@ public class ModularStorageConfiguration {
     public static final String CATEGORY_STORAGE = "storage";
     public static final String CATEGORY_STORAGE_CONFIG = "storageconfig";
 
-    public static ConfigSpec.IntValue groupBackground;
-    public static ConfigSpec.IntValue groupForeground;
+    public static ForgeConfigSpec.IntValue groupBackground;
+    public static ForgeConfigSpec.IntValue groupForeground;
 
-    public static ConfigSpec.IntValue REMOTE_MAXENERGY;
-    public static ConfigSpec.IntValue REMOTE_RECEIVEPERTICK;
+    public static ForgeConfigSpec.IntValue REMOTE_MAXENERGY;
+    public static ForgeConfigSpec.IntValue REMOTE_RECEIVEPERTICK;
 
-    public static ConfigSpec.IntValue TABLET_MAXENERGY;
-    public static ConfigSpec.IntValue TABLET_RECEIVEPERTICK;
-    public static ConfigSpec.IntValue TABLET_CONSUMEPERUSE;    // Base consumption per usage for the remote storage unit.
-    public static ConfigSpec.IntValue TABLET_CONSUMEPERUSE_SCANNER;    // Consumption per usage for the storage scanner version
-    public static ConfigSpec.IntValue TABLET_EXTRACONSUME;     // Extra RF usage per storage tier.
+    public static ForgeConfigSpec.IntValue TABLET_MAXENERGY;
+    public static ForgeConfigSpec.IntValue TABLET_RECEIVEPERTICK;
+    public static ForgeConfigSpec.IntValue TABLET_CONSUMEPERUSE;    // Base consumption per usage for the remote storage unit.
+    public static ForgeConfigSpec.IntValue TABLET_CONSUMEPERUSE_SCANNER;    // Consumption per usage for the storage scanner version
+    public static ForgeConfigSpec.IntValue TABLET_EXTRACONSUME;     // Extra RF usage per storage tier.
 
-    public static ConfigSpec.IntValue remoteShareLocal;         // RF/tick to share this inventory locally (same dimension).
-    public static ConfigSpec.IntValue remoteShareGlobal;        // RF/tick to share this inventory to other dimensions.
+    public static ForgeConfigSpec.IntValue remoteShareLocal;         // RF/tick to share this inventory locally (same dimension).
+    public static ForgeConfigSpec.IntValue remoteShareGlobal;        // RF/tick to share this inventory to other dimensions.
 
-    public static ConfigSpec.BooleanValue autofocusSearch;  // If true we set auto focus on the search field when opening the GUI.
-    public static ConfigSpec.BooleanValue clearSearchOnOpen; // If true we clear the search field when opening the GUI
+    public static ForgeConfigSpec.BooleanValue autofocusSearch;  // If true we set auto focus on the search field when opening the GUI.
+    public static ForgeConfigSpec.BooleanValue clearSearchOnOpen; // If true we clear the search field when opening the GUI
 
-    public static ConfigSpec.IntValue height1;
-    public static ConfigSpec.IntValue height2;
-    public static ConfigSpec.IntValue height3;
+    public static ForgeConfigSpec.IntValue height1;
+    public static ForgeConfigSpec.IntValue height2;
+    public static ForgeConfigSpec.IntValue height3;
 
-    private static ConfigSpec.ConfigValue<List<? extends String>> categories;
+    private static ForgeConfigSpec.ConfigValue<List<? extends String>> categories;
 
     public static Map<String,String> categoryMapper = new HashMap<>();
 
-    public static void init(ConfigSpec.Builder SERVER_BUILDER, ConfigSpec.Builder CLIENT_BUILDER) {
+    public static void init(ForgeConfigSpec.Builder SERVER_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
         SERVER_BUILDER.comment("Settings for the modular storage system").push(CATEGORY_STORAGE);
         CLIENT_BUILDER.comment("Settings for the modular storage system").push(CATEGORY_STORAGE);
 

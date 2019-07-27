@@ -2,20 +2,18 @@ package mcjty.rftoolsstorage.craftinggrid;
 
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.thirteen.Context;
-import net.minecraft.entity.player.PlayerEntityMP;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PacketGridToServer extends PacketGridSync implements IMessage {
+public class PacketGridToServer extends PacketGridSync {
 
     private ItemStack[] stacks = new ItemStack[0];
 
-    @Override
     public void fromBytes(ByteBuf buf) {
         convertFromBytes(buf);
         int len = buf.readInt();
@@ -29,7 +27,6 @@ public class PacketGridToServer extends PacketGridSync implements IMessage {
         }
     }
 
-    @Override
     public void toBytes(ByteBuf buf) {
         convertToBytes(buf);
         buf.writeInt(stacks.length);
@@ -59,16 +56,16 @@ public class PacketGridToServer extends PacketGridSync implements IMessage {
         }
     }
 
-    public void handle(Supplier<Context> supplier) {
-        Context ctx = supplier.get();
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            PlayerEntityMP player = ctx.getSender();
+            PlayerEntity player = ctx.getSender();
             World world = player.getEntityWorld();
             CraftingGridProvider provider = handleMessage(world, player);
             if (provider != null) {
                 CraftingGridInventory inventory = provider.getCraftingGrid().getCraftingGridInventory();
                 for (int i = 0 ; i < 10 ; i++) {
-                    inventory.setInventorySlotContents(i, stacks[i]);
+                    inventory.setStackInSlot(i, stacks[i]);
                 }
                 provider.markInventoryDirty();
             }

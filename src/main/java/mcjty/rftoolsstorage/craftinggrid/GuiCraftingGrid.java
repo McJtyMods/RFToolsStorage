@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.base.ModBase;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -12,28 +13,24 @@ import mcjty.lib.gui.widgets.Button;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockTools;
-import mcjty.rftools.RFTools;
-import mcjty.rftools.network.RFToolsMessages;
-import mcjty.rftools.setup.CommandHandler;
+import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.setup.CommandHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import org.lwjgl.input.Mouse;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.awt.*;
 
 
 public class GuiCraftingGrid {
 
-    private static final ResourceLocation iconLocation = new ResourceLocation(RFTools.MODID, "textures/gui/craftinggrid.png");
+    private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/craftinggrid.png");
 
     protected Window craftWindow;
     private Button craft1Button;
@@ -52,7 +49,7 @@ public class GuiCraftingGrid {
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
-    public void initGui(final ModBase modBase, final SimpleNetworkWrapper network, final Minecraft mc, GenericGuiContainer<?> gui,
+    public void initGui(final ModBase modBase, final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?> gui,
                         BlockPos pos, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;
@@ -101,13 +98,13 @@ public class GuiCraftingGrid {
     }
 
     private void craft(int n) {
-        RFToolsMessages.sendToServer(CommandHandler.CMD_CRAFT_FROM_GRID,
+        RFToolsStorageMessages.sendToServer(CommandHandler.CMD_CRAFT_FROM_GRID,
                 TypedMap.builder().put(CommandHandler.PARAM_COUNT, n).put(CommandHandler.PARAM_TEST, false).put(CommandHandler.PARAM_POS, pos));
     }
 
     private void testCraft(int n) {
         if (lastTestAmount != n || lastTestTimer <= 0) {
-            RFToolsMessages.sendToServer(CommandHandler.CMD_CRAFT_FROM_GRID,
+            RFToolsStorageMessages.sendToServer(CommandHandler.CMD_CRAFT_FROM_GRID,
                     TypedMap.builder().put(CommandHandler.PARAM_COUNT, n).put(CommandHandler.PARAM_TEST, true).put(CommandHandler.PARAM_POS, pos));
             lastTestAmount = n;
             lastTestTimer = 20;
@@ -121,7 +118,7 @@ public class GuiCraftingGrid {
             return;
         }
         provider.storeRecipe(selected);
-        RFToolsMessages.INSTANCE.sendToServer(new PacketGridToServer(pos, provider.getCraftingGrid()));
+        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGridToServer(pos, provider.getCraftingGrid()));
     }
 
     private void selectRecipe() {
@@ -131,7 +128,7 @@ public class GuiCraftingGrid {
         }
 
         provider.getCraftingGrid().selectRecipe(selected);
-        RFToolsMessages.INSTANCE.sendToServer(new PacketGridToServer(pos, provider.getCraftingGrid()));
+        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGridToServer(pos, provider.getCraftingGrid()));
     }
 
     private void populateList() {
@@ -217,7 +214,7 @@ public class GuiCraftingGrid {
         } else {
             newResult = recipe.getCraftingResult(inv);
         }
-        provider.getCraftingGrid().getCraftingGridInventory().setInventorySlotContents(0, newResult);
+        provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }
 
     private void addRecipeLine(ItemStack craftingResult) {
