@@ -21,6 +21,7 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -163,7 +164,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     @Override
     @Nonnull
     public int[] craft(PlayerEntity player, int n, boolean test) {
-        InventoriesItemSource itemSource = new InventoriesItemSource().add(player.inventory, 0).add(this, ModularStorageContainer.SLOT_STORAGE);
+        InventoriesItemSource itemSource = new InventoriesItemSource().add(new InvWrapper(player.inventory), 0);
+        itemHandler.ifPresent(h -> itemSource.add(h, ModularStorageContainer.SLOT_STORAGE));
 
         if (test) {
             return StorageCraftingTools.testCraftItems(player, n, craftingGrid.getActiveRecipe(), itemSource);
@@ -235,9 +237,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     }
 
     // On server, and if we have a remote storage module and if we're accessing a remote slot we check the remote storage.
-    private boolean isStorageAvailableRemotely(int index) {
-        return isServer() && isRemote() && index >= ModularStorageContainer.SLOT_STORAGE;
-    }
+//    private boolean isStorageAvailableRemotely(int index) {
+//        return isServer() && isRemote() && index >= ModularStorageContainer.SLOT_STORAGE;
+//    }
 
     private boolean isRemote() {
         return remoteId != 0;
@@ -651,7 +653,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         // @todo 1.14
 //        inventoryHelper.setNewCount(ModularStorageContainer.SLOT_STORAGE + maxSize);
         accessible = null;
-        readBufferFromNBT(tagCompound);
+//        readBufferFromNBT(tagCompound);
         craftingGrid.readFromNBT(tagCompound.getCompound("grid"));
 
 //        if (isServer()) {

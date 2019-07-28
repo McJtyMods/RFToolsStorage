@@ -1,51 +1,44 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import gnu.trove.set.hash.TIntHashSet;
-import mcjty.rftools.blocks.storage.ModularStorageItemContainer;
-import mcjty.rftools.blocks.storage.ModularStorageSetup;
-import mcjty.rftools.blocks.storage.RemoteStorageItemContainer;
-import mcjty.rftools.blocks.storagemonitor.StorageScannerContainer;
-import mcjty.rftools.network.RFToolsMessages;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerEntityMP;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.stats.StatList;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class StorageCraftingTools {
 
     @Nonnull
     private static int[] tryRecipe(PlayerEntity player, CraftingRecipe craftingRecipe, int n, IItemSource itemSource, boolean strictDamage) {
-        InventoryCrafting workInventory = new InventoryCrafting(new Container() {
+        CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
             @Override
             public boolean canInteractWith(PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
 
-        InventoryCrafting inventory = craftingRecipe.getInventory();
+        CraftingInventory inventory = craftingRecipe.getInventory();
 
         int[] missingCount = new int[10];
-        TIntHashSet[] hashSets = new TIntHashSet[9];
-        for (int i = 0 ; i < 10 ; i++) {
+        IntSet[] hashSets = new IntSet[9];
+        for (int i = 0; i < 10; i++) {
             if (i < 9) {
                 ItemStack stack = inventory.getStackInSlot(i);
                 if (!stack.isEmpty()) {
                     missingCount[i] = stack.getCount() * n;
-                    hashSets[i] = new TIntHashSet(OreDictionary.getOreIDs(stack));
+                    // @todo 1.14 (tags?)
+//                    hashSets[i] = new IntSet(OreDictionary.getOreIDs(stack));
                 } else {
                     missingCount[i] = 0;
                 }
@@ -77,15 +70,11 @@ public class StorageCraftingTools {
             }
         }
 
-        IRecipe recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
-        if (!recipe.matches(workInventory, player.getEntityWorld())) {
-            missingCount[9] = 1;
-        } else {
-            missingCount[9] = 0;
-        }
+        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
+        missingCount[9] = recipe.map(r -> r.matches(workInventory, player.getEntityWorld()) ? 0 : 1).orElse(0);
 
         if (missingCount[9] == 0) {
-            for (int i = 0 ; i < 9 ; i++) {
+            for (int i = 0; i < 9; i++) {
                 if (missingCount[i] > 0) {
                     missingCount[9] = 1;
                     break;
@@ -98,7 +87,7 @@ public class StorageCraftingTools {
 
     private static List<ItemStack> testAndConsumeCraftingItems(PlayerEntity player, CraftingRecipe craftingRecipe,
                                                                IItemSource itemSource, boolean strictDamage) {
-        InventoryCrafting workInventory = new InventoryCrafting(new Container() {
+        CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
             @Override
             public boolean canInteractWith(PlayerEntity var1) {
                 return false;
@@ -107,7 +96,7 @@ public class StorageCraftingTools {
 
         List<Pair<IItemKey, ItemStack>> undo = new ArrayList<>();
         List<ItemStack> result = new ArrayList<>();
-        InventoryCrafting inventory = craftingRecipe.getInventory();
+        CraftingInventory inventory = craftingRecipe.getInventory();
 
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
@@ -124,31 +113,33 @@ public class StorageCraftingTools {
                 workInventory.setInventorySlotContents(i, ItemStack.EMPTY);
             }
         }
-        IRecipe recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
-        if (!recipe.matches(workInventory, player.getEntityWorld())) {
-            result.clear();
-            undo(player, itemSource, undo);
-            return result;
-        }
-        ItemStack stack = recipe.getCraftingResult(workInventory);
-        if (!stack.isEmpty()) {
-            result.add(stack);
-            List<ItemStack> remaining = recipe.getRemainingItems(workInventory);
-            for (ItemStack s : remaining) {
-                if (!s.isEmpty()) {
-                    result.add(s);
-                }
+        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
+        return recipe.map(r -> {
+            if (!r.matches(workInventory, player.getEntityWorld())) {
+                result.clear();
+                undo(player, itemSource, undo);
+                return result;
             }
-        } else {
-            result.clear();
-            undo(player, itemSource, undo);
-        }
-        return result;
+            ItemStack stack = r.getCraftingResult(workInventory);
+            if (!stack.isEmpty()) {
+                result.add(stack);
+                List<ItemStack> remaining = r.getRemainingItems(workInventory);
+                for (ItemStack s : remaining) {
+                    if (!s.isEmpty()) {
+                        result.add(s);
+                    }
+                }
+            } else {
+                result.clear();
+                undo(player, itemSource, undo);
+            }
+            return result;
+        }).orElse(result);
     }
 
-    private static boolean match(@Nonnull ItemStack target, @Nonnull TIntHashSet targetIDs, @Nonnull ItemStack input, boolean strictDamage) {
+    private static boolean match(@Nonnull ItemStack target, @Nonnull IntSet targetIDs, @Nonnull ItemStack input, boolean strictDamage) {
         if (strictDamage) {
-            return (target.getItem() == input.getItem() && ((target.getMetadata() == OreDictionary.WILDCARD_VALUE) || target.getMetadata() == input.getMetadata()));
+            return (target.getItem() == input.getItem() && (target.getDamage() == input.getDamage()));
         } else {
             if (target.getItem() == input.getItem()) {
                 return true;
@@ -159,20 +150,23 @@ public class StorageCraftingTools {
             }
 
             // Try OreDictionary
-            int[] inputIDs = OreDictionary.getOreIDs(input);
-            for (int id : inputIDs) {
-                if (targetIDs.contains(id)) {
-                    return true;
-                }
-            }
+            // @todo 1.14
+//            int[] inputIDs = OreDictionary.getOreIDs(input);
+//            for (int id : inputIDs) {
+//                if (targetIDs.contains(id)) {
+//                    return true;
+//                }
+//            }
             return false;
         }
     }
 
-    private static int findMatchingItems(InventoryCrafting workInventory, List<Pair<IItemKey, ItemStack>> undo, int i,
+    private static int findMatchingItems(CraftingInventory workInventory, List<Pair<IItemKey, ItemStack>> undo, int i,
                                          @Nonnull ItemStack stack,
                                          int count, IItemSource itemSource, boolean strictDamage) {
-        TIntHashSet stackIDs = new TIntHashSet(OreDictionary.getOreIDs(stack));
+// @todo 1.14
+        //        IntSet stackIDs = new IntSet(OreDictionary.getOreIDs(stack));
+        IntSet stackIDs = IntSets.EMPTY_SET;
 
         for (Pair<IItemKey, ItemStack> pair : itemSource.getItems()) {
             ItemStack input = pair.getValue();
@@ -213,146 +207,156 @@ public class StorageCraftingTools {
         player.openContainer.detectAndSendChanges();
     }
 
-    public static void craftItems(PlayerEntity player, int n, CraftingRecipe craftingRecipe, IItemSource itemSource) {
-        IRecipe recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
-        if (recipe == null) {
+    public static void craftItems(PlayerEntity player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
+        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
+        if (!recipe.isPresent()) {
             // @todo give error?
             return;
         }
 
-        ItemStack recipeResult = recipe.getRecipeOutput();
-        if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
-            if (n == -1) {
-                n = recipeResult.getMaxStackSize();
-            }
+        final int[] n = {nn};
+        recipe.ifPresent(r -> {
 
-            int remainder = n % recipeResult.getCount();
-            n /= recipeResult.getCount();
-            if (remainder != 0) {
-                n++;
-            }
-            if (n * recipeResult.getCount() > recipeResult.getMaxStackSize()) {
-                n--;
-            }
+            ItemStack recipeResult = r.getRecipeOutput();
+            if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
+                if (n[0] == -1) {
+                    n[0] = recipeResult.getMaxStackSize();
+                }
 
-            for (int i = 0; i < n; i++) {
-                List<ItemStack> result = testAndConsumeCraftingItems(player, craftingRecipe, itemSource, true);
-                if (result.isEmpty()) {
-                    result = testAndConsumeCraftingItems(player, craftingRecipe, itemSource, false);
+                int remainder = n[0] % recipeResult.getCount();
+                n[0] /= recipeResult.getCount();
+                if (remainder != 0) {
+                    n[0]++;
+                }
+                if (n[0] * recipeResult.getCount() > recipeResult.getMaxStackSize()) {
+                    n[0]--;
+                }
+
+                for (int i = 0; i < n[0]; i++) {
+                    List<ItemStack> result = testAndConsumeCraftingItems(player, craftingRecipe, itemSource, true);
                     if (result.isEmpty()) {
-                        return;
+                        result = testAndConsumeCraftingItems(player, craftingRecipe, itemSource, false);
+                        if (result.isEmpty()) {
+                            return;
+                        }
                     }
-                }
-                for (ItemStack stack : result) {
-                    if (!player.inventory.addItemStackToInventory(stack)) {
-                        player.entityDropItem(stack, 1.05f);
+                    for (ItemStack stack : result) {
+                        if (!player.inventory.addItemStackToInventory(stack)) {
+                            player.entityDropItem(stack, 1.05f);
+                        }
                     }
                 }
             }
-        }
+        });
     }
 
 
     @Nonnull
-    public static int[] testCraftItems(PlayerEntity player, int n, CraftingRecipe craftingRecipe, IItemSource itemSource) {
-        IRecipe recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
-        if (recipe == null) {
+    public static int[] testCraftItems(PlayerEntity player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
+        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
+        if (!recipe.isPresent()) {
             // @todo give error?
             return new int[0];
         }
 
-        ItemStack recipeResult = recipe.getRecipeOutput();
-        if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
-            if (n == -1) {
-                n = recipeResult.getMaxStackSize();
-            }
+        final int[] n = {nn};
+        return recipe.map(r -> {
+            ItemStack recipeResult = r.getRecipeOutput();
+            if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
+                if (n[0] == -1) {
+                    n[0] = recipeResult.getMaxStackSize();
+                }
 
-            int remainder = n % recipeResult.getCount();
-            n /= recipeResult.getCount();
-            if (remainder != 0) {
-                n++;
-            }
-            if (n * recipeResult.getCount() > recipeResult.getMaxStackSize()) {
-                n--;
-            }
+                int remainder = n[0] % recipeResult.getCount();
+                n[0] /= recipeResult.getCount();
+                if (remainder != 0) {
+                    n[0]++;
+                }
+                if (n[0] * recipeResult.getCount() > recipeResult.getMaxStackSize()) {
+                    n[0]--;
+                }
 
-            // First we try the recipe with exact damage. If that works then that's perfect
-            // already. Otherwise we try again with non-exact damage. If that turns out
-            // not to work then we return the missing items from the exact damage crafting
-            // test because that one has more information about what items are really
-            // missing
-            int[] result = tryRecipe(player, craftingRecipe, n, itemSource, true);
-            for (int i = 0; i < 10; i++) {
-                if (result[i] > 0) {
-                    // Failed
-                    int[] result2 = tryRecipe(player, craftingRecipe, n, itemSource, false);
-                    if (result2[9] == 0) {
-                        return result2;
-                    } else {
-                        return result;
+                // First we try the recipe with exact damage. If that works then that's perfect
+                // already. Otherwise we try again with non-exact damage. If that turns out
+                // not to work then we return the missing items from the exact damage crafting
+                // test because that one has more information about what items are really
+                // missing
+                int[] result = tryRecipe(player, craftingRecipe, n[0], itemSource, true);
+                for (int i = 0; i < 10; i++) {
+                    if (result[i] > 0) {
+                        // Failed
+                        int[] result2 = tryRecipe(player, craftingRecipe, n[0], itemSource, false);
+                        if (result2[9] == 0) {
+                            return result2;
+                        } else {
+                            return result;
+                        }
                     }
                 }
+                return result;
+            } else {
+                return new int[0];
             }
-            return result;
-        }
-        return new int[0];
+        }).orElse(new int[0]);
     }
 
     public static void craftFromGrid(PlayerEntity player, int count, boolean test, BlockPos pos) {
-        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
-        int[] testResult = new int[0];
-        if (pos == null) {
-            // Handle tablet version
-            ItemStack mainhand = player.getHeldItemMainhand();
-            if (!mainhand.isEmpty() && mainhand.getItem() == ModularStorageSetup.storageModuleTabletItem) {
-                if (player.openContainer instanceof ModularStorageItemContainer) {
-                    ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
-                    testResult = storageItemContainer.getCraftingGridProvider().craft(player, count, test);
-                } else if (player.openContainer instanceof RemoteStorageItemContainer) {
-                    RemoteStorageItemContainer storageItemContainer = (RemoteStorageItemContainer) player.openContainer;
-                    testResult = storageItemContainer.getCraftingGridProvider().craft(player, count, test);
-                } else if (player.openContainer instanceof StorageScannerContainer) {
-                    StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
-                    testResult = storageItemContainer.getStorageScannerTileEntity().craft(player, count, test);
-                }
-            }
-        } else {
-            TileEntity te = player.getEntityWorld().getTileEntity(pos);
-            if (te instanceof CraftingGridProvider) {
-                testResult = ((CraftingGridProvider) te).craft(player, count, test);
-            }
-        }
-        if (testResult.length > 0) {
-            RFToolsMessages.INSTANCE.sendTo(new PacketCraftTestResultToClient(testResult), (PlayerEntityMP) player);
-        }
+        // @todo 1.14
+//        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
+//        int[] testResult = new int[0];
+//        if (pos == null) {
+//            // Handle tablet version
+//            ItemStack mainhand = player.getHeldItemMainhand();
+//            if (!mainhand.isEmpty() && mainhand.getItem() == ModularStorageSetup.storageModuleTabletItem) {
+//                if (player.openContainer instanceof ModularStorageItemContainer) {
+//                    ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
+//                    testResult = storageItemContainer.getCraftingGridProvider().craft(player, count, test);
+//                } else if (player.openContainer instanceof RemoteStorageItemContainer) {
+//                    RemoteStorageItemContainer storageItemContainer = (RemoteStorageItemContainer) player.openContainer;
+//                    testResult = storageItemContainer.getCraftingGridProvider().craft(player, count, test);
+//                } else if (player.openContainer instanceof StorageScannerContainer) {
+//                    StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
+//                    testResult = storageItemContainer.getStorageScannerTileEntity().craft(player, count, test);
+//                }
+//            }
+//        } else {
+//            TileEntity te = player.getEntityWorld().getTileEntity(pos);
+//            if (te instanceof CraftingGridProvider) {
+//                testResult = ((CraftingGridProvider) te).craft(player, count, test);
+//            }
+//        }
+//        if (testResult.length > 0) {
+//            RFToolsMessages.INSTANCE.sendTo(new PacketCraftTestResultToClient(testResult), (PlayerEntityMP) player);
+//        }
     }
 
     public static void requestGridSync(PlayerEntity player, BlockPos pos) {
-        World world = player.getEntityWorld();
-        CraftingGridProvider provider = null;
-        if (pos == null) {
-            // Handle tablet version
-            ItemStack mainhand = player.getHeldItemMainhand();
-            if (!mainhand.isEmpty() && mainhand.getItem() == ModularStorageSetup.storageModuleTabletItem) {
-                if (player.openContainer instanceof ModularStorageItemContainer) {
-                    ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
-                    provider = storageItemContainer.getCraftingGridProvider();
-                } else if (player.openContainer instanceof RemoteStorageItemContainer) {
-                    RemoteStorageItemContainer storageItemContainer = (RemoteStorageItemContainer) player.openContainer;
-                    provider = storageItemContainer.getCraftingGridProvider();
-                } else if (player.openContainer instanceof StorageScannerContainer) {
-                    StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
-                    provider = storageItemContainer.getStorageScannerTileEntity();
-                }
-            }
-        } else {
-            TileEntity te = world.getTileEntity(pos);
-            if (te instanceof CraftingGridProvider) {
-                provider = ((CraftingGridProvider) te);
-            }
-        }
-        if (provider != null) {
-            RFToolsMessages.INSTANCE.sendTo(new PacketGridToClient(pos, provider.getCraftingGrid()), (PlayerEntityMP) player);
-        }
+        // @todo 1.14
+//        World world = player.getEntityWorld();
+//        CraftingGridProvider provider = null;
+//        if (pos == null) {
+//            // Handle tablet version
+//            ItemStack mainhand = player.getHeldItemMainhand();
+//            if (!mainhand.isEmpty() && mainhand.getItem() == ModularStorageSetup.storageModuleTabletItem) {
+//                if (player.openContainer instanceof ModularStorageItemContainer) {
+//                    ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
+//                    provider = storageItemContainer.getCraftingGridProvider();
+//                } else if (player.openContainer instanceof RemoteStorageItemContainer) {
+//                    RemoteStorageItemContainer storageItemContainer = (RemoteStorageItemContainer) player.openContainer;
+//                    provider = storageItemContainer.getCraftingGridProvider();
+//                } else if (player.openContainer instanceof StorageScannerContainer) {
+//                    StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
+//                    provider = storageItemContainer.getStorageScannerTileEntity();
+//                }
+//            }
+//        } else {
+//            TileEntity te = world.getTileEntity(pos);
+//            if (te instanceof CraftingGridProvider) {
+//                provider = ((CraftingGridProvider) te);
+//            }
+//        }
+//        if (provider != null) {
+//            RFToolsMessages.INSTANCE.sendTo(new PacketGridToClient(pos, provider.getCraftingGrid()), (PlayerEntityMP) player);
+//        }
     }
 }

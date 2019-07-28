@@ -1,10 +1,9 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.container.InventoryHelper;
-import mcjty.lib.varia.CapabilityTools;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -15,20 +14,11 @@ import java.util.List;
 
 public class TileEntityItemSource implements IItemSource {
 
-    private List<Pair<Object, Integer>> inventories = new ArrayList<>();
+    private List<Pair<IItemHandler, Integer>> inventories = new ArrayList<>();
 
     public TileEntityItemSource add(TileEntity te, int offset) {
-        if (CapabilityTools.hasItemCapabilitySafe(te)) {
-            IItemHandler capability = CapabilityTools.getItemCapabilitySafe(te);
-            inventories.add(Pair.of(capability, offset));
-        } else if (te instanceof IInventory) {
-            inventories.add(Pair.of(te, offset));
-        }
-        return this;
-    }
-
-    public TileEntityItemSource addInventory(IInventory te, int offset) {
-        inventories.add(Pair.of(te, offset));
+        te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h ->
+                inventories.add(Pair.of(h, offset)));
         return this;
     }
 
@@ -70,7 +60,9 @@ public class TileEntityItemSource implements IItemSource {
             return leftOver.getCount();
         } else if (inv instanceof IInventory) {
             IInventory inventory = (IInventory) inv;
-            return InventoryHelper.mergeItemStack(inventory, true, stack, 0, inventory.getSizeInventory(), null);
+            // @todo 1.14
+//            return InventoryHelper.mergeItemStack(inventory, true, stack, 0, inventory.getSizeInventory(), null);
+            return 0;
         }
         return stack.getCount();
     }
@@ -112,7 +104,7 @@ public class TileEntityItemSource implements IItemSource {
 
             @Override
             public Pair<IItemKey, ItemStack> next() {
-                Object te = inventories.get(inventoryIndex).getLeft();
+                IItemHandler te = inventories.get(inventoryIndex).getLeft();
 
                 ItemKey key = new ItemKey(te, slotIndex);
                 Pair<IItemKey, ItemStack> result = Pair.of(key, getStackInSlot(te, slotIndex));
@@ -125,20 +117,12 @@ public class TileEntityItemSource implements IItemSource {
     @Override
     public ItemStack decrStackSize(IItemKey key, int amount) {
         ItemKey realKey = (ItemKey) key;
-        Object te = realKey.getInventory();
-        if (te instanceof IItemHandler) {
-            IItemHandler handler = (IItemHandler) te;
+        IItemHandler handler = realKey.getInventory();
+        if (handler != null) {
             return handler.extractItem(realKey.getSlot(), amount, false);
-        } else if (te instanceof IInventory) {
-            IInventory inventory = (IInventory) te;
-            ItemStack stack = inventory.getStackInSlot(realKey.getSlot());
-            ItemStack result = stack.splitStack(amount);
-            if (stack.isEmpty()) {
-                inventory.setInventorySlotContents(realKey.getSlot(), ItemStack.EMPTY);
-            }
-            return result;
+        } else {
+            return ItemStack.EMPTY;
         }
-        return ItemStack.EMPTY;
     }
 
     @Override
@@ -154,15 +138,15 @@ public class TileEntityItemSource implements IItemSource {
     }
 
     private static class ItemKey implements IItemKey {
-        private Object inventory;
+        private IItemHandler inventory;
         private int slot;
 
-        public ItemKey(Object inventory, int slot) {
+        public ItemKey(IItemHandler inventory, int slot) {
             this.inventory = inventory;
             this.slot = slot;
         }
 
-        public Object getInventory() {
+        public IItemHandler getInventory() {
             return inventory;
         }
 

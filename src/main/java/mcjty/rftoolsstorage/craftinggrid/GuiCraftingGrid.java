@@ -16,16 +16,22 @@ import mcjty.lib.varia.BlockTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.setup.CommandHandler;
+import net.java.games.input.Mouse;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHelper;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.awt.*;
+import java.util.Optional;
 
 
 public class GuiCraftingGrid {
@@ -41,7 +47,7 @@ public class GuiCraftingGrid {
     private WidgetList recipeList;
 
     private Minecraft mc;
-    private GenericGuiContainer<?> gui;
+    private GenericGuiContainer<?, ?> gui;
     private CraftingGridProvider provider;
     private BlockPos pos;
 
@@ -49,7 +55,7 @@ public class GuiCraftingGrid {
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
-    public void initGui(final ModBase modBase, final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?> gui,
+    public void initGui(final ModBase modBase, final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?,?> gui,
                         BlockPos pos, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;
@@ -145,8 +151,10 @@ public class GuiCraftingGrid {
         populateList();
         testRecipe();
 
-        int x = Mouse.getEventX() * gui.width / gui.mc.displayWidth;
-        int y = gui.height - Mouse.getEventY() * gui.height / gui.mc.displayHeight - 1;
+        MouseHelper mouse = mc.mouseHelper;
+
+        int x = (int) (mouse.getMouseX() * gui.width / mc.mainWindow.getWidth());
+        int y = (int) (gui.height - mouse.getMouseY() * gui.height / mc.mainWindow.getHeight() - 1);
         Widget<?> widget = craftWindow.getToplevel().getWidgetAtPosition(x, y);
         if (widget == craft1Button) {
             testCraft(1);
@@ -166,27 +174,27 @@ public class GuiCraftingGrid {
 
         if (testResultFromServer != null) {
             GlStateManager.pushMatrix();
-            GlStateManager.translate(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
+            GlStateManager.translatef(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
 
             if (testResultFromServer[9] > 0) {
-                Slot slot = gui.inventorySlots.getSlotFromInventory(provider.getCraftingGrid().getCraftingGridInventory(), CraftingGridInventory.SLOT_GHOSTOUTPUT);
+                Slot slot = gui.getContainer().getSlot(CraftingGridInventory.SLOT_GHOSTOUTPUT);
 
                 if (slot != null) {
                     GlStateManager.colorMask(true, true, true, false);
                     int xPos = slot.xPos;
                     int yPos = slot.yPos;
-                    Gui.drawRect(xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
+                    Screen.fill(xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                 }
             }
             for (int i = 0 ; i < 9 ; i++) {
                 if (testResultFromServer[i] > 0) {
-                    Slot slot = gui.inventorySlots.getSlotFromInventory(provider.getCraftingGrid().getCraftingGridInventory(), CraftingGridInventory.SLOT_GHOSTINPUT + i);
+                    Slot slot = gui.getContainer().getSlot(CraftingGridInventory.SLOT_GHOSTINPUT + i);
 
                     if (slot != null) {
                         GlStateManager.colorMask(true, true, true, false);
                         int xPos = slot.xPos;
                         int yPos = slot.yPos;
-                        Gui.drawRect(xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
+                        Screen.fill(xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                     }
                 }
             }
@@ -195,7 +203,7 @@ public class GuiCraftingGrid {
     }
 
     private void testRecipe() {
-        InventoryCrafting inv = new InventoryCrafting(new net.minecraft.inventory.Container() {
+        CraftingInventory inv = new CraftingInventory(new Container(null, -1) {
             @Override
             public boolean canInteractWith(PlayerEntity var1) {
                 return false;
@@ -207,13 +215,8 @@ public class GuiCraftingGrid {
         }
 
         // Compare current contents to avoid unneeded slot update.
-        IRecipe recipe = CraftingRecipe.findRecipe(mc.world, inv);
-        ItemStack newResult;
-        if (recipe == null) {
-            newResult = ItemStack.EMPTY;
-        } else {
-            newResult = recipe.getCraftingResult(inv);
-        }
+        Optional<ICraftingRecipe> recipe = CraftingRecipe.findRecipe(mc.world, inv);
+        ItemStack newResult = recipe.map(r -> r.getCraftingResult(inv)).orElse(ItemStack.EMPTY);
         provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }
 
