@@ -1,6 +1,6 @@
 {
-  "parent": "rftools:block/rftoolsblock",
+  "parent": "rftoolsbase:block/rftoolsblock",
   "textures": {
-    "front": "rftools:blocks/machinemodularstorage"
+    "front": "rftoolsstorage:block/machinemodularstorage"
   }
 }
