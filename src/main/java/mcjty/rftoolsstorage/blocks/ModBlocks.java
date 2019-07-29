@@ -11,7 +11,6 @@ public final class ModBlocks {
 
     // ----- Blocks -----
 
-
     @ObjectHolder(RFToolsStorage.MODID + ":" + ModularStorageBlock.REGNAME)
     public static ModularStorageBlock MODULAR_STORAGE;
 
