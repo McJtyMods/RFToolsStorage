@@ -2,9 +2,12 @@ package mcjty.rftoolsstorage.setup;
 
 
 import mcjty.lib.McJtyLib;
-import mcjty.lib.container.GenericContainer;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.blocks.ModBlocks;
+import mcjty.rftoolsstorage.blocks.basic.GuiModularStorage;
+import mcjty.rftoolsstorage.blocks.basic.ModularStorageContainer;
+import mcjty.rftoolsstorage.blocks.basic.ModularStorageTileEntity;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,11 +21,11 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void init(FMLClientSetupEvent e) {
-        ScreenManager.IScreenFactory<GenericContainer, GuiModularStorage> factory = (container, inventory, title) -> {
+        ScreenManager.IScreenFactory<ModularStorageContainer, GuiModularStorage> factory = (container, inventory, title) -> {
             TileEntity te = McJtyLib.proxy.getClientWorld().getTileEntity(container.getPos());
-            return Tools.safeMap(te, (MachineInfuserTileEntity i) -> new GuiMachineInfuser(i, container, inventory), "Invalid tile entity!");
+            return Tools.safeMap(te, (ModularStorageTileEntity i) -> new GuiModularStorage(i, container, inventory), "Invalid tile entity!");
         };
-        ScreenManager.registerFactory(MachineInfuserSetup.CONTAINER_INFUSER, factory);
+        ScreenManager.registerFactory(ModBlocks.CONTAINER_MODULAR_STORAGE, factory);
     }
 
     @SubscribeEvent

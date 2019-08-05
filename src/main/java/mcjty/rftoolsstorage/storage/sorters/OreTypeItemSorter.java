@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.storage.sorters;
 
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Comparator;
@@ -67,14 +66,16 @@ public class OreTypeItemSorter implements ItemSorter {
     }
 
     private static String getOreType(Pair<ItemStack, Integer> object) {
-        int[] iDs = OreDictionary.getOreIDs(object.getKey());
-        String name;
-        if (iDs.length < 1) {
-            name = null;
-        } else {
-            name = OreDictionary.getOreName(iDs[0]);
-        }
-        return name;
+//        int[] iDs = OreDictionary.getOreIDs(object.getKey());
+//        String name;
+//        if (iDs.length < 1) {
+//            name = null;
+//        } else {
+//            name = OreDictionary.getOreName(iDs[0]);
+//        }
+//        return name;
+        // @todo 1.14
+        return "";
     }
 
     @Override

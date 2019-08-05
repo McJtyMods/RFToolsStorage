@@ -1,8 +1,8 @@
 package mcjty.rftoolsstorage.storage.sorters;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
@@ -57,7 +57,7 @@ public class ModItemSorter implements ItemSorter {
         if (nameForObject == null) {
             return "?";
         }
-        return nameForObject.getResourceDomain();
+        return nameForObject.getNamespace();
     }
 
     public static String getModidForItem(Item item) {
@@ -65,7 +65,7 @@ public class ModItemSorter implements ItemSorter {
         if (nameForObject == null) {
             return "?";
         }
-        return nameForObject.getResourceDomain();
+        return nameForObject.getNamespace();
     }
 
 
@@ -76,8 +76,8 @@ public class ModItemSorter implements ItemSorter {
 
     public static String getMod(ItemStack stack) {
         Item item = stack.getItem();
-        if (item instanceof ItemBlock) {
-            Block block = ((ItemBlock) item).getBlock();
+        if (item instanceof BlockItem) {
+            Block block = ((BlockItem) item).getBlock();
             if (block != null) {
                 return getModidForBlock(block);
             }

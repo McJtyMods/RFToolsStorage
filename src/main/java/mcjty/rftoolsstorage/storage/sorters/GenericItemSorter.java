@@ -1,9 +1,9 @@
 package mcjty.rftoolsstorage.storage.sorters;
 
-import mcjty.rftools.blocks.storage.ModularStorageConfiguration;
+import mcjty.rftoolsstorage.blocks.basic.ModularStorageConfiguration;
 import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -54,8 +54,8 @@ public class GenericItemSorter implements ItemSorter {
 
     private static String getName(Pair<ItemStack, Integer> object) {
         Item item = object.getKey().getItem();
-        if (item instanceof ItemBlock) {
-            Block block = ((ItemBlock) item).getBlock();
+        if (item instanceof BlockItem) {
+            Block block = ((BlockItem) item).getBlock();
             if (block != null && block.getClass() != null) {
                 String category = ModularStorageConfiguration.getCategory(block.getClass());
                 if (category != null) {
@@ -70,7 +70,7 @@ public class GenericItemSorter implements ItemSorter {
                     return category;
                 }
             }
-            String displayName = object.getKey().getDisplayName();
+            String displayName = object.getKey().getDisplayName().getFormattedText();
             if (displayName.contains("Ingot")) {
                 return "Ingots";
             }
