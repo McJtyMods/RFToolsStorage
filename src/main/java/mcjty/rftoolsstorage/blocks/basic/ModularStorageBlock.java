@@ -29,7 +29,8 @@ public class ModularStorageBlock extends BaseBlock {
 
     public ModularStorageBlock() {
         super(REGNAME, new BlockBuilder()
-                .tileEntitySupplier(() -> new ModularStorageTileEntity())
+                .tileEntitySupplier(ModularStorageTileEntity::new)
+                .hasGui()
                 .infoExtended("todo")   // @todo 1.14
 //        list.add(TextFormatting.WHITE + "This modular storage system can store a lot");
 //        list.add(TextFormatting.WHITE + "of items and allows easy searching and filtering.");

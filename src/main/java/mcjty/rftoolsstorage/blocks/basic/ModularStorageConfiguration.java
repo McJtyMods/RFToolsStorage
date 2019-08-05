@@ -38,8 +38,8 @@ public class ModularStorageConfiguration {
 
     public static Map<String,String> categoryMapper = new HashMap<>();
 
-    public static void init(ForgeConfigSpec.Builder SERVER_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
-        SERVER_BUILDER.comment("Settings for the modular storage system").push(CATEGORY_STORAGE);
+    public static void init(ForgeConfigSpec.Builder COMMON_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
+        COMMON_BUILDER.comment("Settings for the modular storage system").push(CATEGORY_STORAGE);
         CLIENT_BUILDER.comment("Settings for the modular storage system").push(CATEGORY_STORAGE);
 
         groupBackground = CLIENT_BUILDER
@@ -49,33 +49,33 @@ public class ModularStorageConfiguration {
                 .comment("Foreground color for group lines")
                 .defineInRange("groupForeground", 0xff000000, 0, Integer.MAX_VALUE);
 
-        REMOTE_MAXENERGY = SERVER_BUILDER
+        REMOTE_MAXENERGY = COMMON_BUILDER
                 .comment("Maximum RF storage that the remote storage block can hold")
                 .defineInRange("remoteStorageMaxRF", 100000, 0, Integer.MAX_VALUE);
-        REMOTE_RECEIVEPERTICK = SERVER_BUILDER
+        REMOTE_RECEIVEPERTICK = COMMON_BUILDER
                 .comment("RF per tick that the remote storage block can receive")
                 .defineInRange("remoteStorageRFPerTick", 300, 0, Integer.MAX_VALUE);
 
-        TABLET_MAXENERGY = SERVER_BUILDER
+        TABLET_MAXENERGY = COMMON_BUILDER
                 .comment("Maximum RF storage that the storage tablet can hold")
                 .defineInRange("tabletMaxRF", 20000, 0, Integer.MAX_VALUE);
-        TABLET_RECEIVEPERTICK = SERVER_BUILDER
+        TABLET_RECEIVEPERTICK = COMMON_BUILDER
                 .comment("RF per tick that the storage tablet can receive")
                 .defineInRange("tabletRFPerTick", 500, 0, Integer.MAX_VALUE);
-        TABLET_CONSUMEPERUSE = SERVER_BUILDER
+        TABLET_CONSUMEPERUSE = COMMON_BUILDER
                 .comment("RF per usage of the storage tablet")
                 .defineInRange("tabletRFUsage", 100, 0, Integer.MAX_VALUE);
-        TABLET_CONSUMEPERUSE_SCANNER = SERVER_BUILDER
+        TABLET_CONSUMEPERUSE_SCANNER = COMMON_BUILDER
                 .comment("RF per usage of the storage tablet when used in combation with the scanner module")
                 .defineInRange("tabletRFUsageScanner", 100, 0, Integer.MAX_VALUE);
-        TABLET_EXTRACONSUME = SERVER_BUILDER
+        TABLET_EXTRACONSUME = COMMON_BUILDER
                 .comment("Extra RF per usage per storage tier")
                 .defineInRange("tabletExtraRFUsage", 100, 0, Integer.MAX_VALUE);
 
-        remoteShareLocal = SERVER_BUILDER
+        remoteShareLocal = COMMON_BUILDER
                 .comment("RF/tick to share an inventory to the same dimension")
                 .defineInRange("remoteShareLocal", 10, 0, Integer.MAX_VALUE);
-        remoteShareGlobal = SERVER_BUILDER
+        remoteShareGlobal = COMMON_BUILDER
                 .comment("RF/tick to share an inventory to all dimensions")
                 .defineInRange("remoteShareGlobal", 50, 0, Integer.MAX_VALUE);
 
@@ -86,13 +86,13 @@ public class ModularStorageConfiguration {
                 .comment("If true we clear the search field when opening the GUI for the modular storage. Set to false if you don't want that")
                 .define("clearSearchOnOpen", true);
 
-        height1 = SERVER_BUILDER
+        height1 = COMMON_BUILDER
                 .comment("The height for the smallest style modular storage GUI")
                 .defineInRange("modularStorageGuiHeight1", 236, 0, 1000000);
-        height2 = SERVER_BUILDER
+        height2 = COMMON_BUILDER
                 .comment("The height for the middle style modular storage GUI")
                 .defineInRange("modularStorageGuiHeight2", 320, 0, 1000000);
-        height3 = SERVER_BUILDER
+        height3 = COMMON_BUILDER
                 .comment("The height for the tallest style modular storage GUI")
                 .defineInRange("modularStorageGuiHeight3", 490, 0, 1000000);
 
@@ -102,9 +102,9 @@ public class ModularStorageConfiguration {
             String v = entry.getKey() + "=" + entry.getValue();
             defValues.add(v);
         }
-        categories = SERVER_BUILDER.defineList("categories", defValues, o -> o instanceof String);
+        categories = COMMON_BUILDER.defineList("categories", defValues, o -> o instanceof String);
 
-        SERVER_BUILDER.pop();
+        COMMON_BUILDER.pop();
         CLIENT_BUILDER.pop();
     }
 
