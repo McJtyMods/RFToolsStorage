@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.blocks.basic;
 
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
@@ -31,15 +32,18 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static mcjty.rftoolsstorage.blocks.basic.ModularStorageContainer.CONTAINER_GRID;
 import static mcjty.rftoolsstorage.blocks.basic.ModularStorageTileEntity.*;
@@ -164,8 +168,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //        } else if (inventorySlots instanceof RemoteStorageItemContainer) {
 //            RemoteStorageItemContainer storageItemContainer = (RemoteStorageItemContainer) inventorySlots;
 //            provider = storageItemContainer.getCraftingGridProvider();
-//        } else {
-//            throw new RuntimeException("Should not happen!");
+        } else {
+            throw new RuntimeException("Should not happen!");
         }
 
         craftingGrid.initGui(modBase, network, minecraft, this, pos, provider, guiLeft, guiTop, xSize, ySize);
@@ -289,58 +293,56 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     private Slot findEmptySlot() {
-        // @todo 1.14
-//        for (Object slotObject : inventorySlots.inventorySlots) {
-//            Slot slot = (Slot) slotObject;
-//            // Skip the first two slots if we are on a modular storage block.
-//            if (tileEntity != null && slot.getSlotIndex() < ModularStorageContainer.SLOT_STORAGE) {
-//                continue;
-//            }
-//            if ((!slot.getHasStack()) || slot.getStack().getCount() == 0) {
-//                return slot;
-//            }
-//        }
+        for (Object slotObject : container.inventorySlots) {
+            Slot slot = (Slot) slotObject;
+            // Skip the first two slots if we are on a modular storage block.
+            if (tileEntity != null && slot.getSlotIndex() < ModularStorageContainer.SLOT_STORAGE) {
+                continue;
+            }
+            if ((!slot.getHasStack()) || slot.getStack().getCount() == 0) {
+                return slot;
+            }
+        }
         return null;
     }
 
-    // @todo 1.14
-//    @Override
-//    public boolean isMouseOverSlot(Slot slotIn, int x, int y) {
-//        if (slotIn.inventory instanceof ModularStorageTileEntity || slotIn.inventory instanceof ModularStorageItemInventory
-//                || slotIn.inventory instanceof RemoteStorageItemInventory) {
-//            Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
-//            if (widget instanceof BlockRender) {
-//                Object userObject = widget.getUserObject();
-//                if (userObject instanceof Integer) {
-//                    Integer slotIndex = (Integer) userObject;
-//                    return slotIndex == slotIn.getSlotIndex();
-//                }
-//            } else {
-//                return super.isMouseOverSlot(slotIn, x, y);
-//            }
-//            return false;
-//        } else {
-//            return super.isMouseOverSlot(slotIn, x, y);
-//        }
-//    }
-//
-//    @Override
-//    public Slot getSlotAtPosition(int x, int y) {
-//        Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
-//        if (widget != null) {
-//            Object userObject = widget.getUserObject();
-//            if (userObject instanceof Integer) {
-//                Integer slotIndex = (Integer) userObject;
-//                if (slotIndex != -1) {
-//                    return inventorySlots.getSlot(slotIndex);
-//                } else {
-//                    return findEmptySlot();
-//                }
-//            }
-//        }
-//
-//        return super.getSlotAtPosition(x, y);
-//    }
+
+    @Override
+    public boolean isSlotSelected(Slot slotIn, double x, double y) {
+        if (slotIn.inventory instanceof ModularStorageTileEntity){ // @todo 1.14 || slotIn.inventory instanceof ModularStorageItemInventory || slotIn.inventory instanceof RemoteStorageItemInventory) {
+            Widget<?> widget = window.getToplevel().getWidgetAtPosition((int)x, (int)y);
+            if (widget instanceof BlockRender) {
+                Object userObject = widget.getUserObject();
+                if (userObject instanceof Integer) {
+                    Integer slotIndex = (Integer) userObject;
+                    return slotIndex == slotIn.getSlotIndex();
+                }
+            } else {
+                return super.isSlotSelected(slotIn, x, y);
+            }
+            return false;
+        } else {
+            return super.isSlotSelected(slotIn, x, y);
+        }
+    }
+
+    @Override
+    public Slot getSelectedSlot(double x, double y) {
+        Widget<?> widget = window.getToplevel().getWidgetAtPosition((int)x, (int)y);
+        if (widget != null) {
+            Object userObject = widget.getUserObject();
+            if (userObject instanceof Integer) {
+                Integer slotIndex = (Integer) userObject;
+                if (slotIndex != -1) {
+                    return container.getSlot(slotIndex);
+                } else {
+                    return findEmptySlot();
+                }
+            }
+        }
+
+        return super.getSelectedSlot(x, y);
+    }
 
     private void dumpClasses(String name, Object o) {
         Logging.log(name + ":" + o.getClass().getCanonicalName());
@@ -355,9 +357,9 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     }
 
-    // @todo 1.14
-//    @Override
-//    protected void mouseClicked(int x, int y, int button) throws IOException {
+    @Override
+    public boolean mouseClicked(double x, double y, int button) {
+        // @todo 1.14
 //        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
 //            Slot slot = getSlotAtPosition(x, y);
 //            if (slot != null && slot.getHasStack()) {
@@ -371,42 +373,44 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //                }
 //            }
 //        }
-//        super.mouseClicked(x, y, button);
-//        craftingGrid.getWindow().mouseClicked(x, y, button);
-//        if (button == 1) {
-//            Slot slot = getSlotAtPosition(x, y);
-//            if (slot instanceof GhostOutputSlot) {
-//                if (tileEntity != null) {
-//                    window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ModularStorageTileEntity.ACTION_CLEARGRID);
-//                } else {
-//                    sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_CLEAR_GRID);
-//                }
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void handleMouseInput() throws IOException {
-//        super.handleMouseInput();
-//        craftingGrid.getWindow().handleMouseInput();
-//    }
-//
-//    @Override
-//    protected void mouseReleased(int x, int y, int state) {
-//        super.mouseReleased(x, y, state);
-//        craftingGrid.getWindow().mouseMovedOrUp(x, y, state);
-//    }
+        boolean r = super.mouseClicked(x, y, button);
+        craftingGrid.getWindow().mouseClicked((int)x, (int)y, button);
+        if (button == 1) {
+            Slot slot = getSelectedSlot(x, y);
+            if (slot instanceof GhostOutputSlot) {
+                if (tileEntity != null) {
+                    window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ModularStorageTileEntity.ACTION_CLEARGRID);
+                } else {
+                    sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_CLEAR_GRID);
+                }
+            }
+        }
+        return r;
+    }
+
+    @Override
+    public boolean mouseDragged(double x, double y, int button, double scaledX, double scaledY) {
+        craftingGrid.getWindow().handleMouseInput(button);  // @todo 1.14 check?
+        return super.mouseDragged(x, y, button, scaledX, scaledY);
+    }
+
+
+    @Override
+    public boolean mouseReleased(double x, double y, int state) {
+        boolean rc = super.mouseReleased(x, y, state);
+        craftingGrid.getWindow().mouseMovedOrUp((int)x, (int)y, state);
+        return rc;
+    }
 
     private void updateList() {
         itemList.removeChildren();
 
-        // @todo 1.14
-//        if (tileEntity != null && !inventorySlots.getSlot(ModularStorageContainer.SLOT_STORAGE_MODULE).getHasStack()) {
-//            amountLabel.setText("(empty)");
-//            compactButton.setEnabled(false);
-//            cycleButton.setEnabled(false);
-//            return;
-//        }
+        if (tileEntity != null && !container.getSlot(ModularStorageContainer.SLOT_STORAGE_MODULE).getHasStack()) {
+            amountLabel.setText("(empty)");
+            compactButton.setEnabled(false);
+            cycleButton.setEnabled(false);
+            return;
+        }
 
         cycleButton.setEnabled(isTabletWithRemote() || isRemote());
 
@@ -430,20 +434,22 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             spacing = 3;
         }
 
-        int max = 0;
+        AtomicInteger max = new AtomicInteger();
         List<Pair<ItemStack, Integer>> items = new ArrayList<>();
-// @todo 1.14
-        //        if (tileEntity != null) {
-//            for (int i = ModularStorageContainer.SLOT_STORAGE; i < tileEntity.getSizeInventory(); i++) {
-//                ItemStack stack = tileEntity.getStackInSlot(i);
-//                if (!stack.isEmpty()) {
-//                    String displayName = stack.getDisplayName();
-//                    if (filterText.isEmpty() || displayName.toLowerCase().contains(filterText)) {
-//                        items.add(Pair.of(stack, i));
-//                    }
-//                }
-//            }
-//            max = tileEntity.getSizeInventory() - ModularStorageContainer.SLOT_STORAGE;
+        if (tileEntity != null) {
+            tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
+                for (int i = ModularStorageContainer.SLOT_STORAGE; i < handler.getSlots(); i++) {
+                    ItemStack stack = handler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        String displayName = stack.getDisplayName().getFormattedText();
+                        if (filterText.isEmpty() || displayName.toLowerCase().contains(filterText)) {
+                            items.add(Pair.of(stack, i));
+                        }
+                    }
+                }
+                max.set(handler.getSlots() - ModularStorageContainer.SLOT_STORAGE);
+
+            });
 //        } else {
 //            // Also works for ModularStorageItemContainer
 //            for (int i = 0; i < RemoteStorageItemContainer.MAXSIZE_STORAGE; i++) {
@@ -462,9 +468,9 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //            } else {
 //                max = 0;
 //            }
-//        }
+        }
         amountLabel.setText(items.size() + "/" + max);
-        compactButton.setEnabled(max > 0);
+        compactButton.setEnabled(max.get() > 0);
 
         int sort = getCurrentSortMode();
 
@@ -581,18 +587,20 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         return currentPos;
     }
 
-    // @todo 1.14
-//    @Override
-//    protected void keyTyped(char typedChar, int keyCode) throws IOException {
-//        if (!window.keyTyped(typedChar, keyCode)) {
-//            if (typedChar >= '1' && typedChar <= '9') {
-//                return;
-//            }
-//            super.keyTyped(typedChar, keyCode);
-//        }
-//
-//        craftingGrid.getWindow().keyTyped(typedChar, keyCode);
-//    }
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        boolean rc = false;
+        if (!window.keyTyped(keyCode, scanCode)) {
+            if (keyCode >= GLFW.GLFW_KEY_1 && keyCode <= GLFW.GLFW_KEY_9) {
+                return true;
+            }
+            rc = super.keyPressed(keyCode, scanCode, modifiers);
+        }
+
+        // @todo 1.14 rc handling is probably not right
+        craftingGrid.getWindow().keyTyped(keyCode, keyCode);
+        return rc;
+    }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float v, int i, int i2) {
@@ -613,14 +621,15 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     @Override
     protected void drawGuiContainerForegroundLayer(int i1, int i2) {
-        // @todo 1.14
-//        int x = Mouse.getEventX() * width / mc.displayWidth;
-//        int y = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-//
-//        List<String> tooltips = craftingGrid.getWindow().getTooltips();
-//        if (tooltips != null) {
-//            drawHoveringText(tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, mc.fontRenderer);
-//        }
+        double mouseX = minecraft.mouseHelper.getMouseX();
+        double mouseY = minecraft.mouseHelper.getMouseY();
+        int x = (int) (mouseX * width / minecraft.mainWindow.getWidth());
+        int y = (int) (height - mouseY * height / minecraft.mainWindow.getHeight() - 1);
+
+        List<String> tooltips = craftingGrid.getWindow().getTooltips();
+        if (tooltips != null) {
+            drawHoveringText(tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, minecraft.fontRenderer);
+        }
 
         super.drawGuiContainerForegroundLayer(i1, i2);
     }
