@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class StorageModuleItem extends Item implements INBTPreservingIngredient {
 
@@ -41,6 +42,11 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
                 .group(RFToolsStorage.setup.getTab()));
         setRegistryName("storage_module" + tier);
         this.tier = tier;
+    }
+
+    @Override
+    public void onCreated(ItemStack stack, World worldIn, PlayerEntity playerIn) {
+        stack.getOrCreateTag().putUniqueId("uuid", UUID.randomUUID());
     }
 
     @Override
@@ -87,6 +93,9 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
                 list.add(new StringTextComponent(TextFormatting.WHITE + "Link to another storage module in the remote storage block."));
             } else {
                 list.add(new StringTextComponent(TextFormatting.WHITE + "This module supports " + max + " stacks"));
+            }
+            if (tagCompound != null) {
+                list.add(new StringTextComponent(TextFormatting.BLUE + "UUID: " + tagCompound.getUniqueId("uuid").toString()));
             }
         } else {
             list.add(new StringTextComponent(TextFormatting.WHITE + RFToolsStorage.SHIFT_MESSAGE));

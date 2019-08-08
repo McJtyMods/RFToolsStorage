@@ -19,6 +19,7 @@ import java.util.List;
 
 public class ModularStorageContainer extends GenericContainer {
     public static final String CONTAINER_GRID = "grid";
+    public static final String CONTAINER_CARDS = "cards";       // The three cards
 
     public static final int SLOT_STORAGE_MODULE = 0;
     public static final int SLOT_TYPE_MODULE = 1;
@@ -31,10 +32,10 @@ public class ModularStorageContainer extends GenericContainer {
     public static final ContainerFactory factory = new ContainerFactory() {
         @Override
         protected void setup() {
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CONTAINER, SLOT_STORAGE_MODULE, 5, 157, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CONTAINER, SLOT_TYPE_MODULE, 5, 175, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageFilterItem.class*/), CONTAINER_CONTAINER, SLOT_FILTER_MODULE, 5, 193, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_INPUT), CONTAINER_CONTAINER, SLOT_STORAGE, -500, -500, 30, 0, 10, 0);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157, 1, 18, 1, 18);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175, 1, 18, 1, 18);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageFilterItem.class*/), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193, 1, 18, 1, 18);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_INPUT), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 30, 0, 10, 0);
             layoutPlayerInventorySlots(91, 157);
             layoutGridInventorySlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
         }
@@ -58,7 +59,8 @@ public class ModularStorageContainer extends GenericContainer {
 
     @Override
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
-        addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);
+        addInventory(CONTAINER_CARDS, modularStorageTileEntity.getCardHandler());        // The three cards
+        addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         addInventory(CONTAINER_GRID, modularStorageTileEntity.getCraftingGrid().getCraftingGridInventory());
         generateSlots();
@@ -68,7 +70,7 @@ public class ModularStorageContainer extends GenericContainer {
     public void generateSlots() {
         for (SlotFactory slotFactory : factory.getSlots()) {
             Slot slot;
-            if (CONTAINER_GRID.equals(slotFactory.getInventoryName())) {
+            if (CONTAINER_GRID.equals(slotFactory.getInventoryName()) || CONTAINER_CARDS.equals(slotFactory.getInventoryName())) {
                 SlotType slotType = slotFactory.getSlotType();
                 IItemHandler inventory = this.inventories.get(slotFactory.getInventoryName());
                 int index = slotFactory.getIndex();
@@ -86,43 +88,7 @@ public class ModularStorageContainer extends GenericContainer {
             } else if (slotFactory.getSlotType() == SlotType.SLOT_PLAYERINV || slotFactory.getSlotType() == SlotType.SLOT_PLAYERHOTBAR) {
                 slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY());
             } else {
-                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
-                    @Override
-                    public boolean getHasStack() {
-                        if (getSlotIndex() >= (modularStorageTileEntity.getMaxSize() + SLOT_STORAGE)) {
-                            return false;
-                        }
-                        return super.getHasStack();
-                    }
-
-                    @Override
-                    public ItemStack getStack() {
-                        if (getSlotIndex() >= (modularStorageTileEntity.getMaxSize() + SLOT_STORAGE)) {
-                            return ItemStack.EMPTY;
-                        }
-                        return super.getStack();
-                    }
-
-                    @Override
-                    public boolean canTakeStack(PlayerEntity player) {
-                        if (getSlotIndex() >= (modularStorageTileEntity.getMaxSize() + SLOT_STORAGE)) {
-                            return false;
-                        }
-                        return super.canTakeStack(player);
-                    }
-
-                    @Override
-                    public boolean isItemValid(ItemStack stack) {
-                        if (getSlotIndex() >= (modularStorageTileEntity.getMaxSize() + SLOT_STORAGE)) {
-                            return false;
-                        }
-                        // @todo 1.14
-//                        if (!modularStorageTileEntity.isItemValidForSlot(getSlotIndex(), stack)) {
-//                            return false;
-//                        }
-                        return super.isItemValid(stack);
-                    }
-                };
+                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY());
             }
             addSlot(slot);
         }
