@@ -12,17 +12,20 @@ public class StorageEntry {
 
     private final ItemStackHandler items;
     private final UUID uuid;
+    private int version;
 
     public StorageEntry(CompoundNBT nbt, IStorageListener listener) {
         int slots = nbt.getInt("slots");
         items = createHandler(slots, listener);
         items.deserializeNBT(nbt.getCompound("Items"));
         uuid = nbt.getUniqueId("UUID");
+        version = nbt.getInt("version");
     }
 
     public StorageEntry(int size, UUID uuid, IStorageListener listener) {
         items = createHandler(size, listener);
         this.uuid = uuid;
+        this.version = 1;
     }
 
     private ItemStackHandler createHandler(int size, IStorageListener listener) {
@@ -30,6 +33,7 @@ public class StorageEntry {
             @Override
             protected void onContentsChanged(int slot) {
                 listener.entryChanged(StorageEntry.this);
+                version++;
                 super.onContentsChanged(slot);
             }
         };
@@ -43,9 +47,14 @@ public class StorageEntry {
         return uuid;
     }
 
+    public int getVersion() {
+        return version;
+    }
+
     public CompoundNBT write() {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putInt("slots", items.getSlots());
+        nbt.putInt("version", version);
         nbt.put("Items", items.serializeNBT());
         nbt.putUniqueId("UUID", uuid);
         return nbt;

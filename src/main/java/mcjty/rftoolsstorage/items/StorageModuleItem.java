@@ -44,13 +44,27 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
         this.tier = tier;
     }
 
-    @Override
-    public void onCreated(ItemStack stack, World worldIn, PlayerEntity playerIn) {
-        stack.getOrCreateTag().putUniqueId("uuid", UUID.randomUUID());
+//    @Override
+//    public void onCreated(ItemStack stack, World worldIn, PlayerEntity playerIn) {
+//        System.out.println("StorageModuleItem.onCreated");
+//        getOrCreateUUID(stack);
+//    }
+
+    public static UUID getOrCreateUUID(ItemStack stack) {
+        if (!(stack.getItem() instanceof StorageModuleItem)) {
+            throw new RuntimeException("This is not supposed to happen! Needs to be a storage item!");
+        }
+        CompoundNBT nbt = stack.getOrCreateTag();
+        if (!nbt.contains("uuid")) {
+            nbt.putUniqueId("uuid", UUID.randomUUID());
+            nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
+        }
+        return nbt.getUniqueId("uuid");
     }
 
     @Override
     public Collection<String> getTagsToPreserve() {
+        // @todo when upgrading we need to see how to upgrade the storage entry
         return Arrays.asList("");   // @todo 1.14
     }
 
@@ -124,6 +138,6 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
     @Nullable
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
-        return new StorageModuleItemWrapper();
+        return new StorageModuleItemWrapper(getOrCreateUUID(stack));
     }
 }

@@ -9,12 +9,19 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class StorageModuleItemWrapper implements ICapabilityProvider {
 
     private final LazyOptional<IItemHandler> holder = LazyOptional.of(() -> createHandler());
 
+    private final UUID uuid;
     private ItemStackHandler handler;
+
+    public StorageModuleItemWrapper(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     private ItemStackHandler createHandler() {
         if (handler == null) {
             handler = new ItemStackHandler(100);

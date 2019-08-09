@@ -3,11 +3,14 @@ package mcjty.rftoolsstorage.setup;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
 import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 public class ModSetup extends DefaultModSetup {
+
+    public ClientStorageHolder clientStorageHolder = new ClientStorageHolder();
 
     public ModSetup() {
         createTab("rftoolsstorage", () -> new ItemStack(Items.CHEST));
