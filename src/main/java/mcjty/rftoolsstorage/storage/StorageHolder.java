@@ -25,13 +25,17 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> implements I
         return getData(() -> new StorageHolder(), NAME);
     }
 
-    public ItemStackHandler getStorage(UUID uuid, int size) {
+    public ItemStackHandler getStorage(UUID uuid) {
+        return getStorageEntry(uuid).getHandler();
+    }
+
+    public StorageEntry getStorageEntry(UUID uuid) {
         if (!storageEntryMap.containsKey(uuid)) {
-            StorageEntry entry = new StorageEntry(size, uuid, this);
+            StorageEntry entry = new StorageEntry(100, uuid, this); // @todo size
             storageEntryMap.put(uuid, entry);
             save();
         }
-        return storageEntryMap.get(uuid).getHandler();
+        return storageEntryMap.get(uuid);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package mcjty.rftoolsstorage.storage;
 
+import mcjty.rftoolsstorage.network.PacketRequestStorageFromServer;
+import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
@@ -32,7 +34,11 @@ public class ClientStorageHolder {
     }
 
     private void requestData(UUID uuid) {
+        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestStorageFromServer(uuid));
+    }
 
+    public void registerStorage(UUID uuid, StorageEntry entry) {
+        storageEntryMap.put(uuid, entry);
     }
 
 }

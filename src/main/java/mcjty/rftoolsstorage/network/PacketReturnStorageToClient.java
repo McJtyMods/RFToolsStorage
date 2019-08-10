@@ -1,34 +1,39 @@
 package mcjty.rftoolsstorage.network;
 
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;
-import mcjty.rftoolsstorage.storage.StorageHolder;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public class PacketRequestStorageFromServer {
+public class PacketReturnStorageToClient {
     private UUID uuid;
+    private StorageEntry entry;
 
     public void toBytes(PacketBuffer buf) {
         buf.writeUniqueId(uuid);
+        CompoundNBT nbt = entry.write();
+        buf.writeCompoundTag(nbt);
     }
 
-    public PacketRequestStorageFromServer(PacketBuffer buf) {
+    public PacketReturnStorageToClient(PacketBuffer buf) {
         this.uuid = buf.readUniqueId();
+        CompoundNBT nbt = buf.readCompoundTag();
+        entry = new StorageEntry(nbt, null);
     }
 
-    public PacketRequestStorageFromServer(UUID uuid) {
+    public PacketReturnStorageToClient(UUID uuid, StorageEntry entry) {
         this.uuid = uuid;
+        this.entry = entry;
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            StorageEntry entry = StorageHolder.get().getStorageEntry(uuid);
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketReturnStorageToClient(uuid, entry), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorage.setup.clientStorageHolder.registerStorage(uuid, entry);
         });
         ctx.setPacketHandled(true);
     }

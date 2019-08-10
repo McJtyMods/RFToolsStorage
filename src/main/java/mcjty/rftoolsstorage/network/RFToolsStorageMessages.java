@@ -28,12 +28,10 @@ public class RFToolsStorageMessages {
         INSTANCE = net;
 
         // Server side
-        // @todo 1.14
-//        net.registerMessage(id(), PacketGetMonitorLog.class, PacketGetMonitorLog::toBytes, PacketGetMonitorLog::new, PacketGetMonitorLog::handle);
-        net.registerMessage(id(), )
+        net.registerMessage(id(), PacketRequestStorageFromServer.class, PacketRequestStorageFromServer::toBytes, PacketRequestStorageFromServer::new, PacketRequestStorageFromServer::handle);
 
         // Client side
-//        net.registerMessage(id(), PacketMonitorLogReady.class, PacketMonitorLogReady::toBytes, PacketMonitorLogReady::new, PacketMonitorLogReady::handle);
+        net.registerMessage(id(), PacketReturnStorageToClient.class, PacketReturnStorageToClient::toBytes, PacketReturnStorageToClient::new, PacketReturnStorageToClient::handle);
 
         PacketHandler.registerStandardMessages(net);
     }

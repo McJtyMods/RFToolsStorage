@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.storage;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.items.ItemStackHandler;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
@@ -14,7 +15,7 @@ public class StorageEntry {
     private final UUID uuid;
     private int version;
 
-    public StorageEntry(CompoundNBT nbt, IStorageListener listener) {
+    public StorageEntry(CompoundNBT nbt, @Nullable IStorageListener listener) {
         int slots = nbt.getInt("slots");
         items = createHandler(slots, listener);
         items.deserializeNBT(nbt.getCompound("Items"));
@@ -22,7 +23,7 @@ public class StorageEntry {
         version = nbt.getInt("version");
     }
 
-    public StorageEntry(int size, UUID uuid, IStorageListener listener) {
+    public StorageEntry(int size, UUID uuid, @Nullable IStorageListener listener) {
         items = createHandler(size, listener);
         this.uuid = uuid;
         this.version = 1;
@@ -32,7 +33,9 @@ public class StorageEntry {
         return new ItemStackHandler(size) {
             @Override
             protected void onContentsChanged(int slot) {
-                listener.entryChanged(StorageEntry.this);
+                if (listener != null) {
+                    listener.entryChanged(StorageEntry.this);
+                }
                 version++;
                 super.onContentsChanged(slot);
             }
