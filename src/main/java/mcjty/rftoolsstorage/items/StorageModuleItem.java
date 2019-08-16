@@ -138,6 +138,6 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
     @Nullable
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
-        return new StorageModuleItemWrapper(getOrCreateUUID(stack));
+        return new StorageModuleItemWrapper(stack, getOrCreateUUID(stack));
     }
 }
