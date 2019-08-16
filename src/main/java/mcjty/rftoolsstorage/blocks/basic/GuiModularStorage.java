@@ -15,6 +15,7 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
+import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridProvider;
 import mcjty.rftoolsstorage.craftinggrid.GuiCraftingGrid;
@@ -60,7 +61,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     private static final ResourceLocation iconLocationTop = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/modularstoragetop.png");
     private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/modularstorage.png");
-    private static final ResourceLocation guiElements = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/guielements.png");
+    private static final ResourceLocation guiElements = new ResourceLocation(RFToolsBase.MODID, "textures/gui/guielements.png");
 
     private WidgetList itemList;
     private TextField filter;

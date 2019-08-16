@@ -27,15 +27,13 @@ public class ModularStorageContainer extends GenericContainer {
     public static final int SLOT_STORAGE = 3;
     public static final int MAXSIZE_STORAGE = 300;
 
-    private ModularStorageTileEntity modularStorageTileEntity;
-
     public static final ContainerFactory factory = new ContainerFactory() {
         @Override
         protected void setup() {
             addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157, 1, 18, 1, 18);
             addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175, 1, 18, 1, 18);
             addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageFilterItem.class*/), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_INPUT), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 30, 0, 10, 0);
+            addSlotBox(new SlotDefinition(SlotType.SLOT_INPUT), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 100 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0); // Dummy slot positions
             layoutPlayerInventorySlots(91, 157);
             layoutGridInventorySlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
         }
@@ -48,17 +46,13 @@ public class ModularStorageContainer extends GenericContainer {
 
     };
 
-    public ModularStorageTileEntity getModularStorageTileEntity() {
-        return modularStorageTileEntity;
-    }
-
     public ModularStorageContainer(int id, BlockPos pos, PlayerEntity player, ModularStorageTileEntity tileEntity) {
-        super(ModBlocks.CONTAINER_MODULAR_STORAGE, id, factory, pos);
-        modularStorageTileEntity = tileEntity;
+        super(ModBlocks.CONTAINER_MODULAR_STORAGE, id, factory, pos, tileEntity);
     }
 
     @Override
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
+        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
         addInventory(CONTAINER_CARDS, modularStorageTileEntity.getCardHandler());        // The three cards
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
@@ -86,9 +80,9 @@ public class ModularStorageContainer extends GenericContainer {
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_PLAYERINV || slotFactory.getSlotType() == SlotType.SLOT_PLAYERHOTBAR) {
-                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY());
+                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY());
             } else {
-                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY());
+                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY());
             }
             addSlot(slot);
         }
@@ -133,6 +127,7 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     private void syncSlotsToListeners(List<Pair<Integer, ItemStack>> differentSlots) {
+        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
         String sortMode = modularStorageTileEntity.getSortMode();
         String viewMode = modularStorageTileEntity.getViewMode();
         boolean groupMode = modularStorageTileEntity.isGroupMode();

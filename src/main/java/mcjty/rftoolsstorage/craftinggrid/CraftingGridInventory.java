@@ -33,21 +33,21 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
 
     @Override
     public int getSlots() {
-        return 20;
+        return 10;
     }
 
     @Nonnull
     @Override
     public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
         // @todo 1.14
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Nonnull
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         // @todo 1.14
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override
