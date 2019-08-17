@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.blocks.basic;
 
 import mcjty.lib.base.StyleConfig;
+import mcjty.lib.container.BaseSlot;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
@@ -104,7 +105,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             ySize = ModularStorageConfiguration.height1.get();
         }
 
-        IItemHandler gridInventory = ((GenericContainer) container).getInventory(CONTAINER_GRID);
+        IItemHandler gridInventory = container.getInventory(CONTAINER_GRID);
         for (Object o : container.inventorySlots) {
             SlotItemHandler slot = (SlotItemHandler) o;
             if (slot.getItemHandler() != gridInventory) {
@@ -310,7 +311,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     @Override
     public boolean isSlotSelected(Slot slotIn, double x, double y) {
-        if (slotIn.inventory instanceof ModularStorageTileEntity){ // @todo 1.14 || slotIn.inventory instanceof ModularStorageItemInventory || slotIn.inventory instanceof RemoteStorageItemInventory) {
+        if (slotIn instanceof BaseSlot && ((BaseSlot) slotIn).getTe() instanceof ModularStorageTileEntity){ // @todo 1.14 || slotIn.inventory instanceof ModularStorageItemInventory || slotIn.inventory instanceof RemoteStorageItemInventory) {
             Widget<?> widget = window.getToplevel().getWidgetAtPosition((int)x, (int)y);
             if (widget instanceof BlockRender) {
                 Object userObject = widget.getUserObject();

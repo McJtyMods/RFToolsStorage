@@ -13,9 +13,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.List;
 
 public class ModularStorageContainer extends GenericContainer {
     public static final String CONTAINER_GRID = "grid";
@@ -101,10 +98,9 @@ public class ModularStorageContainer extends GenericContainer {
         }
         return super.slotClick(index, button, mode, player);
     }
-
-    @Override
-    public void detectAndSendChanges() {
-        // @todo 1.14
+//
+//    @Override
+//    public void detectAndSendChanges() {
 //        List<Pair<Integer, ItemStack>> differentSlots = new ArrayList<>();
 //        for (int i = 0; i < this.inventorySlots.size(); ++i) {
 //            ItemStack itemstack = this.inventorySlots.get(i).getStack();
@@ -124,20 +120,19 @@ public class ModularStorageContainer extends GenericContainer {
 //        if (!differentSlots.isEmpty()) {
 //            syncSlotsToListeners(differentSlots);
 //        }
-    }
-
-    private void syncSlotsToListeners(List<Pair<Integer, ItemStack>> differentSlots) {
-        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
-        String sortMode = modularStorageTileEntity.getSortMode();
-        String viewMode = modularStorageTileEntity.getViewMode();
-        boolean groupMode = modularStorageTileEntity.isGroupMode();
-        String filter = modularStorageTileEntity.getFilter();
-
-        // @todo 1.14
+//    }
+//
+//    private void syncSlotsToListeners(List<Pair<Integer, ItemStack>> differentSlots) {
+//        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
+//        String sortMode = modularStorageTileEntity.getSortMode();
+//        String viewMode = modularStorageTileEntity.getViewMode();
+//        boolean groupMode = modularStorageTileEntity.isGroupMode();
+//        String filter = modularStorageTileEntity.getFilter();
+//
 //        for (IContainerListener listener : this.listeners) {
 //            if (listener instanceof PlayerEntity) {
 //                PlayerEntity player = (PlayerEntity) listener;
-//                RFToolsMessages.INSTANCE.sendTo(new PacketSyncSlotsToClient(
+//                RFToolsStorageMessages.INSTANCE.sendTo(new PacketSyncSlotsToClient(
 //                        modularStorageTileEntity.getPos(),
 //                        sortMode, viewMode, groupMode, filter,
 //                        modularStorageTileEntity.getMaxSize(),
@@ -145,5 +140,5 @@ public class ModularStorageContainer extends GenericContainer {
 //                        differentSlots), player);
 //            }
 //        }
-    }
+//    }
 }
