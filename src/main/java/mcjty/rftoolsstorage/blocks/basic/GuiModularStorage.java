@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.blocks.basic;
 
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.BaseSlot;
-import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -48,6 +47,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static mcjty.rftoolsstorage.blocks.basic.ModularStorageContainer.CONTAINER_GRID;
+import static mcjty.rftoolsstorage.blocks.basic.ModularStorageContainer.SLOT_STORAGE;
 import static mcjty.rftoolsstorage.blocks.basic.ModularStorageTileEntity.*;
 
 
@@ -298,7 +298,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         for (Object slotObject : container.inventorySlots) {
             Slot slot = (Slot) slotObject;
             // Skip the first two slots if we are on a modular storage block.
-            if (tileEntity != null && slot.getSlotIndex() < ModularStorageContainer.SLOT_STORAGE) {
+//            if (tileEntity != null && slot.getSlotIndex() < SLOT_STORAGE) {
+            if (tileEntity != null && !(slot instanceof BaseSlot)) {
                 continue;
             }
             if ((!slot.getHasStack()) || slot.getStack().getCount() == 0) {
@@ -317,7 +318,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
                 Object userObject = widget.getUserObject();
                 if (userObject instanceof Integer) {
                     Integer slotIndex = (Integer) userObject;
-                    return slotIndex == slotIn.getSlotIndex();
+                    return slotIndex == slotIn.slotNumber;
                 }
             } else {
                 return super.isSlotSelected(slotIn, x, y);
@@ -440,16 +441,16 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         List<Pair<ItemStack, Integer>> items = new ArrayList<>();
         if (tileEntity != null) {
             tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
-                for (int i = ModularStorageContainer.SLOT_STORAGE; i < handler.getSlots(); i++) {
+                for (int i = 0 ; i < handler.getSlots(); i++) {
                     ItemStack stack = handler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
                         String displayName = stack.getDisplayName().getFormattedText();
                         if (filterText.isEmpty() || displayName.toLowerCase().contains(filterText)) {
-                            items.add(Pair.of(stack, i));
+                            items.add(Pair.of(stack, i + SLOT_STORAGE));
                         }
                     }
                 }
-                max.set(handler.getSlots() - ModularStorageContainer.SLOT_STORAGE);
+                max.set(handler.getSlots());
 
             });
 //        } else {
@@ -635,6 +636,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
         super.drawGuiContainerForegroundLayer(i1, i2);
     }
+
+
 
     @Override
     protected void drawWindow() {

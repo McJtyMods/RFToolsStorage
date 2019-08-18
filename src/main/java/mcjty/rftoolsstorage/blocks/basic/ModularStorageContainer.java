@@ -141,4 +141,10 @@ public class ModularStorageContainer extends GenericContainer {
 //            }
 //        }
 //    }
+
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+    }
 }

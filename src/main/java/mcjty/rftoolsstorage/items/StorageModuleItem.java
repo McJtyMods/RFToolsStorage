@@ -17,6 +17,8 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -98,7 +100,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
         int max = MAXSIZE[tier];
         CompoundNBT tagCompound = itemStack.getTag();
         if (tagCompound != null) {
-            addModuleInformation(list, max, tagCompound);
+            addModuleInformation(itemStack, list, max, tagCompound);
         }
         if (McJtyLib.proxy.isShiftKeyDown()) {
             list.add(new StringTextComponent(TextFormatting.WHITE + "This storage module is for the Modular Storage block."));
@@ -116,8 +118,9 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
         }
     }
 
-    public static void addModuleInformation(List<ITextComponent> list, int max, CompoundNBT tagCompound) {
+    public static void addModuleInformation(ItemStack stack, List<ITextComponent> list, int max, CompoundNBT tagCompound) {
         if (max == -1) {
+            // @todo 1.14
             // This is a remote storage module.
             if (tagCompound.contains("id")) {
                 int id = tagCompound.getInt("id");
@@ -126,12 +129,20 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
                 list.add(new StringTextComponent(TextFormatting.YELLOW + "Unlinked"));
             }
         } else {
-            int cnt = tagCompound.getInt("count");
-            if (tagCompound.contains("id")) {
-                int id = tagCompound.getInt("id");
-                list.add(new StringTextComponent(TextFormatting.GREEN + "Contents id: " + id));
-            }
-            list.add(new StringTextComponent(TextFormatting.GREEN + "Contents: " + cnt + "/" + max + " stacks"));
+            stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
+//                int cnt = tagCompound.getInt("count");
+//                if (tagCompound.contains("id")) {
+//                    int id = tagCompound.getInt("id");
+//                    list.add(new StringTextComponent(TextFormatting.GREEN + "Contents id: " + id));
+//                }
+                int cnt = 0;
+                for (int i = 0 ; i < h.getSlots() ; i++) {
+                    if (!h.getStackInSlot(i).isEmpty()) {
+                        cnt++;
+                    }
+                }
+                list.add(new StringTextComponent(TextFormatting.GREEN + "Contents: " + cnt + "/" + max + " stacks"));
+            });
         }
     }
 
