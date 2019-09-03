@@ -17,7 +17,7 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> implements I
 
     private final Map<UUID, StorageEntry> storageEntryMap = new HashMap<>();
 
-    public StorageHolder() {
+    private StorageHolder() {
         super(NAME);
     }
 
