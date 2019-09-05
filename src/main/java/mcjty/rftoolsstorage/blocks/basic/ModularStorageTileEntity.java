@@ -8,7 +8,7 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsstorage.api.general.IInventoryTracker;
 import mcjty.rftoolsstorage.blocks.ModBlocks;
-import mcjty.rftoolsstorage.compat.jei.JEIRecipeAcceptor;
+import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
 import net.minecraft.entity.player.PlayerEntity;
