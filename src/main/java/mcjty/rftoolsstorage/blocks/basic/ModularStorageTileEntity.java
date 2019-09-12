@@ -2,18 +2,19 @@ package mcjty.rftoolsstorage.blocks.basic;
 
 import mcjty.lib.bindings.DefaultAction;
 import mcjty.lib.bindings.IAction;
+import mcjty.lib.api.container.CapabilityContainerProvider;
+import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
+import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsstorage.api.general.IInventoryTracker;
 import mcjty.rftoolsstorage.blocks.ModBlocks;
-import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
@@ -55,6 +56,10 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     private StorageFilterCache filterCache = null;
 
     private LazyOptional<IItemHandler> emptyHandler = LazyOptional.of(() -> new EmptyHandler());
+    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
+            .containerSupplier((windowId,player) -> new ModularStorageContainer(windowId, getPos(), player, ModularStorageTileEntity.this))
+            .itemHandler(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)));
+
     private ItemStackHandler cardHandler = new ItemStackHandler(3);
 
     private CraftingGrid craftingGrid = new CraftingGrid();
@@ -302,18 +307,12 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             }
             return storageCard.getCapability(cap, facing);
         }
+        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
+            return screenHandler.cast();
+        }
         return super.getCapability(cap, facing);
     }
 
-
-    @Nullable
-    @Override
-    public Container createMenu(int windowId, PlayerInventory inventory, PlayerEntity player) {
-        ModularStorageContainer container = new ModularStorageContainer(windowId, getPos(), player, this);
-        getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> container.setupInventories(h, inventory));
-//        energyHandler.ifPresent(e -> e.addIntegerListeners(container));
-        return container;
-    }
 
     public IItemHandler getCardHandler() {
         return cardHandler;
