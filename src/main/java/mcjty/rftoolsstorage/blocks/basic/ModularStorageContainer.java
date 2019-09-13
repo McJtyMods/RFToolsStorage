@@ -24,21 +24,21 @@ public class ModularStorageContainer extends GenericContainer {
     public static final int SLOT_STORAGE = 3;
     public static final int MAXSIZE_STORAGE = 300;
 
-    public static final ContainerFactory factory = new ContainerFactory() {
+    public static final ContainerFactory factory = new ContainerFactory(SLOT_STORAGE) {
         @Override
         protected void setup() {
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_SPECIFICITEM, stack-> false /* @todo 1.14 StorageFilterItem.class*/), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193, 1, 18, 1, 18);
-            addSlotBox(new SlotDefinition(SlotType.SLOT_INPUT), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 100 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0); // Dummy slot positions
-            layoutPlayerInventorySlots(91, 157);
-            layoutGridInventorySlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
+            slot(SlotDefinition.specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157);
+            slot(SlotDefinition.specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175);
+            slot(SlotDefinition.specific(stack -> false /* @todo 1.14 StorageFilterItem.class*/), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193);
+            box(SlotDefinition.input(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 100 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0); // Dummy slot positions
+            playerSlots(91, 157);
+            gridSlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
         }
 
-        protected void layoutGridInventorySlots(int leftCol, int topRow) {
-            this.addSlotBox(new SlotDefinition(SlotType.SLOT_GHOST), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, leftCol, topRow, 3, 18, 3, 18);
+        protected void gridSlots(int leftCol, int topRow) {
+            box(SlotDefinition.ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, leftCol, topRow, 3, 3);
             topRow += 58;
-            this.addSlotRange(new SlotDefinition(SlotType.SLOT_GHOSTOUT), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, leftCol, topRow, 1, 18);
+            range(SlotDefinition.ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, leftCol, topRow, 1, 18);
         }
 
     };

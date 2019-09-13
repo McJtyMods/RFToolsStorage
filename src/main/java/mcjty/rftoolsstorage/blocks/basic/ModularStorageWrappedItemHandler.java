@@ -3,7 +3,6 @@ package mcjty.rftoolsstorage.blocks.basic;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.rftoolsstorage.items.ModItems;
 import mcjty.rftoolsstorage.items.StorageModuleItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.ListNBT;
@@ -19,7 +18,7 @@ public class ModularStorageWrappedItemHandler extends NoDirectionItemHander {
     private Optional<IItemHandler> wrapped = Optional.empty();
 
     public ModularStorageWrappedItemHandler(GenericTileEntity te, ContainerFactory factory) {
-        super(te, factory, ModularStorageContainer.SLOT_STORAGE);
+        super(te, factory);
     }
 
     public void setWrapped(@Nullable IItemHandler handler) {
