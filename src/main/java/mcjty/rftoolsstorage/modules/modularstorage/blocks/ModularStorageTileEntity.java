@@ -9,7 +9,7 @@ import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
-import mcjty.rftoolsstorage.api.general.IInventoryTracker;
+import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsstorage.blocks.ModBlocks;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
