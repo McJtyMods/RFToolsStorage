@@ -4,7 +4,7 @@ package mcjty.rftoolsstorage.setup;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.blocks.ModBlocks;
-import mcjty.rftoolsstorage.blocks.basic.GuiModularStorage;
+import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

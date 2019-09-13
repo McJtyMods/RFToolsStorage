@@ -1,7 +1,8 @@
-package mcjty.rftoolsstorage.blocks.basic;
+package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularTypeModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;

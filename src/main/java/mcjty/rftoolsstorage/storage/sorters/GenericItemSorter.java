@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.storage.sorters;
 
-import mcjty.rftoolsstorage.blocks.basic.ModularStorageConfiguration;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageConfiguration;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;

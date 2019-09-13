@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.blocks.basic;
+package mcjty.rftoolsstorage.modules.modularstorage;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.StringUtils;

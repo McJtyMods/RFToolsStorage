@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.blocks.basic;
+package mcjty.rftoolsstorage.modules.modularstorage.client;
 
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.BaseSlot;
@@ -17,9 +17,12 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageConfiguration;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridProvider;
 import mcjty.rftoolsstorage.craftinggrid.GuiCraftingGrid;
-import mcjty.rftoolsstorage.items.StorageModuleItem;
+import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
+import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
+import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.storage.modules.DefaultTypeModule;
@@ -46,9 +49,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static mcjty.rftoolsstorage.blocks.basic.ModularStorageContainer.CONTAINER_GRID;
-import static mcjty.rftoolsstorage.blocks.basic.ModularStorageContainer.SLOT_STORAGE;
-import static mcjty.rftoolsstorage.blocks.basic.ModularStorageTileEntity.*;
+import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.CONTAINER_GRID;
+import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE;
+import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity.*;
 
 
 public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEntity, ModularStorageContainer> {

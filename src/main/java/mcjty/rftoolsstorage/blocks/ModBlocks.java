@@ -1,9 +1,8 @@
 package mcjty.rftoolsstorage.blocks;
 
-import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.blocks.basic.ModularStorageBlock;
-import mcjty.rftoolsstorage.blocks.basic.ModularStorageContainer;
+import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageBlock;
+import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.registries.ObjectHolder;

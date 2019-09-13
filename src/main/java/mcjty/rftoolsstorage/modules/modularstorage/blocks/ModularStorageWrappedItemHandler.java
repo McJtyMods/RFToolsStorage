@@ -1,9 +1,9 @@
-package mcjty.rftoolsstorage.blocks.basic;
+package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.rftoolsstorage.items.StorageModuleItem;
+import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.items.IItemHandler;

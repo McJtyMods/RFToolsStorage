@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.blocks.basic;
+package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.bindings.DefaultAction;
 import mcjty.lib.bindings.IAction;

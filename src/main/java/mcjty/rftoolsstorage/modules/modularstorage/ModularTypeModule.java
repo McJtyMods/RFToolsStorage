@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.blocks.basic;
+package mcjty.rftoolsstorage.modules.modularstorage;
 
 import net.minecraft.util.IStringSerializable;
 

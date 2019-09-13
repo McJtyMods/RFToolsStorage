@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.items;
 
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import net.minecraftforge.registries.ObjectHolder;
 
 public class ModItems {

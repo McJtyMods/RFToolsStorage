@@ -1,9 +1,9 @@
-package mcjty.rftoolsstorage.blocks.basic;
+package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.container.*;
 import mcjty.rftoolsstorage.blocks.ModBlocks;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
-import mcjty.rftoolsstorage.items.StorageModuleItem;
+import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;

@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.config;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import mcjty.rftoolsstorage.blocks.basic.ModularStorageConfiguration;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageConfiguration;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.fml.common.Mod;
