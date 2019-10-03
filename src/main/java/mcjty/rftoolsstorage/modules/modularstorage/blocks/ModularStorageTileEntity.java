@@ -1,9 +1,9 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
-import mcjty.lib.bindings.DefaultAction;
-import mcjty.lib.bindings.IAction;
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.bindings.DefaultAction;
+import mcjty.lib.bindings.IAction;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
@@ -60,7 +60,12 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             .containerSupplier((windowId,player) -> new ModularStorageContainer(windowId, getPos(), player, ModularStorageTileEntity.this))
             .itemHandler(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)));
 
-    private ItemStackHandler cardHandler = new ItemStackHandler(3);
+    private ItemStackHandler cardHandler = new ItemStackHandler(3) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            markDirtyClient();
+        }
+    };
 
     private CraftingGrid craftingGrid = new CraftingGrid();
 
