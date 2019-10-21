@@ -1,8 +1,8 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import io.netty.buffer.ByteBuf;
 import mcjty.lib.McJtyLib;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -11,18 +11,18 @@ import java.util.function.Supplier;
 
 public class PacketGridToClient extends PacketGridSync {
 
-    public void fromBytes(ByteBuf buf) {
+    public void fromBytes(PacketBuffer buf) {
         convertFromBytes(buf);
     }
 
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(PacketBuffer buf) {
         convertToBytes(buf);
     }
 
     public PacketGridToClient() {
     }
 
-    public PacketGridToClient(ByteBuf buf) {
+    public PacketGridToClient(PacketBuffer buf) {
         fromBytes(buf);
     }
 

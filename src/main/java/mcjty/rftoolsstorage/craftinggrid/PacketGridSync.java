@@ -1,10 +1,9 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -17,9 +16,9 @@ public class PacketGridSync {
     private BlockPos pos;
     private List<ItemStack[]> recipes;
 
-    public void convertFromBytes(ByteBuf buf) {
+    public void convertFromBytes(PacketBuffer buf) {
         if (buf.readBoolean()) {
-            pos = NetworkTools.readPos(buf);
+            pos = buf.readBlockPos();
         } else {
             pos = null;
         }
@@ -29,20 +28,16 @@ public class PacketGridSync {
             int ss = buf.readInt();
             ItemStack[] stacks = new ItemStack[ss];
             for (int j = 0 ; j < ss ; j++) {
-                if (buf.readBoolean()) {
-                    stacks[j] = NetworkTools.readItemStack(buf);
-                } else {
-                    stacks[j] = ItemStack.EMPTY;
-                }
+                stacks[j] = buf.readItemStack();
             }
             recipes.add(stacks);
         }
     }
 
-    public void convertToBytes(ByteBuf buf) {
+    public void convertToBytes(PacketBuffer buf) {
         if (pos != null) {
             buf.writeBoolean(true);
-            NetworkTools.writePos(buf, pos);
+            buf.writeBlockPos(pos);
         } else {
             buf.writeBoolean(false);
         }
@@ -50,12 +45,7 @@ public class PacketGridSync {
         for (ItemStack[] recipe : recipes) {
             buf.writeInt(recipe.length);
             for (ItemStack stack : recipe) {
-                if (!stack.isEmpty()) {
-                    buf.writeBoolean(true);
-                    NetworkTools.writeItemStack(buf, stack);
-                } else {
-                    buf.writeBoolean(false);
-                }
+                buf.writeItemStack(stack);
             }
         }
     }

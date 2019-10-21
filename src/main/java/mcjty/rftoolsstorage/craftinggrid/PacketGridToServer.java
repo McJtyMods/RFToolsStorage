@@ -1,9 +1,8 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import io.netty.buffer.ByteBuf;
-import mcjty.lib.network.NetworkTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -14,37 +13,27 @@ public class PacketGridToServer extends PacketGridSync {
 
     private ItemStack[] stacks = new ItemStack[0];
 
-    public void fromBytes(ByteBuf buf) {
+    public void fromBytes(PacketBuffer buf) {
         convertFromBytes(buf);
         int len = buf.readInt();
         stacks = new ItemStack[len];
         for (int i = 0 ; i < len ; i++) {
-            if (buf.readBoolean()) {
-                stacks[i] = NetworkTools.readItemStack(buf);
-            } else {
-                stacks[i] = ItemStack.EMPTY;
-            }
+            stacks[i] = buf.readItemStack();
         }
     }
 
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(PacketBuffer buf) {
         convertToBytes(buf);
         buf.writeInt(stacks.length);
         for (ItemStack stack : stacks) {
-            if (!stack.isEmpty()) {
-                buf.writeBoolean(true);
-                NetworkTools.writeItemStack(buf, stack);
-            } else {
-                buf.writeBoolean(false);
-            }
+            buf.writeItemStack(stack);
         }
-
     }
 
     public PacketGridToServer() {
     }
 
-    public PacketGridToServer(ByteBuf buf) {
+    public PacketGridToServer(PacketBuffer buf) {
         fromBytes(buf);
     }
 
