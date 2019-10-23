@@ -19,7 +19,7 @@ public class ModSetup extends DefaultModSetup {
     @Override
     public void init(FMLCommonSetupEvent e) {
         super.init(e);
-
+        CommandHandler.registerCommands();
         RFToolsStorageMessages.registerMessages("rftoolsstorage");
     }
 

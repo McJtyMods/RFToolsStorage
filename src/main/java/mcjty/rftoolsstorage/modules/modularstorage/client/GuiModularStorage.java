@@ -630,7 +630,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         double mouseX = minecraft.mouseHelper.getMouseX();
         double mouseY = minecraft.mouseHelper.getMouseY();
         int x = (int) (mouseX * width / minecraft.mainWindow.getWidth());
-        int y = (int) (height - mouseY * height / minecraft.mainWindow.getHeight() - 1);
+        int y = (int) (mouseY * height / minecraft.mainWindow.getHeight() - 1);
 
         List<String> tooltips = craftingGrid.getWindow().getTooltips();
         if (tooltips != null) {

@@ -5,6 +5,7 @@ import mcjty.lib.network.PacketSendClientCommand;
 import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.modules.modularstorage.network.PacketSyncSlotsToClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -32,6 +33,7 @@ public class RFToolsStorageMessages {
 
         // Client side
         net.registerMessage(id(), PacketReturnStorageToClient.class, PacketReturnStorageToClient::toBytes, PacketReturnStorageToClient::new, PacketReturnStorageToClient::handle);
+        net.registerMessage(id(), PacketSyncSlotsToClient.class, PacketSyncSlotsToClient::toBytes, PacketSyncSlotsToClient::new, PacketSyncSlotsToClient::handle);
 
         PacketHandler.registerStandardMessages(net);
     }

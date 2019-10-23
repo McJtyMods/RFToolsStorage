@@ -1,18 +1,27 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.container.*;
-import mcjty.rftoolsstorage.blocks.ModBlocks;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
+import mcjty.rftoolsstorage.modules.modularstorage.network.PacketSyncSlotsToClient;
+import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.IContainerListener;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModularStorageContainer extends GenericContainer {
     public static final String CONTAINER_GRID = "grid";
@@ -44,7 +53,7 @@ public class ModularStorageContainer extends GenericContainer {
     };
 
     public ModularStorageContainer(int id, BlockPos pos, PlayerEntity player, ModularStorageTileEntity tileEntity) {
-        super(ModBlocks.CONTAINER_MODULAR_STORAGE, id, factory, pos, tileEntity);
+        super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE, id, factory, pos, tileEntity);
     }
 
     @Override
@@ -98,53 +107,51 @@ public class ModularStorageContainer extends GenericContainer {
         }
         return super.slotClick(index, button, mode, player);
     }
-//
-//    @Override
-//    public void detectAndSendChanges() {
-//        List<Pair<Integer, ItemStack>> differentSlots = new ArrayList<>();
-//        for (int i = 0; i < this.inventorySlots.size(); ++i) {
-//            ItemStack itemstack = this.inventorySlots.get(i).getStack();
-//            ItemStack itemstack1 = inventoryItemStacks.get(i);
-//
-//            if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
-//                itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
-//                inventoryItemStacks.set(i, itemstack1);
-//                differentSlots.add(Pair.of(i, itemstack));
-//                if (differentSlots.size() >= 30) {
-//                    syncSlotsToListeners(differentSlots);
-//                    // Make a new list so that the one we gave to syncSlots is preserved
-//                    differentSlots = new ArrayList<>();
-//                }
-//            }
-//        }
-//        if (!differentSlots.isEmpty()) {
-//            syncSlotsToListeners(differentSlots);
-//        }
-//    }
-//
-//    private void syncSlotsToListeners(List<Pair<Integer, ItemStack>> differentSlots) {
-//        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
-//        String sortMode = modularStorageTileEntity.getSortMode();
-//        String viewMode = modularStorageTileEntity.getViewMode();
-//        boolean groupMode = modularStorageTileEntity.isGroupMode();
-//        String filter = modularStorageTileEntity.getFilter();
-//
-//        for (IContainerListener listener : this.listeners) {
-//            if (listener instanceof PlayerEntity) {
-//                PlayerEntity player = (PlayerEntity) listener;
-//                RFToolsStorageMessages.INSTANCE.sendTo(new PacketSyncSlotsToClient(
-//                        modularStorageTileEntity.getPos(),
-//                        sortMode, viewMode, groupMode, filter,
-//                        modularStorageTileEntity.getMaxSize(),
-//                        modularStorageTileEntity.getNumStacks(),
-//                        differentSlots), player);
-//            }
-//        }
-//    }
-
 
     @Override
     public void detectAndSendChanges() {
-        super.detectAndSendChanges();
+        List<Pair<Integer, ItemStack>> differentSlots = new ArrayList<>();
+        for (int i = 0; i < this.inventorySlots.size(); ++i) {
+            ItemStack itemstack = this.inventorySlots.get(i).getStack();
+            ItemStack itemstack1 = inventoryItemStacks.get(i);
+
+            if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
+                itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
+                inventoryItemStacks.set(i, itemstack1);
+                differentSlots.add(Pair.of(i, itemstack));
+                if (differentSlots.size() >= 30) {
+                    syncSlotsToListeners(differentSlots);
+                    // Make a new list so that the one we gave to syncSlots is preserved
+                    differentSlots = new ArrayList<>();
+                }
+            }
+        }
+        if (!differentSlots.isEmpty()) {
+            syncSlotsToListeners(differentSlots);
+        }
     }
+
+    private void syncSlotsToListeners(List<Pair<Integer, ItemStack>> differentSlots) {
+        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
+        String sortMode = modularStorageTileEntity.getSortMode();
+        String viewMode = modularStorageTileEntity.getViewMode();
+        boolean groupMode = modularStorageTileEntity.isGroupMode();
+        String filter = modularStorageTileEntity.getFilter();
+
+        for (IContainerListener listener : this.listeners) {
+            if (listener instanceof PlayerEntity) {
+                PlayerEntity player = (PlayerEntity) listener;
+                RFToolsStorageMessages.INSTANCE.sendTo(new PacketSyncSlotsToClient(
+                        modularStorageTileEntity.getPos(),
+                        sortMode, viewMode, groupMode, filter,
+                        differentSlots), ((ServerPlayerEntity)player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            }
+        }
+    }
+
+
+//    @Override
+//    public void detectAndSendChanges() {
+//        super.detectAndSendChanges();
+//    }
 }

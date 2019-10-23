@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.setup;
 
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.blocks.ModBlocks;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -16,7 +16,7 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void init(FMLClientSetupEvent e) {
-        GenericGuiContainer.register(ModBlocks.CONTAINER_MODULAR_STORAGE, GuiModularStorage::new);
+        GenericGuiContainer.register(ModularStorageSetup.CONTAINER_MODULAR_STORAGE, GuiModularStorage::new);
     }
 
     @SubscribeEvent

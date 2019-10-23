@@ -10,8 +10,8 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
-import mcjty.rftoolsstorage.blocks.ModBlocks;
 import mcjty.rftoolsstorage.craftinggrid.*;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -58,7 +58,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     private LazyOptional<IItemHandler> emptyHandler = LazyOptional.of(() -> new EmptyHandler());
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId,player) -> new ModularStorageContainer(windowId, getPos(), player, ModularStorageTileEntity.this))
-            .itemHandler(getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)));
+            .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
     private ItemStackHandler cardHandler = new ItemStackHandler(3) {
         @Override
@@ -75,7 +75,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     private String filter = "";
 
     public ModularStorageTileEntity() {
-        super(ModBlocks.TYPE_MODULAR_STORAGE);
+        super(ModularStorageSetup.TYPE_MODULAR_STORAGE);
     }
 
     @Override
@@ -193,7 +193,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     /**
      * Called from the container (detectAndSendChanges) and executed on the client.
      */
-    public void syncInventoryFromServer(int maxSize, int numStacks, String sortMode, String viewMode, boolean groupMode, String filter) {
+    public void syncInventoryFromServer(String sortMode, String viewMode, boolean groupMode, String filter) {
         this.sortMode = sortMode;
         this.viewMode = viewMode;
         this.groupMode = groupMode;
