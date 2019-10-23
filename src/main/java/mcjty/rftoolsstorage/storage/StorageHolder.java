@@ -22,7 +22,7 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> implements I
     }
 
     public static StorageHolder get() {
-        return getData(() -> new StorageHolder(), NAME);
+        return getData(StorageHolder::new, NAME);
     }
 
     public ItemStackHandler getStorage(UUID uuid) {

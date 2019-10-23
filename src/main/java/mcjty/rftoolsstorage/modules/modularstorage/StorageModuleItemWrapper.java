@@ -1,11 +1,14 @@
 package mcjty.rftoolsstorage.modules.modularstorage;
 
+import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.storage.StorageHolder;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
@@ -28,15 +31,11 @@ public class StorageModuleItemWrapper implements ICapabilityProvider {
 
     private ItemStackHandler createHandler() {
         if (handler == null) {
-            handler = new ItemStackHandler(100) {
-                @Override
-                protected void onContentsChanged(int slot) {
-                    CompoundNBT nbt = serializeNBT();
-                    itemStack.getOrCreateTag().put("Items", nbt);
-                }
-            };
-            CompoundNBT items = itemStack.getOrCreateTag().getCompound("Items");
-            handler.deserializeNBT(items);
+            if (EffectiveSide.get() == LogicalSide.SERVER) {
+                return StorageHolder.get().getStorageEntry(uuid).getHandler();
+            } else {
+                return RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, 0/*@todo*/);
+            }
         }
         return handler;
     }
