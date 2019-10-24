@@ -60,6 +60,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
         if (!nbt.contains("uuid")) {
             nbt.putUniqueId("uuid", UUID.randomUUID());
             nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
+
         }
         return nbt.getUniqueId("uuid");
     }
