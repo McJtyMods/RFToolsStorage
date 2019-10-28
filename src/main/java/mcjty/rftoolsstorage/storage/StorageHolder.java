@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.storage;
 
 import mcjty.lib.worlddata.AbstractWorldData;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -25,9 +26,6 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> implements I
         return getData(StorageHolder::new, NAME);
     }
 
-    public ItemStackHandler getStorage(UUID uuid) {
-        return getStorageEntry(uuid).getHandler();
-    }
 
     public StorageEntry getStorageEntry(UUID uuid) {
         if (!storageEntryMap.containsKey(uuid)) {

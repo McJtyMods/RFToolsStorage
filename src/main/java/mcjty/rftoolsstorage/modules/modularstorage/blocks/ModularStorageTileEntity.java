@@ -12,9 +12,11 @@ import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
@@ -23,6 +25,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -30,6 +33,9 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.UUID;
+
+import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE_MODULE;
 
 public class ModularStorageTileEntity extends GenericTileEntity implements ITickableTileEntity, IInventoryTracker,
         CraftingGridProvider, JEIRecipeAcceptor {
@@ -55,7 +61,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 
     private StorageFilterCache filterCache = null;
 
-    private LazyOptional<IItemHandler> emptyHandler = LazyOptional.of(() -> new EmptyHandler());
+    private GlobalStorageItemWrapper globalWrapper;
+
+    private LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId,player) -> new ModularStorageContainer(windowId, getPos(), player, ModularStorageTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
@@ -63,6 +71,11 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     private ItemStackHandler cardHandler = new ItemStackHandler(3) {
         @Override
         protected void onContentsChanged(int slot) {
+            if (slot == SLOT_STORAGE_MODULE) {
+                if (globalWrapper != null) {
+                    globalWrapper.setUuid(getStorageUUID());
+                }
+            }
             markDirtyClient();
         }
     };
@@ -302,15 +315,35 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         return 0;
     }
 
+    @Nullable
+    private UUID getStorageUUID() {
+        ItemStack storageCard = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
+        if (storageCard.isEmpty()) {
+            return null;
+        }
+        Item item = storageCard.getItem();
+        if (item instanceof StorageModuleItem) {
+            return StorageModuleItem.getOrCreateUUID(storageCard);
+        }
+        return null;
+    }
+
+    @Nonnull
+    private IItemHandlerModifiable createGlobalHandler() {
+        UUID uuid = getStorageUUID();
+        if (globalWrapper == null) {
+            globalWrapper = new GlobalStorageItemWrapper(uuid, world.isRemote);
+        } else {
+            globalWrapper.setUuid(uuid);
+        }
+        return globalWrapper;
+    }
+
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            ItemStack storageCard = cardHandler.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
-            if (storageCard.isEmpty()) {
-                return emptyHandler.cast();
-            }
-            return storageCard.getCapability(cap, facing);
+            return globalHandler.cast();
         }
         if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
             return screenHandler.cast();

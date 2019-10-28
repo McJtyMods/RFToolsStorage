@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.storage;
 
 import mcjty.rftoolsstorage.network.PacketRequestStorageFromServer;
 import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
-import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -21,7 +20,7 @@ public class ClientStorageHolder {
     // requested from the server). If the data is present but outdated then
     // a new version is requested too but the old data is returned.
     @Nullable
-    public ItemStackHandler getStorage(UUID uuid, int version) {
+    public StorageEntry getStorage(UUID uuid, int version) {
         if (!storageEntryMap.containsKey(uuid)) {
             requestData(uuid);
             return null;
@@ -30,7 +29,7 @@ public class ClientStorageHolder {
         if (entry.getVersion() != version) {
             requestData(uuid);
         }
-        return entry.getHandler();
+        return entry;
     }
 
     private void requestData(UUID uuid) {

@@ -4,7 +4,7 @@ import mcjty.lib.McJtyLib;
 import mcjty.lib.crafting.INBTPreservingIngredient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.modules.modularstorage.StorageModuleItemWrapper;
+import mcjty.rftoolsstorage.storage.StorageEntry;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -13,12 +13,11 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -113,6 +112,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
             }
             if (tagCompound != null) {
                 list.add(new StringTextComponent(TextFormatting.BLUE + "UUID: " + tagCompound.getUniqueId("uuid").toString()));
+                list.add(new StringTextComponent(TextFormatting.BLUE + "version: " + tagCompound.getInt("version")));
             }
         } else {
             list.add(new StringTextComponent(TextFormatting.WHITE + RFToolsStorage.SHIFT_MESSAGE));
@@ -129,27 +129,18 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
             } else {
                 list.add(new StringTextComponent(TextFormatting.YELLOW + "Unlinked"));
             }
-        } else {
-            stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
-//                int cnt = tagCompound.getInt("count");
-//                if (tagCompound.contains("id")) {
-//                    int id = tagCompound.getInt("id");
-//                    list.add(new StringTextComponent(TextFormatting.GREEN + "Contents id: " + id));
-//                }
-                int cnt = 0;
-                for (int i = 0 ; i < h.getSlots() ; i++) {
-                    if (!h.getStackInSlot(i).isEmpty()) {
-                        cnt++;
-                    }
+        } else if (tagCompound.contains("uuid")) {
+            UUID uuid = tagCompound.getUniqueId("uuid");
+            int version = tagCompound.getInt("version");
+            StorageEntry storage = RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
+            NonNullList<ItemStack> stacks = storage.getStacks();
+            int cnt = 0;
+            for (ItemStack s : stacks) {
+                if (!s.isEmpty()) {
+                    cnt++;
                 }
-                list.add(new StringTextComponent(TextFormatting.GREEN + "Contents: " + cnt + "/" + max + " stacks"));
-            });
+            }
+            list.add(new StringTextComponent(TextFormatting.GREEN + "Contents: " + cnt + "/" + max + " stacks"));
         }
-    }
-
-    @Nullable
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
-        return new StorageModuleItemWrapper(stack, getOrCreateUUID(stack));
     }
 }
