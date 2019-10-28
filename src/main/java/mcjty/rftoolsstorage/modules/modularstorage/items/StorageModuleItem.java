@@ -56,7 +56,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
             throw new RuntimeException("This is not supposed to happen! Needs to be a storage item!");
         }
         CompoundNBT nbt = stack.getOrCreateTag();
-        if (!nbt.contains("uuidMost")) {
+        if (!nbt.hasUniqueId("uuid")) {
             nbt.putUniqueId("uuid", UUID.randomUUID());
             nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
         }
@@ -128,7 +128,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
             } else {
                 list.add(new StringTextComponent(TextFormatting.YELLOW + "Unlinked"));
             }
-        } else if (tagCompound.contains("uuidMost")) {
+        } else if (tagCompound.hasUniqueId("uuid")) {
             UUID uuid = tagCompound.getUniqueId("uuid");
             int version = tagCompound.getInt("version");
             StorageEntry storage = RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
