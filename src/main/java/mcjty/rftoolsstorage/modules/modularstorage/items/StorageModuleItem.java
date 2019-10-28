@@ -56,10 +56,9 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
             throw new RuntimeException("This is not supposed to happen! Needs to be a storage item!");
         }
         CompoundNBT nbt = stack.getOrCreateTag();
-        if (!nbt.contains("uuid")) {
+        if (!nbt.contains("uuidMost")) {
             nbt.putUniqueId("uuid", UUID.randomUUID());
             nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
-
         }
         return nbt.getUniqueId("uuid");
     }
@@ -129,18 +128,21 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
             } else {
                 list.add(new StringTextComponent(TextFormatting.YELLOW + "Unlinked"));
             }
-        } else if (tagCompound.contains("uuid")) {
+        } else if (tagCompound.contains("uuidMost")) {
             UUID uuid = tagCompound.getUniqueId("uuid");
             int version = tagCompound.getInt("version");
             StorageEntry storage = RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
-            NonNullList<ItemStack> stacks = storage.getStacks();
-            int cnt = 0;
-            for (ItemStack s : stacks) {
-                if (!s.isEmpty()) {
-                    cnt++;
+            if (storage != null) {
+                // @todo is this really needed if we only need number of items? Re-evaluate
+                NonNullList<ItemStack> stacks = storage.getStacks();
+                int cnt = 0;
+                for (ItemStack s : stacks) {
+                    if (!s.isEmpty()) {
+                        cnt++;
+                    }
                 }
+                list.add(new StringTextComponent(TextFormatting.GREEN + "Contents: " + cnt + "/" + max + " stacks"));
             }
-            list.add(new StringTextComponent(TextFormatting.GREEN + "Contents: " + cnt + "/" + max + " stacks"));
         }
     }
 }

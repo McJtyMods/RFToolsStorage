@@ -8,7 +8,6 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,7 +15,7 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
     private UUID uuid;
     private StorageEntry storage;
-    private NonNullList<ItemStack> emptyHandler = NonNullList.withSize(0, ItemStack.EMPTY);
+    private NonNullList<ItemStack> emptyHandler = NonNullList.withSize(400, ItemStack.EMPTY);   // @todo how to determine size?
     private final boolean remote;
 
     public GlobalStorageItemWrapper(UUID uuid, boolean remote) {
@@ -51,7 +50,11 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
     @Override
     public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
 //        validateSlotIndex(slot);
-        getStacks().set(slot, stack);
+        NonNullList<ItemStack> stacks = getStacks();
+        if (slot >= stacks.size()) {
+            return;
+        }
+        stacks.set(slot, stack);
         onContentsChanged(slot);
     }
 
@@ -94,8 +97,12 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         }
 
 //        validateSlotIndex(slot);
+        NonNullList<ItemStack> stacks = getStacks();
+        if (slot >= stacks.size()) {
+            return stack;
+        }
 
-        ItemStack existing = getStacks().get(slot);
+        ItemStack existing = stacks.get(slot);
 
         int limit = getStackLimit(slot, stack);
 
@@ -115,7 +122,7 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
         if (!simulate) {
             if (existing.isEmpty()) {
-                getStacks().set(slot, reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack);
+                stacks.set(slot, reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack);
             } else {
                 existing.grow(reachedLimit ? limit : stack.getCount());
             }
@@ -128,27 +135,33 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
     @Nonnull
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (amount == 0)
+        if (amount == 0) {
             return ItemStack.EMPTY;
+        }
 
 //        validateSlotIndex(slot);
-
-        ItemStack existing = getStacks().get(slot);
-
-        if (existing.isEmpty())
+        NonNullList<ItemStack> stacks = getStacks();
+        if (slot >= stacks.size()) {
             return ItemStack.EMPTY;
+        }
+
+        ItemStack existing = stacks.get(slot);
+
+        if (existing.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
 
         int toExtract = Math.min(amount, existing.getMaxStackSize());
 
         if (existing.getCount() <= toExtract) {
             if (!simulate) {
-                getStacks().set(slot, ItemStack.EMPTY);
+                stacks.set(slot, ItemStack.EMPTY);
                 onContentsChanged(slot);
             }
             return existing;
         } else {
             if (!simulate) {
-                getStacks().set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
+                stacks.set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
                 onContentsChanged(slot);
             }
 

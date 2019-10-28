@@ -61,13 +61,12 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 
     private StorageFilterCache filterCache = null;
 
-    private GlobalStorageItemWrapper globalWrapper;
-
     private LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId,player) -> new ModularStorageContainer(windowId, getPos(), player, ModularStorageTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
+    private GlobalStorageItemWrapper globalWrapper;
     private ItemStackHandler cardHandler = new ItemStackHandler(3) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -217,8 +216,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     public void read(CompoundNBT tagCompound) {
         super.read(tagCompound);
 
-        cardHandler.deserializeNBT(tagCompound.getCompound("Cards"));
-
         sortMode = tagCompound.getString("sortMode");
         viewMode = tagCompound.getString("viewMode");
         groupMode = tagCompound.getBoolean("groupMode");
@@ -227,10 +224,22 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
+    protected void readCaps(CompoundNBT tagCompound) {
+        // We don't want this
+    }
+
+    @Override
+    protected void readInfo(CompoundNBT tagCompound) {
+        super.readInfo(tagCompound);
+        if (tagCompound.contains("Info")) {
+            CompoundNBT infoTag = tagCompound.getCompound("Info");
+            cardHandler.deserializeNBT(infoTag.getCompound("Cards"));
+        }
+    }
+
+    @Override
     public CompoundNBT write(CompoundNBT tagCompound) {
         super.write(tagCompound);
-
-        tagCompound.put("Cards", cardHandler.serializeNBT());
 
         tagCompound.putString("sortMode", sortMode);
         tagCompound.putString("viewMode", viewMode);
@@ -238,6 +247,18 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         tagCompound.putString("filter", filter);
         tagCompound.put("grid", craftingGrid.writeToNBT());
         return tagCompound;
+    }
+
+    @Override
+    protected void writeCaps(CompoundNBT tagCompound) {
+        // We don't want this
+    }
+
+    @Override
+    protected void writeInfo(CompoundNBT tagCompound) {
+        super.writeInfo(tagCompound);
+        CompoundNBT infoTag = getOrCreateInfo(tagCompound);
+        infoTag.put("Cards", cardHandler.serializeNBT());
     }
 
     private void writeCardStack(CompoundNBT tagCompound, String cardName, ItemStack card) {
