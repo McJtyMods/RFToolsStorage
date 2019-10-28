@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
 import net.minecraft.item.ItemStack;
@@ -14,26 +15,33 @@ import java.util.UUID;
 public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
     private UUID uuid;
+    private int version;
     private StorageEntry storage;
     private NonNullList<ItemStack> emptyHandler = NonNullList.withSize(400, ItemStack.EMPTY);   // @todo how to determine size?
     private final boolean remote;
 
-    public GlobalStorageItemWrapper(UUID uuid, boolean remote) {
+    public GlobalStorageItemWrapper(UUID uuid, int version, boolean remote) {
         this.uuid = uuid;
+        this.version = version;
         this.remote = remote;
     }
 
-    public void setUuid(UUID uuid) {
-        if (Objects.equals(uuid, this.uuid)) {
+    public void setUuid(UUID uuid, int version) {
+        if (Objects.equals(uuid, this.uuid) && version == this.version) {
             return;
         }
         this.uuid = uuid;
+        this.version = version;
         storage = null;
     }
 
     private void createStorage() {
-        if (storage == null && uuid != null && !remote) {
-            storage = StorageHolder.get().getStorageEntry(uuid);
+        if (storage == null && uuid != null) {
+            if (remote) {
+                storage = RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
+            } else {
+                storage = StorageHolder.get().getStorageEntry(uuid);
+            }
         }
     }
 

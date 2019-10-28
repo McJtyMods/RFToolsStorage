@@ -27,7 +27,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.wrapper.EmptyHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
@@ -72,7 +71,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         protected void onContentsChanged(int slot) {
             if (slot == SLOT_STORAGE_MODULE) {
                 if (globalWrapper != null) {
-                    globalWrapper.setUuid(getStorageUUID());
+                    globalWrapper.setUuid(getStorageUUID(), getVersion());
                 }
             }
             markDirtyClient();
@@ -333,6 +332,14 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 //        } else {
 //            return version;
 //        }
+        ItemStack storageCard = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
+        if (storageCard.isEmpty()) {
+            return 0;
+        }
+        Item item = storageCard.getItem();
+        if (item instanceof StorageModuleItem) {
+            return StorageModuleItem.getVersion(storageCard);
+        }
         return 0;
     }
 
@@ -353,9 +360,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
     private IItemHandlerModifiable createGlobalHandler() {
         UUID uuid = getStorageUUID();
         if (globalWrapper == null) {
-            globalWrapper = new GlobalStorageItemWrapper(uuid, world.isRemote);
+            globalWrapper = new GlobalStorageItemWrapper(uuid, getVersion(), world.isRemote);
         } else {
-            globalWrapper.setUuid(uuid);
+            globalWrapper.setUuid(uuid, getVersion());
         }
         return globalWrapper;
     }

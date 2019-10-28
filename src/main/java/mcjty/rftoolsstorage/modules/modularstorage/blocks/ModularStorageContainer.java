@@ -108,28 +108,28 @@ public class ModularStorageContainer extends GenericContainer {
         return super.slotClick(index, button, mode, player);
     }
 
-    @Override
-    public void detectAndSendChanges() {
-        List<Pair<Integer, ItemStack>> differentSlots = new ArrayList<>();
-        for (int i = 0; i < this.inventorySlots.size(); ++i) {
-            ItemStack itemstack = this.inventorySlots.get(i).getStack();
-            ItemStack itemstack1 = inventoryItemStacks.get(i);
-
-            if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
-                itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
-                inventoryItemStacks.set(i, itemstack1);
-                differentSlots.add(Pair.of(i, itemstack));
-                if (differentSlots.size() >= 30) {
-                    syncSlotsToListeners(differentSlots);
-                    // Make a new list so that the one we gave to syncSlots is preserved
-                    differentSlots = new ArrayList<>();
-                }
-            }
-        }
-        if (!differentSlots.isEmpty()) {
-            syncSlotsToListeners(differentSlots);
-        }
-    }
+//    @Override
+//    public void detectAndSendChanges() {
+//        List<Pair<Integer, ItemStack>> differentSlots = new ArrayList<>();
+//        for (int i = 0; i < this.inventorySlots.size(); ++i) {
+//            ItemStack itemstack = this.inventorySlots.get(i).getStack();
+//            ItemStack itemstack1 = inventoryItemStacks.get(i);
+//
+//            if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
+//                itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
+//                inventoryItemStacks.set(i, itemstack1);
+//                differentSlots.add(Pair.of(i, itemstack));
+//                if (differentSlots.size() >= 30) {
+//                    syncSlotsToListeners(differentSlots);
+//                    // Make a new list so that the one we gave to syncSlots is preserved
+//                    differentSlots = new ArrayList<>();
+//                }
+//            }
+//        }
+//        if (!differentSlots.isEmpty()) {
+//            syncSlotsToListeners(differentSlots);
+//        }
+//    }
 
     private void syncSlotsToListeners(List<Pair<Integer, ItemStack>> differentSlots) {
         ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;

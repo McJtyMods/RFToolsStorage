@@ -63,6 +63,14 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
         return nbt.getUniqueId("uuid");
     }
 
+    public static int getVersion(ItemStack stack) {
+        if (stack.hasTag()) {
+            return stack.getTag().getInt("version");
+        } else {
+            return 0;
+        }
+    }
+
     @Override
     public Collection<String> getTagsToPreserve() {
         // @todo when upgrading we need to see how to upgrade the storage entry
