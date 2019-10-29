@@ -14,6 +14,7 @@ import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
+import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
@@ -71,7 +72,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         protected void onContentsChanged(int slot) {
             if (slot == SLOT_STORAGE_MODULE) {
                 if (globalWrapper != null) {
-                    globalWrapper.setUuid(getStorageUUID(), getVersion());
+                    StorageInfo info = getStorageInfo();
+                    globalWrapper.setInfo(info);
                 }
             }
             markDirtyClient();
@@ -320,9 +322,32 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 //        markDirtyClient();
     }
 
+    @Nonnull
+    public StorageInfo getStorageInfo() {
+        ItemStack storageCard = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
+        if (storageCard.isEmpty()) {
+            return StorageInfo.EMPTY;
+        }
+        Item item = storageCard.getItem();
+        if (item instanceof StorageModuleItem) {
+            UUID uuid = StorageModuleItem.getOrCreateUUID(storageCard);
+            int version = StorageModuleItem.getVersion(storageCard);
+            int size = StorageModuleItem.getSize(storageCard);
+            return new StorageInfo(uuid, version, size);
+        }
+        return StorageInfo.EMPTY;
+
+    }
+
     @Override
     public int getVersion() {
-        // @todo 1.14
+        // @todo do we still need this?
+        return getStorageInfo().getVersion();
+    }
+
+    //    @Override
+//    public int getVersion() {
+//        // @todo 1.14
 //        if (isRemote()) {
 //            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
 //            if (storageTileEntity == null) {
@@ -332,37 +357,15 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 //        } else {
 //            return version;
 //        }
-        ItemStack storageCard = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
-        if (storageCard.isEmpty()) {
-            return 0;
-        }
-        Item item = storageCard.getItem();
-        if (item instanceof StorageModuleItem) {
-            return StorageModuleItem.getVersion(storageCard);
-        }
-        return 0;
-    }
-
-    @Nullable
-    private UUID getStorageUUID() {
-        ItemStack storageCard = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
-        if (storageCard.isEmpty()) {
-            return null;
-        }
-        Item item = storageCard.getItem();
-        if (item instanceof StorageModuleItem) {
-            return StorageModuleItem.getOrCreateUUID(storageCard);
-        }
-        return null;
-    }
+//    }
 
     @Nonnull
     private IItemHandlerModifiable createGlobalHandler() {
-        UUID uuid = getStorageUUID();
+        StorageInfo info = getStorageInfo();
         if (globalWrapper == null) {
-            globalWrapper = new GlobalStorageItemWrapper(uuid, getVersion(), world.isRemote);
+            globalWrapper = new GlobalStorageItemWrapper(info, world.isRemote);
         } else {
-            globalWrapper.setUuid(uuid, getVersion());
+            globalWrapper.setInfo(info);
         }
         return globalWrapper;
     }

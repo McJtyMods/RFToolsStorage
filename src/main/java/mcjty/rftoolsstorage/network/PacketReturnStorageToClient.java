@@ -22,7 +22,7 @@ public class PacketReturnStorageToClient {
     public PacketReturnStorageToClient(PacketBuffer buf) {
         this.uuid = buf.readUniqueId();
         CompoundNBT nbt = buf.readCompoundTag();
-        entry = new StorageEntry(nbt, null);
+        entry = new StorageEntry(nbt);
     }
 
     public PacketReturnStorageToClient(UUID uuid, StorageEntry entry) {

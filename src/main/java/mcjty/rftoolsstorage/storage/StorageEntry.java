@@ -6,7 +6,8 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.Constants;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -14,13 +15,13 @@ import java.util.UUID;
  */
 public class StorageEntry {
 
-    private final NonNullList<ItemStack> stacks;
+    private NonNullList<ItemStack> stacks;
     private final UUID uuid;
     private int version;
 
-    public StorageEntry(CompoundNBT nbt, @Nullable IStorageListener listener) {
-        int slots = nbt.getInt("slots");
-        stacks = NonNullList.withSize(slots, ItemStack.EMPTY);
+    public StorageEntry(CompoundNBT nbt) {
+        int size = nbt.getInt("slots");
+        stacks = NonNullList.withSize(size, ItemStack.EMPTY);
         ListNBT tagList = nbt.getList("Items", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < tagList.size(); i++) {
             CompoundNBT itemTags = tagList.getCompound(i);
@@ -35,7 +36,7 @@ public class StorageEntry {
         version = nbt.getInt("version");
     }
 
-    public StorageEntry(int size, UUID uuid, @Nullable IStorageListener listener) {
+    public StorageEntry(int size, UUID uuid) {
         stacks = NonNullList.withSize(size, ItemStack.EMPTY);
         this.uuid = uuid;
         this.version = 1;
@@ -70,5 +71,14 @@ public class StorageEntry {
         nbt.put("Items", nbtTagList);
         nbt.putUniqueId("UUID", uuid);
         return nbt;
+    }
+
+    // Note: when resizing to a smaller size items might be lost
+    public void resize(int size) {
+        List<ItemStack> oldList = stacks;
+        stacks = NonNullList.withSize(size, ItemStack.EMPTY);
+        for (int i = 0 ; i < Math.min(oldList.size(), size) ; i++) {
+            stacks.set(i, oldList.get(i));
+        }
     }
 }

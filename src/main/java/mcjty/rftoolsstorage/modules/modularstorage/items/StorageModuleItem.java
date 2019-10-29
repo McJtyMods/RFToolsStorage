@@ -71,6 +71,14 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
         }
     }
 
+    public static int getSize(ItemStack storageCard) {
+        if (storageCard.getItem() instanceof StorageModuleItem) {
+            int tier = ((StorageModuleItem) storageCard.getItem()).tier;
+            return MAXSIZE[tier];
+        }
+        return 0;
+    }
+
     @Override
     public Collection<String> getTagsToPreserve() {
         // @todo when upgrading we need to see how to upgrade the storage entry

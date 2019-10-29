@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
+import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -10,37 +11,36 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
-import java.util.UUID;
 
 public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
-    private UUID uuid;
-    private int version;
+    @Nonnull private StorageInfo info = StorageInfo.EMPTY;
     private StorageEntry storage;
-    private NonNullList<ItemStack> emptyHandler = NonNullList.withSize(400, ItemStack.EMPTY);   // @todo how to determine size?
+    private NonNullList<ItemStack> emptyHandler = NonNullList.withSize(10, ItemStack.EMPTY);
     private final boolean remote;
 
-    public GlobalStorageItemWrapper(UUID uuid, int version, boolean remote) {
-        this.uuid = uuid;
-        this.version = version;
+    public GlobalStorageItemWrapper(@Nonnull StorageInfo info, boolean remote) {
+        this.info = info;
         this.remote = remote;
     }
 
-    public void setUuid(UUID uuid, int version) {
-        if (Objects.equals(uuid, this.uuid) && version == this.version) {
+    public void setInfo(@Nonnull StorageInfo info) {
+        if (Objects.equals(info, this.info)) {
             return;
         }
-        this.uuid = uuid;
-        this.version = version;
+        this.info = info;
+        if (info.getSize() != emptyHandler.size()) {
+            emptyHandler = NonNullList.withSize(info.getSize(), ItemStack.EMPTY);
+        }
         storage = null;
     }
 
     private void createStorage() {
-        if (storage == null && uuid != null) {
+        if (storage == null && info.getUuid() != null) {
             if (remote) {
-                storage = RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
+                storage = RFToolsStorage.setup.clientStorageHolder.getStorage(info.getUuid(), info.getVersion());
             } else {
-                storage = StorageHolder.get().getStorageEntry(uuid);
+                storage = StorageHolder.get().getOrCreateStorageEntry(info.getUuid(), info.getSize());
             }
         }
     }
@@ -57,6 +57,9 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
     @Override
     public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+        if (info.isEmpty()) {
+            return;
+        }
 //        validateSlotIndex(slot);
         NonNullList<ItemStack> stacks = getStacks();
         if (slot >= stacks.size()) {
@@ -96,6 +99,10 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
     @Nonnull
     @Override
     public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+        if (info.isEmpty()) {
+            return stack;
+        }
+
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -143,7 +150,7 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
     @Nonnull
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (amount == 0) {
+        if (amount == 0 || info.isEmpty()) {
             return ItemStack.EMPTY;
         }
 
@@ -184,6 +191,6 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return true;
+        return !info.isEmpty();
     }
 }

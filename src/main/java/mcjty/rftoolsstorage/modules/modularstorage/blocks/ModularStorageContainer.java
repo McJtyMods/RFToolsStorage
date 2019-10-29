@@ -31,7 +31,7 @@ public class ModularStorageContainer extends GenericContainer {
     public static final int SLOT_TYPE_MODULE = 1;
     public static final int SLOT_FILTER_MODULE = 2;
     public static final int SLOT_STORAGE = 3;
-    public static final int MAXSIZE_STORAGE = 300;
+    public static final int MAXSIZE_STORAGE = 500;  // @todo, should be max of all possible storages
 
     public static final ContainerFactory factory = new ContainerFactory(SLOT_STORAGE) {
         @Override
@@ -39,7 +39,7 @@ public class ModularStorageContainer extends GenericContainer {
             slot(SlotDefinition.specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157);
             slot(SlotDefinition.specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175);
             slot(SlotDefinition.specific(stack -> false /* @todo 1.14 StorageFilterItem.class*/), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193);
-            box(SlotDefinition.input(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 100 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0); // Dummy slot positions
+            box(SlotDefinition.input(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 500 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0); // Dummy slot positions
             playerSlots(91, 157);
             gridSlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
         }
