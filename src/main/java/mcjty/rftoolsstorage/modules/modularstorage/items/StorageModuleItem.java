@@ -81,8 +81,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
 
     @Override
     public Collection<String> getTagsToPreserve() {
-        // @todo when upgrading we need to see how to upgrade the storage entry
-        return Arrays.asList("");   // @todo 1.14
+        return Arrays.asList("uuidMost", "uuidLeast");
     }
 
     @Override

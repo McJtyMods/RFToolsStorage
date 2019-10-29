@@ -23,6 +23,16 @@ public class ModularStorageSetup {
     @ObjectHolder(RFToolsStorage.MODID + ":" + ModularStorageBlock.REGNAME)
     public static ContainerType<ModularStorageContainer> CONTAINER_MODULAR_STORAGE;
 
+    @ObjectHolder(RFToolsStorage.MODID + ":storage_module0")
+    public static StorageModuleItem STORAGE_MODULE0;
+    @ObjectHolder(RFToolsStorage.MODID + ":storage_module1")
+    public static StorageModuleItem STORAGE_MODULE1;
+    @ObjectHolder(RFToolsStorage.MODID + ":storage_module2")
+    public static StorageModuleItem STORAGE_MODULE2;
+    @ObjectHolder(RFToolsStorage.MODID + ":storage_module3")
+    public static StorageModuleItem STORAGE_MODULE3;
+    @ObjectHolder(RFToolsStorage.MODID + ":storage_module6")
+    public static StorageModuleItem STORAGE_MODULE_REMOTE;
 
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(new ModularStorageBlock());

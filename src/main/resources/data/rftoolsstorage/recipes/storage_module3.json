@@ -1,0 +1,32 @@
+{
+  "type": "mcjtylib:copy_nbt",
+  "group": "rftools",
+  "pattern": [
+    "tCt",
+    "gFg",
+    "QRQ"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:diamond_block"
+    },
+    "t": {
+      "item": "minecraft:ghast_tear"
+    },
+    "F": {
+      "item": "rftoolsstorage:storage_module2"
+    },
+    "Q": {
+      "item": "minecraft:quartz_block"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "C": {
+      "tag": "forge:chests"
+    }
+  },
+  "result": {
+    "item": "rftoolsstorage:storage_module3"
+  }
+}
