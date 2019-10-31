@@ -6,7 +6,6 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.Constants;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +17,9 @@ public class StorageEntry {
     private NonNullList<ItemStack> stacks;
     private final UUID uuid;
     private int version;
+    private long creationTime;
+    private long updateTime;
+    private String createdBy;
 
     public StorageEntry(CompoundNBT nbt) {
         int size = nbt.getInt("slots");
@@ -34,16 +36,38 @@ public class StorageEntry {
 
         uuid = nbt.getUniqueId("UUID");
         version = nbt.getInt("version");
+        creationTime = nbt.getLong("crTime");
+        updateTime = nbt.getLong("upTime");
+        createdBy = nbt.getString("createdBy");
     }
 
-    public StorageEntry(int size, UUID uuid) {
+    public StorageEntry(int size, UUID uuid, String createdBy) {
         stacks = NonNullList.withSize(size, ItemStack.EMPTY);
         this.uuid = uuid;
         this.version = 1;
+        this.creationTime = this.updateTime = System.currentTimeMillis();
+        this.createdBy = createdBy == null ? "" : createdBy;
     }
 
     public int getVersion() {
         return version;
+    }
+
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    public long getUpdateTime() {
+        return updateTime;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void updateVersion() {
+        version++;
+        updateTime = System.currentTimeMillis();
     }
 
     public UUID getUuid() {
@@ -58,6 +82,9 @@ public class StorageEntry {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putInt("slots", stacks.size());
         nbt.putInt("version", version);
+        nbt.putLong("crTime", creationTime);
+        nbt.putLong("upTime", updateTime);
+        nbt.putString("createdBy", createdBy);
 
         ListNBT nbtTagList = new ListNBT();
         for (int i = 0; i < stacks.size(); i++) {
@@ -74,11 +101,15 @@ public class StorageEntry {
     }
 
     // Note: when resizing to a smaller size items might be lost
-    public void resize(int size) {
+    public void resize(int size, String createdBy) {
         List<ItemStack> oldList = stacks;
         stacks = NonNullList.withSize(size, ItemStack.EMPTY);
         for (int i = 0 ; i < Math.min(oldList.size(), size) ; i++) {
             stacks.set(i, oldList.get(i));
+        }
+        updateTime = System.currentTimeMillis();
+        if (createdBy != null && !createdBy.isEmpty()) {
+            this.createdBy = createdBy;
         }
     }
 }

@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.modules.modularstorage.blocks;
+package mcjty.rftoolsstorage.storage;
 
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;
@@ -14,10 +14,11 @@ import java.util.Objects;
 
 public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
-    @Nonnull private StorageInfo info = StorageInfo.EMPTY;
+    @Nonnull private StorageInfo info;
     private StorageEntry storage;
     private NonNullList<ItemStack> emptyHandler = NonNullList.withSize(10, ItemStack.EMPTY);
     private final boolean remote;
+    private IStorageListener listener;
 
     public GlobalStorageItemWrapper(@Nonnull StorageInfo info, boolean remote) {
         this.info = info;
@@ -35,12 +36,16 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         storage = null;
     }
 
+    public void setListener(IStorageListener listener) {
+        this.listener = listener;
+    }
+
     private void createStorage() {
         if (storage == null && info.getUuid() != null) {
             if (remote) {
                 storage = RFToolsStorage.setup.clientStorageHolder.getStorage(info.getUuid(), info.getVersion());
             } else {
-                storage = StorageHolder.get().getOrCreateStorageEntry(info.getUuid(), info.getSize());
+                storage = StorageHolder.get().getOrCreateStorageEntry(info.getUuid(), info.getSize(), info.getCreatedBy());
             }
         }
     }
@@ -71,6 +76,12 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
     private void onContentsChanged(int slot) {
         if (!remote) {
+            if (storage != null) {
+                storage.updateVersion();
+                if (listener != null) {
+                    listener.onContentsChanged(storage.getVersion(), slot);
+                }
+            }
             StorageHolder.get().save();
         }
     }

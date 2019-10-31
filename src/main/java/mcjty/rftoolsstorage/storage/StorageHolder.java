@@ -6,6 +6,7 @@ import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -25,16 +26,16 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
     }
 
 
-    public StorageEntry getOrCreateStorageEntry(UUID uuid, int size) {
+    public StorageEntry getOrCreateStorageEntry(UUID uuid, int size, String createdBy) {
         if (!storageEntryMap.containsKey(uuid)) {
-            StorageEntry entry = new StorageEntry(size, uuid);
+            StorageEntry entry = new StorageEntry(size, uuid, createdBy);
             storageEntryMap.put(uuid, entry);
             save();
         } else {
             // Check if the size still matches
             StorageEntry entry = storageEntryMap.get(uuid);
             if (size != entry.getStacks().size()) {
-                entry.resize(size);
+                entry.resize(size, createdBy);
             }
         }
         return storageEntryMap.get(uuid);
@@ -42,6 +43,10 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
 
     public StorageEntry getStorageEntry(UUID uuid) {
         return storageEntryMap.get(uuid);
+    }
+
+    public Collection<StorageEntry> getStorages() {
+        return storageEntryMap.values();
     }
 
     @Override

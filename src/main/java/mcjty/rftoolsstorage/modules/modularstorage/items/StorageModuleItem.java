@@ -20,10 +20,9 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class StorageModuleItem extends Item implements INBTPreservingIngredient {
 
@@ -45,11 +44,16 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
         this.tier = tier;
     }
 
-//    @Override
-//    public void onCreated(ItemStack stack, World worldIn, PlayerEntity playerIn) {
-//        System.out.println("StorageModuleItem.onCreated");
-//        getOrCreateUUID(stack);
-//    }
+    @Override
+    public void onCreated(ItemStack stack, World worldIn, PlayerEntity player) {
+        if (player != null) {
+            CompoundNBT tag = stack.getOrCreateTag();
+            if (!tag.contains("createdBy")) {
+                tag.putString("createdBy", player.getName().getFormattedText());
+            }
+        }
+    }
+
 
     public static UUID getOrCreateUUID(ItemStack stack) {
         if (!(stack.getItem() instanceof StorageModuleItem)) {
@@ -62,6 +66,14 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
         }
         return nbt.getUniqueId("uuid");
     }
+
+    public static String getCreatedBy(ItemStack storageCard) {
+        if (storageCard.hasTag()) {
+            return storageCard.getTag().getString("createdBy");
+        }
+        return null;
+    }
+
 
     public static int getVersion(ItemStack stack) {
         if (stack.hasTag()) {
@@ -156,7 +168,19 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
                         cnt++;
                     }
                 }
-                list.add(new StringTextComponent(TextFormatting.GREEN + "Contents: " + cnt + "/" + max + " stacks"));
+                list.add(new StringTextComponent(TextFormatting.GREEN + "Contents " + TextFormatting.YELLOW + cnt + "/" + max + " stacks"));
+                if (McJtyLib.proxy.isShiftKeyDown()) {
+                    String createdBy = storage.getCreatedBy();
+                    if (createdBy != null && !createdBy.isEmpty()) {
+                        list.add(new StringTextComponent(TextFormatting.GREEN + "Created by " + TextFormatting.YELLOW + createdBy));
+                    }
+//                    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+                    Date creationTime = new Date(storage.getCreationTime());
+                    Date updateTime = new Date(storage.getUpdateTime());
+                    list.add(new StringTextComponent(TextFormatting.GREEN + "Creation time " + TextFormatting.YELLOW + dateFormat.format(creationTime)));
+                    list.add(new StringTextComponent(TextFormatting.GREEN + "Update time " + TextFormatting.YELLOW + dateFormat.format(updateTime)));
+                }
             }
         }
     }

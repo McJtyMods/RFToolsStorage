@@ -28,7 +28,9 @@ public class PacketRequestStorageFromServer {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             StorageEntry entry = StorageHolder.get().getStorageEntry(uuid);
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketReturnStorageToClient(uuid, entry), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            if (entry != null) {
+                RFToolsStorageMessages.INSTANCE.sendTo(new PacketReturnStorageToClient(uuid, entry), ctx.getSender().connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            }
         });
         ctx.setPacketHandled(true);
     }

@@ -13,6 +13,7 @@ import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
+import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
 import mcjty.rftoolsstorage.storage.StorageFilterCache;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.entity.player.PlayerEntity;
@@ -333,7 +334,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
             UUID uuid = StorageModuleItem.getOrCreateUUID(storageCard);
             int version = StorageModuleItem.getVersion(storageCard);
             int size = StorageModuleItem.getSize(storageCard);
-            return new StorageInfo(uuid, version, size);
+            String createdBy = StorageModuleItem.getCreatedBy(storageCard);
+            return new StorageInfo(uuid, version, size, createdBy);
         }
         return StorageInfo.EMPTY;
 
@@ -364,6 +366,15 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
         StorageInfo info = getStorageInfo();
         if (globalWrapper == null) {
             globalWrapper = new GlobalStorageItemWrapper(info, world.isRemote);
+            if (!world.isRemote) {
+                globalWrapper.setListener((version, slot) -> {
+                    ItemStack storageSlot = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
+                    if (storageSlot.getItem() instanceof StorageModuleItem) {
+                        storageSlot.getOrCreateTag().putInt("version", version);
+                    }
+                    markDirtyQuick();
+                });
+            }
         } else {
             globalWrapper.setInfo(info);
         }

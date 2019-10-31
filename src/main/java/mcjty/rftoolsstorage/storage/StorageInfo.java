@@ -5,16 +5,18 @@ import java.util.UUID;
 
 public class StorageInfo {
 
-    public static final StorageInfo EMPTY = new StorageInfo(null, -1, 0);
+    public static final StorageInfo EMPTY = new StorageInfo(null, -1, 0, null);
 
     private final UUID uuid;
     private final int version;
     private final int size;
+    private final String createdBy;
 
-    public StorageInfo(UUID uuid, int version, int size) {
+    public StorageInfo(UUID uuid, int version, int size, String createdBy) {
         this.uuid = uuid;
         this.version = version;
         this.size = size;
+        this.createdBy = createdBy;
     }
 
     public UUID getUuid() {
@@ -31,6 +33,10 @@ public class StorageInfo {
 
     public boolean isEmpty() {
         return uuid == null;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
     }
 
     @Override
