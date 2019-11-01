@@ -2,6 +2,8 @@ package mcjty.rftoolsstorage.datagen;
 
 import mcjty.lib.crafting.CopyNBTRecipeBuilder;
 import mcjty.lib.datagen.BaseRecipeProvider;
+import mcjty.rftoolsbase.blocks.ModBlocks;
+import mcjty.rftoolsbase.items.ModItems;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.data.DataGenerator;
@@ -20,32 +22,35 @@ public class Recipes extends BaseRecipeProvider {
         add('C', Tags.Items.CHESTS);
         add('q', Items.QUARTZ);
         add('Q', Items.QUARTZ_BLOCK);
+        add('F', ModItems.MACHINE_FRAME);
         group("rftools");
     }
 
     @Override
     protected void registerRecipes(Consumer<IFinishedRecipe> consumer) {
-        // @todo use infused diamond!
-
         build(consumer, ShapedRecipeBuilder.shapedRecipe(ModularStorageSetup.STORAGE_MODULE0)
                         .key('g', Items.GOLD_NUGGET)
                         .addCriterion("redstone", InventoryChangeTrigger.Instance.forItems(Items.REDSTONE)),
                 " C ", "gig", "qrq");
         build(consumer, CopyNBTRecipeBuilder.shapedRecipe(ModularStorageSetup.STORAGE_MODULE1)
                         .key('g', Items.GOLD_INGOT)
-                        .key('F', ModularStorageSetup.STORAGE_MODULE0)
+                        .key('X', ModularStorageSetup.STORAGE_MODULE0)
                         .addCriterion("storage", InventoryChangeTrigger.Instance.forItems(ModularStorageSetup.STORAGE_MODULE0)),
-                " C ", "gFg", "qrq");
+                " C ", "gXg", "qrq");
         build(consumer, CopyNBTRecipeBuilder.shapedRecipe(ModularStorageSetup.STORAGE_MODULE2)
                         .key('g', Items.GOLD_BLOCK)
-                        .key('F', ModularStorageSetup.STORAGE_MODULE1)
+                        .key('X', ModularStorageSetup.STORAGE_MODULE1)
                         .addCriterion("storage", InventoryChangeTrigger.Instance.forItems(ModularStorageSetup.STORAGE_MODULE1)),
-                " C ", "gFg", "QRQ");
+                " C ", "gXg", "QRQ");
         build(consumer, CopyNBTRecipeBuilder.shapedRecipe(ModularStorageSetup.STORAGE_MODULE3)
                         .key('g', Items.DIAMOND_BLOCK)
-                        .key('t', Items.GHAST_TEAR)
-                        .key('F', ModularStorageSetup.STORAGE_MODULE2)
+                        .key('t', ModItems.INFUSED_DIAMOND)
+                        .key('X', ModularStorageSetup.STORAGE_MODULE2)
                         .addCriterion("storage", InventoryChangeTrigger.Instance.forItems(ModularStorageSetup.STORAGE_MODULE2)),
-                "tCt", "gFg", "QRQ");
+                "tCt", "gXg", "QRQ");
+
+        build(consumer, ShapedRecipeBuilder.shapedRecipe(ModularStorageSetup.MODULAR_STORAGE)
+                        .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME)),
+                "rCr", "qFq", "rqr");
     }
 }

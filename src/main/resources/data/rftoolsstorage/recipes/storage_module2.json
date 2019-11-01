@@ -3,14 +3,14 @@
   "group": "rftools",
   "pattern": [
     " C ",
-    "gFg",
+    "gXg",
     "QRQ"
   ],
   "key": {
     "g": {
       "item": "minecraft:gold_block"
     },
-    "F": {
+    "X": {
       "item": "rftoolsstorage:storage_module1"
     },
     "Q": {

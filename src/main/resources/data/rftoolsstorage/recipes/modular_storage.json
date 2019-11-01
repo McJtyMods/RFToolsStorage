@@ -1,18 +1,12 @@
 {
-  "type": "mcjtylib:copy_nbt",
+  "type": "minecraft:crafting_shaped",
   "group": "rftools",
   "pattern": [
-    " C ",
-    "gXg",
-    "qrq"
+    "rCr",
+    "qFq",
+    "rqr"
   ],
   "key": {
-    "g": {
-      "item": "minecraft:gold_ingot"
-    },
-    "X": {
-      "item": "rftoolsstorage:storage_module0"
-    },
     "q": {
       "item": "minecraft:quartz"
     },
@@ -21,9 +15,12 @@
     },
     "C": {
       "tag": "forge:chests"
+    },
+    "F": {
+      "item": "rftoolsbase:machine_frame"
     }
   },
   "result": {
-    "item": "rftoolsstorage:storage_module1"
+    "item": "rftoolsstorage:modular_storage"
   }
 }

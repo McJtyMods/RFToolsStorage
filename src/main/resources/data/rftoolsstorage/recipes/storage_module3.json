@@ -3,7 +3,7 @@
   "group": "rftools",
   "pattern": [
     "tCt",
-    "gFg",
+    "gXg",
     "QRQ"
   ],
   "key": {
@@ -11,9 +11,9 @@
       "item": "minecraft:diamond_block"
     },
     "t": {
-      "item": "minecraft:ghast_tear"
+      "item": "rftoolsbase:infused_diamond"
     },
-    "F": {
+    "X": {
       "item": "rftoolsstorage:storage_module2"
     },
     "Q": {
