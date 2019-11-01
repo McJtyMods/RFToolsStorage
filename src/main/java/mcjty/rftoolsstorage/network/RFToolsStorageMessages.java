@@ -9,7 +9,7 @@ import mcjty.rftoolsstorage.compat.jei.PacketSendRecipe;
 import mcjty.rftoolsstorage.craftinggrid.PacketCraftTestResultToClient;
 import mcjty.rftoolsstorage.craftinggrid.PacketGridToClient;
 import mcjty.rftoolsstorage.craftinggrid.PacketGridToServer;
-import mcjty.rftoolsstorage.modules.modularstorage.network.PacketSyncSlotsToClient;
+import mcjty.rftoolsstorage.modules.modularstorage.network.PacketStorageInfoToClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -40,7 +40,7 @@ public class RFToolsStorageMessages {
 
         // Client side
         net.registerMessage(id(), PacketReturnStorageToClient.class, PacketReturnStorageToClient::toBytes, PacketReturnStorageToClient::new, PacketReturnStorageToClient::handle);
-        net.registerMessage(id(), PacketSyncSlotsToClient.class, PacketSyncSlotsToClient::toBytes, PacketSyncSlotsToClient::new, PacketSyncSlotsToClient::handle);
+        net.registerMessage(id(), PacketStorageInfoToClient.class, PacketStorageInfoToClient::toBytes, PacketStorageInfoToClient::new, PacketStorageInfoToClient::handle);
         net.registerMessage(id(), PacketGridToServer.class, PacketGridToServer::toBytes, PacketGridToServer::new, PacketGridToServer::handle);
 
         PacketHandler.registerStandardMessages(net);
