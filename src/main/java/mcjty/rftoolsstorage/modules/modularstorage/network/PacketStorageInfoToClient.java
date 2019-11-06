@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage.network;
 
 import mcjty.lib.McJtyLib;
-import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -21,10 +20,10 @@ public class PacketStorageInfoToClient {
 
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
-        NetworkTools.writeString(buf, viewMode);
-        NetworkTools.writeString(buf, sortMode);
+        buf.writeString(viewMode);
+        buf.writeString(sortMode);
         buf.writeBoolean(groupMode);
-        NetworkTools.writeString(buf, filter);
+        buf.writeString(filter);
     }
 
     public PacketStorageInfoToClient() {
@@ -32,10 +31,10 @@ public class PacketStorageInfoToClient {
 
     public PacketStorageInfoToClient(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        viewMode = NetworkTools.readString(buf);
-        sortMode = NetworkTools.readString(buf);
+        viewMode = buf.readString();
+        sortMode = buf.readString();
         groupMode = buf.readBoolean();
-        filter = NetworkTools.readString(buf);
+        filter = buf.readString();
     }
 
     public PacketStorageInfoToClient(BlockPos pos,
