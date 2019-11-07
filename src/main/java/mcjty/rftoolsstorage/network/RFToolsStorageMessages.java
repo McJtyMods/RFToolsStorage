@@ -1,8 +1,6 @@
 package mcjty.rftoolsstorage.network;
 
-import mcjty.lib.network.PacketHandler;
-import mcjty.lib.network.PacketSendClientCommand;
-import mcjty.lib.network.PacketSendServerCommand;
+import mcjty.lib.network.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.compat.jei.PacketSendRecipe;
@@ -42,6 +40,9 @@ public class RFToolsStorageMessages {
         net.registerMessage(id(), PacketReturnStorageToClient.class, PacketReturnStorageToClient::toBytes, PacketReturnStorageToClient::new, PacketReturnStorageToClient::handle);
         net.registerMessage(id(), PacketStorageInfoToClient.class, PacketStorageInfoToClient::toBytes, PacketStorageInfoToClient::new, PacketStorageInfoToClient::handle);
         net.registerMessage(id(), PacketGridToServer.class, PacketGridToServer::toBytes, PacketGridToServer::new, PacketGridToServer::handle);
+
+        net.registerMessage(id(), PacketRequestDataFromServer.class, PacketRequestDataFromServer::toBytes, PacketRequestDataFromServer::new,
+                new ChannelBoundHandler<>(net, PacketRequestDataFromServer::handle));
 
         PacketHandler.registerStandardMessages(net);
     }
