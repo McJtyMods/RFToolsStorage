@@ -7,9 +7,12 @@ import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 public class ModSetup extends DefaultModSetup {
+
+    public boolean xnet = false; // @todo 1.14
 
     public ClientStorageHolder clientStorageHolder = new ClientStorageHolder();
 
@@ -23,6 +26,10 @@ public class ModSetup extends DefaultModSetup {
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
         CommandHandler.registerCommands();
         RFToolsStorageMessages.registerMessages("rftoolsstorage");
+    }
+
+    public void initClient(FMLClientSetupEvent e) {
+        ClientCommandHandler.registerCommands();
     }
 
     @Override

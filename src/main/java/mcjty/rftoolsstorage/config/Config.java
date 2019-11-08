@@ -4,6 +4,7 @@ package mcjty.rftoolsstorage.config;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageConfiguration;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.fml.common.Mod;
@@ -46,6 +47,7 @@ public class Config {
 
     static {
         ModularStorageConfiguration.init(COMMON_BUILDER, CLIENT_BUILDER);
+        StorageScannerConfiguration.init(COMMON_BUILDER, CLIENT_BUILDER);
 
         COMMON_CONFIG = COMMON_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();

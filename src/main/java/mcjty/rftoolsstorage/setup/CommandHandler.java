@@ -5,7 +5,9 @@ import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
+import mcjty.rftoolsstorage.modules.scanner.tools.StorageScannerTools;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.dimension.DimensionType;
 
 public class CommandHandler {
 
@@ -54,6 +56,32 @@ public class CommandHandler {
     public static final String CMD_GET_COUNTER_INFO = "getCounterInfo";
 
     public static void registerCommands() {
+        McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_REQUEST_SCANNER_CONTENTS, (player, arguments) -> {
+            StorageScannerTools.requestContents(player, DimensionType.getById(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_INV_POS));
+            return true;
+        });
+        McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_SCANNER_SEARCH, (player, arguments) -> {
+            StorageScannerTools.scannerSearch(player, DimensionType.getById(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_SEARCH_TEXT));
+            return true;
+        });
+
+        McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_COMPACT, (player, arguments) -> {
+            // @todo 1.14
+//            StorageTools.compact(player);
+            return true;
+        });
+        McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_CLEAR_GRID, (player, arguments) -> {
+            // @todo 1.14
+//            StorageTools.clearGrid(player);
+            return true;
+        });
+        McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_CYCLE_STORAGE, (player, arguments) -> {
+            // @todo 1.14
+//            StorageTools.cycleStorage(player);
+            return true;
+        });
+
+
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_CRAFT_FROM_GRID, (player, arguments) -> {
             StorageCraftingTools.craftFromGrid(player, arguments.get(PARAM_COUNT), arguments.get(PARAM_TEST), arguments.get(PARAM_POS));
             return true;

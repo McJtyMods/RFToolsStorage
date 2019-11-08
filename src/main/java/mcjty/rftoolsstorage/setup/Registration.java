@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.setup;
 
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
@@ -17,21 +18,25 @@ public class Registration {
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         ModularStorageSetup.registerBlocks(event);
+        StorageScannerSetup.registerBlocks(event);
     }
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         ModularStorageSetup.registerItems(event);
+        StorageScannerSetup.registerItems(event);
     }
 
     @SubscribeEvent
     public static void registerTiles(RegistryEvent.Register<TileEntityType<?>> event) {
         ModularStorageSetup.registerTiles(event);
+        StorageScannerSetup.registerTiles(event);
     }
 
     @SubscribeEvent
     public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
         ModularStorageSetup.registerContainers(event);
+        StorageScannerSetup.registerContainers(event);
     }
 
 }

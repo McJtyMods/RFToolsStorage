@@ -5,6 +5,7 @@ import mcjty.lib.datagen.BaseRecipeProvider;
 import mcjty.rftoolsbase.blocks.ModBlocks;
 import mcjty.rftoolsbase.items.ModItems;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.IFinishedRecipe;
@@ -52,5 +53,9 @@ public class Recipes extends BaseRecipeProvider {
         build(consumer, ShapedRecipeBuilder.shapedRecipe(ModularStorageSetup.MODULAR_STORAGE)
                         .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME)),
                 "rCr", "qFq", "rqr");
+        build(consumer, ShapedRecipeBuilder.shapedRecipe(StorageScannerSetup.STORAGE_SCANNER)
+                        .key('g', Items.GOLD_INGOT)
+                        .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME)),
+                "ToT", "gFg", "ToT");
     }
 }

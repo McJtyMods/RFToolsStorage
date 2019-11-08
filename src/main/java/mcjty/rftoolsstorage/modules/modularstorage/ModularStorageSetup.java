@@ -39,12 +39,12 @@ public class ModularStorageSetup {
     }
 
     public static void registerItems(RegistryEvent.Register<Item> event) {
-        Item.Properties properties = new Item.Properties().group(RFToolsStorage.setup.getTab());
         event.getRegistry().register(new StorageModuleItem(StorageModuleItem.STORAGE_TIER1));
         event.getRegistry().register(new StorageModuleItem(StorageModuleItem.STORAGE_TIER2));
         event.getRegistry().register(new StorageModuleItem(StorageModuleItem.STORAGE_TIER3));
         event.getRegistry().register(new StorageModuleItem(StorageModuleItem.STORAGE_TIER4));
         event.getRegistry().register(new StorageModuleItem(StorageModuleItem.STORAGE_REMOTE));
+        Item.Properties properties = new Item.Properties().group(RFToolsStorage.setup.getTab());
         event.getRegistry().register(new BaseBlockItem(MODULAR_STORAGE, properties));
     }
 
