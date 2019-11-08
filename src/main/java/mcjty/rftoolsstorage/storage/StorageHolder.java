@@ -4,6 +4,7 @@ import mcjty.lib.worlddata.AbstractWorldData;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.Collection;
@@ -21,8 +22,8 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
         super(NAME);
     }
 
-    public static StorageHolder get() {
-        return getData(StorageHolder::new, NAME);
+    public static StorageHolder get(World world) {
+        return getData(world, StorageHolder::new, NAME);
     }
 
 

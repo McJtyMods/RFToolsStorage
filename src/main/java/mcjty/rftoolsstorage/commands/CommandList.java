@@ -9,7 +9,6 @@ import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 
@@ -30,7 +29,7 @@ public class CommandList implements Command<CommandSource> {
 
     @Override
     public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
-        for (StorageEntry storage : StorageHolder.get().getStorages()) {
+        for (StorageEntry storage : StorageHolder.get(context.getSource().getWorld()).getStorages()) {
             String createdBy = storage.getCreatedBy();
             String uuid = storage.getUuid().toString();
             String createdByColor;
