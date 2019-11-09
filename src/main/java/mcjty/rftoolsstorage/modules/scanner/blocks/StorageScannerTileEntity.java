@@ -105,8 +105,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         };
     }
 
-    private static final int[] SLOTS = new int[]{0, 1, 2};
-
     public static final int XNETDELAY = 40;
 
     private List<BlockPos> inventories = new ArrayList<>();
@@ -261,6 +259,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
 
+    @Override
     public ItemStack injectStackFromScreen(ItemStack stack, PlayerEntity player) {
         if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
             player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Not enough power to insert items!"), false);
@@ -319,6 +318,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * @param single
      * @param player
      */
+    @Override
     public void giveToPlayerFromScreen(ItemStack stack, boolean single, PlayerEntity player, boolean oredict) {
         if (stack.isEmpty()) {
             return;
@@ -700,6 +700,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         markDirty();
     }
 
+    @Override
     public void clearCachedCounts() {
         cachedCounts.clear();
     }
