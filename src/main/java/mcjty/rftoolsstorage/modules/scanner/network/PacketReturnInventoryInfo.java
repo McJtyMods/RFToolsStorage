@@ -21,21 +21,6 @@ public class PacketReturnInventoryInfo {
         return inventories;
     }
 
-    public void fromBytes(PacketBuffer buf) {
-        int size = buf.readInt();
-        inventories = new ArrayList<>(size);
-        for (int i = 0 ; i < size ; i++) {
-            BlockPos pos = buf.readBlockPos();
-            String name = buf.readString();
-            boolean routable = buf.readBoolean();
-            Block block = null;
-            if (buf.readBoolean()) {
-                block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(buf.readString()));
-            }
-            inventories.add(new InventoryInfo(pos, name, routable, block));
-        }
-    }
-
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(inventories.size());
         for (InventoryInfo info : inventories) {
@@ -56,6 +41,18 @@ public class PacketReturnInventoryInfo {
     }
 
     public PacketReturnInventoryInfo(PacketBuffer buf) {
+        int size = buf.readInt();
+        inventories = new ArrayList<>(size);
+        for (int i = 0 ; i < size ; i++) {
+            BlockPos pos = buf.readBlockPos();
+            String name = buf.readString();
+            boolean routable = buf.readBoolean();
+            Block block = null;
+            if (buf.readBoolean()) {
+                block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(buf.readString()));
+            }
+            inventories.add(new InventoryInfo(pos, name, routable, block));
+        }
     }
 
     public PacketReturnInventoryInfo(List<InventoryInfo> inventories) {

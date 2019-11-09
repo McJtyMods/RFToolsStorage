@@ -20,6 +20,7 @@ import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
+import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.GuiCraftingGrid;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
@@ -53,7 +54,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static final int STORAGE_MONITOR_HEIGHT = 244;
 
     private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/storagescanner.png");
-    private static final ResourceLocation guielements = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/guielements.png");
+    private static final ResourceLocation guielements = new ResourceLocation(RFToolsBase.MODID, "textures/gui/guielements.png");
 
     private WidgetList storageList;
     private WidgetList itemList;

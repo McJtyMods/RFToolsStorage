@@ -21,14 +21,6 @@ public class PacketRequestItem {
     private int amount;
 
 
-    public void fromBytes(PacketBuffer buf) {
-        dimensionId = DimensionType.getById(buf.readInt());
-        pos = buf.readBlockPos();
-        inventoryPos = buf.readBlockPos();
-        amount = buf.readInt();
-        item = buf.readItemStack();
-    }
-
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(dimensionId.getId());
         buf.writeBlockPos(pos);
@@ -41,7 +33,11 @@ public class PacketRequestItem {
     }
 
     public PacketRequestItem(PacketBuffer buf) {
-        fromBytes(buf);
+        dimensionId = DimensionType.getById(buf.readInt());
+        pos = buf.readBlockPos();
+        inventoryPos = buf.readBlockPos();
+        amount = buf.readInt();
+        item = buf.readItemStack();
     }
 
     public PacketRequestItem(DimensionType dimensionId, BlockPos pos, BlockPos inventoryPos, ItemStack item, int amount) {

@@ -22,8 +22,6 @@ public class StorageScannerContainer extends GenericContainer {
     public static final int SLOT_IN_AUTO = 2;       // This slot is not shown in the user interface but is for automation
     public static final int SLOT_PLAYERINV = 2;
 
-    private StorageScannerTileEntity storageScannerTileEntity;
-
     public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(3) {    // 1 extra slot for automation is at index 2
         @Override
         protected void setup() {
@@ -47,10 +45,6 @@ public class StorageScannerContainer extends GenericContainer {
         }
     }
 
-    public StorageScannerTileEntity getStorageScannerTileEntity() {
-        return storageScannerTileEntity;
-    }
-
     public StorageScannerContainer(int id, BlockPos pos, PlayerEntity player, StorageScannerTileEntity tileEntity) {
         super(StorageScannerSetup.CONTAINER_STORAGE_SCANNER, id, CONTAINER_FACTORY, pos, tileEntity);
     }
@@ -59,7 +53,7 @@ public class StorageScannerContainer extends GenericContainer {
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
-        addInventory(CONTAINER_GRID, storageScannerTileEntity.getCraftingGrid().getCraftingGridInventory());
+        addInventory(CONTAINER_GRID, ((StorageScannerTileEntity) te).getCraftingGrid().getCraftingGridInventory());
         generateSlots();
     }
 

@@ -2,13 +2,12 @@ package mcjty.rftoolsstorage.modules.scanner.blocks;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
-import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 
 public class StorageScannerBlock extends BaseBlock {
 
     public StorageScannerBlock() {
         super("storage_scanner", new BlockBuilder()
-                .tileEntitySupplier(ModularStorageTileEntity::new)
+                .tileEntitySupplier(StorageScannerTileEntity::new)
                 .infusable()
                 .infoExtended("todo"));   // @todo 1.14
 

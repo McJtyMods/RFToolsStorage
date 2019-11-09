@@ -33,12 +33,6 @@ public class PacketGetInventoryInfo {
     private BlockPos pos;
     private boolean doscan;
 
-    public void fromBytes(PacketBuffer buf) {
-        pos = buf.readBlockPos();
-        id = DimensionType.getById(buf.readInt());
-        doscan = buf.readBoolean();
-    }
-
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
         buf.writeInt(id.getId());
@@ -49,7 +43,9 @@ public class PacketGetInventoryInfo {
     }
 
     public PacketGetInventoryInfo(PacketBuffer buf) {
-        fromBytes(buf);
+        pos = buf.readBlockPos();
+        id = DimensionType.getById(buf.readInt());
+        doscan = buf.readBoolean();
     }
 
     public PacketGetInventoryInfo(DimensionType worldId, BlockPos pos, boolean doscan) {
@@ -121,7 +117,7 @@ public class PacketGetInventoryInfo {
                 displayName = storageTileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> {
                     ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                     if (!storageModule.isEmpty()) {
-                        if (storageModule.getTag().contains("display")) {
+                        if (storageModule.hasTag() && storageModule.getTag().contains("display")) {
                             return storageModule.getDisplayName().getFormattedText();
                         }
                     }
