@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.setup;
 
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;
@@ -30,6 +31,7 @@ public class ModSetup extends DefaultModSetup {
 
     public void initClient(FMLClientSetupEvent e) {
         ClientCommandHandler.registerCommands();
+        CraftingManagerSetup.initClient();
     }
 
     @Override

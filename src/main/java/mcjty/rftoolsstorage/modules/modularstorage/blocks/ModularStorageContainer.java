@@ -29,7 +29,7 @@ public class ModularStorageContainer extends GenericContainer {
     public static final int SLOT_STORAGE = 3;
     public static final int MAXSIZE_STORAGE = 500;  // @todo, should be max of all possible storages
 
-    public static final ContainerFactory factory = new ContainerFactory(SLOT_STORAGE) {
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOT_STORAGE) {
         @Override
         protected void setup() {
             slot(SlotDefinition.specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157);
@@ -49,7 +49,7 @@ public class ModularStorageContainer extends GenericContainer {
     };
 
     public ModularStorageContainer(int id, BlockPos pos, PlayerEntity player, ModularStorageTileEntity tileEntity) {
-        super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE, id, factory, pos, tileEntity);
+        super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE, id, CONTAINER_FACTORY, pos, tileEntity);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ModularStorageContainer extends GenericContainer {
 
     @Override
     public void generateSlots() {
-        for (SlotFactory slotFactory : factory.getSlots()) {
+        for (SlotFactory slotFactory : CONTAINER_FACTORY.getSlots()) {
             Slot slot;
             if (CONTAINER_GRID.equals(slotFactory.getInventoryName()) || CONTAINER_CARDS.equals(slotFactory.getInventoryName())) {
                 SlotType slotType = slotFactory.getSlotType();

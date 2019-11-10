@@ -25,8 +25,8 @@ public class StorageScannerContainer extends GenericContainer {
     public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(3) {    // 1 extra slot for automation is at index 2
         @Override
         protected void setup() {
-            box(SlotDefinition.input(), CONTAINER_CONTAINER, SLOT_IN, 28, 220, 1, 18, 1, 18);
-            box(SlotDefinition.output(), CONTAINER_CONTAINER, SLOT_OUT, 55, 220, 1, 18, 1, 18);
+            slot(SlotDefinition.input(), CONTAINER_CONTAINER, SLOT_IN, 28, 220);
+            slot(SlotDefinition.output(), CONTAINER_CONTAINER, SLOT_OUT, 55, 220);
             playerSlots(86, 162);
             gridSlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
         }

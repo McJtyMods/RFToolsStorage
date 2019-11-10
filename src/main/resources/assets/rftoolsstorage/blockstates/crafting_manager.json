@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "rftoolsstorage:block/crafting_manager" }
+  }
+}

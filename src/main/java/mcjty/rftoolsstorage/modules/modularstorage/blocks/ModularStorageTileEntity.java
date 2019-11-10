@@ -21,7 +21,6 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -38,7 +37,7 @@ import java.util.UUID;
 
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE_MODULE;
 
-public class ModularStorageTileEntity extends GenericTileEntity implements ITickableTileEntity, IInventoryTracker,
+public class ModularStorageTileEntity extends GenericTileEntity implements IInventoryTracker,
         CraftingGridProvider, JEIRecipeAcceptor {
 
     public static final String CMD_SETTINGS = "storage.settings";
@@ -90,17 +89,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements ITick
 
     public ModularStorageTileEntity() {
         super(ModularStorageSetup.TYPE_MODULAR_STORAGE);
-    }
-
-    @Override
-    public void tick() {
-        if (!world.isRemote) {
-            checkStateServer();
-        }
-    }
-
-    private void checkStateServer() {
-
     }
 
     @Override
