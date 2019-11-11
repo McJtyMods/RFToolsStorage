@@ -39,7 +39,4 @@ public class CraftingManagerSetup {
         event.getRegistry().register(GenericContainer.createContainerType("crafting_manager"));
     }
 
-    public static void initClient() {
-        CRAFTING_MANAGER.initModel();
-    }
 }

@@ -5,19 +5,38 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
+import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTUtil;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.ModelDataManager;
+import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class CraftingManagerTileEntity extends GenericTileEntity implements ITickableTileEntity {
+
+    public static final ModelProperty<BlockState> MIMIC[] = new ModelProperty[]{
+            new ModelProperty<>(),
+            new ModelProperty<>(),
+            new ModelProperty<>(),
+            new ModelProperty<>()
+    };
 
     private LazyOptional<IItemHandler> itemHandler = LazyOptional.of(this::createItemHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Modular Storage")
@@ -32,6 +51,44 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
     public void tick() {
         if (!world.isRemote) {
         }
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+        itemHandler.ifPresent(h -> {
+            ItemStack origMimic0 = h.getStackInSlot(0);
+            ItemStack origMimic1 = h.getStackInSlot(1);
+            ItemStack origMimic2 = h.getStackInSlot(2);
+            ItemStack origMimic3 = h.getStackInSlot(3);
+            readClientDataFromNBT(pkt.getNbtCompound());
+            ItemStack mimic0 = h.getStackInSlot(0);
+            ItemStack mimic1 = h.getStackInSlot(1);
+            ItemStack mimic2 = h.getStackInSlot(2);
+            ItemStack mimic3 = h.getStackInSlot(3);
+            if (!ItemStack.areItemsEqual(origMimic0, mimic0) || !ItemStack.areItemsEqual(origMimic1, mimic1) || !ItemStack.areItemsEqual(origMimic2, mimic2) || !ItemStack.areItemsEqual(origMimic3, mimic3)) {
+                ModelDataManager.requestModelDataRefresh(this);
+                world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            }
+        });
+    }
+
+
+    @Nonnull
+    @Override
+    public IModelData getModelData() {
+        return itemHandler.map(h -> {
+            BlockState mimic0 = h.getStackInSlot(0).isEmpty() ? null : ((BlockItem) h.getStackInSlot(0).getItem()).getBlock().getDefaultState();
+            BlockState mimic1 = h.getStackInSlot(1).isEmpty() ? null : ((BlockItem) h.getStackInSlot(1).getItem()).getBlock().getDefaultState();
+            BlockState mimic2 = h.getStackInSlot(2).isEmpty() ? null : ((BlockItem) h.getStackInSlot(2).getItem()).getBlock().getDefaultState();
+            BlockState mimic3 = h.getStackInSlot(3).isEmpty() ? null : ((BlockItem) h.getStackInSlot(3).getItem()).getBlock().getDefaultState();
+
+            return new ModelDataMap.Builder()
+                    .withInitial(MIMIC[0], mimic0)
+                    .withInitial(MIMIC[1], mimic1)
+                    .withInitial(MIMIC[2], mimic2)
+                    .withInitial(MIMIC[3], mimic3)
+                    .build();
+        }).orElseThrow(IllegalStateException::new);
     }
 
 
@@ -49,7 +106,16 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
 
     @Nonnull
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(this, CraftingManagerContainer.CONTAINER_FACTORY);
+        return new NoDirectionItemHander(this, CraftingManagerContainer.CONTAINER_FACTORY) {
+            @Nonnull
+            @Override
+            public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+                if (slot < 4) {
+                    markDirtyClient();
+                }
+                return super.insertItem(slot, stack, simulate);
+            }
+        };
     }
 
     @Nonnull

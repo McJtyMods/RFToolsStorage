@@ -3,7 +3,6 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
-import mcjty.rftoolsstorage.modules.craftingmanager.client.CraftingManagerRenderer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -28,10 +27,6 @@ public class CraftingManagerBlock extends BaseBlock {
                 .tileEntitySupplier(CraftingManagerTileEntity::new)
                 .infoExtended("todo")   // @todo 1.14
         );
-    }
-
-    public void initModel() {
-        CraftingManagerRenderer.register();
     }
 
     @Override

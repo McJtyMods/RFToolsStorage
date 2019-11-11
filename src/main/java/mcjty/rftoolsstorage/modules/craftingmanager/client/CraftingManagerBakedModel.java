@@ -3,8 +3,8 @@ package mcjty.rftoolsstorage.modules.craftingmanager.client;
 import mcjty.lib.client.QuadTransformer;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.*;
@@ -163,11 +163,22 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
             quads.add(createQuadReversed(v(1.0, 1.0, 1.0), v(1.0, 0.0, 1.0), v(0.0, 0.0, 1.0), v(0.0, 1.0, 1.0), getSide()));
         }
 
-//        appendQuads(quads, Blocks.GRINDSTONE.getDefaultState(), side, rand, extraData, .2f, .2f);
-        appendQuads(quads, Blocks.GRINDSTONE.getDefaultState(), side, rand, extraData, .15f, .15f);
-        appendQuads(quads, Blocks.FURNACE.getDefaultState(), side, rand, extraData, .55f, .55f);
-        appendQuads(quads, Blocks.BLAST_FURNACE.getDefaultState(), side, rand, extraData, .55f, .15f);
-        appendQuads(quads, Blocks.CRAFTING_TABLE.getDefaultState(), side, rand, extraData, .15f, .55f);
+        BlockState mimic0 = extraData.getData(CraftingManagerTileEntity.MIMIC[0]);
+        if (mimic0 != null) {
+            appendQuads(quads, mimic0, side, rand, extraData, .15f, .15f);
+        }
+        BlockState mimic1 = extraData.getData(CraftingManagerTileEntity.MIMIC[1]);
+        if (mimic1 != null) {
+            appendQuads(quads, mimic1, side, rand, extraData, .55f, .55f);
+        }
+        BlockState mimic2 = extraData.getData(CraftingManagerTileEntity.MIMIC[2]);
+        if (mimic2 != null) {
+            appendQuads(quads, mimic2, side, rand, extraData, .55f, .15f);
+        }
+        BlockState mimic3 = extraData.getData(CraftingManagerTileEntity.MIMIC[3]);
+        if (mimic3 != null) {
+            appendQuads(quads, mimic3, side, rand, extraData, .15f, .55f);
+        }
 
         return quads;
     }
