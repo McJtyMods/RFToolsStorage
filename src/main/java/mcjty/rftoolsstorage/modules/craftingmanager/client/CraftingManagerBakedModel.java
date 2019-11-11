@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
+import mcjty.lib.client.QuadTransformer;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import net.minecraft.block.BlockState;
@@ -14,9 +15,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
+import net.minecraftforge.common.model.TRSRTransformation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -115,7 +118,7 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
         return new Vec3d(x, y, z);
     }
 
-    private static void appendQuads(List<BakedQuad> quads, BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
+    private static void appendQuads(List<BakedQuad> quads, BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData, float xoffset, float zoffset) {
         ModelResourceLocation location = BlockModelShapes.getModelLocation(state);
         if (location != null) {
 //            try {
@@ -126,8 +129,10 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
 //            }
             IBakedModel model = Minecraft.getInstance().getModelManager().getModel(location);
             if (model != null) {
-
-                quads.addAll(model.getQuads(state, side, rand, extraData));
+                List<BakedQuad> input = model.getQuads(state, side, rand, extraData);
+                TRSRTransformation transformation = new TRSRTransformation(new Vector3f(xoffset, .3f, zoffset), null, new Vector3f(.3f, .3f, .3f), null);
+                List<BakedQuad> output = QuadTransformer.processMany(input, transformation.getMatrixVec());
+                quads.addAll(output);
             }
         }
     }
@@ -158,7 +163,11 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
             quads.add(createQuadReversed(v(1.0, 1.0, 1.0), v(1.0, 0.0, 1.0), v(0.0, 0.0, 1.0), v(0.0, 1.0, 1.0), getSide()));
         }
 
-//        appendQuads(quads, Blocks.GRINDSTONE.getDefaultState(), side, rand, extraData);
+//        appendQuads(quads, Blocks.GRINDSTONE.getDefaultState(), side, rand, extraData, .2f, .2f);
+        appendQuads(quads, Blocks.GRINDSTONE.getDefaultState(), side, rand, extraData, .15f, .15f);
+        appendQuads(quads, Blocks.FURNACE.getDefaultState(), side, rand, extraData, .55f, .55f);
+        appendQuads(quads, Blocks.BLAST_FURNACE.getDefaultState(), side, rand, extraData, .55f, .15f);
+        appendQuads(quads, Blocks.CRAFTING_TABLE.getDefaultState(), side, rand, extraData, .15f, .55f);
 
         return quads;
     }
