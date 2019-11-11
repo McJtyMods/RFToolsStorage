@@ -31,10 +31,10 @@ public class PacketStorageInfoToClient {
 
     public PacketStorageInfoToClient(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        viewMode = buf.readString();
-        sortMode = buf.readString();
+        viewMode = buf.readString(32767);
+        sortMode = buf.readString(32767);
         groupMode = buf.readBoolean();
-        filter = buf.readString();
+        filter = buf.readString(32767);
     }
 
     public PacketStorageInfoToClient(BlockPos pos,

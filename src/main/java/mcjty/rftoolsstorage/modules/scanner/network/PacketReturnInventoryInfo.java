@@ -45,11 +45,11 @@ public class PacketReturnInventoryInfo {
         inventories = new ArrayList<>(size);
         for (int i = 0 ; i < size ; i++) {
             BlockPos pos = buf.readBlockPos();
-            String name = buf.readString();
+            String name = buf.readString(32767);
             boolean routable = buf.readBoolean();
             Block block = null;
             if (buf.readBoolean()) {
-                block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(buf.readString()));
+                block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(buf.readString(32767)));
             }
             inventories.add(new InventoryInfo(pos, name, routable, block));
         }
