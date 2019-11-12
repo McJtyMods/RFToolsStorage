@@ -27,7 +27,7 @@ public class CraftingManagerRenderer extends TileEntityRenderer<CraftingManagerT
     public void render(CraftingManagerTileEntity te, double x, double y, double z, float partialTicks, int destroyStage) {
         super.render(te, x, y, z, partialTicks, destroyStage);
 
-        te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).ifPresent(h -> {
+        te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
             bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
             Minecraft.getInstance().textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
             GlStateManager.disableLighting();
