@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
@@ -118,18 +119,12 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
         return new Vec3d(x, y, z);
     }
 
-    private static void appendQuads(List<BakedQuad> quads, BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData, float xoffset, float zoffset) {
+    private static void appendQuads(List<BakedQuad> quads, BlockState state, @Nullable Direction side, @Nonnull Random rand, float xoffset, float zoffset) {
         ModelResourceLocation location = BlockModelShapes.getModelLocation(state);
         if (location != null) {
-//            try {
-//                IUnbakedModel model = ModelLoaderRegistry.getModel(state.getBlock().getRegistryName());
-//                model.bake()
-//            } catch (Exception e) {
-//                return; // Do nothing in case of exception
-//            }
             IBakedModel model = Minecraft.getInstance().getModelManager().getModel(location);
-            if (model != null) {
-                List<BakedQuad> input = model.getQuads(state, side, rand, extraData);
+            if (model != null && !model.isBuiltInRenderer()) {
+                List<BakedQuad> input = model.getQuads(state, side, rand, EmptyModelData.INSTANCE);
                 TRSRTransformation transformation = new TRSRTransformation(new Vector3f(xoffset, .3f, zoffset), null, new Vector3f(.3f, .3f, .3f), null);
                 List<BakedQuad> output = QuadTransformer.processMany(input, transformation.getMatrixVec());
                 quads.addAll(output);
@@ -163,21 +158,11 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
             quads.add(createQuadReversed(v(1.0, 1.0, 1.0), v(1.0, 0.0, 1.0), v(0.0, 0.0, 1.0), v(0.0, 1.0, 1.0), getSide()));
         }
 
-        BlockState mimic0 = extraData.getData(CraftingManagerTileEntity.MIMIC[0]);
-        if (mimic0 != null) {
-            appendQuads(quads, mimic0, side, rand, extraData, .15f, .15f);
-        }
-        BlockState mimic1 = extraData.getData(CraftingManagerTileEntity.MIMIC[1]);
-        if (mimic1 != null) {
-            appendQuads(quads, mimic1, side, rand, extraData, .55f, .55f);
-        }
-        BlockState mimic2 = extraData.getData(CraftingManagerTileEntity.MIMIC[2]);
-        if (mimic2 != null) {
-            appendQuads(quads, mimic2, side, rand, extraData, .55f, .15f);
-        }
-        BlockState mimic3 = extraData.getData(CraftingManagerTileEntity.MIMIC[3]);
-        if (mimic3 != null) {
-            appendQuads(quads, mimic3, side, rand, extraData, .15f, .55f);
+        for (int i = 0 ; i < 4 ; i++) {
+            BlockState mimic = extraData.getData(CraftingManagerTileEntity.MIMIC[i]);
+            if (mimic != null) {
+                appendQuads(quads, mimic, side, rand, ((i & 1) == 0) ? .15f : .55f, ((i & 2) == 0) ? .15f : .55f);
+            }
         }
 
         return quads;

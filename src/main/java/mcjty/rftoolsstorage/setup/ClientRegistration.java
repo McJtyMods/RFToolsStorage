@@ -5,6 +5,7 @@ import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.modules.craftingmanager.client.CraftingManagerBakedModel;
+import mcjty.rftoolsstorage.modules.craftingmanager.client.CraftingManagerRenderer;
 import mcjty.rftoolsstorage.modules.craftingmanager.client.GuiCraftingManager;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
@@ -33,6 +34,7 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent event) {
+        CraftingManagerRenderer.register();
     }
 
     @SubscribeEvent

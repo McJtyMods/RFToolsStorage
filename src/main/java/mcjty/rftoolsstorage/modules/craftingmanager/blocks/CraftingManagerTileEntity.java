@@ -10,7 +10,6 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
@@ -27,7 +26,6 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Objects;
 
 public class CraftingManagerTileEntity extends GenericTileEntity implements ITickableTileEntity {
 
@@ -107,13 +105,13 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
     @Nonnull
     private NoDirectionItemHander createItemHandler() {
         return new NoDirectionItemHander(this, CraftingManagerContainer.CONTAINER_FACTORY) {
-            @Nonnull
+
             @Override
-            public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-                if (slot < 4) {
+            protected void onUpdate(int index) {
+                if (index < 4) {
                     markDirtyClient();
                 }
-                return super.insertItem(slot, stack, simulate);
+                super.onUpdate(index);
             }
         };
     }
