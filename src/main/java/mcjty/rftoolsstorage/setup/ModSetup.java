@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.setup;
 
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingDeviceRegistry;
 import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;
@@ -15,6 +16,7 @@ public class ModSetup extends DefaultModSetup {
     public boolean xnet = false; // @todo 1.14
 
     public ClientStorageHolder clientStorageHolder = new ClientStorageHolder();
+    public CraftingDeviceRegistry craftingDeviceRegistry = new CraftingDeviceRegistry();
 
     public ModSetup() {
         createTab("rftoolsstorage", () -> new ItemStack(Items.CHEST));
@@ -26,6 +28,7 @@ public class ModSetup extends DefaultModSetup {
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
         CommandHandler.registerCommands();
         RFToolsStorageMessages.registerMessages("rftoolsstorage");
+        craftingDeviceRegistry.init();
     }
 
     public void initClient(FMLClientSetupEvent e) {

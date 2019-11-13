@@ -3,6 +3,8 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.SlotDefinition;
+import mcjty.rftoolsbase.modules.crafting.CraftingSetup;
+import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -26,10 +28,10 @@ public class CraftingManagerContainer extends GenericContainer {
             slot(SlotDefinition.input(), CONTAINER_CONTAINER, SLOTS_DEVICES + 1, 22, 17+22);
             slot(SlotDefinition.input(), CONTAINER_CONTAINER, SLOTS_DEVICES + 2, 22, 17+44);
             slot(SlotDefinition.input(), CONTAINER_CONTAINER, SLOTS_DEVICES + 3, 22, 17+66);
-            box(SlotDefinition.specific(ItemStack.EMPTY), CONTAINER_CONTAINER, SLOTS_DEVICE_0, 85, 17, 8, 1);
-            box(SlotDefinition.specific(ItemStack.EMPTY), CONTAINER_CONTAINER, SLOTS_DEVICE_1, 85, 17+22, 8, 1);
-            box(SlotDefinition.specific(ItemStack.EMPTY), CONTAINER_CONTAINER, SLOTS_DEVICE_2, 85, 17+44, 8, 1);
-            box(SlotDefinition.specific(ItemStack.EMPTY), CONTAINER_CONTAINER, SLOTS_DEVICE_3, 85, 17+66, 8, 1);
+            box(SlotDefinition.specific(s -> s.getItem() instanceof CraftingCardItem), CONTAINER_CONTAINER, SLOTS_DEVICE_0, 85, 17, 8, 1);
+            box(SlotDefinition.specific(s -> s.getItem() instanceof CraftingCardItem), CONTAINER_CONTAINER, SLOTS_DEVICE_1, 85, 17+22, 8, 1);
+            box(SlotDefinition.specific(s -> s.getItem() instanceof CraftingCardItem), CONTAINER_CONTAINER, SLOTS_DEVICE_2, 85, 17+44, 8, 1);
+            box(SlotDefinition.specific(s -> s.getItem() instanceof CraftingCardItem), CONTAINER_CONTAINER, SLOTS_DEVICE_3, 85, 17+66, 8, 1);
             playerSlots(85, 125);
         }
 
