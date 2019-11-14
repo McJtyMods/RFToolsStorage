@@ -19,7 +19,7 @@ public class PacketRequestItem {
     private BlockPos inventoryPos;
     private ItemStack item;
     private int amount;
-
+    private boolean craftable;
 
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(dimensionId.getId());
@@ -27,6 +27,7 @@ public class PacketRequestItem {
         buf.writeBlockPos(inventoryPos);
         buf.writeInt(amount);
         buf.writeItemStack(item);
+        buf.writeBoolean(craftable);
     }
 
     public PacketRequestItem() {
@@ -38,14 +39,16 @@ public class PacketRequestItem {
         inventoryPos = buf.readBlockPos();
         amount = buf.readInt();
         item = buf.readItemStack();
+        craftable = buf.readBoolean();
     }
 
-    public PacketRequestItem(DimensionType dimensionId, BlockPos pos, BlockPos inventoryPos, ItemStack item, int amount) {
+    public PacketRequestItem(DimensionType dimensionId, BlockPos pos, BlockPos inventoryPos, ItemStack item, int amount, boolean craftable) {
         this.dimensionId = dimensionId;
         this.pos = pos;
         this.inventoryPos = inventoryPos;
         this.item = item;
         this.amount = amount;
+        this.craftable = craftable;
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
@@ -61,7 +64,11 @@ public class PacketRequestItem {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity tileEntity = (StorageScannerTileEntity) te;
-                tileEntity.requestStack(inventoryPos, item, amount, ctx.getSender());
+                if (craftable) {
+                    tileEntity.requestCraft(inventoryPos, item, amount, ctx.getSender());
+                } else {
+                    tileEntity.requestStack(inventoryPos, item, amount, ctx.getSender());
+                }
             }
         });
         ctx.setPacketHandled(true);

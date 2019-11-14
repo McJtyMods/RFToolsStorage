@@ -23,6 +23,7 @@ import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.*;
+import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemCount;
@@ -53,6 +54,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -192,7 +194,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 .filter(p -> isOutputFromGui(p) && isRoutable(p))
                 .forEachOrdered(p -> {
                     TileEntity tileEntity = world.getTileEntity(p);
-                    if (!(tileEntity instanceof StorageScannerTileEntity)) {
+                    if (tileEntity instanceof CraftingManagerTileEntity) {
+                        // @todo crafting manager
+                    } else if (!(tileEntity instanceof StorageScannerTileEntity)) {
                         itemSource.add(tileEntity, 0);
                     }
                 });
@@ -301,7 +305,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         Iterator<TileEntity> iterator = inventories.stream()
                 .filter(p -> testAccess.apply(p) && !p.equals(getPos()) && isRoutable(p) && WorldTools.chunkLoaded(world, p) && getInputMatcher(p).test(finalStack))
                 .map(world::getTileEntity)
-                .filter(te -> te != null && !(te instanceof StorageScannerTileEntity))
+                .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .iterator();
         while (!stack.isEmpty() && iterator.hasNext()) {
             TileEntity te = iterator.next();
@@ -376,7 +380,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         inventories.stream()
                 .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.chunkLoaded(world, p))
                 .map(world::getTileEntity)
-                .filter(te -> te != null && !(te instanceof StorageScannerTileEntity))
+                .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .allMatch(te -> {
                     InventoryHelper.getItems(te, matcher)
                             .forEach(s -> cc[0] += s.getCount());
@@ -403,7 +407,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         Iterator<TileEntity> iterator = inventories.stream()
                 .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.chunkLoaded(world, p))
                 .map(world::getTileEntity)
-                .filter(te -> te != null && !(te instanceof StorageScannerTileEntity))
+                .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .iterator();
 
         int cnt = 0;
@@ -717,19 +721,26 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         // First remove all inventories that are either out of range or no longer an inventory:
         List<BlockPos> old = inventories;
         Set<BlockPos> oldAdded = new HashSet<>();
-        Set<IItemHandler> seenItemHandlers = new HashSet<>();
+        Set<BlockPos> seenPositions = new HashSet<>();
         inventories = new ArrayList<>();
 
         for (BlockPos p : old) {
             if (xnetAccess.containsKey(p) || inRange(p)) {
                 TileEntity te = world.getTileEntity(p);
                 if (te != null && !(te instanceof StorageScannerTileEntity)) {
-                    te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
-                        if (seenItemHandlers.add(h)) {
+                    if (te instanceof CraftingManagerTileEntity) {
+                        if (seenPositions.add(p)) {
                             inventories.add(p);
                             oldAdded.add(p);
                         }
-                    });
+                    } else {
+                        te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
+                            if (seenPositions.add(p)) {
+                                inventories.add(p);
+                                oldAdded.add(p);
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -739,12 +750,13 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             for (int z = getPos().getZ() - radius; z <= getPos().getZ() + radius; z++) {
                 for (int y = getPos().getY() - radius; y <= getPos().getY() + radius; y++) {
                     BlockPos p = new BlockPos(x, y, z);
-                    inventoryAddNew(oldAdded, seenItemHandlers, p);
+                    inventoryAddNew(oldAdded, seenPositions, p);
                 }
             }
         }
+        // @todo xnet support for crafting manager
         for (BlockPos p : xnetAccess.keySet()) {
-            inventoryAddNew(oldAdded, seenItemHandlers, p);
+            inventoryAddNew(oldAdded, seenPositions, p);
             inventoriesFromXNet.add(p);
         }
 
@@ -756,13 +768,18 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 .filter(this::isValid);
     }
 
-    private void inventoryAddNew(Set<BlockPos> oldAdded, Set<IItemHandler> seenItemHandlers, BlockPos p) {
+    private void inventoryAddNew(Set<BlockPos> oldAdded,
+                                 Set<BlockPos> seenPositions, BlockPos p) {
         if (!oldAdded.contains(p)) {
             TileEntity te = world.getTileEntity(p);
-            if (InventoryHelper.isInventory(te) && !(te instanceof StorageScannerTileEntity)) {
-                if (!inventories.contains(p)) {
+            if (te != null && !(te instanceof StorageScannerTileEntity)) {
+                if (te instanceof CraftingManagerTileEntity) {
+                    if (seenPositions.add(p)) {
+                        inventories.add(p);
+                    }
+                } else if (!inventories.contains(p)) {
                     te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
-                        if (seenItemHandlers.add(h)) {
+                        if (seenPositions.add(p)) {
                             inventories.add(p);
                         }
                     });
@@ -784,6 +801,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
         return inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && ((!doRoutable) || isRoutable(p)))
+                .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
                 .map(this::getItemHandlerAt)
                 .map(handler -> {
                     return handler.map(h -> {
@@ -818,6 +836,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         final int[] cnt = {match.getMaxStackSize() < amount ? match.getMaxStackSize() : amount};
         inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && (!doRoutable) || isRoutable(p))
+                .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
                 .map(this::getItemHandlerAt)
                 .allMatch(handler -> {
                     handler.ifPresent(h -> {
@@ -882,6 +901,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
         Iterator<LazyOptional<IItemHandler>> iterator = inventories.stream()
                 .filter(p -> isInputFromAuto(p) && (!p.equals(getPos()) && isRoutable(p) && getInputMatcher(p).test(stack)))
+                .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
                 .map(this::getItemHandlerAt)
                 .filter(i -> i.isPresent())
                 .iterator();
@@ -924,6 +944,46 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     // Meant to be used from the gui
+    public void requestCraft(BlockPos invPos, ItemStack requested, int amount, PlayerEntity player) {
+        int rf = StorageScannerConfiguration.rfPerRequest.get();
+        if (amount >= 0) {
+            rf /= 10;       // Less RF usage for requesting less items
+        }
+        if (amount == -1) {
+            amount = requested.getMaxStackSize();
+        }
+        if (getStoredPower() < rf) {
+            return;
+        }
+
+        // Find all crafting manager that are capable of doing this request and use the one that has
+        // the best cost
+        double bestQuality = -1;
+        int bestQueue = -1;
+        CraftingManagerTileEntity bestCraftingManager = null;
+        for (BlockPos p : inventories) {
+            TileEntity te = world.getTileEntity(p);
+            if (te instanceof CraftingManagerTileEntity) {
+                CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
+                Pair<Double, Integer> pair = craftingManager.getCraftingQuality(requested, amount);
+                Double quality = pair.getLeft();
+                if (quality >= 0 && quality > bestQuality) {
+                    bestQuality = quality;
+                    bestQueue = pair.getRight();
+                    bestCraftingManager = craftingManager;
+                }
+            }
+        }
+        if (bestCraftingManager != null) {
+            // We found one that can do our request
+            bestCraftingManager.request(requested, amount, pos, bestQueue);
+        } else {
+            // Should we log some kind of error and tell the client?
+            // @todo error logging to storage scanner gui!
+        }
+    }
+
+    // Meant to be used from the gui
     public void requestStack(BlockPos invPos, ItemStack requested, int amount, PlayerEntity player) {
         int rf = StorageScannerConfiguration.rfPerRequest.get();
         if (amount >= 0) {
@@ -956,6 +1016,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
             if (invPos.getY() == -1) {
                 Iterator<BlockPos> iterator = inventories.stream()
+                        .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
                         .filter(p -> isOutputFromGui(p) && isRoutable(p))
                         .iterator();
                 while (iterator.hasNext()) {
@@ -994,8 +1055,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
         if (foundItems.contains(stack.getItem())) {
             for (ItemStack s : stacks) {
-                if (ItemHandlerHelper.canItemStacksStack(s, stack)) {
-                    s.grow(stack.getCount());
+                if (ItemHandlerHelper.canItemStacksStack(s.getStack(), stack)) {
+                    s.getStack().grow(stack.getCount());
                     return;
                 }
             }
@@ -1006,9 +1067,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
 
-    public List<ItemStack> getInventoryForBlock(BlockPos cpos) {
+    public void getInventoryForBlock(BlockPos cpos, List<ItemStack> stacks, List<ItemStack> craftable) {
         Set<Item> foundItems = new HashSet<>();
-        List<ItemStack> stacks = new ArrayList<>();
 
         lastSelectedInventory = cpos;
 
@@ -1016,24 +1076,27 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             // Get all starred inventories
             for (BlockPos blockPos : inventories) {
                 if (routable.contains(blockPos)) {
-                    addItemsFromInventory(blockPos, foundItems, stacks);
+                    addItemsFromInventory(blockPos, foundItems, stacks, craftable);
                 }
             }
         } else {
-            addItemsFromInventory(cpos, foundItems, stacks);
+            addItemsFromInventory(cpos, foundItems, stacks, craftable);
         }
-
-        return stacks;
     }
 
-    private void addItemsFromInventory(BlockPos cpos, Set<Item> foundItems, List<ItemStack> stacks) {
+    private void addItemsFromInventory(BlockPos cpos, Set<Item> foundItems, List<ItemStack> stacks, List<ItemStack> craftable) {
         TileEntity tileEntity = world.getTileEntity(cpos);
-        LazyOptional<IItemHandler> handler = getItemHandlerAt(tileEntity, null);
-        handler.ifPresent(h -> {
-            for (int i = 0; i < h.getSlots(); i++) {
-                addItemStack(stacks, foundItems, h.getStackInSlot(i));
+        if (tileEntity instanceof CraftingManagerTileEntity) {
+            for (ItemStack stack : ((CraftingManagerTileEntity) tileEntity).getCraftables()) {
+                addItemStack(craftable, foundItems, stack);
             }
-        });
+        } else {
+            getItemHandlerAt(tileEntity, null).ifPresent(h -> {
+                for (int i = 0; i < h.getSlots(); i++) {
+                    addItemStack(stacks, foundItems, h.getStackInSlot(i));
+                }
+            });
+        }
     }
 
     @Override

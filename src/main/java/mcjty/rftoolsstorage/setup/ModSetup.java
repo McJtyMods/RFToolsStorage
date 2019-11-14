@@ -2,7 +2,7 @@ package mcjty.rftoolsstorage.setup;
 
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
-import mcjty.rftoolsstorage.modules.craftingmanager.CraftingDeviceRegistry;
+import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingDeviceRegistry;
 import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;

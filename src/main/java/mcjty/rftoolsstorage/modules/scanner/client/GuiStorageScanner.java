@@ -83,8 +83,11 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     public static List<PacketReturnInventoryInfo.InventoryInfo> fromServer_inventories = new ArrayList<>();
     // From server: all the positions with inventories matching the search
     public static Set<BlockPos> fromServer_foundInventories = new HashSet<>();
+
     // From server: the contents of an inventory
     public static List<ItemStack> fromServer_inventory = new ArrayList<>();
+    // From server: the contents of an inventory (craftables)
+    public static List<ItemStack> fromServer_craftable = new ArrayList<>();
 
     public GuiStorageScanner(StorageScannerTileEntity te, StorageScannerContainer container, PlayerInventory playerInventory) {
         super(RFToolsStorage.instance, RFToolsStorageMessages.INSTANCE, te, container, playerInventory, 0 /* @todo 1.14 */, "stomon");
@@ -214,6 +217,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         fromServer_foundInventories.clear();
         fromServer_inventory.clear();
+        fromServer_craftable.clear();
 
         if (tileEntity.isDummy()) {
             fromServer_inventories.clear();
@@ -425,20 +429,27 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         int spacing = 3;
 
 //        Collections.sort(fromServer_inventory, (o1, o2) -> o1.stackSize == o2.stackSize ? 0 : o1.stackSize < o2.stackSize ? -1 : 1);
+        // @todo make sorting configurable
         Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
+        Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
 
         String filterText = searchField.getText().toLowerCase();
         Predicate<ItemStack> matcher = StorageScannerTileEntity.getMatcher(filterText);
 
         for (ItemStack item : fromServer_inventory) {
-//            String displayName = item.getDisplayName();
             if (filterText.isEmpty() || matcher.test(item)) {
-                currentPos = addItemToList(item, itemList, currentPos, numcolumns, spacing);
+                currentPos = addItemToList(item, itemList, currentPos, numcolumns, spacing, false);
+            }
+        }
+        for (ItemStack item : fromServer_craftable) {
+            if (filterText.isEmpty() || matcher.test(item)) {
+                // @todo
+                currentPos = addItemToList(item, itemList, currentPos, numcolumns, spacing, true);
             }
         }
     }
 
-    private Pair<Panel, Integer> addItemToList(ItemStack item, WidgetList itemList, Pair<Panel, Integer> currentPos, int numcolumns, int spacing) {
+    private Pair<Panel, Integer> addItemToList(ItemStack item, WidgetList itemList, Pair<Panel, Integer> currentPos, int numcolumns, int spacing, boolean craftable) {
         Panel panel = currentPos.getKey();
         if (panel == null || currentPos.getValue() >= numcolumns) {
             panel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(spacing).setHorizontalMargin(1))
@@ -452,6 +463,10 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 .setOffsetX(-1)
                 .setOffsetY(-1)
                 .setHilightOnHover(true);
+        if (craftable) {
+            // @todo is this looking nice?
+            blockRender.setFilledBackground(0xffaaaa00);
+        }
         blockRender.addSelectionEvent(new BlockRenderEvent() {
             @Override
             public void select(Widget<?> widget) {
@@ -459,7 +474,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 Object item = br.getRenderItem();
                 if (item != null) {
                     boolean shift = McJtyLib.proxy.isShiftKeyDown();
-                    requestItem((ItemStack) item, shift ? 1 : -1);
+                    requestItem((ItemStack) item, shift ? 1 : -1, craftable);
                 }
             }
 
@@ -472,12 +487,12 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         return currentPos;
     }
 
-    private void requestItem(ItemStack stack, int amount) {
+    private void requestItem(ItemStack stack, int amount, boolean craftable) {
         BlockPos selectedContainerPos = getSelectedContainerPos();
         if (selectedContainerPos == null) {
             return;
         }
-        network.sendToServer(new PacketRequestItem(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), selectedContainerPos, stack, amount));
+        network.sendToServer(new PacketRequestItem(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), selectedContainerPos, stack, amount, craftable));
         getInventoryOnServer();
     }
 

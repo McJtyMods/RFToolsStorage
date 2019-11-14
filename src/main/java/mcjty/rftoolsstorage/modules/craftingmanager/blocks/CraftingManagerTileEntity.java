@@ -2,12 +2,15 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
-import mcjty.rftoolsstorage.modules.craftingmanager.CraftingRequest;
-import mcjty.rftoolsstorage.modules.craftingmanager.ICraftingDevice;
+import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingQueue;
+import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingRequest;
+import mcjty.rftoolsstorage.modules.craftingmanager.tools.ICraftingDevice;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
@@ -18,6 +21,7 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.model.ModelDataManager;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
@@ -27,10 +31,11 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
@@ -45,16 +50,16 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
 
     private LazyOptional<IItemHandler> itemHandler = LazyOptional.of(this::createItemHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Modular Storage")
-            .containerSupplier((windowId,player) -> new CraftingManagerContainer(windowId, getPos(), player, CraftingManagerTileEntity.this))
+            .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getPos(), player, CraftingManagerTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
-    private ICraftingDevice[] devices = new ICraftingDevice[4];
-    private Queue<CraftingRequest> requests = new ArrayDeque<>();
+    // @todo save/load requests in NBT
+    private CraftingQueue[] queues = new CraftingQueue[4];
 
     public CraftingManagerTileEntity() {
         super(CraftingManagerSetup.TYPE_CRAFTING_MANAGER);
-        for (int i = 0 ; i < 4 ; i++) {
-            devices[i] = null;
+        for (int i = 0; i < 4; i++) {
+            queues[i] = new CraftingQueue();
         }
     }
 
@@ -62,39 +67,132 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
     public void tick() {
         if (!world.isRemote) {
             itemHandler.ifPresent(h -> {
-                for (int i = 0 ; i < 4 ; i++) {
-                    if (devices[i] != null) {
-                        devices[i].tick();
-                    }
-                }
-
-                CraftingRequest request = requests.peek();
-                if (request != null) {
-                    if (fireRequest(request)) {
-                        requests.remove();
+                for (int queueIndex = 0; queueIndex < 4; queueIndex++) {
+                    if (queues[queueIndex].hasDevice()) {
+                        ICraftingDevice device = queues[queueIndex].getDevice();
+                        device.tick();
+                        if (device.getStatus() == ICraftingDevice.Status.READY) {
+                            sendResultsBack(queueIndex);
+                        }
+                        if (device.getStatus() == ICraftingDevice.Status.IDLE) {
+                            Queue<CraftingRequest> requests = queues[queueIndex].getRequests();
+                            CraftingRequest request = requests.peek();
+                            if (request != null) {
+                                if (fireRequest(queueIndex, request)) {
+                                    requests.remove();
+                                }
+                            }
+                        }
                     }
                 }
             });
         }
     }
 
-    private boolean fireRequest(CraftingRequest request) {
-        for (ICraftingDevice device : devices) {
-            if (device.getStatus() == ICraftingDevice.Status.IDLE) {
-                return true;
-            }
-        }
+    private void sendResultsBack(int queueIndex) {
+        // @todo
+    }
 
-        return false;
+    public List<ItemStack> getCraftables() {
+        List<ItemStack> stacks = new ArrayList<>();
+        itemHandler.ifPresent(h -> {
+            for (int i = 4; i < h.getSlots(); i++) {
+                ItemStack card = h.getStackInSlot(i);
+                if (!card.isEmpty()) {
+                    ItemStack result = CraftingCardItem.getResult(card);
+                    if (!result.isEmpty()) {
+                        stacks.add(result);
+                    }
+                }
+            }
+        });
+        return stacks;
+    }
+
+    /**
+     * Return a quality number that indicates how good this crafting manager is for crafting the
+     * requested item. Higher numbers are better. A negative number means that this crafting manager
+     * cannot craft this at all
+     */
+    public Pair<Double, Integer> getCraftingQuality(ItemStack stack, int amount) {
+        return itemHandler.map(h -> {
+            double bestQuality = -1;
+            int bestDevice = -1;
+            for (int queueIndex = 0; queueIndex < 4; queueIndex++) {
+                if (queues[queueIndex].hasDevice()) {
+                    ICraftingDevice device = queues[queueIndex].getDevice();
+                    Queue<CraftingRequest> requests = queues[queueIndex].getRequests();
+                    double baseQuality = Math.max(0.0, 1.0 - (requests.size() / 10.0));   // Amount of requests negatively impacts the quality
+                    switch (device.getStatus()) {
+                        case IDLE:
+                            baseQuality += 1;
+                            break;
+                        case READY:
+                            baseQuality += 0.5;
+                            break;
+                        case BUSY:
+                        default:
+                            break;
+                    }
+                    double quality = -1;
+                    for (int i = getFirstCardIndex(queueIndex); i < getLastCardIndex(queueIndex); i++) {
+                        ItemStack card = h.getStackInSlot(queueIndex);
+                        if (!card.isEmpty()) {
+                            ItemStack result = CraftingCardItem.getResult(card);
+                            if (InventoryHelper.isItemStackConsideredEqual(result, stack)) {
+                                quality = baseQuality;
+                                break;
+                            }
+                        }
+                    }
+                    if (quality >= 0 && quality > bestQuality) {
+                        bestQuality = quality;
+                        bestDevice = queueIndex;
+                    }
+                }
+            }
+            return Pair.of(bestQuality, bestDevice);
+        }).orElse(Pair.of(-1.0, -1));
+    }
+
+    private int getLastCardIndex(int queueIndex) {
+        return 4 + queueIndex * 8 + 8;
+    }
+
+    private int getFirstCardIndex(int queueIndex) {
+        return 4 + queueIndex * 8;
+    }
+
+    public void request(ItemStack requested, int amount, BlockPos requester, int queueIndex) {
+        queues[queueIndex].getRequests().add(new CraftingRequest(requested, amount, requester));
+    }
+
+    private boolean fireRequest(int queueIndex, CraftingRequest request) {
+        return itemHandler.map(h -> {
+            CraftingQueue queue = queues[queueIndex];
+            for (int i = getFirstCardIndex(queueIndex) ; i < getLastCardIndex(queueIndex) ; i++) {
+                ItemStack cardStack = h.getStackInSlot(i);
+                if (!cardStack.isEmpty()) {
+                    ItemStack cardResult = CraftingCardItem.getResult(cardStack);
+                    if (InventoryHelper.isItemStackConsideredEqual(request.getStack(), cardResult)) {
+                        // Request needed ingredients from the storage scanner
+                        List<ItemStack> ingredients = CraftingCardItem.getIngredients(cardResult);
+                        // @todo
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }).orElse(false);
     }
 
     private void updateDevices() {
         itemHandler.ifPresent(h -> {
-            for (int i = 0 ; i < 4 ; i++) {
+            for (int i = 0; i < 4; i++) {
                 ItemStack deviceStack = h.getStackInSlot(i);
                 ResourceLocation id = deviceStack.getItem().getRegistryName();
                 ICraftingDevice device = RFToolsStorage.setup.craftingDeviceRegistry.get(id);
-                devices[i] = device;
+                queues[i].setDevice(device);
             }
         });
     }
@@ -136,7 +234,6 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
                     .build();
         }).orElseThrow(IllegalStateException::new);
     }
-
 
 
     @Override

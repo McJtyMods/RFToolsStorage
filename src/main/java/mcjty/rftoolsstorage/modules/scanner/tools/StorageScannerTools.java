@@ -39,10 +39,13 @@ public class StorageScannerTools {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
-                List<ItemStack> inv = scannerTileEntity.getInventoryForBlock(invpos);
+                List<ItemStack> stacks = new ArrayList<>();
+                List<ItemStack> craftable = new ArrayList<>();
+                scannerTileEntity.getInventoryForBlock(invpos, stacks, craftable);
                 RFToolsStorageMessages.sendToClient(player, ClientCommandHandler.CMD_RETURN_SCANNER_CONTENTS,
                         TypedMap.builder()
-                                .put(ClientCommandHandler.PARAM_STACKS, inv)
+                                .put(ClientCommandHandler.PARAM_STACKS, stacks)
+                                .put(ClientCommandHandler.PARAM_CRAFTABLE, craftable)
                 );
             }
         }

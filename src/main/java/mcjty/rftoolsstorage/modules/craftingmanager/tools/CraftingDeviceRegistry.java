@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.modules.craftingmanager;
+package mcjty.rftoolsstorage.modules.craftingmanager.tools;
 
 import net.minecraft.util.ResourceLocation;
 
