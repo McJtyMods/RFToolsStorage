@@ -4,7 +4,10 @@ import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingRequest;
+import mcjty.rftoolsstorage.modules.craftingmanager.ICraftingDevice;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
@@ -14,6 +17,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelDataManager;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
@@ -26,6 +30,9 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Queue;
 
 public class CraftingManagerTileEntity extends GenericTileEntity implements ITickableTileEntity {
 
@@ -41,14 +48,55 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
             .containerSupplier((windowId,player) -> new CraftingManagerContainer(windowId, getPos(), player, CraftingManagerTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
+    private ICraftingDevice[] devices = new ICraftingDevice[4];
+    private Queue<CraftingRequest> requests = new ArrayDeque<>();
+
     public CraftingManagerTileEntity() {
         super(CraftingManagerSetup.TYPE_CRAFTING_MANAGER);
+        for (int i = 0 ; i < 4 ; i++) {
+            devices[i] = null;
+        }
     }
 
     @Override
     public void tick() {
         if (!world.isRemote) {
+            itemHandler.ifPresent(h -> {
+                for (int i = 0 ; i < 4 ; i++) {
+                    if (devices[i] != null) {
+                        devices[i].tick();
+                    }
+                }
+
+                CraftingRequest request = requests.peek();
+                if (request != null) {
+                    if (fireRequest(request)) {
+                        requests.remove();
+                    }
+                }
+            });
         }
+    }
+
+    private boolean fireRequest(CraftingRequest request) {
+        for (ICraftingDevice device : devices) {
+            if (device.getStatus() == ICraftingDevice.Status.IDLE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void updateDevices() {
+        itemHandler.ifPresent(h -> {
+            for (int i = 0 ; i < 4 ; i++) {
+                ItemStack deviceStack = h.getStackInSlot(i);
+                ResourceLocation id = deviceStack.getItem().getRegistryName();
+                ICraftingDevice device = RFToolsStorage.setup.craftingDeviceRegistry.get(id);
+                devices[i] = device;
+            }
+        });
     }
 
     @Override
@@ -110,6 +158,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
             protected void onUpdate(int index) {
                 if (index < 4) {
                     markDirtyClient();
+                    updateDevices();
                 }
                 super.onUpdate(index);
             }
