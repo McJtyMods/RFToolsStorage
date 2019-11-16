@@ -34,6 +34,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -943,6 +944,19 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         return outSlot;
     }
 
+    /**
+     * Called from the crafting manager. There are three possible results:
+     * - Returns null: the ingredients are not available and there are no crafters able to make them
+     * - Returns empty list: the ingredients are not available but there are crafters that are able to make
+     *   them and the crafters will have been notified (requests have been sent)
+     * - Returns a list of itemstacks as extracted from the storage scanner. The craft can on
+     */
+    @Nullable
+    public List<ItemStack> requestIngredients(List<Ingredient> ingredients, BlockPos craftingManagerPos) {
+        // @todo
+        return null;
+    }
+
     // Meant to be used from the gui
     public void requestCraft(BlockPos invPos, ItemStack requested, int amount, PlayerEntity player) {
         int rf = StorageScannerConfiguration.rfPerRequest.get();
@@ -958,6 +972,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
         // Find all crafting manager that are capable of doing this request and use the one that has
         // the best cost
+        // @todo use invPos.getY() == -1 to scan all crafting manager or only the specified one!
         double bestQuality = -1;
         int bestQueue = -1;
         CraftingManagerTileEntity bestCraftingManager = null;
@@ -1322,4 +1337,5 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
         return super.getCapability(cap, facing);
     }
+
 }

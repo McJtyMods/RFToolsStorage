@@ -11,14 +11,18 @@ import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingQueue;
 import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingRequest;
 import mcjty.rftoolsstorage.modules.craftingmanager.tools.ICraftingDevice;
+import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -176,8 +180,24 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
                     ItemStack cardResult = CraftingCardItem.getResult(cardStack);
                     if (InventoryHelper.isItemStackConsideredEqual(request.getStack(), cardResult)) {
                         // Request needed ingredients from the storage scanner
-                        List<ItemStack> ingredients = CraftingCardItem.getIngredients(cardResult);
-                        // @todo
+                        IRecipe recipe = CraftingCardItem.findRecipe(world, cardStack, queue.getDevice().getRecipeType());
+                        List<Ingredient> ingredients;
+                        if (recipe != null) {
+                            ingredients = recipe.getIngredients();
+                        } else {
+                            ingredients = CraftingCardItem.getIngredients(cardStack);
+                        }
+                        TileEntity te = world.getTileEntity(request.getRequester());
+                        if (te instanceof StorageScannerTileEntity) {
+                            StorageScannerTileEntity scanner = (StorageScannerTileEntity) te;
+                            List<ItemStack> stacks = scanner.requestIngredients(ingredients, pos);
+                            if (stacks == null) {
+                                // Craft is not possible
+                                return false;
+                            } else {
+                                // @todo
+                            }
+                        }
                         return true;
                     }
                 }
