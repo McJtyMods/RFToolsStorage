@@ -24,6 +24,7 @@ import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemCount;
@@ -109,6 +110,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public static final int XNETDELAY = 40;
 
+    private CraftingSystem craftingSystem = new CraftingSystem(this);
     private List<BlockPos> inventories = new ArrayList<>();
     private Set<BlockPos> inventoriesFromXNet = new HashSet<>();
 
@@ -228,6 +230,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Override
     public void tick() {
         if (!world.isRemote) {
+            craftingSystem.tick();
+
             xnetDelay--;
             if (xnetDelay < 0) {
                 // If there was no update from XNet for a while then we assume we no longer have information
@@ -956,7 +960,10 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return;
         }
 
-        // Find all crafting manager that are capable of doing this request and use the one that has
+        craftingSystem.requestCraft(requested, amount);
+
+        // @todo remove/move the code below this:
+        // Find all crafting managers that are capable of doing this request and use the one that has
         // the best cost
         double bestQuality = -1;
         int bestQueue = -1;
@@ -1102,6 +1109,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Override
     public void read(CompoundNBT tagCompound) {
         super.read(tagCompound);
+        craftingSystem.read(tagCompound.getCompound("CS"));
         ListNBT list = tagCompound.getList("inventories", Constants.NBT.TAG_COMPOUND);
         inventories.clear();
         for (INBT inbt : list) {
@@ -1146,6 +1154,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Override
     public CompoundNBT write(CompoundNBT tagCompound) {
         super.write(tagCompound);
+        tagCompound.put("CS", craftingSystem.write());
         ListNBT list = new ListNBT();
         for (BlockPos c : inventories) {
             CompoundNBT tag = BlockPosTools.write(c);

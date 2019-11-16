@@ -8,9 +8,9 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
-import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingQueue;
-import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingRequest;
-import mcjty.rftoolsstorage.modules.craftingmanager.tools.ICraftingDevice;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingQueue;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
@@ -164,7 +164,8 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
     }
 
     public void request(ItemStack requested, int amount, BlockPos requester, int queueIndex) {
-        queues[queueIndex].getRequests().add(new CraftingRequest(requested, amount, requester));
+        // @todo
+//        queues[queueIndex].getRequests().add(new CraftingRequest(requested, amount, requester));
     }
 
     private boolean fireRequest(int queueIndex, CraftingRequest request) {

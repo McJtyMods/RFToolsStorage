@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.devices;
 
-import mcjty.rftoolsstorage.modules.craftingmanager.tools.ICraftingDevice;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.container.Container;

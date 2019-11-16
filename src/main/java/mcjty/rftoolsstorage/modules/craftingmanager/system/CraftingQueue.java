@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.modules.craftingmanager.tools;
+package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

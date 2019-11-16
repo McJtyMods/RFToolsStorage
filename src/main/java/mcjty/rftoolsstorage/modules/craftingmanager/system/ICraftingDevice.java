@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.modules.craftingmanager.tools;
+package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
