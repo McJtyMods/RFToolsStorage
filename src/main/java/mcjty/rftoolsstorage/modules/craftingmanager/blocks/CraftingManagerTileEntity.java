@@ -11,9 +11,6 @@ import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingQueue;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
-import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingQueue;
-import mcjty.rftoolsstorage.modules.craftingmanager.tools.CraftingRequest;
-import mcjty.rftoolsstorage.modules.craftingmanager.tools.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -191,17 +188,17 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
                         } else {
                             ingredients = CraftingCardItem.getIngredients(cardStack);
                         }
-                        TileEntity te = world.getTileEntity(request.getRequester());
-                        if (te instanceof StorageScannerTileEntity) {
-                            StorageScannerTileEntity scanner = (StorageScannerTileEntity) te;
-                            List<ItemStack> stacks = scanner.requestIngredients(ingredients, pos);
-                            if (stacks == null) {
-                                // Craft is not possible
-                                return false;
-                            } else {
-                                // @todo
-                            }
-                        }
+//                        TileEntity te = world.getTileEntity(request.getRequester());
+//                        if (te instanceof StorageScannerTileEntity) {
+//                            StorageScannerTileEntity scanner = (StorageScannerTileEntity) te;
+//                            List<ItemStack> stacks = scanner.requestIngredients(ingredients, pos);
+//                            if (stacks == null) {
+//                                // Craft is not possible
+//                                return false;
+//                            } else {
+//                                // @todo
+//                            }
+//                        }
                         return true;
                     }
                 }
