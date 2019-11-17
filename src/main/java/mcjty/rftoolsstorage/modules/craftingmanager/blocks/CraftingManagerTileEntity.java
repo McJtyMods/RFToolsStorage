@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
@@ -11,7 +10,6 @@ import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingQueue;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
-import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
@@ -22,7 +20,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -40,6 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
@@ -118,7 +116,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
      * requested item. Higher numbers are better. A negative number means that this crafting manager
      * cannot craft this at all
      */
-    public Pair<Double, Integer> getCraftingQuality(ItemStack stack, int amount) {
+    public Pair<Double, Integer> getCraftingQuality(Ingredient ingredient, int amount) {
         return itemHandler.map(h -> {
             double bestQuality = -1;
             int bestDevice = -1;
@@ -143,7 +141,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
                         ItemStack card = h.getStackInSlot(queueIndex);
                         if (!card.isEmpty()) {
                             ItemStack result = CraftingCardItem.getResult(card);
-                            if (InventoryHelper.isItemStackConsideredEqual(result, stack)) {
+                            if (ingredient.test(result)) {
                                 quality = baseQuality;
                                 break;
                             }
@@ -172,6 +170,44 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
 //        queues[queueIndex].getRequests().add(new CraftingRequest(requested, amount, requester));
     }
 
+    /**
+     * Get the list of ingredients for a given request
+     */
+    @Nonnull
+    public List<Ingredient> getIngredients(int queueIndex, CraftingRequest request) {
+        return itemHandler.map(h -> {
+            CraftingQueue queue = queues[queueIndex];
+            for (int i = getFirstCardIndex(queueIndex) ; i < getLastCardIndex(queueIndex) ; i++) {
+                ItemStack cardStack = h.getStackInSlot(i);
+                if (!cardStack.isEmpty()) {
+                    ItemStack cardResult = CraftingCardItem.getResult(cardStack);
+                    if (request.getIngredient().test(cardResult)) {
+                        // Request needed ingredients from the storage scanner
+                        IRecipe recipe = CraftingCardItem.findRecipe(world, cardStack, queue.getDevice().getRecipeType());
+                        List<Ingredient> ingredients;
+                        if (recipe != null) {
+                            ingredients = recipe.getIngredients();
+                        } else {
+                            ingredients = CraftingCardItem.getIngredients(cardStack);
+                        }
+                        return ingredients;
+                    }
+                }
+            }
+            return Collections.<Ingredient>emptyList();
+        }).orElse(Collections.<Ingredient>emptyList());
+    }
+
+    /**
+     * Actually start the craft on the given device. The given ingredients are already
+     * extracted from the storage scanner and are supposed to be consumed by the device.
+     * If the given device is busy the craft request will be put on hold
+     */
+    public void startCraft(int queueIndex, CraftingRequest request, List<ItemStack> ingredients) {
+        // @todo
+    }
+
+    @Deprecated
     private boolean fireRequest(int queueIndex, CraftingRequest request) {
         return itemHandler.map(h -> {
             CraftingQueue queue = queues[queueIndex];
@@ -179,7 +215,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
                 ItemStack cardStack = h.getStackInSlot(i);
                 if (!cardStack.isEmpty()) {
                     ItemStack cardResult = CraftingCardItem.getResult(cardStack);
-                    if (InventoryHelper.isItemStackConsideredEqual(request.getStack(), cardResult)) {
+                    if (request.getIngredient().test(cardResult)) {
                         // Request needed ingredients from the storage scanner
                         IRecipe recipe = CraftingCardItem.findRecipe(world, cardStack, queue.getDevice().getRecipeType());
                         List<Ingredient> ingredients;

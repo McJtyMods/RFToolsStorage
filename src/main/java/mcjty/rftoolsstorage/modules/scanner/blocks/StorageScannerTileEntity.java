@@ -56,11 +56,11 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -231,7 +231,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Override
     public void tick() {
         if (!world.isRemote) {
-            craftingSystem.tick();
+            craftingSystem.tick(world);
 
             xnetDelay--;
             if (xnetDelay < 0) {
@@ -952,14 +952,16 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * Called from the crafting manager. There are three possible results:
      * - Returns null: the ingredients are not available and there are no crafters able to make them
      * - Returns empty list: the ingredients are not available but there are crafters that are able to make
-     *   them and the crafters will have been notified (requests have been sent)
-     * - Returns a list of itemstacks as extracted from the storage scanner. The craft can on
+     *   them and requestCraft consumers will be fired for all missing items
+     * - Returns a list of itemstacks as extracted from the storage scanner. The craft can go on
      */
     @Nullable
-    public List<ItemStack> requestIngredients(List<Ingredient> ingredients, BlockPos craftingManagerPos) {
+    public List<ItemStack> requestIngredients(List<Ingredient> ingredients, Consumer<Ingredient> missingConsumer) {
         // @todo
         return null;
     }
+
+
 
     // Meant to be used from the gui
     public void requestCraft(BlockPos invPos, ItemStack requested, int amount, PlayerEntity player) {
@@ -975,34 +977,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
 
         craftingSystem.requestCraft(requested, amount);
-
-        // @todo remove/move the code below this:
-        // Find all crafting managers that are capable of doing this request and use the one that has
-        // the best cost
-        // @todo use invPos.getY() == -1 to scan all crafting manager or only the specified one!
-        double bestQuality = -1;
-        int bestQueue = -1;
-        CraftingManagerTileEntity bestCraftingManager = null;
-        for (BlockPos p : inventories) {
-            TileEntity te = world.getTileEntity(p);
-            if (te instanceof CraftingManagerTileEntity) {
-                CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
-                Pair<Double, Integer> pair = craftingManager.getCraftingQuality(requested, amount);
-                Double quality = pair.getLeft();
-                if (quality >= 0 && quality > bestQuality) {
-                    bestQuality = quality;
-                    bestQueue = pair.getRight();
-                    bestCraftingManager = craftingManager;
-                }
-            }
-        }
-        if (bestCraftingManager != null) {
-            // We found one that can do our request
-            bestCraftingManager.request(requested, amount, pos, bestQueue);
-        } else {
-            // Should we log some kind of error and tell the client?
-            // @todo error logging to storage scanner gui!
-        }
     }
 
     // Meant to be used from the gui
