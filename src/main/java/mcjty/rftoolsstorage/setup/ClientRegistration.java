@@ -48,9 +48,9 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void onModelBake(ModelBakeEvent event) {
-        event.getModelRegistry().put(new ModelResourceLocation(CraftingManagerSetup.CRAFTING_MANAGER.getRegistryName(), ""),
+        event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(RFToolsStorage.MODID, "crafting_manager"), ""),
                 new CraftingManagerBakedModel(DefaultVertexFormats.BLOCK));
-        event.getModelRegistry().put(new ModelResourceLocation(CraftingManagerSetup.CRAFTING_MANAGER.getRegistryName(), "inventory"),
+        event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(RFToolsStorage.MODID, "crafting_manager"), "inventory"),
                 new CraftingManagerBakedModel(DefaultVertexFormats.ITEM));
     }
 
