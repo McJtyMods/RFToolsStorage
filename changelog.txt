@@ -1,3 +1,6 @@
+Upcoming:
+- Avoid a rare crash during model registration
+
 0.0.4-alpha :
 - Fixed a networking problem on servers
 
