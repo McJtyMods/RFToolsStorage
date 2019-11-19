@@ -11,10 +11,6 @@ import java.util.function.Supplier;
 
 public class PacketGridToClient extends PacketGridSync {
 
-    public void fromBytes(PacketBuffer buf) {
-        convertFromBytes(buf);
-    }
-
     public void toBytes(PacketBuffer buf) {
         convertToBytes(buf);
     }
@@ -23,7 +19,7 @@ public class PacketGridToClient extends PacketGridSync {
     }
 
     public PacketGridToClient(PacketBuffer buf) {
-        fromBytes(buf);
+        convertFromBytes(buf);
     }
 
     public PacketGridToClient(BlockPos pos, CraftingGrid grid) {

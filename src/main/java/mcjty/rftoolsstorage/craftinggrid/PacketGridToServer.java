@@ -13,15 +13,6 @@ public class PacketGridToServer extends PacketGridSync {
 
     private ItemStack[] stacks = new ItemStack[0];
 
-    public void fromBytes(PacketBuffer buf) {
-        convertFromBytes(buf);
-        int len = buf.readInt();
-        stacks = new ItemStack[len];
-        for (int i = 0 ; i < len ; i++) {
-            stacks[i] = buf.readItemStack();
-        }
-    }
-
     public void toBytes(PacketBuffer buf) {
         convertToBytes(buf);
         buf.writeInt(stacks.length);
@@ -34,7 +25,12 @@ public class PacketGridToServer extends PacketGridSync {
     }
 
     public PacketGridToServer(PacketBuffer buf) {
-        fromBytes(buf);
+        convertFromBytes(buf);
+        int len = buf.readInt();
+        stacks = new ItemStack[len];
+        for (int i = 0 ; i < len ; i++) {
+            stacks[i] = buf.readItemStack();
+        }
     }
 
     public PacketGridToServer(BlockPos pos, CraftingGrid grid) {
