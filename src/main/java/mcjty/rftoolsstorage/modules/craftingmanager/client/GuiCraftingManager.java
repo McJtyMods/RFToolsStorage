@@ -8,7 +8,6 @@ import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerContainer;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 
@@ -23,7 +22,7 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
     private static final ResourceLocation guiElements = new ResourceLocation(RFToolsBase.MODID, "textures/gui/guielements.png");
 
     public GuiCraftingManager(CraftingManagerTileEntity tileEntity, CraftingManagerContainer container, PlayerInventory inventory) {
-        super(RFToolsStorage.instance, RFToolsStorageMessages.INSTANCE, tileEntity, container, inventory, 0, "crafting");
+        super(RFToolsStorage.instance, tileEntity, container, inventory, 0, "crafting");
 
         xSize = WIDTH;
         ySize = HEIGHT;
