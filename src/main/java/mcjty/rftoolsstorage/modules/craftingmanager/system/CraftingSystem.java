@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
@@ -9,10 +10,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * When the storage scanner requests the craft of an item this happens through requestCraft. What
@@ -55,9 +53,13 @@ public class CraftingSystem {
 
     private final StorageScannerTileEntity storage;
     private final Queue<CraftingRequest> queuedRequests = new ArrayDeque<>();
-    private final List<CraftingRequest> runningRequest = new ArrayList<>();
+//    private final List<CraftingRequest> runningRequest = new ArrayList<>();
     private final List<CraftingRequest> suspendedRequests = new ArrayList<>();
     private final List<CraftingRequest> failedRequests = new ArrayList<>();
+
+    // Every request has an ID
+    private int currentRequestId = 0;
+    private final Map<Integer, CraftingRequest> craftingRequestMap = new HashMap<>();
 
     public CraftingSystem(StorageScannerTileEntity storage) {
         this.storage = storage;
@@ -68,6 +70,30 @@ public class CraftingSystem {
         if (request != null) {
             startRequest(world, request);
         }
+
+        boolean checkSuspendedCrafts[] = { false };
+        storage.getAllInventories().forEach(pos -> {
+            TileEntity te = world.getTileEntity(pos);
+            if (te instanceof CraftingManagerTileEntity) {
+                CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
+                boolean ready = craftingManager.tick(this);
+                if (ready) {
+                    checkSuspendedCrafts[0] = true;
+                }
+            }
+        });
+        if (checkSuspendedCrafts[0]) {
+            // One of the crafts is ready so we need to reschedule all suspended crafts
+            // @todo optimize this so that only the relevant suspended requests are put back?
+            for (CraftingRequest craftingRequest : suspendedRequests) {
+                queuedRequests.add(craftingRequest);
+            }
+            suspendedRequests.clear();
+        }
+    }
+
+    public StorageScannerTileEntity getStorage() {
+        return storage;
     }
 
     private static class BestDevice {
@@ -90,7 +116,8 @@ public class CraftingSystem {
                             best.craftingManager = craftingManager;
                         }
                     }
-                }, (best1, best2) -> { });
+                }, (best1, best2) -> {
+                });
 
         if (bestDevice.craftingManager == null) {
             // No crafting manager can craft this. Put the request on the error queue
@@ -99,37 +126,63 @@ public class CraftingSystem {
             List<Ingredient> ingredients = bestDevice.craftingManager.getIngredients(bestDevice.queue, request);
             List<ItemStack> extractedItems = storage.requestIngredients(ingredients, ingredient -> {
                 // A craft is possible but some items are missing. This consumer is called for every missing ingredient
-                CraftingRequest newRequest = new CraftingRequest(ingredient, 1, request);
+                CraftingRequest newRequest = new CraftingRequest(newRequestId(), ingredient, 1, request.getId());
                 queuedRequests.add(newRequest);
-            });
+            }, bestDevice.quality >= CraftingManagerTileEntity.QUALITY_DEVICEIDLE);
             if (extractedItems == null) {
                 // Some items are missing and no crafters exist to make them. This is an error
                 failedRequests.add(request);
             } else if (extractedItems.isEmpty()) {
-                // Items are missing. If crafts are possible they will be requested by the ingredient consumer above
+                // Items are missing or the device is not idle. If crafts are possible they will be requested by the ingredient consumer above
                 // Request is suspended so that it can resume later
                 suspendedRequests.add(request);
             } else {
-                // We have all the needed ingredients. Start the craft
-                bestDevice.craftingManager.startCraft(bestDevice.queue, request, extractedItems);
-                runningRequest.add(request);
+                // We have all the needed ingredients and the device is not idle. Start the craft
+                if (!bestDevice.craftingManager.startCraft(bestDevice.queue, request, extractedItems)) {
+                    // There was a failure. We need to insert the items back into storage
+                    rollback(world, extractedItems);
+                    failedRequests.add(request);
+                } else {
+//                    runningRequest.add(request);  // @todo do we need this?
+                }
             }
         }
+    }
+
+    private void rollback(World world, List<ItemStack> extractedItems) {
+        for (ItemStack stack : extractedItems) {
+            ItemStack left = storage.insertInternal(stack, false);
+            if (!left.isEmpty()) {
+                // This could not be inserted. Only thing we can do now is to spawn the item on the ground
+                InventoryHelper.spawnItemStack(world, storage.getPos().getX() + .5, storage.getPos().getY() + 1.5, storage.getPos().getZ() + .5,
+                        left);
+            }
+        }
+    }
+
+    private int newRequestId() {
+        int id = currentRequestId;
+        currentRequestId++;
+        return id;
     }
 
     /**
      * Called from the storage scanner: request the craft of the given stack
      */
     public void requestCraft(ItemStack stack, int amount) {
-        CraftingRequest request = new CraftingRequest(Ingredient.fromStacks(stack), amount, null);
+        CraftingRequest request = new CraftingRequest(newRequestId(), Ingredient.fromStacks(stack), amount, -1);
         queuedRequests.add(request);
     }
 
     public void read(CompoundNBT tag) {
+        currentRequestId = tag.getInt("currentRequestId");
+        // @todo
     }
 
     public CompoundNBT write() {
         CompoundNBT tag = new CompoundNBT();
+        tag.putInt("currentRequestId", currentRequestId);
+        // @todo
         return tag;
     }
 }

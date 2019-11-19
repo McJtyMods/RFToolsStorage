@@ -15,16 +15,19 @@ public interface ICraftingDevice {
         READY       // Doing nothing and output ready
     }
 
-    /// Do one crafting tick
+    /// Do one crafting tick. If the craft has finished the device will be put in READY mode
     void tick();
 
     /// Set the recipe to use for subsequent crafts
     void setRecipe(IRecipe recipe);
 
-    /// Insert the ingredients. Returns false if this fails for some reason (in that case nothing will have been inserted)
+    /**
+     * Insert the ingredients. Returns false if this fails for some reason (in that case nothing will have been inserted).
+     * The device will be put in BUSY mode.
+     */
     boolean insertIngredients(List<ItemStack> items, World world);
 
-    /// Extract output
+    /// Extract output and put the device back in IDLE mode
     List<ItemStack> extractOutput();
 
     /// Return the recipe type supported by this device

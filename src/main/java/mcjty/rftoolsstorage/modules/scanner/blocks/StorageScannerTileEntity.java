@@ -902,6 +902,14 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return stack;
         }
 
+        ItemStack result = insertInternal(stack, simulate);
+
+        consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
+        return result;
+    }
+
+    /// Insert an item without using power
+    public ItemStack insertInternal(ItemStack stack, boolean simulate) {
         final ItemStack[] toInsert = {stack.copy()};
 
         Iterator<LazyOptional<IItemHandler>> iterator = inventories.stream()
@@ -917,8 +925,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 toInsert[0] = ItemHandlerHelper.insertItem(h, toInsert[0], simulate);
             });
         }
-
-        consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
         return toInsert[0];
     }
 
@@ -954,11 +960,52 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * - Returns empty list: the ingredients are not available but there are crafters that are able to make
      *   them and requestCraft consumers will be fired for all missing items
      * - Returns a list of itemstacks as extracted from the storage scanner. The craft can go on
+     *
+     * If the extract is true the requested items are actually extracted in case they are available. Otherwise
+     * nothing happens (and an empty list will be returned or null)
      */
     @Nullable
-    public List<ItemStack> requestIngredients(List<Ingredient> ingredients, Consumer<Ingredient> missingConsumer) {
-        // @todo
-        return null;
+    public List<ItemStack> requestIngredients(List<Ingredient> ingredients, Consumer<Ingredient> missingIngredientConsumer, boolean extract) {
+        List<Ingredient> missing = new ArrayList<>();
+        for (Ingredient ingredient : ingredients) {
+            ItemStack stack = requestItem(ingredient, true, 1, true);
+            if (stack.isEmpty()) {
+                missing.add(ingredient);
+            }
+        }
+        if (missing.isEmpty()) {
+            // Nothing is missing. Really extract
+            if (extract) {
+                List<ItemStack> stacks = new ArrayList<>();
+                for (Ingredient ingredient : ingredients) {
+                    ItemStack stack = requestItem(ingredient, false, 1, true);
+                    stacks.add(stack);
+                }
+                return stacks;
+            } else {
+                return Collections.emptyList();
+            }
+        } else {
+            // There are missing items. Check if there are recipes for them
+            for (Ingredient ingredient : missing) {
+                if (!getAllInventories().anyMatch(p -> {
+                    TileEntity te = world.getTileEntity(p);
+                    if (te instanceof CraftingManagerTileEntity) {
+                        CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
+                        if (craftingManager.canCraft(ingredient)) {
+                            // The crafting manager can craft this item
+                            missingIngredientConsumer.accept(ingredient);
+                            return true;
+                        }
+                    }
+                    return false;
+                })) {
+                    return null;    // No recipe exists for this ingredient
+                }
+            }
+            // All ingredients are there or have recipes
+            return Collections.emptyList();
+        }
     }
 
 

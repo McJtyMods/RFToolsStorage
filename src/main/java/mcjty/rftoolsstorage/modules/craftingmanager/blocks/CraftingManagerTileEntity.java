@@ -9,8 +9,11 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingQueue;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
+import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.BlockState;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -19,10 +22,8 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.model.ModelDataManager;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
@@ -41,7 +42,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
-public class CraftingManagerTileEntity extends GenericTileEntity implements ITickableTileEntity {
+public class CraftingManagerTileEntity extends GenericTileEntity {
 
     public static final ModelProperty<BlockState> MIMIC[] = new ModelProperty[]{
             new ModelProperty<>(),
@@ -65,34 +66,59 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
         }
     }
 
-    @Override
-    public void tick() {
-        if (!world.isRemote) {
-            itemHandler.ifPresent(h -> {
-                for (int queueIndex = 0; queueIndex < 4; queueIndex++) {
-                    if (queues[queueIndex].hasDevice()) {
-                        ICraftingDevice device = queues[queueIndex].getDevice();
-                        device.tick();
-                        if (device.getStatus() == ICraftingDevice.Status.READY) {
-                            sendResultsBack(queueIndex);
-                        }
-                        if (device.getStatus() == ICraftingDevice.Status.IDLE) {
-                            Queue<CraftingRequest> requests = queues[queueIndex].getRequests();
-                            CraftingRequest request = requests.peek();
-                            if (request != null) {
-                                if (fireRequest(queueIndex, request)) {
-                                    requests.remove();
-                                }
+    /**
+     * Tick is called manually from the crafting system.
+     * It will return true if one of the crafters finished a craft
+     */
+    public boolean tick(CraftingSystem system) {
+        return itemHandler.map(h -> {
+            boolean rc = false;
+            for (int queueIndex = 0; queueIndex < 4; queueIndex++) {
+                if (queues[queueIndex].hasDevice()) {
+                    ICraftingDevice device = queues[queueIndex].getDevice();
+                    device.tick();
+                    if (device.getStatus() == ICraftingDevice.Status.READY) {
+                        sendResultsBack(queueIndex, system);
+                        rc = true;
+                    }
+                    if (device.getStatus() == ICraftingDevice.Status.IDLE) {
+                        Queue<CraftingRequest> requests = queues[queueIndex].getRequests();
+                        CraftingRequest request = requests.peek();
+                        if (request != null) {
+                            if (fireRequest(queueIndex, request)) {
+                                requests.remove();
                             }
                         }
                     }
                 }
-            });
+            }
+            return rc;
+        }).orElse(false);
+    }
+
+    private void sendResultsBack(int queueIndex, CraftingSystem system) {
+        List<ItemStack> output = queues[queueIndex].getDevice().extractOutput();
+        StorageScannerTileEntity storage = system.getStorage();
+        for (ItemStack stack : output) {
+            ItemStack left = storage.insertInternal(stack, false);
+            // @todo What should we do here? Currently we just spawn the items in the world
+            InventoryHelper.spawnItemStack(world, storage.getPos().getX() + .5, storage.getPos().getY() + 1.5, storage.getPos().getZ() + .5, left);
         }
     }
 
-    private void sendResultsBack(int queueIndex) {
-        // @todo
+    public boolean canCraft(Ingredient ingredient) {
+        return itemHandler.map(h -> {
+            for (int i = 4; i < h.getSlots(); i++) {
+                ItemStack card = h.getStackInSlot(i);
+                if (!card.isEmpty()) {
+                    ItemStack result = CraftingCardItem.getResult(card);
+                    if (ingredient.test(result)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }).orElse(false);
     }
 
     public List<ItemStack> getCraftables() {
@@ -111,10 +137,14 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
         return stacks;
     }
 
+    public static final double QUALITY_NOTPOSSIBLE = -1;
+    public static final double QUALITY_DEVICEIDLE = 10000;   // If greater or equal then this number the craft can start immediatelly
+
     /**
      * Return a quality number that indicates how good this crafting manager is for crafting the
      * requested item. Higher numbers are better. A negative number means that this crafting manager
      * cannot craft this at all
+     *
      */
     public Pair<Double, Integer> getCraftingQuality(Ingredient ingredient, int amount) {
         return itemHandler.map(h -> {
@@ -127,7 +157,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
                     double baseQuality = Math.max(0.0, 1.0 - (requests.size() / 10.0));   // Amount of requests negatively impacts the quality
                     switch (device.getStatus()) {
                         case IDLE:
-                            baseQuality += 1;
+                            baseQuality += QUALITY_DEVICEIDLE;
                             break;
                         case READY:
                             baseQuality += 0.5;
@@ -165,11 +195,6 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
         return 4 + queueIndex * 8;
     }
 
-    public void request(ItemStack requested, int amount, BlockPos requester, int queueIndex) {
-        // @todo
-//        queues[queueIndex].getRequests().add(new CraftingRequest(requested, amount, requester));
-    }
-
     /**
      * Get the list of ingredients for a given request
      */
@@ -201,10 +226,18 @@ public class CraftingManagerTileEntity extends GenericTileEntity implements ITic
     /**
      * Actually start the craft on the given device. The given ingredients are already
      * extracted from the storage scanner and are supposed to be consumed by the device.
-     * If the given device is busy the craft request will be put on hold
+     * We know the given device is idle so it should be able to start immediatelly
+     *
+     * If for some obscure reason the craft still fails this function returns false
      */
-    public void startCraft(int queueIndex, CraftingRequest request, List<ItemStack> ingredients) {
-        // @todo
+    public boolean startCraft(int queueIndex, CraftingRequest request, List<ItemStack> ingredients) {
+        CraftingQueue queue = queues[queueIndex];
+        if (!queue.getDevice().insertIngredients(ingredients, world)) {
+            // For some reason there was a failure inserting ingredients
+            return false;
+        }
+
+        return true;
     }
 
     @Deprecated
