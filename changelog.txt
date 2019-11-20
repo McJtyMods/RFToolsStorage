@@ -1,5 +1,6 @@
-Upcoming:
+0.0.5:
 - Avoid a rare crash during model registration
+- Fixed a serious networking problem which could cause 'invalid discriminator spam' on servers
 
 0.0.4-alpha :
 - Fixed a networking problem on servers

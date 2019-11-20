@@ -34,27 +34,28 @@ public class RFToolsStorageMessages {
         INSTANCE = net;
 
         // Server side
-        net.registerMessage(id(), PacketRequestStorageFromServer.class, PacketRequestStorageFromServer::toBytes, PacketRequestStorageFromServer::new, PacketRequestStorageFromServer::handle);
-        net.registerMessage(id(), PacketGridToClient.class, PacketGridToClient::toBytes, PacketGridToClient::new, PacketGridToClient::handle);
-        net.registerMessage(id(), PacketSendRecipe.class, PacketSendRecipe::toBytes, PacketSendRecipe::new, PacketSendRecipe::handle);
-        net.registerMessage(id(), PacketCraftTestResultToClient.class, PacketCraftTestResultToClient::toBytes, PacketCraftTestResultToClient::new, PacketCraftTestResultToClient::handle);
-        net.registerMessage(id(), PacketGetInventoryInfo.class, PacketGetInventoryInfo::toBytes, PacketGetInventoryInfo::new, PacketGetInventoryInfo::handle);
-        net.registerMessage(id(), PacketRequestItem.class, PacketRequestItem::toBytes, PacketRequestItem::new, PacketRequestItem::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketRequestStorageFromServer.class, PacketRequestStorageFromServer::toBytes, PacketRequestStorageFromServer::new, PacketRequestStorageFromServer::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketGridToClient.class, PacketGridToClient::toBytes, PacketGridToClient::new, PacketGridToClient::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketSendRecipe.class, PacketSendRecipe::toBytes, PacketSendRecipe::new, PacketSendRecipe::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketCraftTestResultToClient.class, PacketCraftTestResultToClient::toBytes, PacketCraftTestResultToClient::new, PacketCraftTestResultToClient::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketGetInventoryInfo.class, PacketGetInventoryInfo::toBytes, PacketGetInventoryInfo::new, PacketGetInventoryInfo::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketRequestItem.class, PacketRequestItem::toBytes, PacketRequestItem::new, PacketRequestItem::handle);
 
         // Client side
-        net.registerMessage(id(), PacketReturnStorageToClient.class, PacketReturnStorageToClient::toBytes, PacketReturnStorageToClient::new, PacketReturnStorageToClient::handle);
-        net.registerMessage(id(), PacketStorageInfoToClient.class, PacketStorageInfoToClient::toBytes, PacketStorageInfoToClient::new, PacketStorageInfoToClient::handle);
-        net.registerMessage(id(), PacketGridToServer.class, PacketGridToServer::toBytes, PacketGridToServer::new, PacketGridToServer::handle);
-        net.registerMessage(id(), PacketReturnInventoryInfo.class, PacketReturnInventoryInfo::toBytes, PacketReturnInventoryInfo::new, PacketReturnInventoryInfo::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketReturnStorageToClient.class, PacketReturnStorageToClient::toBytes, PacketReturnStorageToClient::new, PacketReturnStorageToClient::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketStorageInfoToClient.class, PacketStorageInfoToClient::toBytes, PacketStorageInfoToClient::new, PacketStorageInfoToClient::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketGridToServer.class, PacketGridToServer::toBytes, PacketGridToServer::new, PacketGridToServer::handle);
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketReturnInventoryInfo.class, PacketReturnInventoryInfo::toBytes, PacketReturnInventoryInfo::new, PacketReturnInventoryInfo::handle);
 
-        net.registerMessage(id(), PacketRequestDataFromServer.class, PacketRequestDataFromServer::toBytes, PacketRequestDataFromServer::new,
+        PacketHandler.debugRegister("RFToolsStorage", net, id(), PacketRequestDataFromServer.class, PacketRequestDataFromServer::toBytes, PacketRequestDataFromServer::new,
                 new ChannelBoundHandler<>(net, PacketRequestDataFromServer::handle));
 
-        PacketHandler.registerStandardMessages(net);
+        PacketHandler.registerStandardMessages("RFToolsStorage - Standard", id(), net);
     }
 
+    private static int packetId = 0;
     private static int id() {
-        return PacketHandler.nextPacketID();
+        return packetId++;
     }
 
     public static void sendToServer(String command, @Nonnull TypedMap.Builder argumentBuilder) {
