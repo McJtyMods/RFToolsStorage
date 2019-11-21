@@ -96,6 +96,10 @@ public class CraftingSystem {
         return storage;
     }
 
+    public List<CraftingRequest> getFailedRequests() {
+        return failedRequests;
+    }
+
     private static class BestDevice {
         double quality = -1;
         int queue = -1;

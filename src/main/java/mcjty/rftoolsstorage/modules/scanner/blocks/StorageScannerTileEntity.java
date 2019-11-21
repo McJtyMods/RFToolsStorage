@@ -19,6 +19,8 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
+import mcjty.rftoolsbase.api.infoscreen.CapabilityInformationScreenInfo;
+import mcjty.rftoolsbase.api.infoscreen.IInformationScreenInfo;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsstorage.RFToolsStorage;
@@ -133,6 +135,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     // Indicates if for this storage scanner the inventories should be shown wide
     private boolean openWideView = true;
 
+    private LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get()));
     private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(this::createItemHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
@@ -1331,12 +1334,21 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         return getPos();
     }
 
+    public CraftingSystem getCraftingSystem() {
+        return craftingSystem;
+    }
+
     public DimensionType getDimension() {
         if (isDummy()) {
             return monitorDim;
         } else {
             return world.getDimension().getType();
         }
+    }
+
+    @Nonnull
+    private IInformationScreenInfo createScreenInfo() {
+        return new StorageScannerInformationScreenInfo(this);
     }
 
     @Nonnull
@@ -1364,6 +1376,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
         if (cap == CapabilityInfusable.INFUSABLE_CAPABILITY) {
             return infusableHandler.cast();
+        }
+        if (cap == CapabilityInformationScreenInfo.INFORMATION_SCREEN_INFO_CAPABILITY) {
+            return infoScreenInfo.cast();
         }
         return super.getCapability(cap, facing);
     }
