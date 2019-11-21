@@ -59,6 +59,11 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     }
 
     @Override
+    public ItemStack getCraftingItem() {
+        return recipe.getCraftingResult(inventory);
+    }
+
+    @Override
     public List<ItemStack> extractOutput() {
         if (getStatus() == Status.READY) {
             List<ItemStack> result = new ArrayList<>();

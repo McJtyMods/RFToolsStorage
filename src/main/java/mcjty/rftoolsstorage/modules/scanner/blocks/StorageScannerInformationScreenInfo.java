@@ -5,16 +5,21 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.infoscreen.IInformationScreenInfo;
 import mcjty.rftoolsbase.modules.informationscreen.client.DefaultPowerInformationRenderer;
+import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingQueue;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.client.StorageScannerInformationRenderer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.energy.CapabilityEnergy;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-
 import java.util.List;
 
 import static mcjty.rftoolsbase.modules.informationscreen.blocks.DefaultPowerInformationScreenInfo.ENERGY;
@@ -72,21 +77,46 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
                         .build();
             }).orElse(TypedMap.EMPTY);
         } else {
-            CraftingSystem craftingSystem = scanner.getCraftingSystem();
-            List<CraftingRequest> failedRequests = craftingSystem.getFailedRequests();
             TypedMap.Builder builder = TypedMap.builder();
-            for (int i = 0 ; i < 6 ; i++) {
-                builder.put(CRAFT_KEYS[i].getLeft(), ItemStack.EMPTY);
-                if (i < failedRequests.size()) {
-                    ItemStack[] stacks = failedRequests.get(i).getIngredient().getMatchingStacks();
-                    if (stacks.length > 0) {
-                        builder.put(CRAFT_KEYS[i].getLeft(), stacks[0]);
-                        builder.put(CRAFT_KEYS[i].getRight(), true);
+            int idx = 0;
+
+            CraftingSystem craftingSystem = scanner.getCraftingSystem();
+            World world = scanner.getWorld();
+            for (BlockPos pos : scanner.getCraftingInventories()) {
+                if (idx >= CRAFT_KEYS.length) {
+                    break;
+                }
+                TileEntity te = world.getTileEntity(pos);
+                if (te instanceof CraftingManagerTileEntity) {
+                    CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
+                    for (CraftingQueue queue : craftingManager.getQueues()) {
+                        ICraftingDevice device = queue.getDevice();
+                        if (device != null) {
+                            if (device.getStatus() == ICraftingDevice.Status.BUSY) {
+                                add(builder, idx++, device.getCraftingItem(), false);
+                            }
+                        }
                     }
+                }
+            }
+
+            List<CraftingRequest> failedRequests = craftingSystem.getFailedRequests();
+            for (CraftingRequest request : failedRequests) {
+                if (idx >= CRAFT_KEYS.length) {
+                    break;
+                }
+                ItemStack[] stacks = request.getIngredient().getMatchingStacks();
+                if (stacks.length > 0) {
+                    add(builder, idx++, stacks[0], true);
                 }
             }
             return builder.build();
         }
+    }
+
+    private static void add(TypedMap.Builder builder, int idx, ItemStack stack, boolean error) {
+        builder.put(CRAFT_KEYS[idx].getLeft(), stack);
+        builder.put(CRAFT_KEYS[idx].getRight(), error);
     }
 
     @Override

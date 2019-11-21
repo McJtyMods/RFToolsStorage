@@ -72,7 +72,7 @@ public class CraftingSystem {
         }
 
         boolean checkSuspendedCrafts[] = { false };
-        storage.getAllInventories().forEach(pos -> {
+        storage.getCraftingInventories().forEach(pos -> {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof CraftingManagerTileEntity) {
                 CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
@@ -107,7 +107,7 @@ public class CraftingSystem {
     }
 
     private void startRequest(World world, CraftingRequest request) {
-        BestDevice bestDevice = storage.getAllInventories().collect(BestDevice::new,
+        BestDevice bestDevice = storage.getCraftingInventories().stream().collect(BestDevice::new,
                 (best, pos) -> {
                     TileEntity te = world.getTileEntity(pos);
                     if (te instanceof CraftingManagerTileEntity) {

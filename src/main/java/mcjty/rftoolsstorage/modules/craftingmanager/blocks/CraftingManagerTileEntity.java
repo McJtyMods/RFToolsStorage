@@ -81,15 +81,6 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
                         sendResultsBack(queueIndex, system);
                         rc = true;
                     }
-                    if (device.getStatus() == ICraftingDevice.Status.IDLE) {
-                        Queue<CraftingRequest> requests = queues[queueIndex].getRequests();
-                        CraftingRequest request = requests.peek();
-                        if (request != null) {
-                            if (fireRequest(queueIndex, request)) {
-                                requests.remove();
-                            }
-                        }
-                    }
                 }
             }
             return rc;
@@ -195,6 +186,10 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         return 4 + queueIndex * 8;
     }
 
+    public CraftingQueue[] getQueues() {
+        return queues;
+    }
+
     /**
      * Get the list of ingredients for a given request
      */
@@ -238,42 +233,6 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         }
 
         return true;
-    }
-
-    @Deprecated
-    private boolean fireRequest(int queueIndex, CraftingRequest request) {
-        return itemHandler.map(h -> {
-            CraftingQueue queue = queues[queueIndex];
-            for (int i = getFirstCardIndex(queueIndex) ; i < getLastCardIndex(queueIndex) ; i++) {
-                ItemStack cardStack = h.getStackInSlot(i);
-                if (!cardStack.isEmpty()) {
-                    ItemStack cardResult = CraftingCardItem.getResult(cardStack);
-                    if (request.getIngredient().test(cardResult)) {
-                        // Request needed ingredients from the storage scanner
-                        IRecipe recipe = CraftingCardItem.findRecipe(world, cardStack, queue.getDevice().getRecipeType());
-                        List<Ingredient> ingredients;
-                        if (recipe != null) {
-                            ingredients = recipe.getIngredients();
-                        } else {
-                            ingredients = CraftingCardItem.getIngredients(cardStack);
-                        }
-//                        TileEntity te = world.getTileEntity(request.getRequester());
-//                        if (te instanceof StorageScannerTileEntity) {
-//                            StorageScannerTileEntity scanner = (StorageScannerTileEntity) te;
-//                            List<ItemStack> stacks = scanner.requestIngredients(ingredients, pos);
-//                            if (stacks == null) {
-//                                // Craft is not possible
-//                                return false;
-//                            } else {
-//                                // @todo
-//                            }
-//                        }
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }).orElse(false);
     }
 
     private void updateDevices() {

@@ -115,6 +115,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     private CraftingSystem craftingSystem = new CraftingSystem(this);
     private List<BlockPos> inventories = new ArrayList<>();
+    private List<BlockPos> craftingInventories = null; // Subset of 'inventories' with all the crafting managers
     private Set<BlockPos> inventoriesFromXNet = new HashSet<>();
 
     // This data is fed directly by the storage channel system (XNet) and is
@@ -708,7 +709,10 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             // Cannot remove inventories from xnet
             return;
         }
-        inventories.remove(index);
+        BlockPos removed = inventories.remove(index);
+        if (craftingInventories != null) {
+            craftingInventories.remove(removed);
+        }
         markDirty();
     }
 
@@ -731,6 +735,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         Set<BlockPos> oldAdded = new HashSet<>();
         Set<BlockPos> seenPositions = new HashSet<>();
         inventories = new ArrayList<>();
+        craftingInventories = new ArrayList<>();
 
         for (BlockPos p : old) {
             if (xnetAccess.containsKey(p) || inRange(p)) {
@@ -739,6 +744,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                     if (te instanceof CraftingManagerTileEntity) {
                         if (seenPositions.add(p)) {
                             inventories.add(p);
+                            craftingInventories.add(p);
                             oldAdded.add(p);
                         }
                     } else {
@@ -771,6 +777,18 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         return getAllInventories();
     }
 
+    public List<BlockPos> getCraftingInventories() {
+        if (craftingInventories == null) {
+            craftingInventories = new ArrayList<>();
+            getAllInventories().forEach(pos -> {
+                if (world.getTileEntity(pos) instanceof CraftingManagerTileEntity) {
+                    craftingInventories.add(pos);
+                }
+            });
+        }
+        return craftingInventories;
+    }
+
     public Stream<BlockPos> getAllInventories() {
         return inventories.stream()
                 .filter(this::isValid);
@@ -784,6 +802,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 if (te instanceof CraftingManagerTileEntity) {
                     if (seenPositions.add(p)) {
                         inventories.add(p);
+                        craftingInventories.add(p);
                     }
                 } else if (!inventories.contains(p)) {
                     te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
@@ -1151,6 +1170,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         craftingSystem.read(tagCompound.getCompound("CS"));
         ListNBT list = tagCompound.getList("inventories", Constants.NBT.TAG_COMPOUND);
         inventories.clear();
+        craftingInventories = null;
         for (INBT inbt : list) {
             CompoundNBT tag = (CompoundNBT) inbt;
             BlockPos c = BlockPosTools.read(tag, "c");

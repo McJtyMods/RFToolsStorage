@@ -22,6 +22,11 @@ public interface ICraftingDevice {
     void setRecipe(IRecipe recipe);
 
     /**
+     * Return the main item that this device will craft
+     */
+    ItemStack getCraftingItem();
+
+    /**
      * Insert the ingredients. Returns false if this fails for some reason (in that case nothing will have been inserted).
      * The device will be put in BUSY mode.
      */
