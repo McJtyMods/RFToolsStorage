@@ -2,7 +2,7 @@ package mcjty.rftoolsstorage.datagen;
 
 import mcjty.lib.crafting.CopyNBTRecipeBuilder;
 import mcjty.lib.datagen.BaseRecipeProvider;
-import mcjty.rftoolsbase.items.ModItems;
+import mcjty.rftoolsbase.modules.various.VariousSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
@@ -21,7 +21,7 @@ public class Recipes extends BaseRecipeProvider {
         add('C', Tags.Items.CHESTS);
         add('q', Items.QUARTZ);
         add('Q', Items.QUARTZ_BLOCK);
-        add('F', ModItems.MACHINE_FRAME);
+        add('F', VariousSetup.MACHINE_FRAME.get());
         group("rftools");
     }
 
@@ -43,17 +43,17 @@ public class Recipes extends BaseRecipeProvider {
                 " C ", "gXg", "QRQ");
         build(consumer, CopyNBTRecipeBuilder.shapedRecipe(ModularStorageSetup.STORAGE_MODULE3)
                         .key('g', Items.DIAMOND_BLOCK)
-                        .key('t', ModItems.INFUSED_DIAMOND)
+                        .key('t', VariousSetup.INFUSED_DIAMOND.get())
                         .key('X', ModularStorageSetup.STORAGE_MODULE2)
                         .addCriterion("storage", InventoryChangeTrigger.Instance.forItems(ModularStorageSetup.STORAGE_MODULE2)),
                 "tCt", "gXg", "QRQ");
 
         build(consumer, ShapedRecipeBuilder.shapedRecipe(ModularStorageSetup.MODULAR_STORAGE)
-                        .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME)),
+                        .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(VariousSetup.MACHINE_FRAME.get())),
                 "rCr", "qFq", "rqr");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(StorageScannerSetup.STORAGE_SCANNER)
                         .key('g', Items.GOLD_INGOT)
-                        .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(ModItems.MACHINE_FRAME)),
+                        .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(VariousSetup.MACHINE_FRAME.get())),
                 "ToT", "gFg", "ToT");
     }
 }
