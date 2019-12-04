@@ -22,7 +22,7 @@ public class CraftingManagerBlock extends BaseBlock {
 
 
     public CraftingManagerBlock() {
-        super("crafting_manager", new BlockBuilder()
+        super(new BlockBuilder()
                 .properties(STANDARD_GLASS)
                 .tileEntitySupplier(CraftingManagerTileEntity::new)
                 .infoExtended("todo")   // @todo 1.14

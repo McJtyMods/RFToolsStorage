@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.modules.craftingmanager;
 
-import mcjty.lib.blocks.BaseBlockItem;
 import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerBlock;
@@ -8,35 +7,32 @@ import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerContai
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import static mcjty.rftoolsstorage.RFToolsStorage.MODID;
 
 public class CraftingManagerSetup {
 
-    @ObjectHolder(RFToolsStorage.MODID + ":crafting_manager")
-    public static CraftingManagerBlock CRAFTING_MANAGER;
-    @ObjectHolder(RFToolsStorage.MODID + ":crafting_manager")
-    public static TileEntityType<?> TYPE_CRAFTING_MANAGER;
-    @ObjectHolder(RFToolsStorage.MODID + ":crafting_manager")
-    public static ContainerType<CraftingManagerContainer> CONTAINER_CRAFTING_MANAGER;
+    public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
+    public static final DeferredRegister<TileEntityType<?>> TILES = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
+    public static final DeferredRegister<ContainerType<?>> CONTAINERS = new DeferredRegister<>(ForgeRegistries.CONTAINERS, MODID);
 
-    public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry().register(new CraftingManagerBlock());
+    public static void register() {
+        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        TILES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
-    public static void registerItems(RegistryEvent.Register<Item> event) {
-        Item.Properties properties = new Item.Properties().group(RFToolsStorage.setup.getTab());
-        event.getRegistry().register(new BaseBlockItem(CRAFTING_MANAGER, properties));
-    }
-
-    public static void registerTiles(RegistryEvent.Register<TileEntityType<?>> event) {
-        event.getRegistry().register(TileEntityType.Builder.create(CraftingManagerTileEntity::new, CRAFTING_MANAGER).build(null).setRegistryName("crafting_manager"));
-    }
-
-    public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
-        event.getRegistry().register(GenericContainer.createContainerType("crafting_manager"));
-    }
-
+    public static final RegistryObject<Block> CRAFTING_MANAGER = BLOCKS.register("crafting_manager", CraftingManagerBlock::new);
+    public static final RegistryObject<Item> CRAFTING_MANAGER_ITEM = ITEMS.register("crafting_manager", () -> new BlockItem(CRAFTING_MANAGER.get(), RFToolsStorage.createStandardProperties()));
+    public static final RegistryObject<TileEntityType<?>> TYPE_CRAFTING_MANAGER = TILES.register("crafting_manager", () -> TileEntityType.Builder.create(CraftingManagerTileEntity::new, CRAFTING_MANAGER.get()).build(null));
+    public static final RegistryObject<ContainerType<CraftingManagerContainer>> CONTAINER_CRAFTING_MANAGER = CONTAINERS.register("crafting_manager", GenericContainer::createContainerType);
 }

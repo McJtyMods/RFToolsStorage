@@ -147,7 +147,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private CraftingGrid craftingGrid = new CraftingGrid();
 
     public StorageScannerTileEntity() {
-        super(StorageScannerSetup.TYPE_STORAGE_SCANNER);
+        super(StorageScannerSetup.TYPE_STORAGE_SCANNER.get());
         monitorDim = null;
         radius = (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) ? 0 : 1;
     }

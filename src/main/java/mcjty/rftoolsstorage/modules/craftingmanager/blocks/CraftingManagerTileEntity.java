@@ -60,7 +60,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     private CraftingQueue[] queues = new CraftingQueue[4];
 
     public CraftingManagerTileEntity() {
-        super(CraftingManagerSetup.TYPE_CRAFTING_MANAGER);
+        super(CraftingManagerSetup.TYPE_CRAFTING_MANAGER.get());
         for (int i = 0; i < 4; i++) {
             queues[i] = new CraftingQueue();
         }

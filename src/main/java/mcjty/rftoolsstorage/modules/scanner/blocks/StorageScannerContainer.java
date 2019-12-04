@@ -46,7 +46,7 @@ public class StorageScannerContainer extends GenericContainer {
     }
 
     public StorageScannerContainer(int id, BlockPos pos, PlayerEntity player, StorageScannerTileEntity tileEntity) {
-        super(StorageScannerSetup.CONTAINER_STORAGE_SCANNER, id, CONTAINER_FACTORY, pos, tileEntity);
+        super(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), id, CONTAINER_FACTORY, pos, tileEntity);
     }
 
     @Override

@@ -13,8 +13,8 @@ public class LootTables extends BaseLootTableProvider {
 
     @Override
     protected void addTables() {
-        lootTables.put(ModularStorageSetup.MODULAR_STORAGE, createStandardTable("storage", ModularStorageSetup.MODULAR_STORAGE));
-        lootTables.put(StorageScannerSetup.STORAGE_SCANNER, createStandardTable("storage", StorageScannerSetup.STORAGE_SCANNER));
+        lootTables.put(ModularStorageSetup.MODULAR_STORAGE.get(), createStandardTable("storage", ModularStorageSetup.MODULAR_STORAGE.get()));
+        lootTables.put(StorageScannerSetup.STORAGE_SCANNER.get(), createStandardTable("storage", StorageScannerSetup.STORAGE_SCANNER.get()));
 
     }
 }

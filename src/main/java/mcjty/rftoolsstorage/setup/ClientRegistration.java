@@ -27,9 +27,9 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void init(FMLClientSetupEvent e) {
-        GenericGuiContainer.register(ModularStorageSetup.CONTAINER_MODULAR_STORAGE, GuiModularStorage::new);
-        GenericGuiContainer.register(StorageScannerSetup.CONTAINER_STORAGE_SCANNER, GuiStorageScanner::new);
-        GenericGuiContainer.register(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER, GuiCraftingManager::new);
+        GenericGuiContainer.register(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), GuiModularStorage::new);
+        GenericGuiContainer.register(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
+        GenericGuiContainer.register(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), GuiCraftingManager::new);
     }
 
     @SubscribeEvent

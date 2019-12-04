@@ -6,7 +6,7 @@ import mcjty.lib.builder.BlockBuilder;
 public class StorageScannerBlock extends BaseBlock {
 
     public StorageScannerBlock() {
-        super("storage_scanner", new BlockBuilder()
+        super(new BlockBuilder()
                 .tileEntitySupplier(StorageScannerTileEntity::new)
                 .infusable()
                 .infoExtended("todo"));   // @todo 1.14

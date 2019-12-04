@@ -22,14 +22,12 @@ public class ModularStorageBlock extends BaseBlock {
     public static final EnumProperty<ModularTypeModule> TYPEMODULE = EnumProperty.create("type", ModularTypeModule.class);
     public static final EnumProperty<ModularAmountOverlay> AMOUNT = EnumProperty.create("amount", ModularAmountOverlay.class);
 
-    public static final String REGNAME = "modular_storage";
-
     // Clientside
     public static int cntReceived = 1;
     public static String nameModuleReceived = "";
 
     public ModularStorageBlock() {
-        super(REGNAME, new BlockBuilder()
+        super(new BlockBuilder()
                 .tileEntitySupplier(ModularStorageTileEntity::new)
                 .infoExtended("todo")   // @todo 1.14
 //        list.add(TextFormatting.WHITE + "This modular storage system can store a lot");

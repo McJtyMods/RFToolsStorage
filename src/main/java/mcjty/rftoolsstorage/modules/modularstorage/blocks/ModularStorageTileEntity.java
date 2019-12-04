@@ -88,7 +88,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private String filter = "";
 
     public ModularStorageTileEntity() {
-        super(ModularStorageSetup.TYPE_MODULAR_STORAGE);
+        super(ModularStorageSetup.TYPE_MODULAR_STORAGE.get());
     }
 
     @Override

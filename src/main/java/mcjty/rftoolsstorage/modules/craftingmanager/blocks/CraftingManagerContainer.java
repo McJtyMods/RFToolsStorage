@@ -38,7 +38,7 @@ public class CraftingManagerContainer extends GenericContainer {
     };
 
     public CraftingManagerContainer(int id, BlockPos pos, PlayerEntity player, CraftingManagerTileEntity tileEntity) {
-        super(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER, id, CONTAINER_FACTORY, pos, tileEntity);
+        super(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), id, CONTAINER_FACTORY, pos, tileEntity);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class ModularStorageContainer extends GenericContainer {
     };
 
     public ModularStorageContainer(int id, BlockPos pos, PlayerEntity player, ModularStorageTileEntity tileEntity) {
-        super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE, id, CONTAINER_FACTORY, pos, tileEntity);
+        super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY, pos, tileEntity);
     }
 
     @Override
