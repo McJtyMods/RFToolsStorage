@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @JeiPlugin
-public class RFToolsUtilityJeiPlugin implements IModPlugin {
+public class RFToolsStorageJeiPlugin implements IModPlugin {
 
     public static void transferRecipe(Map<Integer, ? extends IGuiIngredient<ItemStack>> guiIngredients, BlockPos pos) {
         ItemStackList items = ItemStackList.create(10);

@@ -36,7 +36,7 @@ public class StorageRecipeTransferHandler implements IRecipeTransferHandler<Modu
         BlockPos pos = inventory.getPos();
 
         if (doTransfer) {
-            RFToolsUtilityJeiPlugin.transferRecipe(guiIngredients, pos);
+            RFToolsStorageJeiPlugin.transferRecipe(guiIngredients, pos);
         }
 
         return null;
