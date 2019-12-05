@@ -40,7 +40,6 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient 
                 .maxStackSize(1)
                 .maxDamage(0)
                 .group(RFToolsStorage.setup.getTab()));
-        setRegistryName("storage_module" + tier);
         this.tier = tier;
     }
 
