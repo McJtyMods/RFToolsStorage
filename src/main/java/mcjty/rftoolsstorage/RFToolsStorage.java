@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage;
 
 import mcjty.lib.base.ModBase;
-import mcjty.rftoolsstorage.config.Config;
+import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
