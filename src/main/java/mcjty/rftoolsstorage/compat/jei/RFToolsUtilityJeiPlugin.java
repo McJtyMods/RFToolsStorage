@@ -2,7 +2,7 @@ package mcjty.rftoolsstorage.compat.jei;
 
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.ingredient.IGuiIngredient;

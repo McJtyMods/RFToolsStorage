@@ -5,7 +5,7 @@ import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.modules.modularstorage.network.PacketStorageInfoToClient;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;

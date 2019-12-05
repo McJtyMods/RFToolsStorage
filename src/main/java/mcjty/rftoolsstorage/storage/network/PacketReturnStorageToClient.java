@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.network;
+package mcjty.rftoolsstorage.storage.network;
 
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;

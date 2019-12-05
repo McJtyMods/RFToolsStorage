@@ -2,7 +2,7 @@ package mcjty.rftoolsstorage.craftinggrid;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.CraftingInventory;

@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.modules.scanner.tools;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.setup.ClientCommandHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -11,7 +11,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.common.DimensionManager;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package mcjty.rftoolsstorage.network;
+package mcjty.rftoolsstorage.setup;
 
 import mcjty.lib.network.*;
 import mcjty.lib.typed.TypedMap;
@@ -11,6 +11,8 @@ import mcjty.rftoolsstorage.modules.modularstorage.network.PacketStorageInfoToCl
 import mcjty.rftoolsstorage.modules.scanner.network.PacketGetInventoryInfo;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketRequestItem;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketReturnInventoryInfo;
+import mcjty.rftoolsstorage.storage.network.PacketRequestStorageFromServer;
+import mcjty.rftoolsstorage.storage.network.PacketReturnStorageToClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;

@@ -29,7 +29,7 @@ import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketGetInventoryInfo;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketRequestItem;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketReturnInventoryInfo;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;

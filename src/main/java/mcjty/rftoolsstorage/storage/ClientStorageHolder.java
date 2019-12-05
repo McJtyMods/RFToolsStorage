@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.storage;
 
-import mcjty.rftoolsstorage.network.PacketRequestStorageFromServer;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.storage.network.PacketRequestStorageFromServer;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;

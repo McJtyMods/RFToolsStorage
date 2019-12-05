@@ -23,7 +23,7 @@ import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageConfiguration;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.storage.modules.DefaultTypeModule;
 import mcjty.rftoolsstorage.storage.modules.TypeModule;

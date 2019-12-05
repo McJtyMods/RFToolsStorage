@@ -1,5 +1,6 @@
-package mcjty.rftoolsstorage.network;
+package mcjty.rftoolsstorage.storage.network;
 
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
 import net.minecraft.network.PacketBuffer;

@@ -6,7 +6,7 @@ import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
-import mcjty.rftoolsstorage.network.RFToolsStorageMessages;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
