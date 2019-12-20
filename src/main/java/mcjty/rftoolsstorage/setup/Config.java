@@ -7,11 +7,9 @@ import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
-import net.minecraftforge.fml.common.Mod;
 
 import java.nio.file.Path;
 
-@Mod.EventBusSubscriber
 public class Config {
 
     private static final Builder COMMON_BUILDER = new Builder();
