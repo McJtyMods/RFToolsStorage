@@ -10,7 +10,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -155,10 +154,11 @@ public class ModularStorageBlock extends BaseBlock {
         builder.add(TYPEMODULE).add(AMOUNT);
     }
 
-    @Override
-    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
-        return /*layer == BlockRenderLayer.SOLID || */ layer == BlockRenderLayer.CUTOUT;
-    }
+    // @todo 1.15
+//    @Override
+//    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
+//        return /*layer == BlockRenderLayer.SOLID || */ layer == BlockRenderLayer.CUTOUT;
+//    }
 
     // @todo 1.14
 //    @Override

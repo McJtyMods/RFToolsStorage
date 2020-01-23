@@ -18,7 +18,8 @@ public class StorageScannerInformationRenderer {
         List<Pair<ItemStack, String>> log = getLog(data);
         HudRenderHelper.HudPlacement hudPlacement = HudRenderHelper.HudPlacement.HUD_FRONT;
         HudRenderHelper.HudOrientation hudOrientation = HudRenderHelper.HudOrientation.HUD_SOUTH;
-        HudRenderHelper.renderHudItems(log, hudPlacement, hudOrientation, orientation, x - orientation.getXOffset() * .95, y, z - orientation.getZOffset() * .95, (float) (1.0f + scale));
+        // @todo 1.15
+//        HudRenderHelper.renderHudItems(log, hudPlacement, hudOrientation, orientation, x - orientation.getXOffset() * .95, y, z - orientation.getZOffset() * .95, (float) (1.0f + scale));
     }
 
     private static List<Pair<ItemStack, String>> getLog(TypedMap data) {

@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
-import mcjty.lib.client.QuadTransformer;
+import com.google.common.collect.ImmutableList;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
@@ -8,19 +8,20 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -37,49 +38,62 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
         this.format = format;
     }
 
+    @Override
+    public boolean func_230044_c_() {
+        return false;
+    }
+
     private TextureAtlasSprite getTexture() {
-        String name = RFToolsStorage.MODID + ":block/machinecraftingmanager";
-        return Minecraft.getInstance().getTextureMap().getAtlasSprite(name);
+        return Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(RFToolsStorage.MODID, "block/machinecraftingmanager"));
     }
 
     private TextureAtlasSprite getTop() {
         if (top == null) {
-            top = Minecraft.getInstance().getTextureMap().getAtlasSprite(RFToolsStorage.MODID + ":block/machinecraftingmanager_top");
+            top = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(RFToolsStorage.MODID, "block/machinecraftingmanager_top"));
         }
         return top;
     }
 
     private TextureAtlasSprite getSide() {
         if (side == null) {
-            side = Minecraft.getInstance().getTextureMap().getAtlasSprite(RFToolsStorage.MODID + ":block/machinecraftingmanager");
+            side = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(RFToolsStorage.MODID, "block/machinecraftingmanager"));
         }
         return side;
     }
 
     private TextureAtlasSprite getBottom() {
         if (bottom == null) {
-            bottom = Minecraft.getInstance().getTextureMap().getAtlasSprite(RFToolsBase.MODID + ":block/base/machinebottom");
+            bottom = Minecraft.getInstance().getTextureGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation(RFToolsBase.MODID, "block/base/machinebottom"));
         }
         return bottom;
     }
 
 
-    private void putVertex(UnpackedBakedQuad.Builder builder, Vec3d normal,
+    private void putVertex(BakedQuadBuilder builder, Vec3d normal,
                            double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float r, float g, float b) {
-        for (int e = 0; e < format.getElementCount(); e++) {
-            switch (format.getElement(e).getUsage()) {
+        // @todo 1.15 GENERALIZE THIS
+        ImmutableList<VertexFormatElement> elements = format.func_227894_c_().asList();
+        for (int e = 0; e < elements.size(); e++) {
+            switch (elements.get(e).getUsage()) {
                 case POSITION:
-                    builder.put(e, (float) x, (float) y, (float) z, 1.0f);
+                    builder.put(e, (float)x, (float)y, (float)z, 1.0f);
                     break;
                 case COLOR:
                     builder.put(e, r, g, b, 1.0f);
                     break;
                 case UV:
-                    if (format.getElement(e).getIndex() == 0) {
-                        u = sprite.getInterpolatedU(u);
-                        v = sprite.getInterpolatedV(v);
-                        builder.put(e, u, v, 0f, 1f);
-                        break;
+                    switch (elements.get(e).getIndex()) {
+                        case 0:
+                            float iu = sprite.getInterpolatedU(u);
+                            float iv = sprite.getInterpolatedV(v);
+                            builder.put(e, iu, iv);
+                            break;
+                        case 2:
+                            builder.put(e, 0f, 1f);
+                            break;
+                        default:
+                            builder.put(e);
+                            break;
                     }
                 case NORMAL:
                     builder.put(e, (float) normal.x, (float) normal.y, (float) normal.z, 0f);
@@ -94,8 +108,8 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
     private BakedQuad createQuad(Vec3d v1, Vec3d v2, Vec3d v3, Vec3d v4, TextureAtlasSprite sprite) {
         Vec3d normal = v3.subtract(v2).crossProduct(v1.subtract(v2)).normalize();
 
-        UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
-        builder.setTexture(sprite);
+        BakedQuadBuilder builder = new BakedQuadBuilder(sprite);
+        builder.setQuadOrientation(Direction.getFacingFromVector(normal.x, normal.y, normal.z));
         putVertex(builder, normal, v1.x, v1.y, v1.z, 0, 0, sprite, 1.0f, 1.0f, 1.0f);
         putVertex(builder, normal, v2.x, v2.y, v2.z, 0, 16, sprite, 1.0f, 1.0f, 1.0f);
         putVertex(builder, normal, v3.x, v3.y, v3.z, 16, 16, sprite, 1.0f, 1.0f, 1.0f);
@@ -106,8 +120,8 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
     private BakedQuad createQuadReversed(Vec3d v1, Vec3d v2, Vec3d v3, Vec3d v4, TextureAtlasSprite sprite) {
         Vec3d normal = v3.subtract(v1).crossProduct(v2.subtract(v1)).normalize();
 
-        UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
-        builder.setTexture(sprite);
+        BakedQuadBuilder builder = new BakedQuadBuilder(sprite);
+        builder.setQuadOrientation(Direction.getFacingFromVector(normal.x, normal.y, normal.z));
         putVertex(builder, normal, v1.x, v1.y, v1.z, 0, 0, sprite, 1.0f, 1.0f, 1.0f);
         putVertex(builder, normal, v2.x, v2.y, v2.z, 0, 16, sprite, 1.0f, 1.0f, 1.0f);
         putVertex(builder, normal, v3.x, v3.y, v3.z, 16, 16, sprite, 1.0f, 1.0f, 1.0f);
@@ -125,9 +139,10 @@ public class CraftingManagerBakedModel implements IDynamicBakedModel {
             IBakedModel model = Minecraft.getInstance().getModelManager().getModel(location);
             if (model != null && !model.isBuiltInRenderer()) {
                 List<BakedQuad> input = model.getQuads(state, side, rand, EmptyModelData.INSTANCE);
-                TRSRTransformation transformation = new TRSRTransformation(new Vector3f(xoffset, .3f, zoffset), null, new Vector3f(.3f, .3f, .3f), null);
-                List<BakedQuad> output = QuadTransformer.processMany(input, transformation.getMatrixVec());
-                quads.addAll(output);
+                // @todo 1.15
+//                TRSRTransformation transformation = new TRSRTransformation(new Vector3f(xoffset, .3f, zoffset), null, new Vector3f(.3f, .3f, .3f), null);
+//                List<BakedQuad> output = QuadTransformer.processMany(input, transformation.getMatrixVec());
+//                quads.addAll(output);
             }
         }
     }

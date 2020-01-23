@@ -112,8 +112,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         for (Object o : container.inventorySlots) {
             SlotItemHandler slot = (SlotItemHandler) o;
             if (slot.getItemHandler() != gridInventory) {
-                slot.yPos = slot.yPos + ySize - ModularStorageConfiguration.height1.get();
-                //                slot.yPos += ySize - STORAGE_HEIGHT0;
+                // @todo 1.15
+//                slot.yPos = slot.yPos + ySize - ModularStorageConfiguration.height1.get();
             }
         }
     }
