@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.blocks;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -11,6 +12,7 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.client.StorageScannerInformationRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -120,7 +122,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     }
 
     @Override
-    public void render(int mode, @Nonnull TypedMap data, Direction orientation, double x, double y, double z, double scale) {
+    public void render(int mode, MatrixStack matrixStack, IRenderTypeBuffer buffer, @Nonnull TypedMap data, Direction orientation, double x, double y, double z, double scale) {
         if (mode == MODE_POWER) {
             DefaultPowerInformationRenderer.renderDefault(data, orientation, x, y, z, scale);
         } else if (mode == MODE_POWER_GRAPHICAL) {

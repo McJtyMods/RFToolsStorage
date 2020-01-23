@@ -627,8 +627,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         }
         double mouseX = minecraft.mouseHelper.getMouseX();
         double mouseY = minecraft.mouseHelper.getMouseY();
-        int x = (int) (mouseX * width / minecraft.mainWindow.getWidth());
-        int y = (int) (mouseY * height / minecraft.mainWindow.getHeight() - 1);
+        int x = (int) (mouseX * width / minecraft.getMainWindow().getWidth());
+        int y = (int) (mouseY * height / minecraft.getMainWindow().getHeight() - 1);
 
         List<String> tooltips = craftingGrid.getWindow().getTooltips();
         if (tooltips != null) {

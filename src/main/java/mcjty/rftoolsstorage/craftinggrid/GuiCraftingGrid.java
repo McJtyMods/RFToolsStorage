@@ -152,8 +152,8 @@ public class GuiCraftingGrid {
 
         MouseHelper mouse = mc.mouseHelper;
 
-        int x = (int) (mouse.getMouseX() * gui.width / mc.mainWindow.getWidth());
-        int y = (int) (gui.height - mouse.getMouseY() * gui.height / mc.mainWindow.getHeight() - 1);
+        int x = (int) (mouse.getMouseX() * gui.width / mc.getMainWindow().getWidth());
+        int y = (int) (gui.height - mouse.getMouseY() * gui.height / mc.getMainWindow().getHeight() - 1);
         Widget<?> widget = craftWindow.getToplevel().getWidgetAtPosition(x, y);
         if (widget == craft1Button) {
             testCraft(1);
