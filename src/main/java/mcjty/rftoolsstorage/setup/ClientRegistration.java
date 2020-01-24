@@ -11,8 +11,9 @@ import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
@@ -30,6 +31,9 @@ public class ClientRegistration {
         GenericGuiContainer.register(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), GuiModularStorage::new);
         GenericGuiContainer.register(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
         GenericGuiContainer.register(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), GuiCraftingManager::new);
+
+        RenderTypeLookup.setRenderLayer(CraftingManagerSetup.CRAFTING_MANAGER.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(ModularStorageSetup.MODULAR_STORAGE.get(), RenderType.cutout());
     }
 
     @SubscribeEvent
@@ -49,9 +53,9 @@ public class ClientRegistration {
     @SubscribeEvent
     public static void onModelBake(ModelBakeEvent event) {
         event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(RFToolsStorage.MODID, "crafting_manager"), ""),
-                new CraftingManagerBakedModel(DefaultVertexFormats.BLOCK));
+                new CraftingManagerBakedModel());
         event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(RFToolsStorage.MODID, "crafting_manager"), "inventory"),
-                new CraftingManagerBakedModel(DefaultVertexFormats.ITEM));
+                new CraftingManagerBakedModel());
     }
 
 }

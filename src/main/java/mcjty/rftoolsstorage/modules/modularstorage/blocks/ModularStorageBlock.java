@@ -154,12 +154,6 @@ public class ModularStorageBlock extends BaseBlock {
         builder.add(TYPEMODULE).add(AMOUNT);
     }
 
-    // @todo 1.15
-//    @Override
-//    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
-//        return /*layer == BlockRenderLayer.SOLID || */ layer == BlockRenderLayer.CUTOUT;
-//    }
-
     // @todo 1.14
 //    @Override
 //    @Optional.Method(modid = "theoneprobe")

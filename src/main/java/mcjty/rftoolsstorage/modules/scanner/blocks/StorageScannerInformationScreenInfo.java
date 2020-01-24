@@ -128,7 +128,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
         } else if (mode == MODE_POWER_GRAPHICAL) {
             DefaultPowerInformationRenderer.renderGraphical(matrixStack, buffer, data, orientation, x, y, z, scale);
         } else {
-            StorageScannerInformationRenderer.renderCrafting(data, orientation, x, y, z, scale);
+            StorageScannerInformationRenderer.renderCrafting(matrixStack, buffer, data, orientation, x, y, z, scale);
         }
     }
 }

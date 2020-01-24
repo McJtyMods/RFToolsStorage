@@ -51,11 +51,4 @@ public class CraftingManagerBlock extends BaseBlock {
         }
         return false;
     }
-
-    // @todo 1.15
-//    @Override
-//    public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
-//        return /*layer == BlockRenderLayer.SOLID || */ layer == BlockRenderLayer.CUTOUT;
-//    }
-
 }

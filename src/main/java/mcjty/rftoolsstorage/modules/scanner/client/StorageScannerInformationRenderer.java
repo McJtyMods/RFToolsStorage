@@ -1,8 +1,10 @@
 package mcjty.rftoolsstorage.modules.scanner.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.client.HudRenderHelper;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.TypedMap;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import org.apache.commons.lang3.tuple.Pair;
@@ -14,12 +16,11 @@ import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerInformat
 
 public class StorageScannerInformationRenderer {
 
-    public static void renderCrafting(TypedMap data, Direction orientation, double x, double y, double z, double scale) {
+    public static void renderCrafting(MatrixStack matrixStack, IRenderTypeBuffer buffer, TypedMap data, Direction orientation, double x, double y, double z, double scale) {
         List<Pair<ItemStack, String>> log = getLog(data);
         HudRenderHelper.HudPlacement hudPlacement = HudRenderHelper.HudPlacement.HUD_FRONT;
         HudRenderHelper.HudOrientation hudOrientation = HudRenderHelper.HudOrientation.HUD_SOUTH;
-        // @todo 1.15
-//        HudRenderHelper.renderHudItems(log, hudPlacement, hudOrientation, orientation, x - orientation.getXOffset() * .95, y, z - orientation.getZOffset() * .95, (float) (1.0f + scale));
+        HudRenderHelper.renderHudItems(matrixStack, buffer, log, hudPlacement, hudOrientation, orientation, x - orientation.getXOffset() * .95, y, z - orientation.getZOffset() * .95, (float) (1.0f + scale));
     }
 
     private static List<Pair<ItemStack, String>> getLog(TypedMap data) {
