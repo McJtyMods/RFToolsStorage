@@ -75,32 +75,32 @@ public class CraftingManagerBakedModel extends AbstractDynamicBakedModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
 
         List<BakedQuad> quads = new ArrayList<>();
-//        if (side == null) {
-//            quads.add(createQuadReversed(v(0.0, 1.0, 0.0), v(0.0, 1.0, 1.0), v(1.0, 1.0, 1.0), v(1.0, 1.0, 0.0), getTop()));
-//            quads.add(createQuad(v(1.0, 1.0, 0.0), v(1.0, 1.0, 1.0), v(0.0, 1.0, 1.0), v(0.0, 1.0, 0.0), getTop()));
-//
-//            quads.add(createQuad(v(0.0, 0.0, 0.0), v(1.0, 0.0, 0.0), v(1.0, 0.0, 1.0), v(0.0, 0.0, 1.0), getBottom()));
-//            quads.add(createQuadReversed(v(0.0, 0.3, 1.0), v(1.0, 0.3, 1.0), v(1.0, 0.3, 0.0), v(0.0, 0.3, 0.0), getBottom()));
-//
-//            quads.add(createQuad(v(1.0, 1.0, 0.0), v(1.0, 0.0, 0.0), v(1.0, 0.0, 1.0), v(1.0, 1.0, 1.0), getSide()));
-//            quads.add(createQuadReversed(v(1.0, 1.0, 1.0), v(1.0, 0.0, 1.0), v(1.0, 0.0, 0.0), v(1.0, 1.0, 0.0), getSide()));
-//
-//            quads.add(createQuad(v(0.0, 1.0, 0.0), v(0.0, 0.0, 0.0), v(0.0, 0.0, 1.0), v(0.0, 1.0, 1.0), getSide()));
-//            quads.add(createQuadReversed(v(0.0, 1.0, 1.0), v(0.0, 0.0, 1.0), v(0.0, 0.0, 0.0), v(0.0, 1.0, 0.0), getSide()));
-//
-//            quads.add(createQuad(v(1.0, 1.0, 0.0), v(1.0, 0.0, 0.0), v(0.0, 0.0, 0.0), v(0.0, 1.0, 0.0), getSide()));
-//            quads.add(createQuadReversed(v(0.0, 1.0, 0.0), v(0.0, 0.0, 0.0), v(1.0, 0.0, 0.0), v(1.0, 1.0, 0.0), getSide()));
-//
-//            quads.add(createQuad(v(0.0, 1.0, 1.0), v(0.0, 0.0, 1.0), v(1.0, 0.0, 1.0), v(1.0, 1.0, 1.0), getSide()));
-//            quads.add(createQuadReversed(v(1.0, 1.0, 1.0), v(1.0, 0.0, 1.0), v(0.0, 0.0, 1.0), v(0.0, 1.0, 1.0), getSide()));
-//        }
-//
-//        for (int i = 0 ; i < 4 ; i++) {
-//            BlockState mimic = extraData.getData(CraftingManagerTileEntity.MIMIC[i]);
-//            if (mimic != null) {
-//                appendQuads(quads, mimic, side, rand, ((i & 1) == 0) ? .15f : .55f, ((i & 2) == 0) ? .15f : .55f);
-//            }
-//        }
+        if (side == null) {
+            quads.add(createQuadReversed(v(0.0, 1.0, 0.0), v(0.0, 1.0, 1.0), v(1.0, 1.0, 1.0), v(1.0, 1.0, 0.0), getTop()));
+            quads.add(createQuad(v(1.0, 1.0, 0.0), v(1.0, 1.0, 1.0), v(0.0, 1.0, 1.0), v(0.0, 1.0, 0.0), getTop()));
+
+            quads.add(createQuad(v(0.0, 0.0, 0.0), v(1.0, 0.0, 0.0), v(1.0, 0.0, 1.0), v(0.0, 0.0, 1.0), getBottom()));
+            quads.add(createQuadReversed(v(0.0, 0.3, 1.0), v(1.0, 0.3, 1.0), v(1.0, 0.3, 0.0), v(0.0, 0.3, 0.0), getBottom()));
+
+            quads.add(createQuad(v(1.0, 1.0, 0.0), v(1.0, 0.0, 0.0), v(1.0, 0.0, 1.0), v(1.0, 1.0, 1.0), getSide()));
+            quads.add(createQuadReversed(v(1.0, 1.0, 1.0), v(1.0, 0.0, 1.0), v(1.0, 0.0, 0.0), v(1.0, 1.0, 0.0), getSide()));
+
+            quads.add(createQuad(v(0.0, 1.0, 0.0), v(0.0, 0.0, 0.0), v(0.0, 0.0, 1.0), v(0.0, 1.0, 1.0), getSide()));
+            quads.add(createQuadReversed(v(0.0, 1.0, 1.0), v(0.0, 0.0, 1.0), v(0.0, 0.0, 0.0), v(0.0, 1.0, 0.0), getSide()));
+
+            quads.add(createQuad(v(1.0, 1.0, 0.0), v(1.0, 0.0, 0.0), v(0.0, 0.0, 0.0), v(0.0, 1.0, 0.0), getSide()));
+            quads.add(createQuadReversed(v(0.0, 1.0, 0.0), v(0.0, 0.0, 0.0), v(1.0, 0.0, 0.0), v(1.0, 1.0, 0.0), getSide()));
+
+            quads.add(createQuad(v(0.0, 1.0, 1.0), v(0.0, 0.0, 1.0), v(1.0, 0.0, 1.0), v(1.0, 1.0, 1.0), getSide()));
+            quads.add(createQuadReversed(v(1.0, 1.0, 1.0), v(1.0, 0.0, 1.0), v(0.0, 0.0, 1.0), v(0.0, 1.0, 1.0), getSide()));
+        }
+
+        for (int i = 0 ; i < 4 ; i++) {
+            BlockState mimic = extraData.getData(CraftingManagerTileEntity.MIMIC[i]);
+            if (mimic != null) {
+                appendQuads(quads, mimic, side, rand, ((i & 1) == 0) ? .15f : .55f, ((i & 2) == 0) ? .15f : .55f);
+            }
+        }
 
         return quads;
     }

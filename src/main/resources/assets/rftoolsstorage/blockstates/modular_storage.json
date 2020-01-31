@@ -1,42 +1,217 @@
 {
-  "forge_marker": 1,
-  "defaults": {
-    "model": "rftoolsbase:block/rftoolsblock",
-    "textures": { "front": "rftoolsstorage:block/machinemodularstorage" }
-  },
-  "variants": {
-    "facing": {
-      "south": {"y": 180},
-      "west": {"y": 270},
-      "east": {"y": 90},
-      "up": {"x": -90},
-      "down": {"x": 90},
-      "north": {}
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/modular_storage"
+      }
     },
-    "type": {
-      "none": { "submodel": { "overlay": { "model": "rftoolsstorage:block/overlay", "textures": { "overlay": "rftoolsstorage:block/overlaynone" } } } },
-      "ore": { "submodel": { "overlay": { "model": "rftoolsstorage:block/overlay", "textures": { "overlay": "rftoolsstorage:block/overlayore" } } } },
-      "generic": { "submodel": { "overlay": { "model": "rftoolsstorage:block/overlay", "textures": { "overlay": "rftoolsstorage:block/overlaygeneric" } } } }
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/modular_storage",
+        "y": 180
+      }
     },
-    "amount": {
-      "none": { },
-      "empty": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountgempty", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "g0": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg0", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "g1": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg1", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "g2": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg2", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "g3": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg3", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "g4": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg4", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "g5": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg5", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "g6": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg6", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "g7": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg7", "textures": { "overlaya": "rftoolsstorage:block/overlayamount" } } } },
-      "r0": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg0", "textures": { "overlaya": "rftoolsstorage:block/overlayamountremote" } } } },
-      "r1": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg1", "textures": { "overlaya": "rftoolsstorage:block/overlayamountremote" } } } },
-      "r2": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg2", "textures": { "overlaya": "rftoolsstorage:block/overlayamountremote" } } } },
-      "r3": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg3", "textures": { "overlaya": "rftoolsstorage:block/overlayamountremote" } } } },
-      "r4": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg4", "textures": { "overlaya": "rftoolsstorage:block/overlayamountremote" } } } },
-      "r5": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg5", "textures": { "overlaya": "rftoolsstorage:block/overlayamountremote" } } } },
-      "r6": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg6", "textures": { "overlaya": "rftoolsstorage:block/overlayamountremote" } } } },
-      "r7": { "submodel": { "overlaya": { "model": "rftoolsstorage:block/overlayamountg7", "textures": { "overlaya": "rftoolsstorage:block/overlayamountremote" } } } }
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/modular_storage",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/modular_storage",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "up"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/modular_storage",
+        "x": -90
+      }
+    },
+    {
+      "when": {
+        "facing": "down"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/modular_storage",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "type": "none"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlaynone"
+      }
+    },
+    {
+      "when": {
+        "type": "ore"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayore"
+      }
+    },
+    {
+      "when": {
+        "type": "generic"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlaygeneric"
+      }
+    },
+    {
+      "when": {
+        "amount": "empty"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_empty"
+      }
+    },
+    {
+      "when": {
+        "amount": "g0"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount0"
+      }
+    },
+    {
+      "when": {
+        "amount": "g1"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount1"
+      }
+    },
+    {
+      "when": {
+        "amount": "g2"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount2"
+      }
+    },
+    {
+      "when": {
+        "amount": "g3"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount3"
+      }
+    },
+    {
+      "when": {
+        "amount": "g4"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount4"
+      }
+    },
+    {
+      "when": {
+        "amount": "g5"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount5"
+      }
+    },
+    {
+      "when": {
+        "amount": "g6"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount6"
+      }
+    },
+    {
+      "when": {
+        "amount": "g7"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount7"
+      }
+    },
+    {
+      "when": {
+        "amount": "r0"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_remote0"
+      }
+    },
+    {
+      "when": {
+        "amount": "r1"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_remote1"
+      }
+    },
+    {
+      "when": {
+        "amount": "r2"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_remote2"
+      }
+    },
+    {
+      "when": {
+        "amount": "r3"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_remote3"
+      }
+    },
+    {
+      "when": {
+        "amount": "r4"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_remote4"
+      }
+    },
+    {
+      "when": {
+        "amount": "r5"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_remote5"
+      }
+    },
+    {
+      "when": {
+        "amount": "r6"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_remote6"
+      }
+    },
+    {
+      "when": {
+        "amount": "r7"
+      },
+      "apply": {
+        "model": "rftoolsstorage:block/storage/overlayamount_remote7"
+      }
     }
-  }
+  ]
 }
