@@ -1,3 +1,9 @@
+1.0.1-alpha:
+- Fixed a problem with the modular storage inventory slots not being moved properly in case of different gui scale
+
+1.0.0-alpha:
+- First port to 1.15.2
+
 0.0.7:
 - Updates to latest McJtyLib
 
