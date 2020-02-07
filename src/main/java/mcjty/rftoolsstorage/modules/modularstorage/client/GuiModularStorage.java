@@ -23,8 +23,8 @@ import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageConfiguration;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
-import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.setup.CommandHandler;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.storage.modules.DefaultTypeModule;
 import mcjty.rftoolsstorage.storage.modules.TypeModule;
 import mcjty.rftoolsstorage.storage.sorters.ItemSorter;
@@ -37,8 +37,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
@@ -49,7 +47,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.CONTAINER_GRID;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity.*;
 
@@ -97,7 +94,6 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
         xSize = STORAGE_WIDTH;
 
-//        double sw = Minecraft.getInstance().getMainWindow().getScaledWidth();
         double height = Minecraft.getInstance().getMainWindow().getScaledHeight();
 
         if (height > 510) {
@@ -106,14 +102,6 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             ySize = ModularStorageConfiguration.height2.get();
         } else {
             ySize = ModularStorageConfiguration.height1.get();
-        }
-
-        IItemHandler gridInventory = container.getInventory(CONTAINER_GRID);
-        for (Object o : container.inventorySlots) {
-            SlotItemHandler slot = (SlotItemHandler) o;
-            if (slot.getItemHandler() != gridInventory) {
-                slot.yPos = slot.yPos + ySize - ModularStorageConfiguration.height1.get();
-            }
         }
     }
 

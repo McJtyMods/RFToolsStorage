@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 import mcjty.lib.container.*;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.modularstorage.client.SlotOffsetCalculator;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.modules.modularstorage.network.PacketStorageInfoToClient;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
@@ -62,11 +63,20 @@ public class ModularStorageContainer extends GenericContainer {
         generateSlots();
     }
 
+    private int getAdjustedY(int y, boolean onClient) {
+        if (onClient) {
+            return y + SlotOffsetCalculator.getYOffset();
+        }
+        return y;
+    }
+
     @Override
     public void generateSlots() {
+        boolean onClient = getTe().getWorld().isRemote();
+
         for (SlotFactory slotFactory : CONTAINER_FACTORY.getSlots()) {
             Slot slot;
-            if (CONTAINER_GRID.equals(slotFactory.getInventoryName()) || CONTAINER_CARDS.equals(slotFactory.getInventoryName())) {
+            if (CONTAINER_GRID.equals(slotFactory.getInventoryName())) {
                 SlotType slotType = slotFactory.getSlotType();
                 IItemHandler inventory = this.inventories.get(slotFactory.getInventoryName());
                 int index = slotFactory.getIndex();
@@ -75,16 +85,19 @@ public class ModularStorageContainer extends GenericContainer {
                 slot = this.createSlot(slotFactory, inventory, index, x, y, slotType);
             } else if (slotFactory.getSlotType() == SlotType.SLOT_SPECIFICITEM) {
                 final SlotDefinition slotDefinition = slotFactory.getSlotDefinition();
-                slot = new SlotItemHandler(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
+                slot = new SlotItemHandler(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(),
+                        getAdjustedY(slotFactory.getY(), onClient)) {
                     @Override
                     public boolean isItemValid(ItemStack stack) {
                         return slotDefinition.itemStackMatches(stack);
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_PLAYERINV || slotFactory.getSlotType() == SlotType.SLOT_PLAYERHOTBAR) {
-                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY());
+                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(),
+                        getAdjustedY(slotFactory.getY(), onClient));
             } else {
-                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY());
+                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(),
+                        getAdjustedY(slotFactory.getY(), onClient));
             }
             addSlot(slot);
         }
