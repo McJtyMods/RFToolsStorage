@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a problem where the storage scanner would not correctly show items with amounts greater than 127
+
 1.0.1-alpha:
 - Fixed a problem with the modular storage inventory slots not being moved properly in case of different gui scale
 
