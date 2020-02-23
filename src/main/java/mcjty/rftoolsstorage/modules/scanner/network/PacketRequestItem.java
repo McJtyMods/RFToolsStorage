@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
+import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.item.ItemStack;
@@ -26,7 +27,7 @@ public class PacketRequestItem {
         buf.writeBlockPos(pos);
         buf.writeBlockPos(inventoryPos);
         buf.writeInt(amount);
-        buf.writeItemStack(item);
+        NetworkTools.writeItemStack(buf, item);
         buf.writeBoolean(craftable);
     }
 
@@ -38,7 +39,7 @@ public class PacketRequestItem {
         pos = buf.readBlockPos();
         inventoryPos = buf.readBlockPos();
         amount = buf.readInt();
-        item = buf.readItemStack();
+        item = NetworkTools.readItemStack(buf);
         craftable = buf.readBoolean();
     }
 
