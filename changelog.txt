@@ -1,4 +1,4 @@
-Upcoming:
+1.0.2-alpha:
 - Fixed a problem where the storage scanner would not correctly show items with amounts greater than 127
 - Fixed a problem with these amounts not being rendered at the correct spot
 - Fixed another bug where trying to request an item of which there is a lot didn't actually do anything
