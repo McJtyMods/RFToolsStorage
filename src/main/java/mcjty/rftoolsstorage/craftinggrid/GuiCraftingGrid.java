@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.base.ModBase;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
@@ -14,10 +15,9 @@ import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.setup.CommandHandler;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.MouseHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -150,10 +150,8 @@ public class GuiCraftingGrid {
         populateList();
         testRecipe();
 
-        MouseHelper mouse = mc.mouseHelper;
-
-        int x = (int) (mouse.getMouseX() * gui.width / mc.getMainWindow().getWidth());
-        int y = (int) (gui.height - mouse.getMouseY() * gui.height / mc.getMainWindow().getHeight() - 1);
+        int x = GuiTools.getRelativeX(gui);
+        int y = GuiTools.getRelativeY(gui);
         Widget<?> widget = craftWindow.getToplevel().getWidgetAtPosition(x, y);
         if (widget == craft1Button) {
             testCraft(1);
