@@ -14,6 +14,7 @@ import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
@@ -32,8 +33,8 @@ public class ClientRegistration {
         GenericGuiContainer.register(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
         GenericGuiContainer.register(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), GuiCraftingManager::new);
 
-        RenderTypeLookup.setRenderLayer(CraftingManagerSetup.CRAFTING_MANAGER.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(ModularStorageSetup.MODULAR_STORAGE.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(CraftingManagerSetup.CRAFTING_MANAGER.get(), RenderType.getCutout());
+        RenderTypeLookup.setRenderLayer(ModularStorageSetup.MODULAR_STORAGE.get(), RenderType.getCutout());
     }
 
     @SubscribeEvent
@@ -43,7 +44,7 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void onTextureStitch(TextureStitchEvent.Pre event) {
-        if (!event.getMap().getBasePath().equals("textures")) {
+        if (!event.getMap().getTextureLocation().equals(AtlasTexture.LOCATION_BLOCKS_TEXTURE)) {
             return;
         }
         event.addSprite(new ResourceLocation(RFToolsStorage.MODID, "block/machinecraftingmanager"));
