@@ -1,3 +1,6 @@
+Upcoming:
+- Re-implemented the filter module for the Modular Storage
+
 1.0.2-alpha:
 - Fixed a problem where the storage scanner would not correctly show items with amounts greater than 127
 - Fixed a problem with these amounts not being rendered at the correct spot

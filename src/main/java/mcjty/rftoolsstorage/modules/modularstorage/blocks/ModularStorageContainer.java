@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.container.*;
+import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.client.SlotOffsetCalculator;
@@ -35,7 +36,7 @@ public class ModularStorageContainer extends GenericContainer {
         protected void setup() {
             slot(SlotDefinition.specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157);
             slot(SlotDefinition.specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175);
-            slot(SlotDefinition.specific(stack -> false /* @todo 1.14 StorageFilterItem.class*/), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193);
+            slot(SlotDefinition.specific(stack -> stack.getItem() instanceof FilterModuleItem), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193);
             box(SlotDefinition.input(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 500 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0); // Dummy slot positions
             playerSlots(91, 157);
             gridSlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);

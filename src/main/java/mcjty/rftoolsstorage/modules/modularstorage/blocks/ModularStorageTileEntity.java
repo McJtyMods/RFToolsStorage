@@ -10,11 +10,12 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
+import mcjty.rftoolsbase.api.storage.IModularStorage;
+import mcjty.rftoolsbase.modules.various.FilterModuleCache;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
-import mcjty.rftoolsstorage.storage.StorageFilterCache;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -38,7 +39,7 @@ import java.util.UUID;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE_MODULE;
 
 public class ModularStorageTileEntity extends GenericTileEntity implements IInventoryTracker,
-        CraftingGridProvider, JEIRecipeAcceptor {
+        CraftingGridProvider, JEIRecipeAcceptor, IModularStorage {
 
     public static final String CMD_SETTINGS = "storage.settings";
     public static final Key<String> PARAM_FILTER = new Key<>("filter", Type.STRING);
@@ -59,7 +60,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         };
     }
 
-    private StorageFilterCache filterCache = null;
+    // @todo 1.15 implement this!
+    private FilterModuleCache filterCache = null;
 
     private LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")

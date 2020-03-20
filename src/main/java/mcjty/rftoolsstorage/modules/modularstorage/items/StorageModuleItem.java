@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.modules.modularstorage.items;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.crafting.INBTPreservingIngredient;
 import mcjty.lib.varia.Logging;
+import mcjty.rftoolsbase.api.storage.IStorageModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import net.minecraft.client.util.ITooltipFlag;
@@ -24,7 +25,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class StorageModuleItem extends Item implements INBTPreservingIngredient {
+public class StorageModuleItem extends Item implements INBTPreservingIngredient, IStorageModuleItem {
 
     public static final int STORAGE_TIER1 = 0;
     public static final int STORAGE_TIER2 = 1;
