@@ -12,6 +12,7 @@ import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IModularStorage;
 import mcjty.rftoolsbase.modules.various.FilterModuleCache;
+import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
@@ -36,6 +37,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_FILTER_MODULE;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE_MODULE;
 
 public class ModularStorageTileEntity extends GenericTileEntity implements IInventoryTracker,
@@ -77,6 +79,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                     StorageInfo info = getStorageInfo();
                     globalWrapper.setInfo(info);
                 }
+            } else if (slot == SLOT_FILTER_MODULE) {
+                filterCache = null;
             }
             markDirtyClient();
         }
@@ -351,11 +355,33 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 //        }
 //    }
 
+    private void getFilterCache() {
+        if (filterCache == null) {
+            filterCache = FilterModuleItem.getCache(cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE));
+        }
+    }
+
     @Nonnull
     private IItemHandlerModifiable createGlobalHandler() {
         StorageInfo info = getStorageInfo();
         if (globalWrapper == null) {
-            globalWrapper = new GlobalStorageItemWrapper(info, world.isRemote);
+            globalWrapper = new GlobalStorageItemWrapper(info, world.isRemote) {
+                @Override
+                public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+                    boolean rc = super.isItemValid(slot, stack);
+                    if (!rc) {
+                        return false;
+                    }
+                    if (!cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE).isEmpty()) {
+                        getFilterCache();
+                        if (filterCache != null) {
+                            return filterCache.match(stack);
+                        }
+                    }
+
+                    return true;
+                }
+            };
             if (!world.isRemote) {
                 globalWrapper.setListener((version, slot) -> {
                     ItemStack storageSlot = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
