@@ -830,20 +830,18 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 .filter(p -> isOutputFromAuto(p) && ((!doRoutable) || isRoutable(p)))
                 .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
                 .map(this::getItemHandlerAt)
-                .map(handler -> {
-                    return handler.map(h -> {
-                        for (int i = 0; i < h.getSlots(); i++) {
-                            ItemStack itemStack = h.getStackInSlot(i);
-                            if (matcher.test(itemStack)) {
-                                ItemStack received = h.extractItem(i, amount, simulate);
-                                if (!received.isEmpty()) {
-                                    return received.copy();
-                                }
+                .map(handler -> handler.map(h -> {
+                    for (int i = 0; i < h.getSlots(); i++) {
+                        ItemStack itemStack = h.getStackInSlot(i);
+                        if (matcher.test(itemStack)) {
+                            ItemStack received = h.extractItem(i, amount, simulate);
+                            if (!received.isEmpty()) {
+                                return received.copy();
                             }
                         }
-                        return DUMMY;
-                    }).orElse(DUMMY);
-                })
+                    }
+                    return DUMMY;
+                }).orElse(DUMMY))
                 .filter(s -> s != DUMMY)
                 .findFirst()
                 .orElse(ItemStack.EMPTY);
