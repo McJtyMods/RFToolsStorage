@@ -401,6 +401,18 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         return cc[0];
     }
 
+    @Nonnull
+    @Override
+    public ItemStack getItem(Predicate<ItemStack> matcher, boolean starred) {
+        return inventories.stream()
+                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.chunkLoaded(world, p))
+                .map(world::getTileEntity)
+                .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
+                .map(te -> InventoryHelper.getFirstMatchingItem(te, matcher))
+                .filter(s -> !s.isEmpty())
+                .findFirst()
+                .orElse(ItemStack.EMPTY);
+    }
 
     @Override
     public int countItems(ItemStack match, boolean routable, boolean oredict) {
