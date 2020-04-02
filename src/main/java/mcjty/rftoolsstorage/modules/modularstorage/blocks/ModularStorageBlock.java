@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.rftoolsstorage.compat.RFToolsStorageTOPDriver;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularTypeModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -15,6 +16,9 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
+import static mcjty.lib.builder.TooltipBuilder.header;
+import static mcjty.lib.builder.TooltipBuilder.key;
+
 
 public class ModularStorageBlock extends BaseBlock {
 
@@ -27,22 +31,12 @@ public class ModularStorageBlock extends BaseBlock {
 
     public ModularStorageBlock() {
         super(new BlockBuilder()
+                .topDriver(RFToolsStorageTOPDriver.DRIVER)
                 .tileEntitySupplier(ModularStorageTileEntity::new)
-                .infoExtended("todo")   // @todo 1.14
-//        list.add(TextFormatting.WHITE + "This modular storage system can store a lot");
-//        list.add(TextFormatting.WHITE + "of items and allows easy searching and filtering.");
-//        list.add(TextFormatting.WHITE + "You must first insert a storage module item before");
-//        list.add(TextFormatting.WHITE + "you can use it");
-
+                .info(key("message.rftoolsstorage.shiftmessage"))
+                .infoShift(header())
         );
-//        super(Material.IRON, ModularStorageTileEntity.class, ModularStorageContainer::new, "modular_storage", true);
     }
-
-//    @SideOnly(Side.CLIENT)
-//    @Override
-//    public BiFunction<ModularStorageTileEntity, ModularStorageContainer, GenericGuiContainer<? super ModularStorageTileEntity>> getGuiFactory() {
-//        return GuiModularStorage::new;
-//    }
 
 
     private static long lastTime = 0;
@@ -153,66 +147,6 @@ public class ModularStorageBlock extends BaseBlock {
         super.fillStateContainer(builder);
         builder.add(TYPEMODULE).add(AMOUNT);
     }
-
-    // @todo 1.14
-//    @Override
-//    @Optional.Method(modid = "theoneprobe")
-//    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, IBlockState blockState, IProbeHitData data) {
-//        super.addProbeInfo(mode, probeInfo, player, world, blockState, data);
-//        TileEntity te = world.getTileEntity(data.getPos());
-//        if (te instanceof ModularStorageTileEntity) {
-//            ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
-//            int maxSize = modularStorageTileEntity.getMaxSize();
-//            if (maxSize == 0) {
-//                probeInfo.text(TextFormatting.YELLOW + "No storage module!");
-//            } else {
-//                ItemStack storageModule = modularStorageTileEntity.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
-//                if (!storageModule.isEmpty() && storageModule.getTagCompound().hasKey("display")) {
-//                    probeInfo.text(TextFormatting.YELLOW + "Module: " + TextFormatting.WHITE + storageModule.getDisplayName());
-//                }
-//                int stacks = modularStorageTileEntity.getNumStacks();
-//                if (stacks == -1) {
-//                    probeInfo.text(TextFormatting.YELLOW + "Maximum size: " + maxSize);
-//                } else {
-//                    probeInfo.text(TextFormatting.GREEN + "" + stacks + " out of " + maxSize);
-//                }
-//            }
-//        }
-//    }
-
-//    @SideOnly(Side.CLIENT)
-//    @Override
-//    @Optional.Method(modid = "waila")
-//    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-//        super.getWailaBody(itemStack, currenttip, accessor, config);
-//        TileEntity te = accessor.getTileEntity();
-//        if (te instanceof ModularStorageTileEntity) {
-//            ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
-//            int maxSize = modularStorageTileEntity.getMaxSize();
-//            if (maxSize == 0) {
-//                currenttip.add(TextFormatting.YELLOW + "No storage module!");
-//            } else {
-//                if (System.currentTimeMillis() - lastTime > 500) {
-//                    lastTime = System.currentTimeMillis();
-//                    RFToolsMessages.sendToServer(CommandHandler.CMD_REQUEST_STORAGE_INFO,
-//                            TypedMap.builder()
-//                                    .put(CommandHandler.PARAM_DIMENSION, modularStorageTileEntity.getWorld().provider.getDimension())
-//                                    .put(CommandHandler.PARAM_POS, modularStorageTileEntity.getPos()));
-//                }
-//                if (!nameModuleReceived.isEmpty()) {
-//                    currenttip.add(TextFormatting.YELLOW + "Module: " + TextFormatting.WHITE + nameModuleReceived);
-//                }
-//                int stacks = cntReceived;
-//                if (stacks == -1) {
-//                    currenttip.add(TextFormatting.YELLOW + "Maximum size: " + maxSize);
-//                } else {
-//                    currenttip.add(TextFormatting.GREEN + "" + stacks + " out of " + maxSize);
-//                }
-//            }
-//        }
-//        return currenttip;
-//    }
-
 
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {

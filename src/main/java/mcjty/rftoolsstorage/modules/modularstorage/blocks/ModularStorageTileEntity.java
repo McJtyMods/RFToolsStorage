@@ -62,7 +62,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         };
     }
 
-    // @todo 1.15 implement this!
     private FilterModuleCache filterCache = null;
 
     private LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
@@ -341,6 +340,11 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         return getStorageInfo().getVersion();
     }
 
+    public int getMaxSize() {
+        StorageInfo info = getStorageInfo();
+        return info.getSize();
+    }
+
     //    @Override
 //    public int getVersion() {
 //        // @todo 1.14
@@ -412,5 +416,15 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     public IItemHandler getCardHandler() {
         return cardHandler;
+    }
+
+    public int getNumStacks() {
+        int cnt = 0;
+        for (int i = 0 ; i < globalWrapper.getSlots() ; i++) {
+            if (!globalWrapper.getStackInSlot(i).isEmpty()) {
+                cnt++;
+            }
+        }
+        return cnt;
     }
 }

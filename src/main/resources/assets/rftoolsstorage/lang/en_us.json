@@ -17,5 +17,22 @@
     "itemGroup.rftoolsstorage": "RFTools Storage",
 
     "_comment": "Messages",
-    "message.rftoolsstorage.shiftmessage": "<Press Shift>"
+    "message.rftoolsstorage.shiftmessage": "<Press Shift>",
+
+    "message.rftoolsstorage.crafting_manager.header": "WIP! Crafting Manager WIP!",
+    "message.rftoolsstorage.crafting_manager.gold": "This is not functional yet",
+
+    "message.rftoolsstorage.storage_scanner.header": "This machine will scan all nearby inventories and show them in a list. You can then search and access items from those inventories",
+    "message.rftoolsstorage.storage_scanner.gold": "Infusing bonus: reduced power consumption",
+
+    "message.rftoolsstorage.storage_module.header": "This storage module is for the Modular Storage block",
+    "message.rftoolsstorage.storage_module.gold": "This module supports a remote inventory. Link to another storage module in the remote storage block",
+    "message.rftoolsstorage.storage_module.info": "Supported stacks: ",
+    "message.rftoolsstorage.storage_module.remoteid": "Remote ID: ",
+    "message.rftoolsstorage.storage_module.uuid": "UUID: ",
+    "message.rftoolsstorage.storage_module.version": "Version: ",
+    "message.rftoolsstorage.storage_module.items": "Contents: ",
+    "message.rftoolsstorage.storage_module.advanced": "Advanced: ",
+
+    "message.rftoolsstorage.modular_storage.header": "This modular storage system can store a lot of items and allows easy searching and filtering. You must first insert a storage module item before you can use it"
 }

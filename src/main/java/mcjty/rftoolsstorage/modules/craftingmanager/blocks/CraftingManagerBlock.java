@@ -12,6 +12,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 
+import static mcjty.lib.builder.TooltipBuilder.*;
+
 
 public class CraftingManagerBlock extends BaseBlock {
 
@@ -23,8 +25,9 @@ public class CraftingManagerBlock extends BaseBlock {
     public CraftingManagerBlock() {
         super(new BlockBuilder()
                 .properties(STANDARD_GLASS)
+                .info(key("message.rftoolsstorage.shiftmessage"))
+                .infoShift(header(), gold())
                 .tileEntitySupplier(CraftingManagerTileEntity::new)
-                .infoExtended("todo")   // @todo 1.14
         );
     }
 

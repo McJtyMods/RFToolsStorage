@@ -1,3 +1,7 @@
+Upcoming:
+- Better tooltips
+- Re-implemented TOP support for all blocks
+
 1.0.3-alpha:
 - Re-implemented the filter module for the Modular Storage
 

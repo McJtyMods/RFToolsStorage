@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage.items;
 
-import mcjty.lib.McJtyLib;
+import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.crafting.INBTPreservingIngredient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.storage.IStorageModuleItem;
@@ -11,12 +11,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
@@ -25,6 +21,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static mcjty.lib.builder.TooltipBuilder.*;
+
 public class StorageModuleItem extends Item implements INBTPreservingIngredient, IStorageModuleItem {
 
     public static final int STORAGE_TIER1 = 0;
@@ -32,9 +30,99 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     public static final int STORAGE_TIER3 = 2;
     public static final int STORAGE_TIER4 = 3;
     public static final int STORAGE_REMOTE = 6;
-    public static final int MAXSIZE[] = new int[] { 100, 200, 300, 500, 0, 0, -1 };
+    public static final int MAXSIZE[] = new int[]{100, 200, 300, 500, 0, 0, -1};
 
     private final int tier;
+
+    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+            .info(header(),
+                    parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsString),
+                    key("message.rftoolsstorage.shiftmessage"))
+            .infoShift(header(),
+                    gold(stack -> isRemoteModule()),
+                    parameter("info", stack -> !(isRemoteModule()), stack -> Integer.toString(getMax())),
+                    parameter("remoteid", stack -> isRemoteModule(), stack -> {
+                        CompoundNBT tag = stack.getTag();
+                        if (tag != null && tag.contains("id")) {
+                            int id = tag.getInt("id");
+                            return Integer.toString(id);
+                        } else {
+                            return "<unlinked>";
+                        }
+                    }),
+                    parameter("uuid", stack -> {
+                        CompoundNBT tag = stack.getTag();
+                        if (tag != null) {
+                            return tag.getUniqueId("uuid").toString();
+                        } else {
+                            return "<unset>";
+                        }
+                    }),
+                    parameter("version", stack -> {
+                        CompoundNBT tag = stack.getTag();
+                        if (tag != null) {
+                            return Integer.toString(tag.getInt("version"));
+                        } else {
+                            return "<unset>";
+                        }
+                    }),
+                    parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsString))
+            .infoAdvanced(parameter("advanced", this::getAdvancedInfo));
+
+    private String getContentsString(ItemStack stack) {
+        StorageEntry storage = getStorage(stack);
+        if (storage != null) {
+            // @todo is this really needed if we only need number of items? Re-evaluate
+            NonNullList<ItemStack> stacks = storage.getStacks();
+            int cnt = 0;
+            for (ItemStack s : stacks) {
+                if (!s.isEmpty()) {
+                    cnt++;
+                }
+            }
+            return Integer.toString(cnt) + "/" + Integer.toString(getMax());
+        }
+        return "<unknown>";
+    }
+
+    private String getAdvancedInfo(ItemStack stack) {
+        StorageEntry storage = getStorage(stack);
+        if (storage != null) {
+            String createdBy = storage.getCreatedBy();
+            String info = "";
+            if (createdBy != null && !createdBy.isEmpty()) {
+                info += "Created by " + createdBy;
+            } else {
+                info += "Unknown creator";
+            }
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            Date creationTime = new Date(storage.getCreationTime());
+            Date updateTime = new Date(storage.getUpdateTime());
+            info += ", Creation time " + dateFormat.format(creationTime);
+            info += ", Update time " + dateFormat.format(updateTime);
+            return info;
+        }
+        return "<unknown>";
+
+    }
+
+    private StorageEntry getStorage(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
+        UUID uuid = tag.getUniqueId("uuid");
+        int version = tag.getInt("version");
+        return RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
+    }
+
+    private boolean isRemoteModule() {
+        return getMax() == -1;
+    }
+
+    private boolean hasUUID(ItemStack stack) {
+        if (!stack.hasTag()) {
+            return false;
+        }
+        return stack.getTag().hasUniqueId("uuid");
+    }
 
     public StorageModuleItem(int tier) {
         super(new Properties()
@@ -42,6 +130,10 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                 .maxDamage(0)
                 .group(RFToolsStorage.setup.getTab()));
         this.tier = tier;
+    }
+
+    private int getMax() {
+        return MAXSIZE[tier];
     }
 
     @Override
@@ -123,65 +215,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     @Override
     public void addInformation(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flags) {
         super.addInformation(itemStack, worldIn, list, flags);
-        int max = MAXSIZE[tier];
-        CompoundNBT tagCompound = itemStack.getTag();
-        if (tagCompound != null) {
-            addModuleInformation(itemStack, list, max, tagCompound);
-        }
-        if (McJtyLib.proxy.isShiftKeyDown()) {
-            list.add(new StringTextComponent(TextFormatting.WHITE + "This storage module is for the Modular Storage block."));
-            if (max == -1) {
-                list.add(new StringTextComponent(TextFormatting.WHITE + "This module supports a remote inventory."));
-                list.add(new StringTextComponent(TextFormatting.WHITE + "Link to another storage module in the remote storage block."));
-            } else {
-                list.add(new StringTextComponent(TextFormatting.WHITE + "This module supports " + max + " stacks"));
-            }
-            if (tagCompound != null) {
-                list.add(new StringTextComponent(TextFormatting.BLUE + "UUID: " + tagCompound.getUniqueId("uuid").toString()));
-                list.add(new StringTextComponent(TextFormatting.BLUE + "version: " + tagCompound.getInt("version")));
-            }
-        } else {
-            list.add(new StringTextComponent(TextFormatting.WHITE + RFToolsStorage.SHIFT_MESSAGE));
-        }
+        tooltipBuilder.makeTooltip(new ResourceLocation(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
     }
 
-    public static void addModuleInformation(ItemStack stack, List<ITextComponent> list, int max, CompoundNBT tagCompound) {
-        if (max == -1) {
-            // @todo 1.14
-            // This is a remote storage module.
-            if (tagCompound.contains("id")) {
-                int id = tagCompound.getInt("id");
-                list.add(new StringTextComponent(TextFormatting.GREEN + "Remote id: " + id));
-            } else {
-                list.add(new StringTextComponent(TextFormatting.YELLOW + "Unlinked"));
-            }
-        } else if (tagCompound.hasUniqueId("uuid")) {
-            UUID uuid = tagCompound.getUniqueId("uuid");
-            int version = tagCompound.getInt("version");
-            StorageEntry storage = RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
-            if (storage != null) {
-                // @todo is this really needed if we only need number of items? Re-evaluate
-                NonNullList<ItemStack> stacks = storage.getStacks();
-                int cnt = 0;
-                for (ItemStack s : stacks) {
-                    if (!s.isEmpty()) {
-                        cnt++;
-                    }
-                }
-                list.add(new StringTextComponent(TextFormatting.GREEN + "Contents " + TextFormatting.YELLOW + cnt + "/" + max + " stacks"));
-                if (McJtyLib.proxy.isShiftKeyDown()) {
-                    String createdBy = storage.getCreatedBy();
-                    if (createdBy != null && !createdBy.isEmpty()) {
-                        list.add(new StringTextComponent(TextFormatting.GREEN + "Created by " + TextFormatting.YELLOW + createdBy));
-                    }
-//                    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-                    Date creationTime = new Date(storage.getCreationTime());
-                    Date updateTime = new Date(storage.getUpdateTime());
-                    list.add(new StringTextComponent(TextFormatting.GREEN + "Creation time " + TextFormatting.YELLOW + dateFormat.format(creationTime)));
-                    list.add(new StringTextComponent(TextFormatting.GREEN + "Update time " + TextFormatting.YELLOW + dateFormat.format(updateTime)));
-                }
-            }
-        }
-    }
 }
