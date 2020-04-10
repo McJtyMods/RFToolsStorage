@@ -14,7 +14,6 @@ public class InventoryAccessSettings {
     private boolean blockOutputScreen = false;
 
     public static final int FILTER_SIZE = 18;
-    private boolean oredictMode = false;
     private boolean metaMode = false;
     private boolean nbtMode = false;
     private boolean blacklist = false;
@@ -25,14 +24,6 @@ public class InventoryAccessSettings {
 
     public ItemStackList getFilters() {
         return filters;
-    }
-
-    public boolean isOredictMode() {
-        return oredictMode;
-    }
-
-    public void setOredictMode(boolean oredictMode) {
-        this.oredictMode = oredictMode;
     }
 
     public boolean isMetaMode() {
@@ -126,7 +117,7 @@ public class InventoryAccessSettings {
             if (filterList.isEmpty()) {
                 matcher = itemStack -> true;
             } else {
-                ItemFilterCache filterCache = new ItemFilterCache(metaMode, oredictMode, blacklist, nbtMode, filterList);
+                ItemFilterCache filterCache = new ItemFilterCache(metaMode, blacklist, nbtMode, filterList);
                 matcher = filterCache::match;
             }
         }

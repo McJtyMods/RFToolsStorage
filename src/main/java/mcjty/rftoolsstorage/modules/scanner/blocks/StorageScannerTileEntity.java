@@ -141,6 +141,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(this::createItemHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId,player) -> new StorageScannerContainer(windowId, getPos(), player, StorageScannerTileEntity.this))
+            .energyHandler(energyHandler)
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
     private LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
 
@@ -332,7 +333,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * @param player
      */
     @Override
-    public void giveToPlayerFromScreen(ItemStack stack, boolean single, PlayerEntity player, boolean oredict) {
+    public void giveToPlayerFromScreen(ItemStack stack, boolean single, PlayerEntity player) {
         if (stack.isEmpty()) {
             return;
         }
@@ -341,7 +342,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return;
         }
 
-        Set<Integer> oredictMatches = getOredictMatchers(stack, oredict);
         final int[] cnt = {single ? 1 : stack.getMaxStackSize()};
         int orig = cnt[0];
         inventories.stream()
@@ -351,7 +351,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                     handler.ifPresent(h -> {
                         for (int i = 0; i < h.getSlots(); i++) {
                             ItemStack itemStack = h.getStackInSlot(i);
-                            if (isItemEqual(stack, itemStack, oredictMatches)) {
+                            if (isItemEqual(stack, itemStack)) {
                                 ItemStack received = h.extractItem(i, cnt[0], false);
                                 giveItemToPlayer(player, cnt, received);
                             }
@@ -415,16 +415,15 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public int countItems(ItemStack match, boolean routable, boolean oredict) {
-        return countItems(match, routable, oredict, null);
+    public int countItems(ItemStack match, boolean routable) {
+        return countItems(match, routable, null);
     }
 
     @Override
-    public int countItems(ItemStack stack, boolean starred, boolean oredict, @Nullable Integer maxneeded) {
+    public int countItems(ItemStack stack, boolean starred, @Nullable Integer maxneeded) {
         if (stack.isEmpty()) {
             return 0;
         }
-        Set<Integer> oredictMatches = getOredictMatchers(stack, oredict);
         Iterator<TileEntity> iterator = inventories.stream()
                 .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.chunkLoaded(world, p))
                 .map(world::getTileEntity)
@@ -449,7 +448,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 cnt += cachedCount;
             } else {
                 final int[] cc = {0};
-                InventoryHelper.getItems(te, s -> isItemEqual(stack, s, oredictMatches))
+                InventoryHelper.getItems(te, s -> isItemEqual(stack, s))
                         .forEach(s -> cc[0] += s.getCount());
                 if (te instanceof IInventoryTracker) {
                     IInventoryTracker tracker = (IInventoryTracker) te;
@@ -465,37 +464,11 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         return cnt;
     }
 
-    private static Set<Integer> getOredictMatchers(ItemStack stack, boolean oredict) {
-        Set<Integer> oredictMatches = new HashSet<>();
-        // @todo 1.14 tags
-//        if (oredict) {
-//            for (int id : OreDictionary.getOreIDs(stack)) {
-//                oredictMatches.add(id);
-//            }
-//        }
-        return oredictMatches;
-    }
-
-    public static boolean isItemEqual(ItemStack thisItem, ItemStack other, boolean oredict) {
-        return isItemEqual(thisItem, other, getOredictMatchers(thisItem, oredict));
-    }
-
-    public static boolean isItemEqual(ItemStack thisItem, ItemStack other, Set<Integer> oreDictMatchers) {
+    public static boolean isItemEqual(ItemStack thisItem, ItemStack other) {
         if (other.isEmpty()) {
             return false;
         }
-        if (oreDictMatchers.isEmpty()) {
-            return thisItem.isItemEqual(other);
-        } else {
-            // @todo 1.14
-//            int[] oreIDs = OreDictionary.getOreIDs(other);
-//            for (int id : oreIDs) {
-//                if (oreDictMatchers.contains(id)) {
-//                    return true;
-//                }
-//            }
-        }
-        return false;
+        return thisItem.isItemEqual(other);
     }
 
 
@@ -860,7 +833,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public ItemStack requestItem(ItemStack match, int amount, boolean doRoutable, boolean oredict) {
+    public ItemStack requestItem(ItemStack match, int amount, boolean doRoutable) {
         if (match.isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -868,7 +841,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return ItemStack.EMPTY;
         }
 
-        Set<Integer> oredictMatches = getOredictMatchers(match, oredict);
         final ItemStack[] result = {ItemStack.EMPTY};
         final int[] cnt = {match.getMaxStackSize() < amount ? match.getMaxStackSize() : amount};
         inventories.stream()
@@ -879,7 +851,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                     handler.ifPresent(h -> {
                         for (int i = 0; i < h.getSlots(); i++) {
                             ItemStack itemStack = h.getStackInSlot(i);
-                            if (isItemEqual(match, itemStack, oredictMatches)) {
+                            if (isItemEqual(match, itemStack)) {
                                 ItemStack received = h.extractItem(i, cnt[0], false);
                                 if (!received.isEmpty()) {
                                     if (result[0].isEmpty()) {

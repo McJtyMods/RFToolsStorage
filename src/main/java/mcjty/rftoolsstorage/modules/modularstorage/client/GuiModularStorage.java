@@ -304,7 +304,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     @Override
     public boolean isSlotSelected(Slot slotIn, double x, double y) {
         if (slotIn instanceof BaseSlot && ((BaseSlot) slotIn).getTe() instanceof ModularStorageTileEntity){ // @todo 1.14 || slotIn.inventory instanceof ModularStorageItemInventory || slotIn.inventory instanceof RemoteStorageItemInventory) {
-            Widget<?> widget = window.getToplevel().getWidgetAtPosition((int)x, (int)y);
+            Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
             if (widget instanceof BlockRender) {
                 Object userObject = widget.getUserObject();
                 if (userObject instanceof Integer) {
@@ -322,7 +322,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     @Override
     public Slot getSelectedSlot(double x, double y) {
-        Widget<?> widget = window.getToplevel().getWidgetAtPosition((int)x, (int)y);
+        Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
         if (widget != null) {
             Object userObject = widget.getUserObject();
             if (userObject instanceof Integer) {
@@ -368,7 +368,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //            }
 //        }
         boolean r = super.mouseClicked(x, y, button);
-        craftingGrid.getWindow().mouseClicked((int)x, (int)y, button);
+        craftingGrid.getWindow().mouseClicked(x, y, button);
         if (button == 1) {
             Slot slot = getSelectedSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
@@ -384,15 +384,20 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     @Override
     public boolean mouseDragged(double x, double y, int button, double scaledX, double scaledY) {
-        craftingGrid.getWindow().handleMouseInput(button);  // @todo 1.14 check?
+        craftingGrid.getWindow().mouseDragged(x, y, button);
         return super.mouseDragged(x, y, button, scaledX, scaledY);
     }
 
+    @Override
+    public boolean mouseScrolled(double x, double y, double amount) {
+        craftingGrid.getWindow().mouseScrolled(x, y, amount);
+        return super.mouseScrolled(x, y, amount);
+    }
 
     @Override
-    public boolean mouseReleased(double x, double y, int state) {
-        boolean rc = super.mouseReleased(x, y, state);
-        craftingGrid.getWindow().mouseMovedOrUp((int)x, (int)y, state);
+    public boolean mouseReleased(double x, double y, int button) {
+        boolean rc = super.mouseReleased(x, y, button);
+        craftingGrid.getWindow().mouseReleased(x, y, button);
         return rc;
     }
 
