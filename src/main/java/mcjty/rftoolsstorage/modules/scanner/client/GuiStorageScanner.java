@@ -30,6 +30,7 @@ import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketGetInventoryInfo;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketRequestItem;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketReturnInventoryInfo;
+import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerInventory;
@@ -65,6 +66,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private Button upButton;
     private Button downButton;
     private Button bottomButton;
+    private ChoiceLabel sortChoice;
     private Button removeButton;
     private TextField searchField;
     private ImageChoiceLabel exportToStarred;
@@ -162,6 +164,13 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         visibleRadiusLabel = new Label(minecraft, this);
         visibleRadiusLabel.setDesiredWidth(40);
 
+        sortChoice = new ChoiceLabel(minecraft, this).setTooltips("Sort the items in the list").setName("sortMode")
+            .setDesiredWidth(60);
+        for (SortingMode mode : SortingMode.values()) {
+            sortChoice.addChoices(mode.getDescription());
+        }
+        sortChoice.setChoice(tileEntity.getSortingMode().getDescription());
+
         searchField = new TextField(minecraft, this).addTextEvent((parent, newText) -> {
             storageList.clearHilightedRows();
             fromServer_foundInventories.clear();
@@ -170,6 +179,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         Panel searchPanel = new Panel(minecraft, this)
                 .setLayoutHint(new PositionalLayout.PositionalHint(8, 142, 256 - 11, 18))
                 .setLayout(new HorizontalLayout()).setDesiredHeight(18)
+                .addChild(sortChoice)
                 .addChild(new Label(minecraft, this).setText("Search:"))
                 .addChild(searchField);
 
@@ -207,6 +217,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         window.bind(RFToolsStorageMessages.INSTANCE, "export", tileEntity, StorageScannerTileEntity.VALUE_EXPORT.getName());
         window.bind(RFToolsStorageMessages.INSTANCE, "radius", tileEntity, StorageScannerTileEntity.VALUE_RADIUS.getName());
+        window.bind(RFToolsStorageMessages.INSTANCE, "sortMode", tileEntity, StorageScannerTileEntity.VALUE_SORTMODE.getName());
         window.event("up", (source, params) -> moveUp());
         window.event("top", (source, params) -> moveTop());
         window.event("down", (source, params) -> moveDown());
@@ -434,10 +445,20 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         int numcolumns = openViewButton.isPressed() ? 5 : 9;
         int spacing = 3;
 
-//        Collections.sort(fromServer_inventory, (o1, o2) -> o1.stackSize == o2.stackSize ? 0 : o1.stackSize < o2.stackSize ? -1 : 1);
-        // @todo make sorting configurable
-        Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
-        Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
+        switch (tileEntity.getSortingMode()) {
+            case AMOUNT_ASCENDING:
+                Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount));
+                Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount));
+                break;
+            case AMOUNT_DESCENDING:
+                Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount).reversed());
+                Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount).reversed());
+                break;
+            case NAME:
+                Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
+                Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
+                break;
+        }
 
         String filterText = searchField.getText().toLowerCase();
         Predicate<ItemStack> matcher = StorageScannerTileEntity.getMatcher(filterText);

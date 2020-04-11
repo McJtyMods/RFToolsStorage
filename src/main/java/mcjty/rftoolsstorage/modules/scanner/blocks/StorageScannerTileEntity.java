@@ -32,6 +32,7 @@ import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemCount;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemKey;
 import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
+import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
@@ -91,6 +92,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public static final Key<Boolean> VALUE_EXPORT = new Key<>("export", Type.BOOLEAN);
     public static final Key<Integer> VALUE_RADIUS = new Key<>("radius", Type.INTEGER);
+    public static final Key<String> VALUE_SORTMODE = new Key<>("sortMode", Type.STRING);
 
     // Client side data returned by CMD_SCANNER_INFO
     public static long rfReceived = 0;
@@ -108,6 +110,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         return new IValue[]{
                 new DefaultValue<>(VALUE_EXPORT, this::isExportToCurrent, this::setExportToCurrent),
                 new DefaultValue<>(VALUE_RADIUS, this::getRadius, this::setRadius),
+                new DefaultValue<>(VALUE_SORTMODE, () -> getSortingMode().getDescription(), s -> setSortingMode(SortingMode.byDescription(s))),
         };
     }
 
@@ -129,6 +132,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     // This is set on a client-side dummy tile entity for a tablet
     private DimensionType monitorDim;
+
+    private SortingMode sortingMode = SortingMode.NAME;
 
     private boolean exportToCurrent = false;
     private BlockPos lastSelectedInventory = null;
@@ -1146,6 +1151,15 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
     }
 
+    public SortingMode getSortingMode() {
+        return sortingMode;
+    }
+
+    public void setSortingMode(SortingMode sortingMode) {
+        this.sortingMode = sortingMode;
+        markDirty();
+    }
+
     @Override
     public void read(CompoundNBT tagCompound) {
         super.read(tagCompound);
@@ -1187,8 +1201,15 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 openWideView = true;
             }
             craftingGrid.readFromNBT(infoTag.getCompound("grid"));
+            if (infoTag.contains("sortMode")) {
+                int m = infoTag.getInt("sortMode");
+                sortingMode = SortingMode.values()[m];
+            } else {
+                sortingMode = SortingMode.NAME;
+            }
         } else {
             openWideView = true;
+            sortingMode = SortingMode.NAME;
         }
     }
 
@@ -1225,6 +1246,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         infoTag.putBoolean("exportC", exportToCurrent);
         infoTag.putBoolean("wideview", openWideView);
         infoTag.put("grid", craftingGrid.writeToNBT());
+        infoTag.putInt("sortMode", sortingMode.ordinal());
     }
 
     private void clearGrid() {
