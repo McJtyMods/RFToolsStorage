@@ -8,10 +8,7 @@ import mcjty.lib.gui.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
-import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
@@ -29,8 +26,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
-import java.awt.*;
 import java.util.Optional;
+
+import static mcjty.lib.gui.widgets.Widgets.*;
 
 
 public class GuiCraftingGrid {
@@ -54,7 +52,7 @@ public class GuiCraftingGrid {
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
-    public void initGui(final ModBase modBase, final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?,?> gui,
+    public void initGui(final ModBase modBase, final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?, ?> gui,
                         BlockPos pos, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;
@@ -62,33 +60,24 @@ public class GuiCraftingGrid {
         this.provider = provider;
         this.pos = pos;
 
-        recipeList = new WidgetList(mc, gui).setLayoutHint(5, 5, 56, 102);
-        recipeList.addSelectionEvent(new DefaultSelectionEvent() {
+        recipeList = list(5, 5, 56, 102);
+        recipeList.event(new DefaultSelectionEvent() {
             @Override
-            public void select(Widget<?> parent, int index) {
-            }
-
-            @Override
-            public void doubleClick(Widget<?> parent, int index) {
+            public void doubleClick(int index) {
                 selectRecipe();
             }
         });
-        craft1Button = new Button(mc, gui).setChannel("craft1").setText("1").setLayoutHint(29, 183, 14, 10)
-                .setTooltips("Craft one");
-        craft4Button = new Button(mc, gui).setChannel("craft4").setText("4").setLayoutHint(45, 183, 14, 10)
-                .setTooltips("Craft four");
-        craft8Button = new Button(mc, gui).setChannel("craft8").setText("8").setLayoutHint(29, 195, 14, 10)
-                .setTooltips("Craft eight");
-        craftSButton = new Button(mc, gui).setChannel("craftstack").setText("*").setLayoutHint(45, 195, 14, 10)
-                .setTooltips("Craft a stack");
-        storeButton = new Button(mc, gui).setChannel("store").setText("Store").setLayoutHint(5, 109, 56, 14)
-                .setTooltips("Store the current recipe");
-        Panel sidePanel = new Panel(mc, gui).setLayout(new PositionalLayout())
-                .addChildren(craft1Button, craft4Button, craft8Button, craftSButton, storeButton, recipeList);
+        craft1Button = button(29, 183, 14, 10, "1").channel("craft1").tooltips("Craft one");
+        craft4Button = button(45, 183, 14, 10, "4").channel("craft4").tooltips("Craft four");
+        craft8Button = button(29, 195, 14, 10, "8").channel("craft8").tooltips("Craft eight");
+        craftSButton = button(45, 195, 14, 10, "*").channel("craftstack").tooltips("Craft a stack");
+        storeButton = button(5, 109, 56, 14, "Store").channel("store").tooltips("Store the current recipe");
+        Panel sidePanel = Widgets.positional()
+                .children(craft1Button, craft4Button, craft8Button, craftSButton, storeButton, recipeList);
         int sideLeft = guiLeft - CraftingGridInventory.GRID_WIDTH - 2;
         int sideTop = guiTop;
-        sidePanel.setBounds(new Rectangle(sideLeft, sideTop, CraftingGridInventory.GRID_WIDTH, CraftingGridInventory.GRID_HEIGHT));
-        sidePanel.setBackground(iconLocation);
+        sidePanel.bounds(sideLeft, sideTop, CraftingGridInventory.GRID_WIDTH, CraftingGridInventory.GRID_HEIGHT);
+        sidePanel.background(iconLocation);
         craftWindow = new Window(gui, sidePanel);
 
         craftWindow.event("craft1", (source, params) -> craft(1));
@@ -146,7 +135,7 @@ public class GuiCraftingGrid {
 
     public void draw() {
         int selected = recipeList.getSelected();
-        storeButton.setEnabled(selected != -1);
+        storeButton.enabled(selected != -1);
         populateList();
         testRecipe();
 
@@ -183,7 +172,7 @@ public class GuiCraftingGrid {
                     Screen.fill(xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                 }
             }
-            for (int i = 0 ; i < 9 ; i++) {
+            for (int i = 0; i < 9; i++) {
                 if (testResultFromServer[i] > 0) {
                     Slot slot = gui.getContainer().getSlot(CraftingGridInventory.SLOT_GHOSTINPUT + i);
 
@@ -224,17 +213,16 @@ public class GuiCraftingGrid {
             readableName = "<recipe>";
             color = 0xFF505050;
         }
-        Panel panel = new Panel(mc, gui).setLayout(new PositionalLayout()).
-                addChild(new BlockRender(mc, gui)
-                        .setRenderItem(craftingResult)
-                        .setLayoutHint(0, 0, 18, 18)).
-                addChild(new mcjty.lib.gui.widgets.Label(mc, gui)
-                        .setColor(color)
-                        .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
-                        .setText(readableName)
-                        .setLayoutHint(20, 0, 30, 18));
+        Panel panel = Widgets.positional().children(
+                new BlockRender()
+                        .renderItem(craftingResult)
+                        .hint(0, 0, 18, 18),
+                label(readableName)
+                        .color(color)
+                        .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
+                        .hint(20, 0, 30, 18));
 
-        recipeList.addChild(panel);
+        recipeList.children(panel);
     }
 
 }

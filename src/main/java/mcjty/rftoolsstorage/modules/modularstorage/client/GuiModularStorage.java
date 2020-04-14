@@ -8,12 +8,7 @@ import mcjty.lib.gui.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
-import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.RFToolsBase;
@@ -42,12 +37,13 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static mcjty.lib.gui.layout.AbstractLayout.DEFAULT_HORIZONTAL_MARGIN;
+import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity.*;
 
@@ -110,35 +106,33 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     public void init() {
         super.init();
 
-        itemList = new WidgetList(minecraft, this).setName("items").setLayoutHint(new PositionalLayout.PositionalHint(5, 3, 235, ySize - 89)).setNoSelectionMode(true).setUserObject(new Integer(-1)).
-                setLeftMargin(0).setRowheight(-1);
-        Slider slider = new Slider(minecraft, this).setLayoutHint(new PositionalLayout.PositionalHint(241, 3, 11, ySize - 89)).setDesiredWidth(11).setVertical()
-                .setScrollableName("items");
+        itemList = list(5, 3, 235, ySize - 89).name("items").noSelectionMode(true).userObject(new Integer(-1)).
+                leftMargin(0).rowheight(-1);
+        Slider slider = slider(241, 3, 11, ySize - 89).desiredWidth(11).vertical()
+                .scrollableName("items");
 
 
         Panel modePanel = setupModePanel();
 
-        cycleButton = new Button(minecraft, this)
-                .setName("cycle")
-                .setChannel("cycle")
-                .setText("C").setTooltips("Cycle to the next storage module").setLayoutHint(new PositionalLayout.PositionalHint(5, ySize - 23, 16, 16));
+        cycleButton = button(5, ySize - 23, 16, 16, "C")
+                .name("cycle")
+                .channel("cycle")
+                .tooltips("Cycle to the next storage module");
 
-        Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout()).addChild(itemList).addChild(slider)
-                .addChild(modePanel)
-                .addChild(cycleButton);
+        Panel toplevel = Widgets.positional().children(itemList, slider, modePanel, cycleButton);
 
         toplevel.setBackgrounds(iconLocationTop, iconLocation);
         toplevel.setBackgroundLayout(false, ySize - ModularStorageConfiguration.height1.get() + 2);
 
         if (tileEntity == null) {
             // We must hide three slots.
-            ImageLabel hideLabel = new ImageLabel(minecraft, this);
-            hideLabel.setLayoutHint(new PositionalLayout.PositionalHint(4, ySize - 26 - 3 * 18, 20, 55));
-            hideLabel.setImage(guiElements, 32, 32);
-            toplevel.addChild(hideLabel);
+            ImageLabel hideLabel = new ImageLabel();
+            hideLabel.hint(4, ySize - 26 - 3 * 18, 20, 55);
+            hideLabel.image(guiElements, 32, 32);
+            toplevel.children(hideLabel);
         }
 
-        toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
+        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
 
         window = new Window(this, toplevel);
 
@@ -170,41 +164,39 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     private Panel setupModePanel() {
-        filter = new TextField(minecraft, this).setLayoutHint(3, 3, 57, 13).setTooltips("Name based filter for items")
-                .addTextEvent((parent, newText) -> updateSettings());
+        filter = textfield(3, 3, 57, 13).tooltips("Name based filter for items")
+                .event((newText) -> updateSettings());
 
-        viewMode = new ImageChoiceLabel(minecraft, this).setLayoutHint(4, 19, 16, 16).setTooltips("Control how items are shown", "in the view")
-                .addChoiceEvent((parent, newChoice) -> updateSettings());
-        viewMode.addChoice(VIEW_LIST, "Items are shown in a list view", guiElements, 9 * 16, 16);
-        viewMode.addChoice(VIEW_COLUMNS, "Items are shown in columns", guiElements, 10 * 16, 16);
-        viewMode.addChoice(VIEW_ICONS, "Items are shown with icons", guiElements, 11 * 16, 16);
+        viewMode = new ImageChoiceLabel().hint(4, 19, 16, 16).tooltips("Control how items are shown", "in the view")
+                .event((newChoice) -> updateSettings());
+        viewMode.choice(VIEW_LIST, "Items are shown in a list view", guiElements, 9 * 16, 16);
+        viewMode.choice(VIEW_COLUMNS, "Items are shown in columns", guiElements, 10 * 16, 16);
+        viewMode.choice(VIEW_ICONS, "Items are shown with icons", guiElements, 11 * 16, 16);
 
         updateTypeModule();
 
-        sortMode = new ImageChoiceLabel(minecraft, this).setLayoutHint(23, 19, 16, 16).setTooltips("Control how items are sorted", "in the view")
-                .addChoiceEvent((parent, newChoice) -> updateSettings());
+        sortMode = new ImageChoiceLabel().hint(23, 19, 16, 16).tooltips("Control how items are sorted", "in the view")
+                .event((newChoice) -> updateSettings());
         for (ItemSorter sorter : typeModule.getSorters()) {
-            sortMode.addChoice(sorter.getName(), sorter.getTooltip(), guiElements, sorter.getU(), sorter.getV());
+            sortMode.choice(sorter.getName(), sorter.getTooltip(), guiElements, sorter.getU(), sorter.getV());
         }
 
-        groupMode = new ImageChoiceLabel(minecraft, this).setLayoutHint(42, 19, 16, 16).setTooltips("If enabled it will show groups", "based on sorting criterium")
-                .addChoiceEvent((parent, newChoice) -> updateSettings());
-        groupMode.addChoice("Off", "Don't show groups", guiElements, 13 * 16, 0);
-        groupMode.addChoice("On", "Show groups", guiElements, 14 * 16, 0);
+        groupMode = new ImageChoiceLabel().hint(42, 19, 16, 16).tooltips("If enabled it will show groups", "based on sorting criterium")
+                .event((newChoice) -> updateSettings());
+        groupMode.choice("Off", "Don't show groups", guiElements, 13 * 16, 0);
+        groupMode.choice("On", "Show groups", guiElements, 14 * 16, 0);
 
-        amountLabel = new Label(minecraft, this);
-        amountLabel.setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT);
-        amountLabel.setLayoutHint(16, 40, 66, 12);
-        amountLabel.setTooltips("Amount of stacks / maximum amount");
-        amountLabel.setText("?/?");
+        amountLabel = label(16, 40, 66, 12, "?/?")
+                .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
+                .tooltips("Amount of stacks / maximum amount");
 
-        compactButton = new Button(minecraft, this)
-                .setName("compact")
-                .setChannel("compact")
-                .setLayoutHint(4, 39, 12, 12).setText("z").setTooltips("Compact equal stacks");
+        compactButton = button(4, 39, 12, 12, "z")
+                .name("compact")
+                .channel("compact")
+                .tooltips("Compact equal stacks");
 
         if (tileEntity != null) {
-            filter.setText(ModularStorageConfiguration.clearSearchOnOpen.get() ? "" : tileEntity.getFilter());
+            filter.text(ModularStorageConfiguration.clearSearchOnOpen.get() ? "" : tileEntity.getFilter());
             setViewMode(tileEntity.getViewMode());
             setSortMode(tileEntity.getSortMode());
             groupMode.setCurrentChoice(tileEntity.isGroupMode() ? 1 : 0);
@@ -212,17 +204,17 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             ItemStack heldItem = minecraft.player.getHeldItem(Hand.MAIN_HAND);
             if (!heldItem.isEmpty() && heldItem.hasTag()) {
                 CompoundNBT tagCompound = heldItem.getTag();
-                filter.setText(ModularStorageConfiguration.clearSearchOnOpen.get() ? "" : tagCompound.getString("filter"));
+                filter.text(ModularStorageConfiguration.clearSearchOnOpen.get() ? "" : tagCompound.getString("filter"));
                 setViewMode(tagCompound.getString("viewMode"));
                 setSortMode(tagCompound.getString("sortMode"));
                 groupMode.setCurrentChoice(tagCompound.getBoolean("groupMode") ? 1 : 0);
             }
         }
 
-        return new Panel(minecraft, this).setLayout(new PositionalLayout()).setLayoutHint(new PositionalLayout.PositionalHint(24, ySize - 80, 64, 77))
-                .setFilledRectThickness(-2)
-                .setFilledBackground(StyleConfig.colorListBackground)
-                .addChildren(filter, viewMode, sortMode, groupMode, amountLabel, compactButton);
+        return Widgets.positional().hint(24, ySize - 80, 64, 77)
+                .filledRectThickness(-2)
+                .filledBackground(StyleConfig.colorListBackground)
+                .children(filter, viewMode, sortMode, groupMode, amountLabel, compactButton);
     }
 
     private void setSortMode(String sortMode) {
@@ -405,13 +397,13 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         itemList.removeChildren();
 
         if (tileEntity != null && !container.getSlot(ModularStorageContainer.SLOT_STORAGE_MODULE).getHasStack()) {
-            amountLabel.setText("(empty)");
-            compactButton.setEnabled(false);
-            cycleButton.setEnabled(false);
+            amountLabel.text("(empty)");
+            compactButton.enabled(false);
+            cycleButton.enabled(false);
             return;
         }
 
-        cycleButton.setEnabled(isTabletWithRemote() || isRemote());
+        cycleButton.enabled(isTabletWithRemote() || isRemote());
 
         String filterText = filter.getText().toLowerCase().trim();
 
@@ -468,8 +460,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //                max = 0;
 //            }
         }
-        amountLabel.setText(items.size() + "/" + max);
-        compactButton.setEnabled(max.get() > 0);
+        amountLabel.text(items.size() + "/" + max);
+        compactButton.enabled(max.get() > 0);
 
         int sort = getCurrentSortMode();
 
@@ -531,7 +523,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         String sortName = sortMode.getCurrentChoice();
         sortMode.clear();
         for (ItemSorter sorter : typeModule.getSorters()) {
-            sortMode.addChoice(sorter.getName(), sorter.getTooltip(), guiElements, sorter.getU(), sorter.getV());
+            sortMode.choice(sorter.getName(), sorter.getTooltip(), guiElements, sorter.getU(), sorter.getV());
         }
         int sort = sortMode.findChoice(sortName);
         if (sort == -1) {
@@ -559,19 +551,19 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         Panel panel = currentPos.getKey();
         if (panel == null || currentPos.getValue() >= numcolumns || (newgroup && groupName != null)) {
             if (newgroup && groupName != null) {
-                AbstractWidget<?> groupLabel = new Label(minecraft, this).setText(groupName).setColor(ModularStorageConfiguration.groupForeground.get())
-                        .setColor(StyleConfig.colorTextInListNormal)
-                        .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT).setFilledBackground(ModularStorageConfiguration.groupBackground.get()).setDesiredHeight(10)
-                        .setDesiredWidth(231);
-                itemList.addChild(new Panel(minecraft, this).setLayout(new HorizontalLayout().setHorizontalMargin(2).setVerticalMargin(0)).setDesiredHeight(10).addChild(groupLabel));
+                AbstractWidget<?> groupLabel = label(groupName).color(ModularStorageConfiguration.groupForeground.get())
+                        .color(StyleConfig.colorTextInListNormal)
+                        .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT).filledBackground(ModularStorageConfiguration.groupBackground.get()).desiredHeight(10)
+                        .desiredWidth(231);
+                itemList.children(new Panel().layout(new HorizontalLayout().setHorizontalMargin(2).setVerticalMargin(0)).desiredHeight(10).children(groupLabel));
             }
 
-            panel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(spacing)).setDesiredHeight(12).setUserObject(new Integer(-1)).setDesiredHeight(16);
+            panel = horizontal(DEFAULT_HORIZONTAL_MARGIN, spacing).desiredHeight(12).userObject(new Integer(-1)).desiredHeight(16);
             currentPos = MutablePair.of(panel, 0);
-            itemList.addChild(panel);
+            itemList.children(panel);
         }
-        BlockRender blockRender = new BlockRender(minecraft, this).setRenderItem(stack).setUserObject(slot).setOffsetX(-1).setOffsetY(-1);
-        panel.addChild(blockRender);
+        BlockRender blockRender = new BlockRender().renderItem(stack).userObject(slot).offsetX(-1).offsetY(-1);
+        panel.children(blockRender);
         if (labelWidth > 0) {
             String displayName;
             if (labelWidth > 100) {
@@ -579,8 +571,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             } else {
                 displayName = typeModule.getShortLabel(stack);
             }
-            AbstractWidget<?> label = new Label(minecraft, this).setText(displayName).setColor(StyleConfig.colorTextInListNormal).setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT).setDesiredWidth(labelWidth).setUserObject(new Integer(-1));
-            panel.addChild(label);
+            AbstractWidget<?> label = label(displayName).color(StyleConfig.colorTextInListNormal).horizontalAlignment(HorizontalAlignment.ALIGN_LEFT).desiredWidth(labelWidth).userObject(new Integer(-1));
+            panel.children(label);
         }
         currentPos.setValue(currentPos.getValue() + 1);
         return currentPos;
@@ -611,7 +603,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             groupMode.setCurrentChoice(tileEntity.isGroupMode() ? 1 : 0);
             String curFilter = tileEntity.getFilter();
             if (!this.filter.getText().equals(curFilter)) {
-                this.filter.setText(curFilter);
+                this.filter.text(curFilter);
             }
         }
 

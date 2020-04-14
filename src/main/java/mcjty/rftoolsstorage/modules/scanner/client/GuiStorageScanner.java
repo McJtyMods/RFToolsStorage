@@ -10,13 +10,7 @@ import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
-import mcjty.lib.gui.layout.PositionalLayout;
-import mcjty.lib.gui.layout.VerticalLayout;
 import mcjty.lib.gui.widgets.*;
-import mcjty.lib.gui.widgets.Button;
-import mcjty.lib.gui.widgets.Label;
-import mcjty.lib.gui.widgets.Panel;
-import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
@@ -43,11 +37,10 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 import java.util.function.Predicate;
 
+import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity.*;
 
 
@@ -105,113 +98,93 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     public void init() {
         super.init();
 
-        energyBar = new EnergyBar(minecraft, this).setFilledRectThickness(1).setVertical().setDesiredWidth(10).setDesiredHeight(50).setShowText(false);
+        energyBar = new EnergyBar().filledRectThickness(1).vertical().desiredWidth(10).desiredHeight(50).showText(false);
 
-        openViewButton = new ToggleButton(minecraft, this).setCheckMarker(false).setText("V")
-                .setTooltips("Toggle wide storage list");
-        openViewButton.setPressed(tileEntity.isOpenWideView());
-        openViewButton.addButtonEvent(widget -> toggleView());
-        upButton = new Button(minecraft, this).setChannel("up").setText("U").setTooltips("Move inventory up");
-        topButton = new Button(minecraft, this).setChannel("top").setText("T").setTooltips("Move inventory to the top");
-        downButton = new Button(minecraft, this).setChannel("down").setText("D").setTooltips("Move inventory down");
-        bottomButton = new Button(minecraft, this).setChannel("bottom").setText("B").setTooltips("Move inventory to the bottom");
-        removeButton = new Button(minecraft, this).setChannel("remove").setText("R").setTooltips("Remove inventory from list");
+        openViewButton = new ToggleButton().checkMarker(false).text("V")
+                .tooltips("Toggle wide storage list");
+        openViewButton.pressed(tileEntity.isOpenWideView());
+        openViewButton.event(this::toggleView);
+        upButton = button("U").channel("up").tooltips("Move inventory up");
+        topButton = button("T").channel("top").tooltips("Move inventory to the top");
+        downButton = button("D").channel("down").tooltips("Move inventory down");
+        bottomButton = button("B").channel("bottom").tooltips("Move inventory to the bottom");
+        removeButton = button("R").channel("remove").tooltips("Remove inventory from list");
 
-        Panel energyPanel = new Panel(minecraft, this).setLayout(new VerticalLayout().setVerticalMargin(0).setSpacing(1))
-                .setDesiredWidth(10);
-        energyPanel
-                .addChild(openViewButton)
-                .addChild(energyBar)
-                .addChild(topButton)
-                .addChild(upButton)
-                .addChild(downButton)
-                .addChild(bottomButton)
-                .addChild(new Label(minecraft, this).setText(" "))
-                .addChild(removeButton);
+        Panel energyPanel = vertical(0, 1).desiredWidth(10);
+        energyPanel.children(openViewButton, energyBar, topButton, upButton, downButton, bottomButton, label(" "), removeButton);
 
-        exportToStarred = new ImageChoiceLabel(minecraft, this)
-                .setName("export")
-                .setLayoutHint(12, 223, 13, 13);
-        exportToStarred.addChoice("No", "Export to current container", guielements, 131, 19);
-        exportToStarred.addChoice("Yes", "Export to first routable container", guielements, 115, 19);
+        exportToStarred = imageChoice(12, 223, 13, 13).name("export");
+        exportToStarred.choice("No", "Export to current container", guielements, 131, 19);
+        exportToStarred.choice("Yes", "Export to first routable container", guielements, 115, 19);
 
         storagePanel = makeStoragePanel(energyPanel);
         itemPanel = makeItemPanel();
 
-        Button scanButton = new Button(minecraft, this)
-                .setChannel("scan")
-                .setText("Scan")
-                .setDesiredWidth(50)
-                .setDesiredHeight(14);
+        Button scanButton = button("Scan")
+                .channel("scan")
+                .desiredWidth(50)
+                .desiredHeight(14);
         if (RFToolsStorage.setup.xnet) {
             if (StorageScannerConfiguration.xnetRequired.get()) {
                 scanButton
-                        .setTooltips("Do a scan of all", "storage units connected", "with an active XNet channel");
+                        .tooltips("Do a scan of all", "storage units connected", "with an active XNet channel");
             } else {
                 scanButton
-                        .setTooltips("Do a scan of all", "storage units in radius", "Use 'xnet' radius to", "restrict to XNet only");
+                        .tooltips("Do a scan of all", "storage units in radius", "Use 'xnet' radius to", "restrict to XNet only");
             }
         } else {
             scanButton
-                    .setTooltips("Do a scan of all", "storage units in radius");
+                    .tooltips("Do a scan of all", "storage units in radius");
         }
-        radiusLabel = new ScrollableLabel(minecraft, this)
-                .setLayoutHint(1, 1, 1, 1)
-                .setName("radius")
-                .setVisible(false)
-                .setRealMinimum(RFToolsStorage.setup.xnet ? 0 : 1)
-                .setRealMaximum(20);
-        visibleRadiusLabel = new Label(minecraft, this);
-        visibleRadiusLabel.setDesiredWidth(40);
+        radiusLabel = new ScrollableLabel()
+                .hint(1, 1, 1, 1)
+                .name("radius")
+                .visible(false)
+                .realMinimum(RFToolsStorage.setup.xnet ? 0 : 1)
+                .realMaximum(20);
+        visibleRadiusLabel = new Label().desiredWidth(40);
 
-        sortChoice = new ChoiceLabel(minecraft, this).setTooltips("Sort the items in the list").setName("sortMode")
-            .setDesiredWidth(60);
+        sortChoice = new ChoiceLabel().tooltips("Sort the items in the list").name("sortMode")
+            .desiredWidth(60);
         for (SortingMode mode : SortingMode.values()) {
-            sortChoice.addChoices(mode.getDescription());
+            sortChoice.choices(mode.getDescription());
         }
-        sortChoice.setChoice(tileEntity.getSortingMode().getDescription());
+        sortChoice.choice(tileEntity.getSortingMode().getDescription());
 
-        searchField = new TextField(minecraft, this).addTextEvent((parent, newText) -> {
+        searchField = new TextField().event((newText) -> {
             storageList.clearHilightedRows();
             fromServer_foundInventories.clear();
             startSearch(newText);
         });
-        Panel searchPanel = new Panel(minecraft, this)
-                .setLayoutHint(new PositionalLayout.PositionalHint(8, 142, 256 - 11, 18))
-                .setLayout(new HorizontalLayout()).setDesiredHeight(18)
-                .addChild(sortChoice)
-                .addChild(new Label(minecraft, this).setText("Search:"))
-                .addChild(searchField);
+        Panel searchPanel = horizontal()
+                .hint(8, 142, 256 - 11, 18)
+                .desiredHeight(18)
+                .children(sortChoice, label("Search:"), searchField);
 
-        Slider radiusSlider = new Slider(minecraft, this)
-                .setHorizontal()
-                .setTooltips("Radius of scan")
-                .setMinimumKnobSize(12)
-                .setDesiredHeight(14)
-                .setScrollableName("radius");
-        Panel scanPanel = new Panel(minecraft, this)
-                .setLayoutHint(8, 162, 74, 54)
-                .setFilledRectThickness(-2)
-                .setFilledBackground(StyleConfig.colorListBackground)
-                .setLayout(new VerticalLayout().setVerticalMargin(6).setSpacing(1))
-                .addChild(scanButton);
+        Slider radiusSlider = new Slider()
+                .horizontal()
+                .tooltips("Radius of scan")
+                .minimumKnobSize(12)
+                .desiredHeight(14)
+                .scrollableName("radius");
+        Panel scanPanel = vertical(6, 1)
+                .hint(8, 162, 74, 54)
+                .filledRectThickness(-2)
+                .filledBackground(StyleConfig.colorListBackground)
+                .children(scanButton);
         if (!(RFToolsStorage.setup.xnet && StorageScannerConfiguration.xnetRequired.get())) {
-            scanPanel.addChild(radiusSlider);
+            scanPanel.children(radiusSlider);
         }
-        scanPanel.addChildren(visibleRadiusLabel, radiusLabel);
+        scanPanel.children(visibleRadiusLabel, radiusLabel);
 
         if (tileEntity.isDummy()) {
-            scanButton.setEnabled(false);
-            radiusSlider.setVisible(false);
+            scanButton.enabled(false);
+            radiusSlider.visible(false);
         }
 
-        Panel toplevel = new Panel(minecraft, this).setBackground(iconLocation).setLayout(new PositionalLayout())
-                .addChild(storagePanel)
-                .addChild(itemPanel)
-                .addChild(searchPanel)
-                .addChild(scanPanel)
-                .addChild(exportToStarred);
-        toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
+        Panel toplevel = positional().background(iconLocation)
+                .children(storagePanel, itemPanel, searchPanel, scanPanel, exportToStarred);
+        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
 
         window = new Window(this, toplevel);
 
@@ -240,7 +213,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder().put(CommandHandler.PARAM_POS, pos).build());
 
         if (StorageScannerConfiguration.hilightStarredOnGuiOpen.get()) {
-            storageList.setSelected(0);
+            storageList.selected(0);
         }
 
         init = true;
@@ -251,42 +224,39 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     private Panel makeItemPanel() {
-        itemList = new WidgetList(minecraft, this).setName("items").setPropagateEventsToChildren(true)
-                .setInvisibleSelection(true);
-        Slider itemListSlider = new Slider(minecraft, this).setDesiredWidth(10).setVertical().setScrollableName("items");
-        return new Panel(minecraft, this)
-                .setLayout(new HorizontalLayout().setSpacing(1).setHorizontalMargin(1))
-                .setLayoutHint(new PositionalLayout.PositionalHint(getStoragePanelWidth() + 6, 4, 256 - getStoragePanelWidth() - 12, 86 + 54))
-                .addChild(itemList).addChild(itemListSlider);
+        itemList = new WidgetList().name("items").propagateEventsToChildren(true)
+                .invisibleSelection(true);
+        Slider itemListSlider = new Slider().desiredWidth(10).vertical().scrollableName("items");
+        return horizontal(1, 1)
+                .hint(getStoragePanelWidth() + 6, 4, 256 - getStoragePanelWidth() - 12, 86 + 54)
+                .children(itemList, itemListSlider);
     }
 
     private Panel makeStoragePanel(Panel energyPanel) {
-        storageList = new WidgetList(minecraft, this).setName("storage").addSelectionEvent(new DefaultSelectionEvent() {
+        storageList = new WidgetList().name("storage").event(new DefaultSelectionEvent() {
             @Override
-            public void select(Widget<?> parent, int index) {
+            public void select(int index) {
                 getInventoryOnServer();
             }
 
             @Override
-            public void doubleClick(Widget<?> parent, int index) {
+            public void doubleClick(int index) {
                 hilightSelectedContainer(index);
             }
-        }).setPropagateEventsToChildren(true);
+        }).propagateEventsToChildren(true);
 
-        Slider storageListSlider = new Slider(minecraft, this).setDesiredWidth(10).setVertical().setScrollableName("storage");
+        Slider storageListSlider = new Slider().desiredWidth(10).vertical().scrollableName("storage");
 
-        return new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(1).setHorizontalMargin(1))
-                .setLayoutHint(new PositionalLayout.PositionalHint(3, 4, getStoragePanelWidth(), 86 + 54))
-                .setDesiredHeight(86 + 54)
-                .addChild(energyPanel)
-                .addChild(storageList).addChild(storageListSlider);
+        return horizontal(1, 1)
+                .hint(3, 4, getStoragePanelWidth(), 86 + 54)
+                .desiredHeight(86 + 54)
+                .children(energyPanel, storageList, storageListSlider);
     }
 
     private void toggleView() {
-        storagePanel.setLayoutHint(new PositionalLayout.PositionalHint(3, 4, getStoragePanelWidth(), 86 + 54));
-        itemPanel.setLayoutHint(new PositionalLayout.PositionalHint(getStoragePanelWidth() + 6, 4, 256 - getStoragePanelWidth() - 12, 86 + 54));
-        // Force layout dirty:
-        window.getToplevel().setBounds(window.getToplevel().getBounds());
+        storagePanel.hint(3, 4, getStoragePanelWidth(), 86 + 54);
+        itemPanel.hint(getStoragePanelWidth() + 6, 4, 256 - getStoragePanelWidth() - 12, 86 + 54);
+        window.getToplevel().markLayoutDirty();
         listDirty = 0;
         requestListsIfNeeded();
         sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, tileEntity.getDimension(), StorageScannerTileEntity.CMD_SETVIEW,
@@ -339,28 +309,28 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private void moveUp() {
         sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, tileEntity.getDimension(), StorageScannerTileEntity.CMD_UP,
                 TypedMap.builder().put(PARAM_INDEX, storageList.getSelected() - 1).build());
-        storageList.setSelected(storageList.getSelected() - 1);
+        storageList.selected(storageList.getSelected() - 1);
         listDirty = 0;
     }
 
     private void moveTop() {
         sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, tileEntity.getDimension(), StorageScannerTileEntity.CMD_TOP,
                 TypedMap.builder().put(PARAM_INDEX, storageList.getSelected() - 1).build());
-        storageList.setSelected(1);
+        storageList.selected(1);
         listDirty = 0;
     }
 
     private void moveDown() {
         sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, tileEntity.getDimension(), StorageScannerTileEntity.CMD_DOWN,
                 TypedMap.builder().put(PARAM_INDEX, storageList.getSelected() - 1).build());
-        storageList.setSelected(storageList.getSelected() + 1);
+        storageList.selected(storageList.getSelected() + 1);
         listDirty = 0;
     }
 
     private void moveBottom() {
         sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, tileEntity.getDimension(), StorageScannerTileEntity.CMD_BOTTOM,
                 TypedMap.builder().put(PARAM_INDEX, storageList.getSelected() - 1).build());
-        storageList.setSelected(storageList.getChildCount() - 1);
+        storageList.selected(storageList.getChildCount() - 1);
         listDirty = 0;
     }
 
@@ -479,26 +449,25 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private Pair<Panel, Integer> addItemToList(ItemStack item, WidgetList itemList, Pair<Panel, Integer> currentPos, int numcolumns, int spacing, boolean craftable) {
         Panel panel = currentPos.getKey();
         if (panel == null || currentPos.getValue() >= numcolumns) {
-            panel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(spacing).setHorizontalMargin(1))
-                    .setDesiredHeight(12).setUserObject(new Integer(-1)).setDesiredHeight(16);
+            panel = horizontal(1, spacing)
+                    .desiredHeight(12).userObject(new Integer(-1)).desiredHeight(16);
             currentPos = MutablePair.of(panel, 0);
-            itemList.addChild(panel);
+            itemList.children(panel);
         }
-        BlockRender blockRender = new BlockRender(minecraft, this)
-                .setRenderItem(item)
-                .setUserObject(1)       // Mark as a special stack in the renderer (for tooltip)
-                .setOffsetX(-1)
-                .setOffsetY(-1)
-                .setHilightOnHover(true);
+        BlockRender blockRender = new BlockRender()
+                .renderItem(item)
+                .userObject(1)       // Mark as a special stack in the renderer (for tooltip)
+                .offsetX(-1)
+                .offsetY(-1)
+                .hilightOnHover(true);
         if (craftable) {
             // @todo is this looking nice?
-            blockRender.setFilledBackground(0xffaaaa00);
+            blockRender.filledBackground(0xffaaaa00);
         }
-        blockRender.addSelectionEvent(new BlockRenderEvent() {
+        blockRender.event(new BlockRenderEvent() {
             @Override
-            public void select(Widget<?> widget) {
-                BlockRender br = (BlockRender) widget;
-                Object item = br.getRenderItem();
+            public void select() {
+                Object item = blockRender.getRenderItem();
                 if (item != null) {
                     boolean shift = McJtyLib.proxy.isShiftKeyDown();
                     requestItem((ItemStack) item, shift ? 1 : -1, craftable);
@@ -506,10 +475,10 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             }
 
             @Override
-            public void doubleClick(Widget<?> widget) {
+            public void doubleClick() {
             }
         });
-        panel.addChild(blockRender);
+        panel.children(blockRender);
         currentPos.setValue(currentPos.getValue() + 1);
         return currentPos;
     }
@@ -552,42 +521,42 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private void addStorageLine(PacketReturnInventoryInfo.InventoryInfo c, String displayName, boolean routable) {
         Panel panel;
         if (c == null) {
-            panel = new Panel(minecraft, this).setLayout(new HorizontalLayout().setSpacing(8).setHorizontalMargin(5));
-            panel.addChild(new ImageLabel(minecraft, this).setImage(guielements, 115, 19).setDesiredWidth(13).setDesiredHeight(13));
+            panel = horizontal(5, 8);
+            panel.children(new ImageLabel().image(guielements, 115, 19).desiredWidth(13).desiredHeight(13));
         } else {
             HorizontalLayout layout = new HorizontalLayout();
             if (!openViewButton.isPressed()) {
                 layout.setHorizontalMargin(2);
             }
-            panel = new Panel(minecraft, this).setLayout(layout);
-            panel.addChild(new BlockRender(minecraft, this).setRenderItem(c.getBlock()));
+            panel = new Panel().layout(layout);
+            panel.children(new BlockRender().renderItem(c.getBlock()));
         }
         if (openViewButton.isPressed()) {
             AbstractWidget<?> label;
-            label = new Label(minecraft, this).setColor(StyleConfig.colorTextInListNormal)
-                    .setText(displayName)
-                    .setDynamic(true)
-                    .setHorizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
-                    .setDesiredWidth(58);
+            label = label(displayName)
+                    .color(StyleConfig.colorTextInListNormal)
+                    .dynamic(true)
+                    .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
+                    .desiredWidth(58);
             if (c == null) {
-                label.setTooltips(TextFormatting.GREEN + "All routable inventories")
-                        .setDesiredWidth(74);
+                label.tooltips(TextFormatting.GREEN + "All routable inventories")
+                        .desiredWidth(74);
             } else {
-                label.setTooltips(TextFormatting.GREEN + "Block at: " + TextFormatting.WHITE + BlockPosTools.toString(c.getPos()),
+                label.tooltips(TextFormatting.GREEN + "Block at: " + TextFormatting.WHITE + BlockPosTools.toString(c.getPos()),
                         TextFormatting.GREEN + "Name: " + TextFormatting.WHITE + displayName,
                         "(doubleclick to highlight)");
             }
-            panel.addChild(label);
+            panel.children(label);
             if (c != null) {
-                ImageChoiceLabel choiceLabel = new ImageChoiceLabel(minecraft, this)
-                        .addChoiceEvent((parent, newChoice) -> changeRoutable(c.getPos())).setDesiredWidth(13);
-                choiceLabel.addChoice("No", "Not routable", guielements, 131, 19);
-                choiceLabel.addChoice("Yes", "Routable", guielements, 115, 19);
+                ImageChoiceLabel choiceLabel = new ImageChoiceLabel()
+                        .event((newChoice) -> changeRoutable(c.getPos())).desiredWidth(13);
+                choiceLabel.choice("No", "Not routable", guielements, 131, 19);
+                choiceLabel.choice("Yes", "Routable", guielements, 115, 19);
                 choiceLabel.setCurrentChoice(routable ? 1 : 0);
-                panel.addChild(choiceLabel);
+                panel.children(choiceLabel);
             }
         }
-        storageList.addChild(panel);
+        storageList.children(panel);
     }
 
     @Override
@@ -603,36 +572,36 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if ("0".equals(text)) {
             text = "XNet";
         }
-        visibleRadiusLabel.setText(text);
+        visibleRadiusLabel.text(text);
 
         int selected = storageList.getSelected();
-        removeButton.setEnabled(selected != -1);
+        removeButton.enabled(selected != -1);
         if (selected <= 0 || storageList.getChildCount() <= 2) {
-            upButton.setEnabled(false);
-            downButton.setEnabled(false);
-            topButton.setEnabled(false);
-            bottomButton.setEnabled(false);
+            upButton.enabled(false);
+            downButton.enabled(false);
+            topButton.enabled(false);
+            bottomButton.enabled(false);
         } else if (selected == 1) {
-            topButton.setEnabled(false);
-            upButton.setEnabled(false);
-            downButton.setEnabled(true);
-            bottomButton.setEnabled(true);
+            topButton.enabled(false);
+            upButton.enabled(false);
+            downButton.enabled(true);
+            bottomButton.enabled(true);
         } else if (selected == storageList.getChildCount() - 1) {
-            topButton.setEnabled(true);
-            upButton.setEnabled(true);
-            downButton.setEnabled(false);
-            bottomButton.setEnabled(false);
+            topButton.enabled(true);
+            upButton.enabled(true);
+            downButton.enabled(false);
+            bottomButton.enabled(false);
         } else {
-            topButton.setEnabled(true);
-            upButton.setEnabled(true);
-            downButton.setEnabled(true);
-            bottomButton.setEnabled(true);
+            topButton.enabled(true);
+            upButton.enabled(true);
+            downButton.enabled(true);
+            bottomButton.enabled(true);
         }
 
         if (!tileEntity.isDummy()) {
             tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(e -> {
-                energyBar.setMaxValue(((GenericEnergyStorage)e).getCapacity());
-                energyBar.setValue(((GenericEnergyStorage)e).getEnergy());
+                energyBar.maxValue(((GenericEnergyStorage)e).getCapacity());
+                energyBar.value(((GenericEnergyStorage)e).getEnergy());
             });
             exportToStarred.setCurrentChoice(tileEntity.isExportToCurrent() ? 0 : 1);
         } else {
@@ -640,7 +609,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 lastTime = System.currentTimeMillis();
                 tileEntity.requestDataFromServer(RFToolsStorageMessages.INSTANCE, StorageScannerTileEntity.CMD_SCANNER_INFO, TypedMap.EMPTY);
             }
-            energyBar.setValue(rfReceived);
+            energyBar.value(rfReceived);
             exportToStarred.setCurrentChoice(exportToCurrentReceived ? 0 : 1);
         }
 

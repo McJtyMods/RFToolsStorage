@@ -1,7 +1,5 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.container.InventoryHelper;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;

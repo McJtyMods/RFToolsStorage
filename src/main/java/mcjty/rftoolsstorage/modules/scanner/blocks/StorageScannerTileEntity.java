@@ -231,7 +231,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     private long getStoredPower() {
-        return energyHandler.map(h -> h.getEnergy()).orElse(0L);
+        return energyHandler.map(GenericEnergyStorage::getEnergy).orElse(0L);
     }
 
     private void consumeEnergy(long e) {
@@ -925,7 +925,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 .filter(p -> isInputFromAuto(p) && (!p.equals(getPos()) && isRoutable(p) && getInputMatcher(p).test(stack)))
                 .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
                 .map(this::getItemHandlerAt)
-                .filter(i -> i.isPresent())
+                .filter(LazyOptional::isPresent)
                 .iterator();
 
         while (!toInsert[0].isEmpty() && iterator.hasNext()) {

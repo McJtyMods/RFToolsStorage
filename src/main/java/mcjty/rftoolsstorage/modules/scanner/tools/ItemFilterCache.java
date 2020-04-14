@@ -4,8 +4,6 @@ import mcjty.lib.varia.ItemStackList;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ItemFilterCache {
     private boolean matchDamage = true;

@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
-import mcjty.lib.gui.layout.PositionalLayout;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
@@ -11,7 +10,7 @@ import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEn
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 
-import java.awt.*;
+import static mcjty.lib.gui.widgets.Widgets.positional;
 
 
 public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileEntity, CraftingManagerContainer> {
@@ -32,9 +31,9 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
     public void init() {
         super.init();
 
-        mcjty.lib.gui.widgets.Panel toplevel = new Panel(minecraft, this).setLayout(new PositionalLayout());
-        toplevel.setBackground(background);
-        toplevel.setBounds(new Rectangle(guiLeft, guiTop, xSize, ySize));
+        Panel toplevel = positional();
+        toplevel.background(background);
+        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
 
         window = new Window(this, toplevel);
     }
