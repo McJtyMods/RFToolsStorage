@@ -11,7 +11,6 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IModularStorage;
-import mcjty.rftoolsbase.modules.various.FilterModuleCache;
 import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
@@ -36,6 +35,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_FILTER_MODULE;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE_MODULE;
@@ -62,7 +62,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         };
     }
 
-    private FilterModuleCache filterCache = null;
+    private Predicate<ItemStack> filterCache = null;
 
     private LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
@@ -379,7 +379,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                     if (!cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE).isEmpty()) {
                         getFilterCache();
                         if (filterCache != null) {
-                            return filterCache.match(stack);
+                            return filterCache.test(stack);
                         }
                     }
 
