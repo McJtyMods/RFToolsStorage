@@ -120,21 +120,18 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         storagePanel = makeStoragePanel(energyPanel);
         itemPanel = makeItemPanel();
 
-        Button scanButton = button("Scan")
+        Button scanButton = button(3, 3, 40, 13, "Scan")
                 .channel("scan")
-                .desiredWidth(50)
-                .desiredHeight(14);
+                .desiredWidth(40)
+                .desiredHeight(13);
         if (RFToolsStorage.setup.xnet) {
             if (StorageScannerConfiguration.xnetRequired.get()) {
-                scanButton
-                        .tooltips("Do a scan of all", "storage units connected", "with an active XNet channel");
+                scanButton.tooltips("Do a scan of all", "storage units connected", "with an active XNet channel");
             } else {
-                scanButton
-                        .tooltips("Do a scan of all", "storage units in radius", "Use 'xnet' radius to", "restrict to XNet only");
+                scanButton.tooltips("Do a scan of all", "storage units in radius", "Use 'xnet' radius to", "restrict to XNet only");
             }
         } else {
-            scanButton
-                    .tooltips("Do a scan of all", "storage units in radius");
+            scanButton.tooltips("Do a scan of all", "storage units in radius");
         }
         radiusLabel = new ScrollableLabel()
                 .hint(1, 1, 1, 1)
@@ -142,7 +139,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 .visible(false)
                 .realMinimum(RFToolsStorage.setup.xnet ? 0 : 1)
                 .realMaximum(20);
-        visibleRadiusLabel = new Label().desiredWidth(40);
+        visibleRadiusLabel = label(45, 4, 30, 13, "").desiredWidth(30).horizontalAlignment(HorizontalAlignment.ALIGN_LEFT);
 
         sortChoice = new ChoiceLabel().tooltips("Sort the items in the list").name("sortMode")
             .desiredWidth(60);
@@ -157,19 +154,18 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             startSearch(newText);
         });
         Panel searchPanel = horizontal()
-                .hint(8, 142, 256 - 11, 18)
-                .desiredHeight(18)
+                .hint(3, 143, 256 - 6, 19)
                 .children(sortChoice, label("Search:"), searchField);
 
         Slider radiusSlider = new Slider()
+                .hint(3, 17, 68, 12)
                 .horizontal()
                 .tooltips("Radius of scan")
-                .minimumKnobSize(12)
-                .desiredHeight(14)
+                .minimumKnobSize(14)
                 .scrollableName("radius");
-        Panel scanPanel = vertical(6, 1)
+        Panel scanPanel = positional()
                 .hint(8, 162, 74, 54)
-                .filledRectThickness(-2)
+                .filledRectThickness(-1)
                 .filledBackground(StyleConfig.colorListBackground)
                 .children(scanButton);
         if (!(RFToolsStorage.setup.xnet && StorageScannerConfiguration.xnetRequired.get())) {
@@ -226,8 +222,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private Panel makeItemPanel() {
         itemList = new WidgetList().name("items").propagateEventsToChildren(true)
                 .invisibleSelection(true);
-        Slider itemListSlider = new Slider().desiredWidth(10).vertical().scrollableName("items");
-        return horizontal(1, 1)
+        Slider itemListSlider = new Slider().desiredWidth(9).vertical().scrollableName("items");
+        return horizontal(1, 0)
                 .hint(getStoragePanelWidth() + 6, 4, 256 - getStoragePanelWidth() - 12, 86 + 54)
                 .children(itemList, itemListSlider);
     }
@@ -245,9 +241,9 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             }
         }).propagateEventsToChildren(true);
 
-        Slider storageListSlider = new Slider().desiredWidth(10).vertical().scrollableName("storage");
+        Slider storageListSlider = new Slider().desiredWidth(9).vertical().scrollableName("storage");
 
-        return horizontal(1, 1)
+        return horizontal(1, 0)
                 .hint(3, 4, getStoragePanelWidth(), 86 + 54)
                 .desiredHeight(86 + 54)
                 .children(energyPanel, storageList, storageListSlider);
