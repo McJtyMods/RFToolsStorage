@@ -30,6 +30,7 @@ import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
@@ -37,6 +38,7 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -50,6 +52,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
     private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/storagescanner.png");
     private static final ResourceLocation guielements = new ResourceLocation(RFToolsBase.MODID, "textures/gui/guielements.png");
+    public static final int LIST_HEIGHT = 86 + 66;
 
     private WidgetList storageList;
     private WidgetList itemList;
@@ -111,7 +114,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         removeButton = button("R").channel("remove").tooltips("Remove inventory from list");
 
         Panel energyPanel = vertical(0, 1).desiredWidth(10);
-        energyPanel.children(openViewButton, energyBar, topButton, upButton, downButton, bottomButton, label(" "), removeButton);
+        energyPanel.children(openViewButton, energyBar, topButton, upButton, downButton, bottomButton, label(" "), label(" "), removeButton);
 
         exportToStarred = imageChoice(12, 223, 13, 13).name("export");
         exportToStarred.choice("No", "Export to current container", guielements, 131, 19);
@@ -120,66 +123,52 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         storagePanel = makeStoragePanel(energyPanel);
         itemPanel = makeItemPanel();
 
-        Button scanButton = button(3, 3, 40, 13, "Scan")
-                .channel("scan")
-                .desiredWidth(40)
-                .desiredHeight(13);
-        if (RFToolsStorage.setup.xnet) {
-            if (StorageScannerConfiguration.xnetRequired.get()) {
-                scanButton.tooltips("Do a scan of all", "storage units connected", "with an active XNet channel");
-            } else {
-                scanButton.tooltips("Do a scan of all", "storage units in radius", "Use 'xnet' radius to", "restrict to XNet only");
-            }
-        } else {
-            scanButton.tooltips("Do a scan of all", "storage units in radius");
-        }
         radiusLabel = new ScrollableLabel()
                 .hint(1, 1, 1, 1)
                 .name("radius")
                 .visible(false)
                 .realMinimum(RFToolsStorage.setup.xnet ? 0 : 1)
                 .realMaximum(20);
-        visibleRadiusLabel = label(45, 4, 30, 13, "").desiredWidth(30).horizontalAlignment(HorizontalAlignment.ALIGN_LEFT);
+        visibleRadiusLabel = label(55, 4, 30, 13, "")
+                .desiredWidth(30)
+                .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT);
 
-        sortChoice = new ChoiceLabel().tooltips("Sort the items in the list").name("sortMode")
-            .desiredWidth(60);
+        sortChoice = new ChoiceLabel().hint(3, 20, 74, 12).name("sortMode").desiredWidth(60);
         for (SortingMode mode : SortingMode.values()) {
-            sortChoice.choices(mode.getDescription());
+            sortChoice.choices(mode.getDescription()).choiceTooltip(mode.getDescription(), mode.getTooltip());
         }
         sortChoice.choice(tileEntity.getSortingMode().getDescription());
 
-        searchField = new TextField().event((newText) -> {
-            storageList.clearHilightedRows();
-            fromServer_foundInventories.clear();
-            startSearch(newText);
-        });
-        Panel searchPanel = horizontal()
-                .hint(3, 143, 256 - 6, 19)
-                .children(sortChoice, label("Search:"), searchField);
+        searchField = textfield(3, 35, 73, 14)
+                .tooltips("Filter the list of items")
+                .event((newText) -> {
+                    storageList.clearHilightedRows();
+                    fromServer_foundInventories.clear();
+                    startSearch(newText);
+                });
 
         Slider radiusSlider = new Slider()
-                .hint(3, 17, 68, 12)
+                .channel("scan")
+                .hint(3, 4, 50, 13)
                 .horizontal()
-                .tooltips("Radius of scan")
+                .tooltips("The radius that the scanner", "will use to find storages")
                 .minimumKnobSize(14)
                 .scrollableName("radius");
         Panel scanPanel = positional()
-                .hint(8, 162, 74, 54)
+                .hint(3, 161, 80, 55)
                 .filledRectThickness(-1)
                 .filledBackground(StyleConfig.colorListBackground)
-                .children(scanButton);
+                .children(visibleRadiusLabel, radiusLabel, searchField, sortChoice);
         if (!(RFToolsStorage.setup.xnet && StorageScannerConfiguration.xnetRequired.get())) {
             scanPanel.children(radiusSlider);
         }
-        scanPanel.children(visibleRadiusLabel, radiusLabel);
 
         if (tileEntity.isDummy()) {
-            scanButton.enabled(false);
             radiusSlider.visible(false);
         }
 
         Panel toplevel = positional().background(iconLocation)
-                .children(storagePanel, itemPanel, searchPanel, scanPanel, exportToStarred);
+                .children(storagePanel, itemPanel, scanPanel, exportToStarred);
         toplevel.bounds(guiLeft, guiTop, xSize, ySize);
 
         window = new Window(this, toplevel);
@@ -216,7 +205,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     private int getStoragePanelWidth() {
-        return openViewButton.isPressed() ? 130 : 50;
+        return openViewButton.isPressed() ? 120 : 45;
     }
 
     private Panel makeItemPanel() {
@@ -224,7 +213,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 .invisibleSelection(true);
         Slider itemListSlider = new Slider().desiredWidth(9).vertical().scrollableName("items");
         return horizontal(1, 0)
-                .hint(getStoragePanelWidth() + 6, 4, 256 - getStoragePanelWidth() - 12, 86 + 54)
+                .hint(getStoragePanelWidth() + 2, 4, 256 - getStoragePanelWidth() - 7, LIST_HEIGHT)
                 .children(itemList, itemListSlider);
     }
 
@@ -244,14 +233,14 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         Slider storageListSlider = new Slider().desiredWidth(9).vertical().scrollableName("storage");
 
         return horizontal(1, 0)
-                .hint(3, 4, getStoragePanelWidth(), 86 + 54)
-                .desiredHeight(86 + 54)
+                .hint(3, 4, getStoragePanelWidth(), LIST_HEIGHT)
+                .desiredHeight(LIST_HEIGHT)
                 .children(energyPanel, storageList, storageListSlider);
     }
 
     private void toggleView() {
-        storagePanel.hint(3, 4, getStoragePanelWidth(), 86 + 54);
-        itemPanel.hint(getStoragePanelWidth() + 6, 4, 256 - getStoragePanelWidth() - 12, 86 + 54);
+        storagePanel.hint(3, 4, getStoragePanelWidth(), LIST_HEIGHT);
+        itemPanel.hint(getStoragePanelWidth() + 2, 4, 256 - getStoragePanelWidth() - 7, LIST_HEIGHT);
         window.getToplevel().markLayoutDirty();
         listDirty = 0;
         requestListsIfNeeded();
@@ -404,11 +393,50 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         }
     }
 
+    @Nonnull
+    private static ResourceLocation findLargestTag(ItemStack stack) {
+        Set<ResourceLocation> tags = stack.getItem().getTags();
+        if (tags == null || tags.isEmpty()) {
+            return stack.getItem().getRegistryName();
+        }
+        if (tags.size() == 1) {
+            return tags.iterator().next();
+        }
+        int s = -1;
+        ResourceLocation largestTag = null;
+        for (ResourceLocation tag : tags) {
+            int size = ItemTags.getCollection().get(tag).getAllElements().size();
+            if (size > s) {
+                s = size;
+                largestTag = tag;
+            }
+        }
+        return largestTag;
+    }
+
+    private static int compareByTag(ItemStack s1, ItemStack s2) {
+        ResourceLocation largest1 = findLargestTag(s1);
+        ResourceLocation largest2 = findLargestTag(s2);
+        int rc = largest1.compareTo(largest2);
+        if (rc == 0) {
+            return s1.getDisplayName().getFormattedText().compareTo(s2.getDisplayName().getFormattedText());
+        }
+        return rc;
+    }
+
+    private static int compareByMod(ItemStack s1, ItemStack s2) {
+        int rc = s1.getItem().getRegistryName().getNamespace().compareTo(s2.getItem().getRegistryName().getNamespace());
+        if (rc == 0) {
+            return s1.getDisplayName().getFormattedText().compareTo(s2.getDisplayName().getFormattedText());
+        }
+        return rc;
+    }
+
     private void updateContentsList() {
         itemList.removeChildren();
 
         Pair<Panel, Integer> currentPos = MutablePair.of(null, 0);
-        int numcolumns = openViewButton.isPressed() ? 5 : 9;
+        int numcolumns = openViewButton.isPressed() ? 6 : 10;
         int spacing = 3;
 
         switch (tileEntity.getSortingMode()) {
@@ -419,6 +447,14 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             case AMOUNT_DESCENDING:
                 Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount).reversed());
                 Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount).reversed());
+                break;
+            case MOD:
+                Collections.sort(fromServer_inventory, GuiStorageScanner::compareByMod);
+                Collections.sort(fromServer_craftable, GuiStorageScanner::compareByMod);
+                break;
+            case TAG:
+                Collections.sort(fromServer_inventory, GuiStorageScanner::compareByTag);
+                Collections.sort(fromServer_craftable, GuiStorageScanner::compareByTag);
                 break;
             case NAME:
                 Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
@@ -533,7 +569,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                     .color(StyleConfig.colorTextInListNormal)
                     .dynamic(true)
                     .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
-                    .desiredWidth(58);
+                    .desiredWidth(50);
             if (c == null) {
                 label.tooltips(TextFormatting.GREEN + "All routable inventories")
                         .desiredWidth(74);
@@ -596,8 +632,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         if (!tileEntity.isDummy()) {
             tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(e -> {
-                energyBar.maxValue(((GenericEnergyStorage)e).getCapacity());
-                energyBar.value(((GenericEnergyStorage)e).getEnergy());
+                energyBar.maxValue(((GenericEnergyStorage) e).getCapacity());
+                energyBar.value(((GenericEnergyStorage) e).getEnergy());
             });
             exportToStarred.setCurrentChoice(tileEntity.isExportToCurrent() ? 0 : 1);
         } else {

@@ -2,6 +2,7 @@ Upcoming:
 - Better tooltips
 - Re-implemented TOP support for all blocks
 - New 'sort mode' button in the Storage Scanner allowing you to sort the items in the list
+- Better layout for the Storage Scanner
 
 1.0.3-alpha:
 - Re-implemented the filter module for the Modular Storage
