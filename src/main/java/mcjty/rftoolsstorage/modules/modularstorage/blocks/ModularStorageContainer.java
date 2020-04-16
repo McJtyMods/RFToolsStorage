@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.container.*;
-import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
+import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.client.SlotOffsetCalculator;

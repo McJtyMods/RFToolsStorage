@@ -11,7 +11,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IModularStorage;
-import mcjty.rftoolsbase.modules.various.items.FilterModuleItem;
+import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;

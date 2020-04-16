@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage;
 import mcjty.lib.base.ModBase;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.scanner.ScannerModuleRegistry;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.ModSetup;
@@ -22,6 +23,7 @@ public class RFToolsStorage implements ModBase {
 
     @SuppressWarnings("PublicField")
     public static ModSetup setup = new ModSetup();
+    public static ScannerModuleRegistry screenModuleRegistry = new ScannerModuleRegistry();
 
     public static RFToolsStorage instance;
 

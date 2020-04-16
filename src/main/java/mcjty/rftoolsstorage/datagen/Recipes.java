@@ -10,6 +10,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.data.ShapedRecipeBuilder;
 import net.minecraft.item.Items;
+import net.minecraft.tags.ItemTags;
 import net.minecraftforge.common.Tags;
 
 import java.util.function.Consumer;
@@ -55,5 +56,13 @@ public class Recipes extends BaseRecipeProvider {
                         .key('g', Items.GOLD_INGOT)
                         .addCriterion("frame", InventoryChangeTrigger.Instance.forItems(VariousSetup.MACHINE_FRAME.get())),
                 "ToT", "gFg", "ToT");
+        build(consumer, ShapedRecipeBuilder.shapedRecipe(StorageScannerSetup.STORAGECONTROL_MODULE.get())
+                        .key('X', Items.CRAFTING_TABLE)
+                        .addCriterion("ingot", InventoryChangeTrigger.Instance.forItems(Items.IRON_INGOT)),
+                " X ", "rir", " Z ");
+        build(consumer, ShapedRecipeBuilder.shapedRecipe(StorageScannerSetup.DUMP_MODULE.get())
+                        .key('X', ItemTags.WOODEN_BUTTONS)
+                        .addCriterion("ingot", InventoryChangeTrigger.Instance.forItems(Items.IRON_INGOT)),
+                " X ", "rir", " Z ");
     }
 }

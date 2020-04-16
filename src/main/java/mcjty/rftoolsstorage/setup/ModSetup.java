@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.setup;
 
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingDeviceRegistry;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
@@ -29,6 +30,7 @@ public class ModSetup extends DefaultModSetup {
         CommandHandler.registerCommands();
         RFToolsStorageMessages.registerMessages("rftoolsstorage");
         craftingDeviceRegistry.init();
+        RFToolsStorage.screenModuleRegistry.registerBuiltins();
     }
 
     public void initClient(FMLClientSetupEvent e) {

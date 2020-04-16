@@ -3,6 +3,8 @@ Upcoming:
 - Re-implemented TOP support for all blocks
 - New 'sort mode' button in the Storage Scanner allowing you to sort the items in the list
 - Better layout for the Storage Scanner
+- Moved the dump and storage control modules from RFTools Utility to RFTools Storage
+- The Storage Scanner Module can now be inserted in the RFTools Base tablet giving remote access to the scanner
 
 1.0.3-alpha:
 - Re-implemented the filter module for the Modular Storage

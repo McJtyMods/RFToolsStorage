@@ -13,6 +13,9 @@ public class StorageScannerConfiguration {
     public static ForgeConfigSpec.BooleanValue hilightStarredOnGuiOpen;
     public static ForgeConfigSpec.BooleanValue requestStraightToInventory;
 
+    public static ForgeConfigSpec.IntValue STORAGE_CONTROL_RFPERTICK; //6;
+    public static ForgeConfigSpec.IntValue DUMP_RFPERTICK; //0;
+
     public static ForgeConfigSpec.BooleanValue xnetRequired;
 
     public static void init(ForgeConfigSpec.Builder COMMON_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
@@ -34,6 +37,13 @@ public class StorageScannerConfiguration {
         RECEIVEPERTICK = COMMON_BUILDER
                 .comment("RF per tick that the storage scanner can receive")
                 .defineInRange("scannerRFPerTick", 500, 0, Integer.MAX_VALUE);
+
+        STORAGE_CONTROL_RFPERTICK = COMMON_BUILDER
+                .comment("RF per tick/per block for the storage control module")
+                .defineInRange("storageControlRFPerTick", 0, 0, Integer.MAX_VALUE);
+        DUMP_RFPERTICK = COMMON_BUILDER
+                .comment("RF per tick/per block for the dump module")
+                .defineInRange("dumpRFPerTick", 0, 0, Integer.MAX_VALUE);
 
         hilightStarredOnGuiOpen = CLIENT_BUILDER
                 .comment("If this is true then opening the storage scanner GUI will automatically select the starred inventory view")
