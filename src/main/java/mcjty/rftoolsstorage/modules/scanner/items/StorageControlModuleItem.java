@@ -1,9 +1,9 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.crafting.INBTPreservingIngredient;
+import mcjty.lib.gui.GuiTools;
 import mcjty.lib.varia.BlockTools;
 import mcjty.lib.varia.Logging;
-import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
@@ -12,30 +12,19 @@ import mcjty.rftoolsbase.tools.ModuleTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
-import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
-import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collection;
 
 public class StorageControlModuleItem extends GenericModuleItem implements INBTPreservingIngredient, ITabletSupport {
@@ -49,37 +38,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
     public void openGui(@Nonnull PlayerEntity player, @Nonnull ItemStack tabletItem, @Nonnull ItemStack containingItem) {
         BlockPos pos = ModuleTools.getPositionFromModule(containingItem);
         DimensionType dimensionType = ModuleTools.getDimensionFromModule(containingItem);
-        if (dimensionType == null) {
-            dimensionType = player.getEntityWorld().getDimension().getType();
-        }
-        World world = WorldTools.getWorld(player.getEntityWorld(), dimensionType);
-        if (world == null) {
-            // Not loaded
-            player.sendStatusMessage(new StringTextComponent("World is not loaded!"), false);
-            return;
-        }
-        if (!world.isBlockLoaded(pos)) {
-            player.sendStatusMessage(new StringTextComponent("Position is not loaded!"), false);
-            return;
-        }
-
-        NetworkHooks.openGui((ServerPlayerEntity)player, new INamedContainerProvider() {
-            @Override
-            public ITextComponent getDisplayName() {
-                return new StringTextComponent("Storage Scanner Module");
-            }
-
-            @Nullable
-            @Override
-            public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                TileEntity te = world.getTileEntity(pos);
-                if (te instanceof StorageScannerTileEntity) {
-                    return new StorageScannerContainer(id, pos, player, (StorageScannerTileEntity) te);
-                } else {
-                    return null;
-                }
-            }
-        }, pos);
+        GuiTools.openRemoteGui(player, dimensionType, pos);
     }
 
     @Override
