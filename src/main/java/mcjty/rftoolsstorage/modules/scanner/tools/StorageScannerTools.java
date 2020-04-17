@@ -20,7 +20,7 @@ public class StorageScannerTools {
 
     public static void scannerSearch(PlayerEntity player, DimensionType dim, BlockPos pos, String text) {
         World world = WorldTools.getWorld(player.world, dim);
-        if (WorldTools.chunkLoaded(world, pos)) {
+        if (WorldTools.isLoaded(world, pos)) {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
@@ -34,7 +34,7 @@ public class StorageScannerTools {
 
     public static void requestContents(PlayerEntity player, DimensionType dim, BlockPos pos, BlockPos invpos) {
         World world = WorldTools.getWorld(player.world, dim);
-        if (WorldTools.chunkLoaded(world, pos)) {
+        if (WorldTools.isLoaded(world, pos)) {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;

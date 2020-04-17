@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.base.ModBase;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.GuiTools;
+import mcjty.lib.varia.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;

@@ -59,7 +59,7 @@ public class PacketRequestItem {
             if (world == null) {
                 return;
             }
-            if (!WorldTools.chunkLoaded(world, pos)) {
+            if (!WorldTools.isLoaded(world, pos)) {
                 return;
             }
             TileEntity te = world.getTileEntity(pos);

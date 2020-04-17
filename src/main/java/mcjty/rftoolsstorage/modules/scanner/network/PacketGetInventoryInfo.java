@@ -74,7 +74,7 @@ public class PacketGetInventoryInfo {
             return Optional.empty();
         }
 
-        if (!WorldTools.chunkLoaded(world, pos)) {
+        if (!WorldTools.isLoaded(world, pos)) {
             return Optional.empty();
         }
 
@@ -102,7 +102,7 @@ public class PacketGetInventoryInfo {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         String displayName;
-        if (!WorldTools.chunkLoaded(world, pos)) {
+        if (!WorldTools.isLoaded(world, pos)) {
             displayName = "[UNLOADED]";
             block = null;
         } else if (world.isAirBlock(pos)) {

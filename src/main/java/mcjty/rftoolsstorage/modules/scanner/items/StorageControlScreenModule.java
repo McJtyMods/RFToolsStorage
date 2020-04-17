@@ -97,7 +97,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
             return null;
         }
 
-        if (!WorldTools.chunkLoaded(world, coordinate)) {
+        if (!WorldTools.isLoaded(world, coordinate)) {
             return null;
         }
 

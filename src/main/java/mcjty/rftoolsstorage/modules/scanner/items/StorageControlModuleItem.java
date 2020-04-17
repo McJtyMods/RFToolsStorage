@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.crafting.INBTPreservingIngredient;
-import mcjty.lib.gui.GuiTools;
+import mcjty.lib.varia.GuiTools;
 import mcjty.lib.varia.BlockTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
