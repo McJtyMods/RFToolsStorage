@@ -13,9 +13,14 @@ import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -39,9 +44,36 @@ public class StorageScannerSetup {
     public static final RegistryObject<Item> STORAGE_SCANNER_ITEM = ITEMS.register("storage_scanner", () -> new BlockItem(STORAGE_SCANNER.get(), RFToolsStorage.createStandardProperties()));
     public static final RegistryObject<TileEntityType<?>> TYPE_STORAGE_SCANNER = TILES.register("storage_scanner", () -> TileEntityType.Builder.create(StorageScannerTileEntity::new, STORAGE_SCANNER.get()).build(null));
     public static final RegistryObject<ContainerType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER = CONTAINERS.register("storage_scanner", GenericContainer::createContainerType);
+    public static final RegistryObject<ContainerType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER_REMOTE = CONTAINERS.register("storage_scanner_remote", StorageScannerSetup::createProcessorRemote);
 
     public static final RegistryObject<Item> STORAGECONTROL_MODULE = ITEMS.register("storage_control_module", StorageControlModuleItem::new);
     public static final RegistryObject<Item> DUMP_MODULE = ITEMS.register("dump_module", DumpModuleItem::new);
 
     public static final RegistryObject<TabletItem> TABLET_SCANNER = ModularStorageSetup.ITEMS.register("tablet_scanner", TabletItem::new);
-}
+
+    public static ContainerType<StorageScannerContainer> createProcessorRemote() {
+        ContainerType<StorageScannerContainer> containerType = IForgeContainerType.create((windowId, inv, data) -> {
+            BlockPos pos = data.readBlockPos();
+            DimensionType type = DimensionType.getById(data.readInt());
+
+            StorageScannerTileEntity te = new StorageScannerTileEntity() {
+                @Override
+                public boolean isDummy() {
+                    return true;
+                }
+
+                @Override
+                public DimensionType getDimensionType() {
+                    return type;
+                }
+            }; // Dummy tile entity
+            te.setWorldAndPos(inv.player.getEntityWorld(), pos);    // Wrong world but doesn't really matter
+            CompoundNBT compound = data.readCompoundTag();
+            te.read(compound);
+
+            StorageScannerContainer container = new StorageScannerContainer(CONTAINER_STORAGE_SCANNER_REMOTE.get(), windowId, pos, inv.player, te);
+            container.setupInventories(new ItemStackHandler(StorageScannerContainer.SLOTS), inv);
+            return container;
+        });
+        return containerType;
+    }}

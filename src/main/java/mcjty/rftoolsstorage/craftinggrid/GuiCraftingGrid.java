@@ -4,13 +4,13 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.base.ModBase;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.varia.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockTools;
+import mcjty.lib.varia.GuiTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
@@ -24,6 +24,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.Optional;
@@ -47,18 +48,20 @@ public class GuiCraftingGrid {
     private GenericGuiContainer<?, ?> gui;
     private CraftingGridProvider provider;
     private BlockPos pos;
+    private DimensionType type;
 
     public static int[] testResultFromServer = null;
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
     public void initGui(final ModBase modBase, final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?, ?> gui,
-                        BlockPos pos, CraftingGridProvider provider,
+                        BlockPos pos, DimensionType type, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;
         this.gui = gui;
         this.provider = provider;
         this.pos = pos;
+        this.type = type;
 
         recipeList = list(5, 5, 56, 102);
         recipeList.event(new DefaultSelectionEvent() {
@@ -93,13 +96,21 @@ public class GuiCraftingGrid {
 
     private void craft(int n) {
         RFToolsStorageMessages.sendToServer(CommandHandler.CMD_CRAFT_FROM_GRID,
-                TypedMap.builder().put(CommandHandler.PARAM_COUNT, n).put(CommandHandler.PARAM_TEST, false).put(CommandHandler.PARAM_POS, pos));
+                TypedMap.builder()
+                        .put(CommandHandler.PARAM_COUNT, n)
+                        .put(CommandHandler.PARAM_TEST, false)
+                        .put(CommandHandler.PARAM_POS, pos)
+                        .put(CommandHandler.PARAM_DIMENSION, type));
     }
 
     private void testCraft(int n) {
         if (lastTestAmount != n || lastTestTimer <= 0) {
             RFToolsStorageMessages.sendToServer(CommandHandler.CMD_CRAFT_FROM_GRID,
-                    TypedMap.builder().put(CommandHandler.PARAM_COUNT, n).put(CommandHandler.PARAM_TEST, true).put(CommandHandler.PARAM_POS, pos));
+                    TypedMap.builder()
+                            .put(CommandHandler.PARAM_COUNT, n)
+                            .put(CommandHandler.PARAM_TEST, true)
+                            .put(CommandHandler.PARAM_POS, pos)
+                            .put(CommandHandler.PARAM_DIMENSION, type));
             lastTestAmount = n;
             lastTestTimer = 20;
         }
@@ -112,7 +123,7 @@ public class GuiCraftingGrid {
             return;
         }
         provider.storeRecipe(selected);
-        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGridToServer(pos, provider.getCraftingGrid()));
+        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGridToServer(pos, type, provider.getCraftingGrid()));
     }
 
     private void selectRecipe() {
@@ -122,7 +133,7 @@ public class GuiCraftingGrid {
         }
 
         provider.getCraftingGrid().selectRecipe(selected);
-        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGridToServer(pos, provider.getCraftingGrid()));
+        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGridToServer(pos, type, provider.getCraftingGrid()));
     }
 
     private void populateList() {

@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -22,8 +23,8 @@ public class PacketGridToClient extends PacketGridSync {
         convertFromBytes(buf);
     }
 
-    public PacketGridToClient(BlockPos pos, CraftingGrid grid) {
-        init(pos, grid);
+    public PacketGridToClient(BlockPos pos, DimensionType type, CraftingGrid grid) {
+        init(pos, type, grid);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {

@@ -159,8 +159,11 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             throw new RuntimeException("Should not happen!");
         }
 
-        craftingGrid.initGui(modBase, RFToolsStorageMessages.INSTANCE, minecraft, this, pos, provider, guiLeft, guiTop, xSize, ySize);
-        sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder().put(CommandHandler.PARAM_POS, pos).build());
+        craftingGrid.initGui(modBase, RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimensionType(), provider, guiLeft, guiTop, xSize, ySize);
+        sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder()
+                .put(CommandHandler.PARAM_POS, pos)
+                .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimensionType())
+                .build());
     }
 
     private Panel setupModePanel() {

@@ -23,7 +23,7 @@ public class CommandHandler {
     public static final Key<String> PARAM_SEARCH_TEXT = new Key<>("text", Type.STRING);
 
     public static final String CMD_REQUEST_STORAGE_INFO = "requestStorageInfo";
-    public static final Key<Integer> PARAM_DIMENSION = new Key<>("dimension", Type.INTEGER);
+//    public static final Key<Integer> PARAM_DIMENSION = new Key<>("dimension", Type.INTEGER);
 
     public static final String CMD_CLEAR_TARGET = "clearTarget";
     public static final String CMD_SET_TARGET = "setTarget";
@@ -52,6 +52,7 @@ public class CommandHandler {
 
     public static final String CMD_REQUEST_GRID_SYNC = "requestGridSync";
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
+    public static final Key<DimensionType> PARAM_DIMENSION = new Key<>("dimension", Type.DIMENSION_TYPE);
 
     public static final String CMD_GET_COUNTER_INFO = "getCounterInfo";
 
@@ -83,11 +84,12 @@ public class CommandHandler {
 
 
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_CRAFT_FROM_GRID, (player, arguments) -> {
-            StorageCraftingTools.craftFromGrid(player, arguments.get(PARAM_COUNT), arguments.get(PARAM_TEST), arguments.get(PARAM_POS));
+            StorageCraftingTools.craftFromGrid(player, arguments.get(PARAM_COUNT), arguments.get(PARAM_TEST),
+                    arguments.get(PARAM_POS), arguments.get(PARAM_DIMENSION));
             return true;
         });
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_REQUEST_GRID_SYNC, (player, arguments) -> {
-            StorageCraftingTools.requestGridSync(player, arguments.get(PARAM_POS));
+            StorageCraftingTools.requestGridSync(player, arguments.get(PARAM_POS), arguments.get(PARAM_DIMENSION));
             return true;
         });
     }

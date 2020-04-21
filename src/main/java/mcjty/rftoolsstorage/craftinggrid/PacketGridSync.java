@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import mcjty.lib.varia.WorldTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
@@ -7,6 +8,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
 public class PacketGridSync {
 
     private BlockPos pos;
+    private DimensionType type;
     private List<ItemStack[]> recipes;
 
     public void convertFromBytes(PacketBuffer buf) {
@@ -22,6 +25,7 @@ public class PacketGridSync {
         } else {
             pos = null;
         }
+        type = DimensionType.getById(buf.readInt());
         int s = buf.readInt();
         recipes = new ArrayList<>(s);
         for (int i = 0 ; i < s ; i++) {
@@ -41,6 +45,7 @@ public class PacketGridSync {
         } else {
             buf.writeBoolean(false);
         }
+        buf.writeInt(type.getId());
         buf.writeInt(recipes.size());
         for (ItemStack[] recipe : recipes) {
             buf.writeInt(recipe.length);
@@ -50,8 +55,9 @@ public class PacketGridSync {
         }
     }
 
-    protected void init(BlockPos pos, CraftingGrid grid) {
+    protected void init(BlockPos pos, DimensionType type, CraftingGrid grid) {
         this.pos = pos;
+        this.type = type;
         recipes = new ArrayList<>();
         for (int i = 0 ; i < 6 ; i++) {
             CraftingRecipe recipe = grid.getRecipe(i);
@@ -84,7 +90,8 @@ public class PacketGridSync {
 //                }
 //            }
         } else {
-            TileEntity te = world.getTileEntity(pos);
+            World w = WorldTools.getWorld(world, type);
+            TileEntity te = w.getTileEntity(pos);
             if (te instanceof CraftingGridProvider) {
                 provider = ((CraftingGridProvider) te);
             }

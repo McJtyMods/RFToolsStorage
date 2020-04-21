@@ -1,8 +1,8 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.crafting.INBTPreservingIngredient;
-import mcjty.lib.varia.GuiTools;
 import mcjty.lib.varia.BlockTools;
+import mcjty.lib.varia.GuiTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
@@ -12,19 +12,28 @@ import mcjty.rftoolsbase.tools.ModuleTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
+import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
+import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public class StorageControlModuleItem extends GenericModuleItem implements INBTPreservingIngredient, ITabletSupport {
@@ -38,7 +47,22 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
     public void openGui(@Nonnull PlayerEntity player, @Nonnull ItemStack tabletItem, @Nonnull ItemStack containingItem) {
         BlockPos pos = ModuleTools.getPositionFromModule(containingItem);
         DimensionType dimensionType = ModuleTools.getDimensionFromModule(containingItem);
-        GuiTools.openRemoteGui(player, dimensionType, pos);
+        GuiTools.openRemoteGui(player, dimensionType, pos, te -> new INamedContainerProvider() {
+            @Override
+            public ITextComponent getDisplayName() {
+                return new StringTextComponent("Remote Storage Scanner");
+            }
+
+            @Nullable
+            @Override
+            public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
+                StorageScannerContainer container = new StorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, player, (StorageScannerTileEntity) te);
+                te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
+                    container.setupInventories(h, inventory);
+                });
+                return container;
+            }
+        });
     }
 
     @Override

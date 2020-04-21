@@ -49,7 +49,6 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -130,9 +129,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private Set<BlockPos> routable = new HashSet<>();
     private int radius = 1;
 
-    // This is set on a client-side dummy tile entity for a tablet
-    private DimensionType monitorDim;
-
     private SortingMode sortingMode = SortingMode.NAME;
 
     private boolean exportToCurrent = false;
@@ -154,7 +150,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public StorageScannerTileEntity() {
         super(StorageScannerSetup.TYPE_STORAGE_SCANNER.get());
-        monitorDim = null;
         radius = (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) ? 0 : 1;
     }
 
@@ -1323,7 +1318,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * storage scanner in a tablet on the client side.
      */
     public boolean isDummy() {
-        return monitorDim != null;
+        return false;
     }
 
     /**
@@ -1360,14 +1355,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public CraftingSystem getCraftingSystem() {
         return craftingSystem;
-    }
-
-    public DimensionType getDimension() {
-        if (isDummy()) {
-            return monitorDim;
-        } else {
-            return world.getDimension().getType();
-        }
     }
 
     @Nonnull

@@ -7,6 +7,7 @@ import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
@@ -22,7 +23,9 @@ public class StorageScannerContainer extends GenericContainer {
     public static final int SLOT_IN_AUTO = 2;       // This slot is not shown in the user interface but is for automation
     public static final int SLOT_PLAYERINV = 2;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(3) {    // 1 extra slot for automation is at index 2
+    public static final int SLOTS = 3;
+
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOTS) {    // 1 extra slot for automation is at index 2
         @Override
         protected void setup() {
             slot(SlotDefinition.input(), CONTAINER_CONTAINER, SLOT_IN, 28, 220);
@@ -47,6 +50,10 @@ public class StorageScannerContainer extends GenericContainer {
 
     public StorageScannerContainer(int id, BlockPos pos, PlayerEntity player, StorageScannerTileEntity tileEntity) {
         super(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), id, CONTAINER_FACTORY, pos, tileEntity);
+    }
+
+    public StorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, PlayerEntity player, StorageScannerTileEntity tileEntity) {
+        super(type, id, CONTAINER_FACTORY, pos, tileEntity);
     }
 
     @Override

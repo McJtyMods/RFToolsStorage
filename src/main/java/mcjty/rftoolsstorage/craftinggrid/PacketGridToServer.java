@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -33,8 +34,8 @@ public class PacketGridToServer extends PacketGridSync {
         }
     }
 
-    public PacketGridToServer(BlockPos pos, CraftingGrid grid) {
-        init(pos, grid);
+    public PacketGridToServer(BlockPos pos, DimensionType type, CraftingGrid grid) {
+        init(pos, type, grid);
         stacks = new ItemStack[10];
         for (int i = 0 ; i < 10 ; i++) {
             stacks[i] = grid.getCraftingGridInventory().getStackInSlot(i);
