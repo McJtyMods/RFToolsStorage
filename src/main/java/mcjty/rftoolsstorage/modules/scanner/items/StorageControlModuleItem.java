@@ -56,7 +56,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
             @Nullable
             @Override
             public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-                StorageScannerContainer container = new StorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, player, (StorageScannerTileEntity) te);
+                StorageScannerContainer container = StorageScannerContainer.createRemote(id, pos, (StorageScannerTileEntity) te);
                 te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
                     container.setupInventories(h, inventory);
                 });

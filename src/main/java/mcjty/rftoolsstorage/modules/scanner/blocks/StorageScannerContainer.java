@@ -5,7 +5,6 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.SlotDefinition;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
@@ -48,12 +47,16 @@ public class StorageScannerContainer extends GenericContainer {
         }
     }
 
-    public StorageScannerContainer(int id, BlockPos pos, PlayerEntity player, StorageScannerTileEntity tileEntity) {
-        super(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), id, CONTAINER_FACTORY, pos, tileEntity);
+    private StorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
+        super(type, id, CONTAINER_FACTORY, pos, tileEntity);
     }
 
-    public StorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, PlayerEntity player, StorageScannerTileEntity tileEntity) {
-        super(type, id, CONTAINER_FACTORY, pos, tileEntity);
+    public static StorageScannerContainer create(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
+        return new StorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), id, pos, tileEntity);
+    }
+
+    public static StorageScannerContainer createRemote(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
+        return new StorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity);
     }
 
     @Override

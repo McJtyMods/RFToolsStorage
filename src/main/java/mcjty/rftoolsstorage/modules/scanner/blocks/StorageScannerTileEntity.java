@@ -49,6 +49,7 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -141,16 +142,25 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get()));
     private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(this::createItemHandler);
     private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
-            .containerSupplier((windowId,player) -> new StorageScannerContainer(windowId, getPos(), player, StorageScannerTileEntity.this))
+            .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getPos(), StorageScannerTileEntity.this))
             .energyHandler(energyHandler)
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
     private LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
 
     private CraftingGrid craftingGrid = new CraftingGrid();
 
+    // If set this is a dummy tile entity
+    private DimensionType dummyType = null;
+
     public StorageScannerTileEntity() {
         super(StorageScannerSetup.TYPE_STORAGE_SCANNER.get());
         radius = (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) ? 0 : 1;
+    }
+
+    // Used for a dummy tile entity (tablet usage)
+    public StorageScannerTileEntity(DimensionType type) {
+        this();
+        dummyType = type;
     }
 
     //    public StorageScannerTileEntity() {
@@ -1318,7 +1328,15 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * storage scanner in a tablet on the client side.
      */
     public boolean isDummy() {
-        return false;
+        return dummyType != null;
+    }
+
+    @Override
+    public DimensionType getDimensionType() {
+        if (dummyType != null) {
+            return dummyType;
+        }
+        return super.getDimensionType();
     }
 
     /**
