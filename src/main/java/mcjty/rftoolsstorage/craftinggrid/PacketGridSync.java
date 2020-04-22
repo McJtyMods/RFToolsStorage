@@ -1,8 +1,11 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.McJtyLib;
+import mcjty.lib.container.GenericContainer;
+import mcjty.lib.varia.Logging;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -15,8 +18,8 @@ import java.util.List;
 
 public class PacketGridSync {
 
-    private BlockPos pos;
-    private DimensionType type;
+    protected BlockPos pos;
+    protected DimensionType type;
     private List<ItemStack[]> recipes;
 
     public void convertFromBytes(PacketBuffer buf) {
@@ -73,29 +76,24 @@ public class PacketGridSync {
 
     protected CraftingGridProvider handleMessage(World world, PlayerEntity player) {
         CraftingGridProvider provider = null;
+
+        TileEntity te;
         if (pos == null) {
-            // Handle tablet version
-            ItemStack mainhand = player.getHeldItemMainhand();
-            // @todo 1.14
-//            if (!mainhand.isEmpty() && mainhand.getItem() == ModularStorageSetup.storageModuleTabletItem) {
-//                if (player.openContainer instanceof ModularStorageItemContainer) {
-//                    ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
-//                    provider = storageItemContainer.getCraftingGridProvider();
-//                } else if (player.openContainer instanceof RemoteStorageItemContainer) {
-//                    RemoteStorageItemContainer storageItemContainer = (RemoteStorageItemContainer) player.openContainer;
-//                    provider = storageItemContainer.getCraftingGridProvider();
-//                } else if (player.openContainer instanceof StorageScannerContainer) {
-//                    StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
-//                    provider = storageItemContainer.getStorageScannerTileEntity();
-//                }
-//            }
-        } else {
-            World w = WorldTools.getWorld(world, type);
-            TileEntity te = w.getTileEntity(pos);
-            if (te instanceof CraftingGridProvider) {
-                provider = ((CraftingGridProvider) te);
+            // We are working from a tablet. Find the tile entity through the open container
+            GenericContainer container = getOpenContainer();
+            if (container == null) {
+                Logging.log("Container is missing!");
+                return null;
             }
+            te = container.getTe();
+        } else {
+            te = world.getTileEntity(pos);
         }
+
+        if (te instanceof CraftingGridProvider) {
+            provider = ((CraftingGridProvider) te);
+        }
+
         if (provider != null) {
             for (int i = 0; i < recipes.size(); i++) {
                 provider.setRecipe(i, recipes.get(i));
@@ -103,4 +101,14 @@ public class PacketGridSync {
         }
         return provider;
     }
+
+    private static GenericContainer getOpenContainer() {
+        Container container = McJtyLib.proxy.getClientPlayer().openContainer;
+        if (container instanceof GenericContainer) {
+            return (GenericContainer) container;
+        } else {
+            return null;
+        }
+    }
+
 }

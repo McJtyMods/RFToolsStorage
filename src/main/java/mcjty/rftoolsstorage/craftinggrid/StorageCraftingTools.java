@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.WorldTools;
+import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -327,8 +328,13 @@ public class StorageCraftingTools {
         if (te instanceof CraftingGridProvider && te instanceof GenericTileEntity) {
             provider = ((CraftingGridProvider) te);
         }
+        boolean dummy = false;
+        if (te instanceof StorageScannerTileEntity) {
+            dummy = ((StorageScannerTileEntity) te).isDummy();
+        }
+
         if (provider != null) {
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketGridToClient(pos, ((GenericTileEntity) te).getDimensionType(), provider.getCraftingGrid()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorageMessages.INSTANCE.sendTo(new PacketGridToClient(dummy ? null : pos, ((GenericTileEntity) te).getDimensionType(), provider.getCraftingGrid()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 }

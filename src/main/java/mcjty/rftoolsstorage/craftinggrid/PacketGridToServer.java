@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import mcjty.lib.varia.WorldTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -47,7 +48,7 @@ public class PacketGridToServer extends PacketGridSync {
         ctx.enqueueWork(() -> {
             PlayerEntity player = ctx.getSender();
             World world = player.getEntityWorld();
-            CraftingGridProvider provider = handleMessage(world, player);
+            CraftingGridProvider provider = handleMessage(WorldTools.getWorld(world, type), player);
             if (provider != null) {
                 CraftingGridInventory inventory = provider.getCraftingGrid().getCraftingGridInventory();
                 for (int i = 0 ; i < 10 ; i++) {
