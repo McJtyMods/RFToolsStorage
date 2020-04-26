@@ -1,10 +1,9 @@
 {
   "type": "minecraft:crafting_shaped",
-  "group": "rftools",
   "pattern": [
     " X ",
     "rir",
-    " Z "
+    " X "
   ],
   "key": {
     "X": {
@@ -15,12 +14,9 @@
     },
     "i": {
       "tag": "forge:ingots/iron"
-    },
-    "Z": {
-      "tag": "forge:dyes/black"
     }
   },
   "result": {
-    "item": "rftoolsstorage:storage_control_module"
+    "item": "rftoolsstorage:dump_module"
   }
 }
