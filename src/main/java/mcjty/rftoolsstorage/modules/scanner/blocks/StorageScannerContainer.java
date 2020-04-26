@@ -5,6 +5,7 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.container.SlotDefinition;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
@@ -56,7 +57,26 @@ public class StorageScannerContainer extends GenericContainer {
     }
 
     public static StorageScannerContainer createRemote(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
-        return new StorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity);
+        return new StorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity) {
+            @Override
+            protected boolean isRemoteContainer() {
+                return true;
+            }
+        };
+    }
+
+    protected boolean isRemoteContainer() {
+        return false;
+    }
+
+    @Override
+    public boolean canInteractWith(PlayerEntity player) {
+        // If we are a remote container our canInteractWith should ignore distance
+        if (isRemoteContainer()) {
+            return te == null || !te.isRemoved();
+        } else {
+            return super.canInteractWith(player);
+        }
     }
 
     @Override
@@ -67,23 +87,4 @@ public class StorageScannerContainer extends GenericContainer {
         generateSlots();
     }
 
-//    public StorageScannerContainer(EntityPlayer player, IInventory containerInventory) {
-//        super(factory);
-//        storageScannerTileEntity = (StorageScannerTileEntity) containerInventory;
-//
-//        addInventory(CONTAINER_INVENTORY, containerInventory);
-//        addInventory(ContainerFactory.CONTAINER_PLAYER, player.inventory);
-//        addInventory(CONTAINER_GRID, storageScannerTileEntity.getCraftingGrid().getCraftingGridInventory());
-//        generateSlots();
-//    }
-//
-//    public StorageScannerContainer(EntityPlayer player, IInventory containerInventory, CraftingGridProvider provider) {
-//        super(factory);
-//        storageScannerTileEntity = (StorageScannerTileEntity) containerInventory;
-//
-//        addInventory(CONTAINER_INVENTORY, containerInventory);
-//        addInventory(ContainerFactory.CONTAINER_PLAYER, player.inventory);
-//        addInventory(CONTAINER_GRID, provider.getCraftingGrid().getCraftingGridInventory());
-//        generateSlots();
-//    }
 }
