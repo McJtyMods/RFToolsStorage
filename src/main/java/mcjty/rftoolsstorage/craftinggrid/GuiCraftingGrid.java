@@ -10,7 +10,7 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.varia.GuiTools;
+import mcjty.lib.client.GuiTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;

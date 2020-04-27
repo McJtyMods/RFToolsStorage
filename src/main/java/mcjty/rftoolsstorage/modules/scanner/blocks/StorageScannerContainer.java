@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.modules.scanner.blocks;
 
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.container.SlotDefinition;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,6 +12,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
+
+import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
+import static mcjty.lib.container.SlotDefinition.*;
 
 public class StorageScannerContainer extends GenericContainer {
 
@@ -25,21 +27,12 @@ public class StorageScannerContainer extends GenericContainer {
 
     public static final int SLOTS = 3;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOTS) {    // 1 extra slot for automation is at index 2
-        @Override
-        protected void setup() {
-            slot(SlotDefinition.input(), CONTAINER_CONTAINER, SLOT_IN, 28, 220);
-            slot(SlotDefinition.output(), CONTAINER_CONTAINER, SLOT_OUT, 55, 220);
-            playerSlots(86, 162);
-            gridSlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
-        }
-
-        protected void gridSlots(int leftCol, int topRow) {
-            box(SlotDefinition.ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, leftCol, topRow, 3, 3);
-            topRow += 58;
-            range(SlotDefinition.ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, leftCol, topRow, 1, 18);
-        }
-    };
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOTS)    // 1 extra slot for automation is at index 2
+            .slot(input(), CONTAINER_CONTAINER, SLOT_IN, 28, 220)
+            .slot(output(), CONTAINER_CONTAINER, SLOT_OUT, 55, 220)
+            .playerSlots(86, 162)
+            .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
+            .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18);
 
     public void clearGrid() {
         IItemHandlerModifiable inventory = (IItemHandlerModifiable) inventories.get(CONTAINER_GRID);

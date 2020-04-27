@@ -21,6 +21,9 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
+import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
+import static mcjty.lib.container.SlotDefinition.*;
+
 public class ModularStorageContainer extends GenericContainer {
     public static final String CONTAINER_GRID = "grid";
     public static final String CONTAINER_CARDS = "cards";       // The three cards
@@ -31,24 +34,14 @@ public class ModularStorageContainer extends GenericContainer {
     public static final int SLOT_STORAGE = 3;
     public static final int MAXSIZE_STORAGE = 500;  // @todo, should be max of all possible storages
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOT_STORAGE) {
-        @Override
-        protected void setup() {
-            slot(SlotDefinition.specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157);
-            slot(SlotDefinition.specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175);
-            slot(SlotDefinition.specific(stack -> stack.getItem() instanceof FilterModuleItem), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193);
-            box(SlotDefinition.input(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 500 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0); // Dummy slot positions
-            playerSlots(91, 157);
-            gridSlots(CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET);
-        }
-
-        protected void gridSlots(int leftCol, int topRow) {
-            box(SlotDefinition.ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, leftCol, topRow, 3, 3);
-            topRow += 58;
-            range(SlotDefinition.ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, leftCol, topRow, 1, 18);
-        }
-
-    };
+    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOT_STORAGE)
+            .slot(specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157)
+            .slot(specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175)
+            .slot(specific(stack -> stack.getItem() instanceof FilterModuleItem), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193)
+            .box(input(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 500 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0) // Dummy slot positions
+            .playerSlots(91, 157)
+            .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
+            .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18);
 
     public ModularStorageContainer(int id, BlockPos pos, PlayerEntity player, ModularStorageTileEntity tileEntity) {
         super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY, pos, tileEntity);

@@ -10,7 +10,6 @@ import mcjty.lib.bindings.DefaultAction;
 import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IAction;
 import mcjty.lib.bindings.IValue;
-import mcjty.lib.container.InventoryHelper;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -313,7 +312,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             TileEntity te = world.getTileEntity(lastSelectedInventory);
             if (te != null && !(te instanceof StorageScannerTileEntity)) {
                 if (testAccess.apply(lastSelectedInventory) && getInputMatcher(lastSelectedInventory).test(stack)) {
-                    stack = InventoryHelper.insertItem(world, lastSelectedInventory, null, stack);
+                    stack = InventoryTools.insertItem(world, lastSelectedInventory, null, stack);
                     if (stack.isEmpty()) {
                         return stack;
                     }
@@ -329,7 +328,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 .iterator();
         while (!stack.isEmpty() && iterator.hasNext()) {
             TileEntity te = iterator.next();
-            stack = InventoryHelper.insertItem(world, te.getPos(), null, stack);
+            stack = InventoryTools.insertItem(world, te.getPos(), null, stack);
         }
         return stack;
     }
@@ -401,7 +400,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 .map(world::getTileEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .allMatch(te -> {
-                    InventoryHelper.getItems(te, matcher)
+                    InventoryTools.getItems(te, matcher)
                             .forEach(s -> cc[0] += s.getCount());
                     if (maxneeded != null && cc[0] >= maxneeded) {
                         return false;
@@ -418,7 +417,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(world, p))
                 .map(world::getTileEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
-                .map(te -> InventoryHelper.getFirstMatchingItem(te, matcher))
+                .map(te -> InventoryTools.getFirstMatchingItem(te, matcher))
                 .filter(s -> !s.isEmpty())
                 .findFirst()
                 .orElse(ItemStack.EMPTY);
@@ -458,7 +457,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 cnt += cachedCount;
             } else {
                 final int[] cc = {0};
-                InventoryHelper.getItems(te, s -> isItemEqual(stack, s))
+                InventoryTools.getItems(te, s -> isItemEqual(stack, s))
                         .forEach(s -> cc[0] += s.getCount());
                 if (te instanceof IInventoryTracker) {
                     IInventoryTracker tracker = (IInventoryTracker) te;
@@ -492,7 +491,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 .filter(this::isValid)
                 .map(world::getTileEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity))
-                .forEach(te -> InventoryHelper.getItems(te, finalMatcher).forEach(s -> output.add(te.getPos())));
+                .forEach(te -> InventoryTools.getItems(te, finalMatcher).forEach(s -> output.add(te.getPos())));
         return output;
     }
 
@@ -948,7 +947,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return outSlot;
         }
 
-        int size = InventoryHelper.getInventorySize(tileEntity);
+        int size = InventoryTools.getInventorySize(tileEntity);
 
         for (int i = 0; i < size; i++) {
             ItemStack stack = ItemStackTools.getStack(tileEntity, i);

@@ -4,7 +4,7 @@ import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.BaseSlot;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.varia.GuiTools;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;

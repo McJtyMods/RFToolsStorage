@@ -2,13 +2,13 @@ package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.crafting.INBTPreservingIngredient;
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.varia.GuiTools;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.rftoolsbase.tools.ModuleTools;
+import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;

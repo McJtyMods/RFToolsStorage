@@ -14,7 +14,7 @@ import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.GuiTools;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;

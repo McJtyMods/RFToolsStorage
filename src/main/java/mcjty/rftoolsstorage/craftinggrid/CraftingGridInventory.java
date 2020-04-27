@@ -8,13 +8,13 @@ import javax.annotation.Nonnull;
 
 public class CraftingGridInventory implements IItemHandlerModifiable {
 
-    public static int SLOT_GHOSTOUTPUT = 0;
-    public static int SLOT_GHOSTINPUT = 1;
+    public static final int SLOT_GHOSTOUTPUT = 0;
+    public static final int SLOT_GHOSTINPUT = 1;
 
     public static int GRID_WIDTH = 66;
     public static int GRID_HEIGHT = 208;
-    public static int GRID_XOFFSET = -GRID_WIDTH - 2 + 7;
-    public static int GRID_YOFFSET = 127;
+    public static final int GRID_XOFFSET = -GRID_WIDTH - 2 + 7;
+    public static final int GRID_YOFFSET = 127;
 
     private ItemStackList stacks = ItemStackList.create(10);
 
