@@ -16,6 +16,7 @@ import net.minecraft.inventory.container.IContainerListener;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -34,17 +35,17 @@ public class ModularStorageContainer extends GenericContainer {
     public static final int SLOT_STORAGE = 3;
     public static final int MAXSIZE_STORAGE = 500;  // @todo, should be max of all possible storages
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOT_STORAGE)
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(SLOT_STORAGE)
             .slot(specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157)
             .slot(specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175)
             .slot(specific(stack -> stack.getItem() instanceof FilterModuleItem), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193)
             .box(input(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 500 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0) // Dummy slot positions
             .playerSlots(91, 157)
             .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
-            .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18);
+            .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18));
 
     public ModularStorageContainer(int id, BlockPos pos, PlayerEntity player, ModularStorageTileEntity tileEntity) {
-        super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY, pos, tileEntity);
+        super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class ModularStorageContainer extends GenericContainer {
     public void generateSlots() {
         boolean onClient = getTe().getWorld().isRemote();
 
-        for (SlotFactory slotFactory : CONTAINER_FACTORY.getSlots()) {
+        for (SlotFactory slotFactory : CONTAINER_FACTORY.get().getSlots()) {
             Slot slot;
             if (CONTAINER_GRID.equals(slotFactory.getInventoryName())) {
                 SlotType slotType = slotFactory.getSlotType();

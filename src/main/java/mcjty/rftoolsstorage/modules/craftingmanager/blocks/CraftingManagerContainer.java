@@ -7,6 +7,7 @@ import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -22,7 +23,7 @@ public class CraftingManagerContainer extends GenericContainer {
     public static final int SLOTS_DEVICE_2 = 4+16;
     public static final int SLOTS_DEVICE_3 = 4+24;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(4 + 8*4)
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(4 + 8*4)
             .slot(input(), CONTAINER_CONTAINER, SLOTS_DEVICES + 0, 22, 17)
             .slot(input(), CONTAINER_CONTAINER, SLOTS_DEVICES + 1, 22, 17+22)
             .slot(input(), CONTAINER_CONTAINER, SLOTS_DEVICES + 2, 22, 17+44)
@@ -31,10 +32,10 @@ public class CraftingManagerContainer extends GenericContainer {
             .box(specific(s -> s.getItem() instanceof CraftingCardItem), CONTAINER_CONTAINER, SLOTS_DEVICE_1, 85, 17+22, 8, 1)
             .box(specific(s -> s.getItem() instanceof CraftingCardItem), CONTAINER_CONTAINER, SLOTS_DEVICE_2, 85, 17+44, 8, 1)
             .box(specific(s -> s.getItem() instanceof CraftingCardItem), CONTAINER_CONTAINER, SLOTS_DEVICE_3, 85, 17+66, 8, 1)
-            .playerSlots(85, 125);
+            .playerSlots(85, 125));
 
     public CraftingManagerContainer(int id, BlockPos pos, PlayerEntity player, CraftingManagerTileEntity tileEntity) {
-        super(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), id, CONTAINER_FACTORY, pos, tileEntity);
+        super(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity);
     }
 
     @Override

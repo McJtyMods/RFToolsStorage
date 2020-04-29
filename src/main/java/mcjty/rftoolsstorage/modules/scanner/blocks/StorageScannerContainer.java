@@ -9,6 +9,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -27,12 +28,12 @@ public class StorageScannerContainer extends GenericContainer {
 
     public static final int SLOTS = 3;
 
-    public static final ContainerFactory CONTAINER_FACTORY = new ContainerFactory(SLOTS)    // 1 extra slot for automation is at index 2
+    public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(SLOTS)    // 1 extra slot for automation is at index 2
             .slot(input(), CONTAINER_CONTAINER, SLOT_IN, 28, 220)
             .slot(output(), CONTAINER_CONTAINER, SLOT_OUT, 55, 220)
             .playerSlots(86, 162)
             .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
-            .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18);
+            .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18));
 
     public void clearGrid() {
         IItemHandlerModifiable inventory = (IItemHandlerModifiable) inventories.get(CONTAINER_GRID);
@@ -42,7 +43,7 @@ public class StorageScannerContainer extends GenericContainer {
     }
 
     private StorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
-        super(type, id, CONTAINER_FACTORY, pos, tileEntity);
+        super(type, id, CONTAINER_FACTORY.get(), pos, tileEntity);
     }
 
     public static StorageScannerContainer create(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {

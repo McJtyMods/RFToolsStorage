@@ -1381,7 +1381,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     @Nonnull
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(StorageScannerTileEntity.this, CONTAINER_FACTORY) {
+        return new NoDirectionItemHander(StorageScannerTileEntity.this, CONTAINER_FACTORY.get()) {
 
             @Override
             public boolean isItemInsertable(int slot, @Nonnull ItemStack stack) {

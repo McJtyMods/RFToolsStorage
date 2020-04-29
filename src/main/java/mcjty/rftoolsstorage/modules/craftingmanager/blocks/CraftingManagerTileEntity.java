@@ -298,7 +298,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 
     @Nonnull
     private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(this, CraftingManagerContainer.CONTAINER_FACTORY) {
+        return new NoDirectionItemHander(this, CraftingManagerContainer.CONTAINER_FACTORY.get()) {
 
             @Override
             protected void onUpdate(int index) {
