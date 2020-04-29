@@ -12,10 +12,10 @@ import java.nio.file.Path;
 
 public class Config {
 
-    private static final Builder COMMON_BUILDER = new Builder();
+    private static final Builder SERVER_BUILDER = new Builder();
     private static final Builder CLIENT_BUILDER = new Builder();
 
-    public static final ForgeConfigSpec COMMON_CONFIG;
+    public static final ForgeConfigSpec SERVER_CONFIG;
     public static final ForgeConfigSpec CLIENT_CONFIG;
 
 
@@ -44,10 +44,10 @@ public class Config {
     }
 
     static {
-        ModularStorageConfiguration.init(COMMON_BUILDER, CLIENT_BUILDER);
-        StorageScannerConfiguration.init(COMMON_BUILDER, CLIENT_BUILDER);
+        ModularStorageConfiguration.init(SERVER_BUILDER, CLIENT_BUILDER);
+        StorageScannerConfiguration.init(SERVER_BUILDER, CLIENT_BUILDER);
 
-        COMMON_CONFIG = COMMON_BUILDER.build();
+        SERVER_CONFIG = SERVER_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
     }
 }

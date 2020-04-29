@@ -18,44 +18,44 @@ public class StorageScannerConfiguration {
 
     public static ForgeConfigSpec.BooleanValue xnetRequired;
 
-    public static void init(ForgeConfigSpec.Builder COMMON_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
-        COMMON_BUILDER.comment("Settings for the storage scanner machine").push(CATEGORY_STORAGE_SCANNER);
+    public static void init(ForgeConfigSpec.Builder SERVER_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
+        SERVER_BUILDER.comment("Settings for the storage scanner machine").push(CATEGORY_STORAGE_SCANNER);
         CLIENT_BUILDER.comment("Settings for the storage scanner machine").push(CATEGORY_STORAGE_SCANNER);
 
-        rfPerRequest = COMMON_BUILDER
+        rfPerRequest = SERVER_BUILDER
                 .comment("Amount of RF used to request an item")
                 .defineInRange("rfPerRequest", 100, 0, Integer.MAX_VALUE);
-        rfPerInsert = COMMON_BUILDER
+        rfPerInsert = SERVER_BUILDER
                 .comment("Amount of RF used to insert an item")
                 .defineInRange("rfPerInsert", 20, 0, Integer.MAX_VALUE);
         hilightTime = CLIENT_BUILDER
                 .comment("Time (in seconds) to hilight a block in the world")
                 .defineInRange("hilightTime", 5, 0, Integer.MAX_VALUE);
-        MAXENERGY = COMMON_BUILDER
+        MAXENERGY = SERVER_BUILDER
                 .comment("Maximum RF storage that the storage scanner can hold")
                 .defineInRange("scannerMaxRF", 50000, 0, Integer.MAX_VALUE);
-        RECEIVEPERTICK = COMMON_BUILDER
+        RECEIVEPERTICK = SERVER_BUILDER
                 .comment("RF per tick that the storage scanner can receive")
                 .defineInRange("scannerRFPerTick", 500, 0, Integer.MAX_VALUE);
 
-        STORAGE_CONTROL_RFPERTICK = COMMON_BUILDER
+        STORAGE_CONTROL_RFPERTICK = SERVER_BUILDER
                 .comment("RF per tick/per block for the storage control module")
                 .defineInRange("storageControlRFPerTick", 0, 0, Integer.MAX_VALUE);
-        DUMP_RFPERTICK = COMMON_BUILDER
+        DUMP_RFPERTICK = SERVER_BUILDER
                 .comment("RF per tick/per block for the dump module")
                 .defineInRange("dumpRFPerTick", 0, 0, Integer.MAX_VALUE);
 
         hilightStarredOnGuiOpen = CLIENT_BUILDER
                 .comment("If this is true then opening the storage scanner GUI will automatically select the starred inventory view")
                 .define("hilightStarredOnGuiOpen", true);
-        requestStraightToInventory = COMMON_BUILDER
+        requestStraightToInventory = SERVER_BUILDER
                 .comment("If this is true then requesting items from the storage scanner will go straight into the player inventory and not the output slot")
                 .define("requestStraightToInventory", true);
-        xnetRequired = COMMON_BUILDER
+        xnetRequired = SERVER_BUILDER
                 .comment("If this is true then XNet is required (if present) to be able to connect storages to a storage scanner")
                 .define("xnetRequired", false);
 
-        COMMON_BUILDER.pop();
+        SERVER_BUILDER.pop();
         CLIENT_BUILDER.pop();
     }
 }
