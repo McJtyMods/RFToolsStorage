@@ -115,18 +115,18 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public static final int XNETDELAY = 40;
 
-    private CraftingSystem craftingSystem = new CraftingSystem(this);
+    private final CraftingSystem craftingSystem = new CraftingSystem(this);
     private List<BlockPos> inventories = new ArrayList<>();
     private List<BlockPos> craftingInventories = null; // Subset of 'inventories' with all the crafting managers
-    private Set<BlockPos> inventoriesFromXNet = new HashSet<>();
+    private final Set<BlockPos> inventoriesFromXNet = new HashSet<>();
 
     // This data is fed directly by the storage channel system (XNet) and is
     // cleared automatically if that system stops or is disabled
     private Map<BlockPos, InventoryAccessSettings> xnetAccess = Collections.emptyMap();
     private int xnetDelay = XNETDELAY;      // Timer to control when to clear the above
 
-    private Map<CachedItemKey, CachedItemCount> cachedCounts = new HashMap<>();
-    private Set<BlockPos> routable = new HashSet<>();
+    private final Map<CachedItemKey, CachedItemCount> cachedCounts = new HashMap<>();
+    private final Set<BlockPos> routable = new HashSet<>();
     private int radius = 1;
 
     private SortingMode sortingMode = SortingMode.NAME;
@@ -137,16 +137,16 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     // Indicates if for this storage scanner the inventories should be shown wide
     private boolean openWideView = true;
 
-    private LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
-    private LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get()));
-    private LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(this::createItemHandler);
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
+    private final LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
+    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get()));
+    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(this::createItemHandler);
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getPos(), StorageScannerTileEntity.this))
             .energyHandler(energyHandler)
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
-    private LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
+    private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
 
-    private CraftingGrid craftingGrid = new CraftingGrid();
+    private final CraftingGrid craftingGrid = new CraftingGrid();
 
     // If set this is a dummy tile entity
     private DimensionType dummyType = null;
@@ -161,19 +161,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         this();
         dummyType = type;
     }
-
-    //    public StorageScannerTileEntity() {
-//        super(StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
-//        monitorDim = null;
-//        radius = (StorageScannerConfiguration.xnetRequired.get() && RFTools.setup.xnet) ? 0 : 1;
-//    }
-
-    // This constructor is used for constructing a dummy client-side tile entity when
-    // accessing the storage scanner remotely
-//    public StorageScannerTileEntity(PlayerEntity PlayerEntity, int monitordim) {
-//        super(StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
-//        this.monitorDim = monitordim;
-//    }
 
     @Override
     public void storeRecipe(int index) {

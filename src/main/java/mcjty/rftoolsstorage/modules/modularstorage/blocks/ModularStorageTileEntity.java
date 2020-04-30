@@ -8,6 +8,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.Cached;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IModularStorage;
@@ -62,15 +63,15 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         };
     }
 
-    private Predicate<ItemStack> filterCache = null;
+    private final Cached<Predicate<ItemStack>> filterCache = Cached.of(this::createFilterCache);
 
-    private LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
+    private final LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId,player) -> new ModularStorageContainer(windowId, getPos(), player, ModularStorageTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
     private GlobalStorageItemWrapper globalWrapper;
-    private ItemStackHandler cardHandler = new ItemStackHandler(3) {
+    private final ItemStackHandler cardHandler = new ItemStackHandler(3) {
         @Override
         protected void onContentsChanged(int slot) {
             if (slot == SLOT_STORAGE_MODULE) {
@@ -79,13 +80,13 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                     globalWrapper.setInfo(info);
                 }
             } else if (slot == SLOT_FILTER_MODULE) {
-                filterCache = null;
+                filterCache.clear();
             }
             markDirtyClient();
         }
     };
 
-    private CraftingGrid craftingGrid = new CraftingGrid();
+    private final CraftingGrid craftingGrid = new CraftingGrid();
 
     private String sortMode = "";
     private String viewMode = "";
@@ -359,10 +360,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 //        }
 //    }
 
-    private void getFilterCache() {
-        if (filterCache == null) {
-            filterCache = FilterModuleItem.getCache(cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE));
-        }
+    private Predicate<ItemStack> createFilterCache() {
+        return FilterModuleItem.getCache(cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE));
     }
 
     @Nonnull
@@ -377,9 +376,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                         return false;
                     }
                     if (!cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE).isEmpty()) {
-                        getFilterCache();
-                        if (filterCache != null) {
-                            return filterCache.test(stack);
+                        if (filterCache.get() != null) {
+                            return filterCache.get().test(stack);
                         }
                     }
 

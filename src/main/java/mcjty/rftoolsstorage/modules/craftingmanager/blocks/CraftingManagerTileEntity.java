@@ -51,13 +51,13 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             new ModelProperty<>()
     };
 
-    private LazyOptional<IItemHandler> itemHandler = LazyOptional.of(this::createItemHandler);
-    private LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Modular Storage")
+    private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(this::createItemHandler);
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Modular Storage")
             .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getPos(), player, CraftingManagerTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
     // @todo save/load requests in NBT
-    private CraftingQueue[] queues = new CraftingQueue[4];
+    private final CraftingQueue[] queues = new CraftingQueue[4];
 
     public CraftingManagerTileEntity() {
         super(CraftingManagerSetup.TYPE_CRAFTING_MANAGER.get());
