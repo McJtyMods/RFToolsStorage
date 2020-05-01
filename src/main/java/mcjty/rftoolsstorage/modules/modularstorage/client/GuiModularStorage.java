@@ -5,6 +5,7 @@ import mcjty.lib.container.BaseSlot;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.client.GuiTools;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
@@ -85,7 +86,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //    }
 
     public GuiModularStorage(ModularStorageTileEntity tileEntity, ModularStorageContainer container, PlayerInventory inventory) {
-        super(RFToolsStorage.instance, tileEntity, container, inventory, 0, "storage");
+        super(RFToolsStorage.instance, tileEntity, container, inventory, ManualEntry.EMPTY);
 
         craftingGrid = new GuiCraftingGrid();
 

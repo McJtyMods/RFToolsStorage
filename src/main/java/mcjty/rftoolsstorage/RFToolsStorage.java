@@ -7,7 +7,6 @@ import mcjty.rftoolsstorage.modules.scanner.ScannerModuleRegistry;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.ModSetup;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -44,10 +43,6 @@ public class RFToolsStorage implements ModBase {
     @Override
     public String getModId() {
         return MODID;
-    }
-
-    @Override
-    public void openManual(PlayerEntity player, int bookIndex, String page) {
     }
 
     public static Item.Properties createStandardProperties() {

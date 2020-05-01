@@ -4,6 +4,7 @@ import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
@@ -90,7 +91,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     public static List<ItemStack> fromServer_craftable = new ArrayList<>();
 
     public GuiStorageScanner(StorageScannerTileEntity te, StorageScannerContainer container, PlayerInventory playerInventory) {
-        super(RFToolsStorage.instance, te, container, playerInventory, 0 /* @todo 1.14 */, "stomon");
+        super(RFToolsStorage.instance, te, container, playerInventory,  /* @todo 1.14 */ ManualEntry.EMPTY);
 
         craftingGrid = new GuiCraftingGrid();
 
