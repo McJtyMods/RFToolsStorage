@@ -1,0 +1,12 @@
+{
+  "name": "rftoolsstorage.entry.modularstorage",
+  "icon": "rftoolsstorage:modular_storage",
+  "category": "rftoolsstorage:category_rftoolsstorage_modularstorage",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "rftoolsstorage.page.modularstorage0"
+    }
+  ]
+}

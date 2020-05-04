@@ -1,0 +1,7 @@
+{
+  "name": "rftoolsstorage.category.modularstorage",
+  "description": "rftoolsstorage.category.modularstorage.description",
+  "parent": "rftoolsstorage:category_rftoolsstorage",
+  "icon": "rftoolsstorage:modular_storage",
+  "sortnum": 10
+}

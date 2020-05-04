@@ -18,6 +18,7 @@ import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.RFToolsBase;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.GuiCraftingGrid;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
@@ -91,7 +92,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     public static List<ItemStack> fromServer_craftable = new ArrayList<>();
 
     public GuiStorageScanner(StorageScannerTileEntity te, StorageScannerContainer container, PlayerInventory playerInventory) {
-        super(RFToolsStorage.instance, te, container, playerInventory,  /* @todo 1.14 */ ManualEntry.EMPTY);
+        super(RFToolsStorage.instance, te, container, playerInventory, ManualHelper.create("rftoolsstorage:scanner/scanner"));
 
         craftingGrid = new GuiCraftingGrid();
 

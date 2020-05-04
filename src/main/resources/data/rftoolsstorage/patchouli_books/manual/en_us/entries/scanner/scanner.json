@@ -1,0 +1,12 @@
+{
+  "name": "rftoolsstorage.entry.scanner",
+  "icon": "rftoolsstorage:storage_scanner",
+  "category": "rftoolsstorage:category_rftoolsstorage_scanner",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "rftoolsstorage.page.scanner0"
+    }
+  ]
+}
