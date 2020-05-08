@@ -1,4 +1,4 @@
-Upcoming:
+1.1.0-beta:
 - Better tooltips
 - Re-implemented TOP support for all blocks
 - New 'sort mode' button in the Storage Scanner allowing you to sort the items in the list
