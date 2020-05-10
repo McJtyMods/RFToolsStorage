@@ -108,6 +108,9 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
 
     private StorageEntry getStorage(ItemStack stack) {
         CompoundNBT tag = stack.getTag();
+        if (tag == null) {
+            return null;
+        }
         UUID uuid = tag.getUniqueId("uuid");
         int version = tag.getInt("version");
         return RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
