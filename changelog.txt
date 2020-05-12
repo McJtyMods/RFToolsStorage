@@ -1,4 +1,4 @@
-Upcoming:
+1.1.2-beta:
 - Fixed a crash in the tooltip of the storage modules
 
 1.1.1-beta:
