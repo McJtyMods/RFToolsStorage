@@ -29,7 +29,7 @@
     "message.rftoolsstorage.tablet_scanner.gold": "平板電腦包含指向存儲掃描儀的鏈接：右鍵單擊以獲取掃描儀gui，蹲下右鍵單擊以獲取平板電腦gui",
 
     "message.rftoolsstorage.storage_scanner.header": "這台機器將掃描附近的所有庫存並將它們顯示在列表中。然後，您可以搜索和訪問這些庫存中的項目",
-    "message.rftoolsstorage.storage_scanner.gold": "注入獎勵：降低功耗",
+    "message.rftoolsstorage.storage_scanner.gold": "注能加成：降低功耗",
 
     "message.rftoolsstorage.storage_control_module.header": "該屏幕模塊允許您通過存儲掃描儀監視9個不同的項目。 該模塊還可以與平板電腦結合使用，以遠程訪問由存儲掃描儀控制的系統",
     "message.rftoolsstorage.storage_control_module.gold": "在存儲掃描儀上蹲下鼠標右鍵以設置該存儲模塊的目標",
