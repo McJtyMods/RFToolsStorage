@@ -1,0 +1,67 @@
+{
+    "item.rftoolsstorage.storage_module0": "1티어 저장 모듈",
+    "item.rftoolsstorage.storage_module1": "2티어 저장 모듈",
+    "item.rftoolsstorage.storage_module2": "3티어 저장 모듈",
+    "item.rftoolsstorage.storage_module3": "4티어 저장 모듈",
+    "item.rftoolsstorage.storage_module6": "원격 저장 모듈",
+    "item.rftoolsstorage.storage_module_tablet": "저장 태블릿",
+    "item.rftoolsstorage.filter_module": "여과 모듈",
+    "item.rftoolsstorage.oredict_module": "광물사전 유형 모듈",
+    "item.rftoolsstorage.generic_module": "포괄적인 유형 모듈",
+    "item.rftoolsstorage.tablet_scanner": "태블릿 (스캐너)",
+    "item.rftoolsstorage.storage_control_module": "저장 제어 스크린 모듈",
+    "item.rftoolsstorage.dump_module": "덤프 스크린 모듈",
+
+    "block.rftoolsstorage.modular_storage": "모듈러 저장",
+    "block.rftoolsstorage.remote_storage": "원격 저장",
+    "block.rftoolsstorage.storage_scanner": "저장 스캐너",
+
+    "_comment": "Creative Tabs",
+    "itemGroup.rftoolsstorage": "RF툴즈 스토리지",
+
+    "_comment": "Messages",
+    "message.rftoolsstorage.shiftmessage": "<Shift 누르기>",
+
+    "message.rftoolsstorage.crafting_manager.header": "개발 중",
+    "message.rftoolsstorage.crafting_manager.gold": "아직 작동하지 않습니다.",
+
+    "message.rftoolsstorage.tablet_scanner.header": "원격 GUI 및 정보를 참조하는 데 사용할 수 있는 태블릿입니다.",
+    "message.rftoolsstorage.tablet_scanner.gold": "태블릿에는 저장 스캐너 링크가 포함되어 있습니다. 스캐너 GUI를 우클릭하고 태블릿 GUI를 우클릭합니다.",
+
+    "message.rftoolsstorage.storage_scanner.header": "이 기계는 근처의 모든 인벤토리를 스캔하여 목록에 표시합니다. 그런 다음 해당 인벤토리에서 아이템을 검색하고 접속할 수 있습니다.",
+    "message.rftoolsstorage.storage_scanner.gold": "주입 보너스: 전력 소비량이 감소합니다.",
+
+    "message.rftoolsstorage.storage_control_module.header": "이 스크린 모듈을 사용하면 저장 스캐너를 통해 9개의 아이템을 모니터링할 수 있습니다. 이 모듈은 저장 스캐너 제어 시스템에 원격으로 접속할 수 있도록 태블릿과 결합할 수도 있습니다.",
+    "message.rftoolsstorage.storage_control_module.gold": "저장 스캐너를 우클릭하여 이 저장 모듈의 대상을 설정합니다.",
+    "message.rftoolsstorage.storage_control_module.uses": "전력 사용량: ",
+    "message.rftoolsstorage.storage_control_module.info": "저장 스캐너: ",
+
+    "message.rftoolsstorage.dump_module.header": "연결된 저장 스캐너에 많은 아이템을 덤프할 수 있는 스크린용 모듈입니다.",
+    "message.rftoolsstorage.dump_module.gold": "저장 스캐너를 우클릭하여 이 덤프 모듈의 대상을 설정합니다.",
+    "message.rftoolsstorage.dump_module.uses": "전력 사용량: ",
+    "message.rftoolsstorage.dump_module.info": "저장 스캐너: ",
+
+    "message.rftoolsstorage.storage_module.header": "이 저장 모듈은 모듈러 저장 블록용입니다.",
+    "message.rftoolsstorage.storage_module.gold": "이 모듈은 원격 인벤토리를 지원합니다. 원격 저장소 블록의 다른 저장소 모듈에 연결합니다.",
+    "message.rftoolsstorage.storage_module.info": "지원되는 스택: ",
+    "message.rftoolsstorage.storage_module.remoteid": "원격 ID: ",
+    "message.rftoolsstorage.storage_module.uuid": "UUID: ",
+    "message.rftoolsstorage.storage_module.version": "버전: ",
+    "message.rftoolsstorage.storage_module.items": "내용: ",
+    "message.rftoolsstorage.storage_module.advanced": "고급: ",
+
+    "message.rftoolsstorage.modular_storage.header": "이 모듈러 저장 시스템은 많은 아이템을 저장할 수 있으며 검색 및 여과가 용이합니다. 먼저 저장 모듈 항목을 삽입해야 사용할 수 있습니다.",
+
+    "rftoolsstorage.category.main": "RF툴즈 스토리지",
+    "rftoolsstorage.category.main.description": "RF툴즈 스토리지는 아이템을 저장하고 쉽게 접속할 수 있는 기능을 가지고 있습니다.",
+    "rftoolsstorage.category.modularstorage": "모듈러 저장",
+    "rftoolsstorage.category.modularstorage.description": "유연한 저장 솔루션입니다.",
+    "rftoolsstorage.category.scanner": "저장 스캐너",
+    "rftoolsstorage.category.scanner.description": "중앙 집중식 장소에서 인근 인벤토리에 접속할 수 있는 강력한 블록입니다.",
+    "rftoolsstorage.entry.modularstorage": "모듈러 저장",
+    "rftoolsstorage.page.modularstorage0": "모듈러 저장 블록은 최대 500개의 스택(적절한 저장 모듈 포함)을 저장할 수 있는 강력한 패시브 인벤토리입니다.",
+    "rftoolsstorage.entry.storagemodules": "저장 모듈",
+    "rftoolsstorage.page.storagemodules0": "모듈러 저장 블록에서 직접 사용할 수 있는 저장 모듈의 티어는 4개입니다.",
+    "rftoolsstorage.entry.scanner": "저장 스캐너",
+    "rftoolsstorage.page.scanner0": "저장 스캐너는 근처의 인벤토리를 검색하고 해당 인벤토리에 아이템을 표시할 수 있는 강력한 블록입니다. 이러한 아이템에 접속하여 다시 저장할 수도 있습니다."
+}
