@@ -375,6 +375,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                     if (!rc) {
                         return false;
                     }
+                    if (slot >= info.getSize()) {
+                        return false;
+                    }
                     if (!cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE).isEmpty()) {
                         if (filterCache.get() != null) {
                             return filterCache.get().test(stack);

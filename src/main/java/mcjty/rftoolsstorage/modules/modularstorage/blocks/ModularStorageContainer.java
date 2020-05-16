@@ -22,6 +22,8 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
+import javax.annotation.Nonnull;
+
 import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
 import static mcjty.lib.container.SlotDefinition.*;
 
@@ -92,7 +94,12 @@ public class ModularStorageContainer extends GenericContainer {
                         getAdjustedY(slotFactory.getY(), onClient));
             } else {
                 slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(),
-                        getAdjustedY(slotFactory.getY(), onClient));
+                        getAdjustedY(slotFactory.getY(), onClient)) {
+                    @Override
+                    public boolean isItemValid(@Nonnull ItemStack stack) {
+                        return getItemHandler().isItemValid(slotNumber, stack);
+                    }
+                };
             }
             addSlot(slot);
         }

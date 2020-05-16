@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a problem in the modular storage where shift-clicking an item into the storage from the gui would void items if the storage was full
+
 1.1.2-beta:
 - Fixed a crash in the tooltip of the storage modules
 
