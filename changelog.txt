@@ -1,4 +1,4 @@
-Upcoming:
+1.1.3-beta:
 - Fixed a problem in the modular storage where shift-clicking an item into the storage from the gui would void items if the storage was full
 
 1.1.2-beta:
