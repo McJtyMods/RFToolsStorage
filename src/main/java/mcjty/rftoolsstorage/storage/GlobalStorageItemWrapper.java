@@ -200,6 +200,14 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return !info.isEmpty();
+        if (info.isEmpty()) {
+            return false;
+        }
+        if (slot >= info.getSize()) {
+            return false;
+        }
+        return true;
     }
+
+
 }

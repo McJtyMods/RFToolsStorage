@@ -375,15 +375,11 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                     if (!rc) {
                         return false;
                     }
-                    if (slot >= info.getSize()) {
-                        return false;
-                    }
                     if (!cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE).isEmpty()) {
                         if (filterCache.get() != null) {
                             return filterCache.get().test(stack);
                         }
                     }
-
                     return true;
                 }
             };
@@ -421,6 +417,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     public int getNumStacks() {
         int cnt = 0;
+        if (globalWrapper == null) {
+            createGlobalHandler();
+        }
         for (int i = 0 ; i < globalWrapper.getSlots() ; i++) {
             if (!globalWrapper.getStackInSlot(i).isEmpty()) {
                 cnt++;
