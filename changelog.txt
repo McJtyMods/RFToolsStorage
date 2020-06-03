@@ -1,4 +1,4 @@
-Upcoming:
+1.1.4-beta:
 - Fixed various problems with modular storage. It was mostly broken after last update
 
 1.1.3-beta:
