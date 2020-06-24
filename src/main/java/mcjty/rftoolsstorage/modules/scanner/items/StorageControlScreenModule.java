@@ -261,7 +261,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
                         dirty = i;
                     }
                 } else {
-                    scannerTileEntity.giveToPlayerFromScreen(stacks.get(i), player.isShiftKeyDown /*isSneaking*/(), player);
+                    scannerTileEntity.giveToPlayerFromScreen(stacks.get(i), player.isSneaking(), player);
                 }
             }
         }

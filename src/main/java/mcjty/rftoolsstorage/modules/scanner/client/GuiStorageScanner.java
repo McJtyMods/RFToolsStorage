@@ -509,7 +509,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             public void select() {
                 Object item = blockRender.getRenderItem();
                 if (item != null) {
-                    boolean shift = McJtyLib.proxy.isShiftKeyDown();
+                    boolean shift = McJtyLib.proxy.isSneaking();
                     requestItem((ItemStack) item, shift ? 1 : -1, craftable);
                 }
             }
