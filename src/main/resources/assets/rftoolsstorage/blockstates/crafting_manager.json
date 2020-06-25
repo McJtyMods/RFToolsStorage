@@ -1,5 +1,9 @@
 {
-  "variants": {
-    "": { "model": "rftoolsstorage:block/crafting_manager" }
-  }
+  "multipart": [
+    {
+      "apply": {
+        "model": "rftoolsstorage:block/crafting_manager"
+      }
+    }
+  ]
 }

@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.datagen;
 import mcjty.lib.datagen.BaseBlockStateProvider;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularTypeModule;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularAmountOverlay;
@@ -13,6 +14,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
 import net.minecraftforge.client.model.generators.ExistingFileHelper;
+import net.minecraftforge.client.model.generators.MultiPartBlockStateBuilder;
 
 public class BlockStates extends BaseBlockStateProvider {
 
@@ -23,6 +25,7 @@ public class BlockStates extends BaseBlockStateProvider {
     @Override
     protected void registerStatesAndModels() {
         generateModularStorage();
+        createCraftingManager();
     }
 
     private void generateModularStorage() {
@@ -45,12 +48,12 @@ public class BlockStates extends BaseBlockStateProvider {
         for (int i = 0; i < 8; i++) {
             overlayAmount[i] = models().getBuilder("block/storage/overlayamount" + i)
                     .element().from(12, 5, -0.2f).to(13, 13, 16)
-                    .face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlaya").uvs(14-i*2, 0, 15-i*2, 8).end()
+                    .face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlaya").uvs(14 - i * 2, 0, 15 - i * 2, 8).end()
                     .end()
                     .texture("overlaya", modLoc("block/overlayamount"));
             overlayAmountR[i] = models().getBuilder("block/storage/overlayamount_remote" + i)
                     .element().from(12, 5, -0.2f).to(13, 13, 16)
-                    .face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlaya").uvs(14-i*2, 0, 15-i*2, 8).end()
+                    .face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlaya").uvs(14 - i * 2, 0, 15 - i * 2, 8).end()
                     .end()
                     .texture("overlaya", modLoc("block/overlayamountremote"));
         }
@@ -91,4 +94,34 @@ public class BlockStates extends BaseBlockStateProvider {
                 .part().modelFile(overlayAmountR[7]).addModel().condition(ModularStorageBlock.AMOUNT, ModularAmountOverlay.AMOUNT_R7).end()
         ;
     }
+
+    private void createCraftingManager() {
+        BlockModelBuilder model = models().getBuilder("block/crafting_manager");
+        model.element().from(0f, 0f, 0f).to(16f, 16f, 16f).allFaces((direction, faceBuilder) -> {
+            if (direction == Direction.UP) {
+                faceBuilder.texture("#top");
+            } else if (direction == Direction.DOWN) {
+                faceBuilder.texture("#bottom");
+            } else {
+                faceBuilder.texture("#side");
+            }
+        }).end();
+
+        model.element().from(0f, 3f, 0f).to(16f, 3f, 16f).face(Direction.UP).texture("#bottom").end();
+        model.element().from(0f, 16f, 0f).to(16f, 16f, 16f).face(Direction.DOWN).texture("#top").end();
+
+        model.element().from(0f, 0, 16f).to(16f, 16f, 16f).face(Direction.NORTH).texture("#side").end();
+        model.element().from(0f, 0, 0f).to(16f, 16f, 0f).face(Direction.SOUTH).texture("#side").end();
+        model.element().from(16f, 0, 0f).to(16f, 16f, 16f).face(Direction.WEST).texture("#side").end();
+        model.element().from(0f, 0, 0f).to(0f, 16f, 16f).face(Direction.EAST).texture("#side").end();
+
+        model
+                .texture("top", modLoc("block/machinecraftingmanager_top"))
+                .texture("side", modLoc("block/machinecraftingmanager"))
+                .texture("bottom", new ResourceLocation(RFToolsBase.MODID, "block/base/machinebottom"));
+
+        MultiPartBlockStateBuilder bld = getMultipartBuilder(CraftingManagerSetup.CRAFTING_MANAGER.get());
+        bld.part().modelFile(model).addModel();
+    }
+
 }

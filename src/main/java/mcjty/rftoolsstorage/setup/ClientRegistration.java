@@ -5,7 +5,6 @@ import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
-import mcjty.rftoolsstorage.modules.craftingmanager.client.CraftingManagerBakedModel;
 import mcjty.rftoolsstorage.modules.craftingmanager.client.CraftingManagerRenderer;
 import mcjty.rftoolsstorage.modules.craftingmanager.client.GuiCraftingManager;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
@@ -17,14 +16,9 @@ import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -52,22 +46,4 @@ public class ClientRegistration {
     public static void registerModels(ModelRegistryEvent event) {
         CraftingManagerRenderer.register();
     }
-
-    @SubscribeEvent
-    public static void onTextureStitch(TextureStitchEvent.Pre event) {
-        if (!event.getMap().getTextureLocation().equals(AtlasTexture.LOCATION_BLOCKS_TEXTURE)) {
-            return;
-        }
-        event.addSprite(new ResourceLocation(RFToolsStorage.MODID, "block/machinecraftingmanager"));
-        event.addSprite(new ResourceLocation(RFToolsStorage.MODID, "block/machinecraftingmanager_top"));
-    }
-
-    @SubscribeEvent
-    public static void onModelBake(ModelBakeEvent event) {
-        event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(RFToolsStorage.MODID, "crafting_manager"), ""),
-                new CraftingManagerBakedModel());
-        event.getModelRegistry().put(new ModelResourceLocation(new ResourceLocation(RFToolsStorage.MODID, "crafting_manager"), "inventory"),
-                new CraftingManagerBakedModel());
-    }
-
 }
