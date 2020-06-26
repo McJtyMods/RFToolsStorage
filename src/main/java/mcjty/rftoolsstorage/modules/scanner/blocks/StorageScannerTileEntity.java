@@ -969,7 +969,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         List<Ingredient> missing = new ArrayList<>();
         for (Ingredient ingredient : ingredients) {
             ItemStack stack = requestItem(ingredient, true, 1, true);
-            if (stack.isEmpty()) {
+            // If the stack is empty but it matches the ingredient it is not considered a failure
+            if (stack.isEmpty() && !ingredient.test(stack)) {
                 missing.add(ingredient);
             }
         }

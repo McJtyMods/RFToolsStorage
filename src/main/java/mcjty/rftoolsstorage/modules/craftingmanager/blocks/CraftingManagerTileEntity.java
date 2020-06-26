@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.NoDirectionItemHander;
@@ -37,10 +38,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CraftingManagerTileEntity extends GenericTileEntity {
 
@@ -51,13 +50,15 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             new ModelProperty<>()
     };
 
-    private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(this::createItemHandler);
+    private final NoDirectionItemHander items = createItemHandler();
+    private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Modular Storage")
             .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getPos(), player, CraftingManagerTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
     // @todo save/load requests in NBT
     private final CraftingQueue[] queues = new CraftingQueue[4];
+    private boolean devicesDirty = true;
 
     public CraftingManagerTileEntity() {
         super(CraftingManagerSetup.TYPE_CRAFTING_MANAGER.get());
@@ -66,29 +67,35 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         }
     }
 
+    private Optional<ICraftingDevice> getDevice(int queueIndex) {
+        if (devicesDirty) {
+            updateDevices();
+        }
+        return Optional.ofNullable(queues[queueIndex].getDevice());
+    }
+
     /**
      * Tick is called manually from the crafting system.
      * It will return true if one of the crafters finished a craft
      */
     public boolean tick(CraftingSystem system) {
-        return itemHandler.map(h -> {
-            boolean rc = false;
-            for (int queueIndex = 0; queueIndex < 4; queueIndex++) {
-                if (queues[queueIndex].hasDevice()) {
-                    ICraftingDevice device = queues[queueIndex].getDevice();
-                    device.tick();
-                    if (device.getStatus() == ICraftingDevice.Status.READY) {
-                        sendResultsBack(queueIndex, system);
-                        rc = true;
-                    }
+        boolean rc = false;
+        for (int queueIndex = 0; queueIndex < 4; queueIndex++) {
+            int finalQueueIndex = queueIndex;
+            rc = getDevice(queueIndex).map(device -> {
+                device.tick();
+                if (device.getStatus() == ICraftingDevice.Status.READY) {
+                    sendResultsBack(finalQueueIndex, system);
+                    return true;
                 }
-            }
-            return rc;
-        }).orElse(false);
+                return false;
+            }).orElse(rc);
+        }
+        return rc;
     }
 
     private void sendResultsBack(int queueIndex, CraftingSystem system) {
-        List<ItemStack> output = queues[queueIndex].getDevice().extractOutput();
+        List<ItemStack> output = getDevice(queueIndex).map(ICraftingDevice::extractOutput).orElse(Collections.emptyList());
         StorageScannerTileEntity storage = system.getStorage();
         for (ItemStack stack : output) {
             ItemStack left = storage.insertInternal(stack, false);
@@ -98,33 +105,29 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     public boolean canCraft(Ingredient ingredient) {
-        return itemHandler.map(h -> {
-            for (int i = 4; i < h.getSlots(); i++) {
-                ItemStack card = h.getStackInSlot(i);
-                if (!card.isEmpty()) {
-                    ItemStack result = CraftingCardItem.getResult(card);
-                    if (ingredient.test(result)) {
-                        return true;
-                    }
+        for (int i = 4; i < items.getSlots(); i++) {
+            ItemStack card = items.getStackInSlot(i);
+            if (!card.isEmpty()) {
+                ItemStack result = CraftingCardItem.getResult(card);
+                if (ingredient.test(result)) {
+                    return true;
                 }
             }
-            return false;
-        }).orElse(false);
+        }
+        return false;
     }
 
     public List<ItemStack> getCraftables() {
         List<ItemStack> stacks = new ArrayList<>();
-        itemHandler.ifPresent(h -> {
-            for (int i = 4; i < h.getSlots(); i++) {
-                ItemStack card = h.getStackInSlot(i);
-                if (!card.isEmpty()) {
-                    ItemStack result = CraftingCardItem.getResult(card);
-                    if (!result.isEmpty()) {
-                        stacks.add(result);
-                    }
+        for (int i = 4; i < items.getSlots(); i++) {
+            ItemStack card = items.getStackInSlot(i);
+            if (!card.isEmpty()) {
+                ItemStack result = CraftingCardItem.getResult(card);
+                if (!result.isEmpty()) {
+                    stacks.add(result);
                 }
             }
-        });
+        }
         return stacks;
     }
 
@@ -138,44 +141,42 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
      *
      */
     public Pair<Double, Integer> getCraftingQuality(Ingredient ingredient, int amount) {
-        return itemHandler.map(h -> {
-            double bestQuality = -1;
-            int bestDevice = -1;
-            for (int queueIndex = 0; queueIndex < 4; queueIndex++) {
-                if (queues[queueIndex].hasDevice()) {
-                    ICraftingDevice device = queues[queueIndex].getDevice();
-                    Queue<CraftingRequest> requests = queues[queueIndex].getRequests();
-                    double baseQuality = Math.max(0.0, 1.0 - (requests.size() / 10.0));   // Amount of requests negatively impacts the quality
-                    switch (device.getStatus()) {
-                        case IDLE:
-                            baseQuality += QUALITY_DEVICEIDLE;
+        AtomicDouble bestQuality = new AtomicDouble(-1);
+        AtomicInteger bestDevice = new AtomicInteger(-1);
+        for (int queueIndex = 0; queueIndex < 4; queueIndex++) {
+            int finalQueueIndex = queueIndex;
+            getDevice(queueIndex).ifPresent(device -> {
+                Queue<CraftingRequest> requests = queues[finalQueueIndex].getRequests();
+                double baseQuality = Math.max(0.0, 1.0 - (requests.size() / 10.0));   // Amount of requests negatively impacts the quality
+                switch (device.getStatus()) {
+                    case IDLE:
+                        baseQuality += QUALITY_DEVICEIDLE;
+                        break;
+                    case READY:
+                        baseQuality += 0.5;
+                        break;
+                    case BUSY:
+                    default:
+                        break;
+                }
+                double quality = -1;
+                for (int i = getFirstCardIndex(finalQueueIndex); i < getLastCardIndex(finalQueueIndex); i++) {
+                    ItemStack card = items.getStackInSlot(i);
+                    if (!card.isEmpty()) {
+                        ItemStack result = CraftingCardItem.getResult(card);
+                        if (ingredient.test(result)) {
+                            quality = baseQuality;
                             break;
-                        case READY:
-                            baseQuality += 0.5;
-                            break;
-                        case BUSY:
-                        default:
-                            break;
-                    }
-                    double quality = -1;
-                    for (int i = getFirstCardIndex(queueIndex); i < getLastCardIndex(queueIndex); i++) {
-                        ItemStack card = h.getStackInSlot(queueIndex);
-                        if (!card.isEmpty()) {
-                            ItemStack result = CraftingCardItem.getResult(card);
-                            if (ingredient.test(result)) {
-                                quality = baseQuality;
-                                break;
-                            }
                         }
                     }
-                    if (quality >= 0 && quality > bestQuality) {
-                        bestQuality = quality;
-                        bestDevice = queueIndex;
-                    }
                 }
-            }
-            return Pair.of(bestQuality, bestDevice);
-        }).orElse(Pair.of(-1.0, -1));
+                if (quality >= 0 && quality > bestQuality.get()) {
+                    bestQuality.set(quality);
+                    bestDevice.set(finalQueueIndex);
+                }
+            });
+        }
+        return Pair.of(bestQuality.get(), bestDevice.get());
     }
 
     private int getLastCardIndex(int queueIndex) {
@@ -194,28 +195,29 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
      * Get the list of ingredients for a given request
      */
     @Nonnull
-    public List<Ingredient> getIngredients(int queueIndex, CraftingRequest request) {
-        return itemHandler.map(h -> {
-            CraftingQueue queue = queues[queueIndex];
-            for (int i = getFirstCardIndex(queueIndex) ; i < getLastCardIndex(queueIndex) ; i++) {
-                ItemStack cardStack = h.getStackInSlot(i);
-                if (!cardStack.isEmpty()) {
-                    ItemStack cardResult = CraftingCardItem.getResult(cardStack);
-                    if (request.getIngredient().test(cardResult)) {
-                        // Request needed ingredients from the storage scanner
-                        IRecipe recipe = CraftingCardItem.findRecipe(world, cardStack, queue.getDevice().getRecipeType());
-                        List<Ingredient> ingredients;
-                        if (recipe != null) {
-                            ingredients = recipe.getIngredients();
-                        } else {
-                            ingredients = CraftingCardItem.getIngredients(cardStack);
-                        }
-                        return ingredients;
+    public Pair<IRecipe, List<Ingredient>> getIngredients(int queueIndex, CraftingRequest request) {
+        CraftingQueue queue = queues[queueIndex];
+        if (devicesDirty) {
+            updateDevices();
+        }
+        for (int i = getFirstCardIndex(queueIndex) ; i < getLastCardIndex(queueIndex) ; i++) {
+            ItemStack cardStack = items.getStackInSlot(i);
+            if (!cardStack.isEmpty()) {
+                ItemStack cardResult = CraftingCardItem.getResult(cardStack);
+                if (request.getIngredient().test(cardResult)) {
+                    // Request needed ingredients from the storage scanner
+                    IRecipe recipe = CraftingCardItem.findRecipe(world, cardStack, queue.getDevice().getRecipeType());
+                    List<Ingredient> ingredients;
+                    if (recipe != null) {
+                        ingredients = recipe.getIngredients();
+                    } else {
+                        ingredients = CraftingCardItem.getIngredients(cardStack);
                     }
+                    return Pair.of(recipe, ingredients);
                 }
             }
-            return Collections.<Ingredient>emptyList();
-        }).orElse(Collections.<Ingredient>emptyList());
+        }
+        return Pair.of(null, Collections.<Ingredient>emptyList());
     }
 
     /**
@@ -225,8 +227,13 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
      *
      * If for some obscure reason the craft still fails this function returns false
      */
-    public boolean startCraft(int queueIndex, CraftingRequest request, List<ItemStack> ingredients) {
+    public boolean startCraft(int queueIndex, CraftingRequest request, @Nullable IRecipe recipe, List<ItemStack> ingredients) {
         CraftingQueue queue = queues[queueIndex];
+        if (devicesDirty) {
+            updateDevices();
+        }
+
+        queue.getDevice().setRecipe(recipe);
         if (!queue.getDevice().insertIngredients(ingredients, world)) {
             // For some reason there was a failure inserting ingredients
             return false;
@@ -236,52 +243,47 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     private void updateDevices() {
-        itemHandler.ifPresent(h -> {
-            for (int i = 0; i < 4; i++) {
-                ItemStack deviceStack = h.getStackInSlot(i);
-                ResourceLocation id = deviceStack.getItem().getRegistryName();
-                ICraftingDevice device = RFToolsStorage.setup.craftingDeviceRegistry.get(id);
-                queues[i].setDevice(device);
-            }
-        });
+        for (int i = 0; i < 4; i++) {
+            ItemStack deviceStack = items.getStackInSlot(i);
+            ResourceLocation id = deviceStack.getItem().getRegistryName();
+            ICraftingDevice device = RFToolsStorage.setup.craftingDeviceRegistry.get(id);
+            queues[i].setDevice(device);
+        }
+        devicesDirty = false;
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-        itemHandler.ifPresent(h -> {
-            ItemStack origMimic0 = h.getStackInSlot(0);
-            ItemStack origMimic1 = h.getStackInSlot(1);
-            ItemStack origMimic2 = h.getStackInSlot(2);
-            ItemStack origMimic3 = h.getStackInSlot(3);
-            readClientDataFromNBT(pkt.getNbtCompound());
-            ItemStack mimic0 = h.getStackInSlot(0);
-            ItemStack mimic1 = h.getStackInSlot(1);
-            ItemStack mimic2 = h.getStackInSlot(2);
-            ItemStack mimic3 = h.getStackInSlot(3);
-            if (!ItemStack.areItemsEqual(origMimic0, mimic0) || !ItemStack.areItemsEqual(origMimic1, mimic1) || !ItemStack.areItemsEqual(origMimic2, mimic2) || !ItemStack.areItemsEqual(origMimic3, mimic3)) {
-                ModelDataManager.requestModelDataRefresh(this);
-                world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
-            }
-        });
+        ItemStack origMimic0 = items.getStackInSlot(0);
+        ItemStack origMimic1 = items.getStackInSlot(1);
+        ItemStack origMimic2 = items.getStackInSlot(2);
+        ItemStack origMimic3 = items.getStackInSlot(3);
+        readClientDataFromNBT(pkt.getNbtCompound());
+        ItemStack mimic0 = items.getStackInSlot(0);
+        ItemStack mimic1 = items.getStackInSlot(1);
+        ItemStack mimic2 = items.getStackInSlot(2);
+        ItemStack mimic3 = items.getStackInSlot(3);
+        if (!ItemStack.areItemsEqual(origMimic0, mimic0) || !ItemStack.areItemsEqual(origMimic1, mimic1) || !ItemStack.areItemsEqual(origMimic2, mimic2) || !ItemStack.areItemsEqual(origMimic3, mimic3)) {
+            ModelDataManager.requestModelDataRefresh(this);
+            world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+        }
     }
 
 
     @Nonnull
     @Override
     public IModelData getModelData() {
-        return itemHandler.map(h -> {
-            BlockState mimic0 = h.getStackInSlot(0).isEmpty() ? null : ((BlockItem) h.getStackInSlot(0).getItem()).getBlock().getDefaultState();
-            BlockState mimic1 = h.getStackInSlot(1).isEmpty() ? null : ((BlockItem) h.getStackInSlot(1).getItem()).getBlock().getDefaultState();
-            BlockState mimic2 = h.getStackInSlot(2).isEmpty() ? null : ((BlockItem) h.getStackInSlot(2).getItem()).getBlock().getDefaultState();
-            BlockState mimic3 = h.getStackInSlot(3).isEmpty() ? null : ((BlockItem) h.getStackInSlot(3).getItem()).getBlock().getDefaultState();
+        BlockState mimic0 = items.getStackInSlot(0).isEmpty() ? null : ((BlockItem) items.getStackInSlot(0).getItem()).getBlock().getDefaultState();
+        BlockState mimic1 = items.getStackInSlot(1).isEmpty() ? null : ((BlockItem) items.getStackInSlot(1).getItem()).getBlock().getDefaultState();
+        BlockState mimic2 = items.getStackInSlot(2).isEmpty() ? null : ((BlockItem) items.getStackInSlot(2).getItem()).getBlock().getDefaultState();
+        BlockState mimic3 = items.getStackInSlot(3).isEmpty() ? null : ((BlockItem) items.getStackInSlot(3).getItem()).getBlock().getDefaultState();
 
-            return new ModelDataMap.Builder()
-                    .withInitial(MIMIC[0], mimic0)
-                    .withInitial(MIMIC[1], mimic1)
-                    .withInitial(MIMIC[2], mimic2)
-                    .withInitial(MIMIC[3], mimic3)
-                    .build();
-        }).orElseThrow(IllegalStateException::new);
+        return new ModelDataMap.Builder()
+                .withInitial(MIMIC[0], mimic0)
+                .withInitial(MIMIC[1], mimic1)
+                .withInitial(MIMIC[2], mimic2)
+                .withInitial(MIMIC[3], mimic3)
+                .build();
     }
 
 
@@ -304,7 +306,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             protected void onUpdate(int index) {
                 if (index < 4) {
                     markDirtyClient();
-                    updateDevices();
+                    devicesDirty = true;
                 }
                 super.onUpdate(index);
             }
