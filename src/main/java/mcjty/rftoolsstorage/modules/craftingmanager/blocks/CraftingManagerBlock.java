@@ -10,12 +10,17 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
 
 public class CraftingManagerBlock extends BaseBlock {
+
+    private static final VoxelShape SHAPE = VoxelShapes.create(.1, .1, .4, 1, 1, 1);
+
 
     private static final Block.Properties STANDARD_GLASS = Block.Properties.create(Material.GLASS)
             .hardnessAndResistance(2.0f)
@@ -29,6 +34,11 @@ public class CraftingManagerBlock extends BaseBlock {
                 .infoShift(header(), gold())
                 .tileEntitySupplier(CraftingManagerTileEntity::new)
         );
+    }
+
+    @Override
+    public VoxelShape getRenderShape(BlockState p_196247_1_, IBlockReader p_196247_2_, BlockPos p_196247_3_) {
+        return SHAPE;
     }
 
     @Override

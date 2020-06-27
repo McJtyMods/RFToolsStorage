@@ -490,19 +490,20 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         Panel panel = currentPos.getKey();
         if (panel == null || currentPos.getValue() >= numcolumns) {
             panel = horizontal(1, spacing)
-                    .desiredHeight(12).userObject(new Integer(-1)).desiredHeight(16);
+                    .desiredHeight(12).desiredHeight(16);
             currentPos = MutablePair.of(panel, 0);
             itemList.children(panel);
         }
         BlockRender blockRender = new BlockRender()
                 .renderItem(item)
-                .userObject(1)       // Mark as a special stack in the renderer (for tooltip)
-                .offsetX(-1)
+                .userObject(craftable)       // Mark as a special stack in the renderer (for tooltip)
+                .offsetX(0)
                 .offsetY(-1)
                 .hilightOnHover(true);
         if (craftable) {
             // @todo is this looking nice?
-            blockRender.filledBackground(0xffaaaa00);
+//            blockRender.filledBackground(0xff55eeaa, 0xff5588ee);
+            blockRender.filledBackground(0xff113366, 0xff115522);
         }
         blockRender.event(new BlockRenderEvent() {
             @Override
@@ -682,8 +683,12 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
     @Override
     protected List<String> addCustomLines(List<String> oldList, BlockRender blockRender, ItemStack stack) {
-        if (blockRender.getUserObject() instanceof Integer) {
+        if (blockRender.getUserObject() instanceof Boolean) {
+            boolean craftable = (Boolean)(blockRender.getUserObject());
             List<String> newlist = new ArrayList<>();
+            if (craftable) {
+                newlist.add(TextFormatting.GOLD + "Craftable");
+            }
             newlist.add(TextFormatting.GREEN + "Click: " + TextFormatting.WHITE + "full stack");
             newlist.add(TextFormatting.GREEN + "Shift + click: " + TextFormatting.WHITE + "single item");
             newlist.add("");

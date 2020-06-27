@@ -38,7 +38,7 @@ public class CraftingManagerRenderer extends TileEntityRenderer<CraftingManagerT
                 if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
                     matrixStack.push();
                     matrixStack.scale(.3f, .3f, .3f);
-                    matrixStack.translate(((i & 1) == 0) ? .15f : 1.75f, 0.93f, ((i & 2) == 0) ? .15f : 1.75f);
+                    matrixStack.translate(((i & 1) == 0) ? .45f : 1.8f, 0.93f, ((i & 2) == 0) ? .45f : 1.8f);
                     BlockState state = ((BlockItem) stack.getItem()).getBlock().getDefaultState();
                     blockRenderer.renderBlock(state, matrixStack, buffer, 0xf000f0, combinedOverlay, EmptyModelData.INSTANCE);
                     matrixStack.pop();
