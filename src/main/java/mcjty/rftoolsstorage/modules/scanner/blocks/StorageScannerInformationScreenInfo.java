@@ -37,14 +37,14 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     public static final Key<ItemStack> CRAFT4 = new Key<>("craft4", Type.ITEMSTACK);
     public static final Key<ItemStack> CRAFT5 = new Key<>("craft5", Type.ITEMSTACK);
     public static final Key<ItemStack> CRAFT6 = new Key<>("craft6", Type.ITEMSTACK);
-    public static final Key<Boolean> CRAFT1_ERROR = new Key<>("craft1error", Type.BOOLEAN);
-    public static final Key<Boolean> CRAFT2_ERROR = new Key<>("craft2error", Type.BOOLEAN);
-    public static final Key<Boolean> CRAFT3_ERROR = new Key<>("craft3error", Type.BOOLEAN);
-    public static final Key<Boolean> CRAFT4_ERROR = new Key<>("craft4error", Type.BOOLEAN);
-    public static final Key<Boolean> CRAFT5_ERROR = new Key<>("craft5error", Type.BOOLEAN);
-    public static final Key<Boolean> CRAFT6_ERROR = new Key<>("craft6error", Type.BOOLEAN);
+    public static final Key<String> CRAFT1_ERROR = new Key<>("craft1error", Type.STRING);
+    public static final Key<String> CRAFT2_ERROR = new Key<>("craft2error", Type.STRING);
+    public static final Key<String> CRAFT3_ERROR = new Key<>("craft3error", Type.STRING);
+    public static final Key<String> CRAFT4_ERROR = new Key<>("craft4error", Type.STRING);
+    public static final Key<String> CRAFT5_ERROR = new Key<>("craft5error", Type.STRING);
+    public static final Key<String> CRAFT6_ERROR = new Key<>("craft6error", Type.STRING);
 
-    public static final Pair<Key<ItemStack>,Key<Boolean>> CRAFT_KEYS[] = new Pair[]{
+    public static final Pair<Key<ItemStack>,Key<String>> CRAFT_KEYS[] = new Pair[]{
             Pair.of(CRAFT1, CRAFT1_ERROR),
             Pair.of(CRAFT2, CRAFT2_ERROR),
             Pair.of(CRAFT3, CRAFT3_ERROR),
@@ -95,7 +95,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
                         ICraftingDevice device = queue.getDevice();
                         if (device != null) {
                             if (device.getStatus() == ICraftingDevice.Status.BUSY) {
-                                add(builder, idx++, device.getCraftingItem(), false);
+                                add(builder, idx++, device.getCraftingItem(), null);
                             }
                         }
                     }
@@ -109,14 +109,14 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
                 }
                 ItemStack[] stacks = request.getIngredient().getMatchingStacks();
                 if (stacks.length > 0) {
-                    add(builder, idx++, stacks[0], true);
+                    add(builder, idx++, stacks[0], "Missing");
                 }
             }
             return builder.build();
         }
     }
 
-    private static void add(TypedMap.Builder builder, int idx, ItemStack stack, boolean error) {
+    private static void add(TypedMap.Builder builder, int idx, ItemStack stack, String error) {
         builder.put(CRAFT_KEYS[idx].getLeft(), stack);
         builder.put(CRAFT_KEYS[idx].getRight(), error);
     }

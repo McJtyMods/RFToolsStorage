@@ -28,12 +28,13 @@ public class StorageScannerInformationRenderer {
         list.add(Pair.of(ItemStack.EMPTY, ""));
 
         if (data != null && data.size() > 0) {
-            for (Pair<Key<ItemStack>, Key<Boolean>> pair : CRAFT_KEYS) {
+            for (Pair<Key<ItemStack>, Key<String>> pair : CRAFT_KEYS) {
                 Key<ItemStack> stackKey = pair.getLeft();
-                Key<Boolean> errorKey = pair.getRight();
+                Key<String> errorKey = pair.getRight();
                 ItemStack stack = data.get(stackKey);
                 if (stack != null && !stack.isEmpty()) {
-                    list.add(Pair.of(stack, data.get(errorKey) ? "ERROR" : "crafting"));
+                    String error = data.get(errorKey);
+                    list.add(Pair.of(stack, error != null ? error : "crafting"));
                 }
             }
 
