@@ -18,9 +18,10 @@ import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.util.Direction;
@@ -40,6 +41,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 public class CraftingManagerTileEntity extends GenericTileEntity {
 
@@ -195,7 +197,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
      * Get the list of ingredients for a given request
      */
     @Nonnull
-    public Pair<IRecipe, List<Ingredient>> getIngredients(int queueIndex, CraftingRequest request) {
+    public List<Ingredient> getIngredients(int queueIndex, CraftingRequest request) {
         CraftingQueue queue = queues[queueIndex];
         if (devicesDirty) {
             updateDevices();
@@ -206,18 +208,12 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
                 ItemStack cardResult = CraftingCardItem.getResult(cardStack);
                 if (request.getIngredient().test(cardResult)) {
                     // Request needed ingredients from the storage scanner
-                    IRecipe recipe = CraftingCardItem.findRecipe(world, cardStack, queue.getDevice().getRecipeType());
-                    List<Ingredient> ingredients;
-                    if (recipe != null) {
-                        ingredients = recipe.getIngredients();
-                    } else {
-                        ingredients = CraftingCardItem.getIngredients(cardStack);
-                    }
-                    return Pair.of(recipe, ingredients);
+                    queue.getDevice().setupCraft(world, cardStack);
+                    return queue.getDevice().getIngredients();
                 }
             }
         }
-        return Pair.of(null, Collections.<Ingredient>emptyList());
+        return Collections.<Ingredient>emptyList();
     }
 
     /**
@@ -227,14 +223,13 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
      *
      * If for some obscure reason the craft still fails this function returns false
      */
-    public boolean startCraft(int queueIndex, CraftingRequest request, @Nullable IRecipe recipe, List<ItemStack> ingredients) {
+    public boolean startCraft(int queueIndex, CraftingRequest request, List<ItemStack> ingredients) {
         CraftingQueue queue = queues[queueIndex];
         if (devicesDirty) {
             updateDevices();
         }
 
-        queue.getDevice().setRecipe(recipe);
-        if (!queue.getDevice().insertIngredients(ingredients, world)) {
+        if (!queue.getDevice().insertIngredients(world, ingredients)) {
             // For some reason there was a failure inserting ingredients
             return false;
         }
@@ -244,10 +239,13 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 
     private void updateDevices() {
         for (int i = 0; i < 4; i++) {
+// @todo THIS IS WRONG! Should not remove devices that are already present because they may be doing something!
             ItemStack deviceStack = items.getStackInSlot(i);
             ResourceLocation id = deviceStack.getItem().getRegistryName();
-            ICraftingDevice device = RFToolsStorage.setup.craftingDeviceRegistry.get(id);
-            queues[i].setDevice(device);
+            Supplier<ICraftingDevice> device = RFToolsStorage.setup.craftingDeviceRegistry.get(id);
+            ICraftingDevice craftingDevice = device.get();
+            queues[i].setDevice(craftingDevice);
+            // Init device from ID?
         }
         devicesDirty = false;
     }
@@ -290,11 +288,28 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     @Override
     public void read(CompoundNBT tagCompound) {
         super.read(tagCompound);
+        ListNBT deviceList = tagCompound.getList("devices", Constants.NBT.TAG_COMPOUND);
+        int i = 0;
+        for (INBT nbt : deviceList) {
+            CompoundNBT deviceNBT = (CompoundNBT) nbt;
+            if (!deviceNBT.isEmpty()) {
+ // @todo how?
+            }
+        }
     }
 
     @Override
     public CompoundNBT write(CompoundNBT tagCompound) {
         super.write(tagCompound);
+        ListNBT deviceList = new ListNBT();
+        for (int i = 0 ; i < queues.length ; i++) {
+            CompoundNBT deviceNBT = new CompoundNBT();
+            if (queues[i].hasDevice()) {
+                queues[i].getDevice().write(deviceNBT);
+            }
+            deviceList.add(deviceNBT);
+        }
+        tagCompound.put("devices", deviceList);
         return tagCompound;
     }
 

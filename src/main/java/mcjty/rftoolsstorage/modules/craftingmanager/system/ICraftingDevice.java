@@ -1,10 +1,12 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public interface ICraftingDevice {
@@ -18,8 +20,10 @@ public interface ICraftingDevice {
     /// Do one crafting tick. If the craft has finished the device will be put in READY mode
     void tick();
 
-    /// Set the recipe to use for subsequent crafts
-    void setRecipe(IRecipe recipe);
+    /// Setup this device for a crafting operation
+    void setupCraft(@Nonnull World world, @Nonnull ItemStack cardStack);
+
+    List<Ingredient> getIngredients();
 
     /**
      * Return the main item that this device will craft
@@ -30,7 +34,7 @@ public interface ICraftingDevice {
      * Insert the ingredients. Returns false if this fails for some reason (in that case nothing will have been inserted).
      * The device will be put in BUSY mode.
      */
-    boolean insertIngredients(List<ItemStack> items, World world);
+    boolean insertIngredients(World world, List<ItemStack> items);
 
     /// Extract output and put the device back in IDLE mode
     List<ItemStack> extractOutput();
@@ -40,4 +44,7 @@ public interface ICraftingDevice {
 
     /// Return the current status
     Status getStatus();
+
+    void read(CompoundNBT tag);
+    void write(CompoundNBT tag);
 }

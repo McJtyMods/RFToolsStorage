@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.devices;
 
+import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -7,8 +8,11 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,12 +26,23 @@ public class VanillaCraftingDevice implements ICraftingDevice {
         }
     }, 3, 3);
 
+    private ItemStack cardStack;
     private IRecipe recipe;
     private int ticks = -1;
 
     @Override
-    public void setRecipe(IRecipe recipe) {
-        this.recipe = recipe;
+    public void setupCraft(@Nonnull World world, @Nonnull ItemStack cardStack) {
+        this.cardStack = cardStack;
+        recipe = CraftingCardItem.findRecipe(world, cardStack, getRecipeType());
+    }
+
+    @Override
+    public List<Ingredient> getIngredients() {
+        if (recipe != null) {
+            return recipe.getIngredients();
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override
@@ -38,7 +53,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     }
 
     @Override
-    public boolean insertIngredients(List<ItemStack> items, World world) {
+    public boolean insertIngredients(World world, List<ItemStack> items) {
         if (recipe == null) {
             return false;
         }
@@ -98,5 +113,19 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     @Override
     public IRecipeType<?> getRecipeType() {
         return IRecipeType.CRAFTING;
+    }
+
+    @Override
+    public void read(CompoundNBT tag) {
+        cardStack = ItemStack.read(tag.getCompound("cardStack"));
+        ticks = tag.getInt("ticks");
+    }
+
+    @Override
+    public void write(CompoundNBT tag) {
+        tag.putInt("ticks", ticks);
+        CompoundNBT compoundNBT = new CompoundNBT();
+        cardStack.write(compoundNBT);
+        tag.put("cardStack", compoundNBT);
     }
 }

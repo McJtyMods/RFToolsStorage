@@ -128,8 +128,8 @@ public class CraftingSystem {
             // No crafting manager can craft this. Put the request on the error queue
             failedRequests.add(request);
         } else {
-            Pair<IRecipe, List<Ingredient>> pair = bestDevice.craftingManager.getIngredients(bestDevice.queue, request);
-            List<ItemStack> extractedItems = storage.requestIngredients(pair.getRight(), ingredient -> {
+            List<Ingredient> ingredients = bestDevice.craftingManager.getIngredients(bestDevice.queue, request);
+            List<ItemStack> extractedItems = storage.requestIngredients(ingredients, ingredient -> {
                 // A craft is possible but some items are missing. This consumer is called for every missing ingredient
                 CraftingRequest newRequest = new CraftingRequest(newRequestId(), ingredient, 1, request.getId());
                 queuedRequests.add(newRequest);
@@ -143,7 +143,7 @@ public class CraftingSystem {
                 suspendedRequests.add(request);
             } else {
                 // We have all the needed ingredients and the device is not idle. Start the craft
-                if (!bestDevice.craftingManager.startCraft(bestDevice.queue, request, pair.getLeft(), extractedItems)) {
+                if (!bestDevice.craftingManager.startCraft(bestDevice.queue, request, extractedItems)) {
                     // There was a failure. We need to insert the items back into storage
                     rollback(world, extractedItems);
                     failedRequests.add(request);

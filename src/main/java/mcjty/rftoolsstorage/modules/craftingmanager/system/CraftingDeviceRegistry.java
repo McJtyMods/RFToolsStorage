@@ -6,20 +6,21 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class CraftingDeviceRegistry {
 
-    private final Map<ResourceLocation, ICraftingDevice> craftingDeviceMap = new HashMap<>();
+    private final Map<ResourceLocation, Supplier<ICraftingDevice>> craftingDeviceMap = new HashMap<>();
 
     public void init() {
-        craftingDeviceMap.put(Blocks.CRAFTING_TABLE.getRegistryName(), new VanillaCraftingDevice());
+        craftingDeviceMap.put(Blocks.CRAFTING_TABLE.getRegistryName(), VanillaCraftingDevice::new);
     }
 
-    public void register(ResourceLocation id, ICraftingDevice device) {
+    public void register(ResourceLocation id, Supplier<ICraftingDevice> device) {
         craftingDeviceMap.put(id, device);
     }
 
-    public ICraftingDevice get(ResourceLocation id) {
+    public Supplier<ICraftingDevice> get(ResourceLocation id) {
         return craftingDeviceMap.get(id);
     }
 }
