@@ -10,17 +10,23 @@ import java.util.function.Supplier;
 
 public class CraftingDeviceRegistry {
 
-    private final Map<ResourceLocation, Supplier<ICraftingDevice>> craftingDeviceMap = new HashMap<>();
+    private final Map<ResourceLocation, ResourceLocation> blockToDeviceMap = new HashMap<>();
+    private final Map<ResourceLocation, Supplier<ICraftingDevice>> deviceToSupplierMap = new HashMap<>();
 
     public void init() {
-        craftingDeviceMap.put(Blocks.CRAFTING_TABLE.getRegistryName(), VanillaCraftingDevice::new);
+        register(Blocks.CRAFTING_TABLE.getRegistryName(), VanillaCraftingDevice.DEVICE_VANILLA_CRAFTING, VanillaCraftingDevice::new);
     }
 
-    public void register(ResourceLocation id, Supplier<ICraftingDevice> device) {
-        craftingDeviceMap.put(id, device);
+    public void register(ResourceLocation blockId, ResourceLocation deviceId, Supplier<ICraftingDevice> device) {
+        blockToDeviceMap.put(blockId, deviceId);
+        deviceToSupplierMap.put(deviceId, device);
     }
 
-    public Supplier<ICraftingDevice> get(ResourceLocation id) {
-        return craftingDeviceMap.get(id);
+    public ResourceLocation getDeviceForBlock(ResourceLocation blockId) {
+        return blockToDeviceMap.get(blockId);
+    }
+
+    public Supplier<ICraftingDevice> getDeviceSupplier(ResourceLocation deviceId) {
+        return deviceToSupplierMap.get(deviceId);
     }
 }

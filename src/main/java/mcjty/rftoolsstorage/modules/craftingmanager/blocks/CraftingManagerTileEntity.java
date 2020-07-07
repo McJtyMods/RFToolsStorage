@@ -8,10 +8,7 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
-import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingQueue;
-import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
-import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
-import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.*;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.InventoryHelper;
@@ -242,10 +239,13 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 // @todo THIS IS WRONG! Should not remove devices that are already present because they may be doing something!
             ItemStack deviceStack = items.getStackInSlot(i);
             ResourceLocation id = deviceStack.getItem().getRegistryName();
-            Supplier<ICraftingDevice> device = RFToolsStorage.setup.craftingDeviceRegistry.get(id);
-            ICraftingDevice craftingDevice = device.get();
-            queues[i].setDevice(craftingDevice);
-            // Init device from ID?
+            ResourceLocation deviceId = RFToolsStorage.setup.craftingDeviceRegistry.getDeviceForBlock(id);
+            if (deviceId != null) {
+                Supplier<ICraftingDevice> device = RFToolsStorage.setup.craftingDeviceRegistry.getDeviceSupplier(deviceId);
+                ICraftingDevice craftingDevice = device.get();
+                queues[i].setDevice(craftingDevice);
+                // Init device from ID?
+            }
         }
         devicesDirty = false;
     }
@@ -293,8 +293,13 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         for (INBT nbt : deviceList) {
             CompoundNBT deviceNBT = (CompoundNBT) nbt;
             if (!deviceNBT.isEmpty()) {
- // @todo how?
+                ResourceLocation deviceId = new ResourceLocation(deviceNBT.getString("deviceId"));
+                Supplier<ICraftingDevice> deviceSupplier = RFToolsStorage.setup.craftingDeviceRegistry.getDeviceSupplier(deviceId);
+                ICraftingDevice device = deviceSupplier.get();
+                queues[i].setDevice(device);
+                device.read(deviceNBT);
             }
+            i++;
         }
     }
 
@@ -306,6 +311,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             CompoundNBT deviceNBT = new CompoundNBT();
             if (queues[i].hasDevice()) {
                 queues[i].getDevice().write(deviceNBT);
+                deviceNBT.putString("deviceId", queues[i].getDevice().getID().toString());
             }
             deviceList.add(deviceNBT);
         }

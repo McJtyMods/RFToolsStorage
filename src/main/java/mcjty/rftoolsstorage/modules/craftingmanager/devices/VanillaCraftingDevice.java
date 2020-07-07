@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.devices;
 
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -10,6 +11,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -19,6 +21,8 @@ import java.util.List;
 
 public class VanillaCraftingDevice implements ICraftingDevice {
 
+    public static final ResourceLocation DEVICE_VANILLA_CRAFTING = new ResourceLocation(RFToolsStorage.MODID, "vanilla_crafting");
+
     private CraftingInventory inventory = new CraftingInventory(new Container(null, -1) {
         @Override
         public boolean canInteractWith(PlayerEntity playerIn) {
@@ -26,9 +30,14 @@ public class VanillaCraftingDevice implements ICraftingDevice {
         }
     }, 3, 3);
 
-    private ItemStack cardStack;
+    private ItemStack cardStack = ItemStack.EMPTY;
     private IRecipe recipe;
     private int ticks = -1;
+
+    @Override
+    public ResourceLocation getID() {
+        return DEVICE_VANILLA_CRAFTING;
+    }
 
     @Override
     public void setupCraft(@Nonnull World world, @Nonnull ItemStack cardStack) {

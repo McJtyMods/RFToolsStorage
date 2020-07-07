@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -16,6 +17,9 @@ public interface ICraftingDevice {
         BUSY,       // Busy working
         READY       // Doing nothing and output ready
     }
+
+    /// Get the ID of this crafting device
+    ResourceLocation getID();
 
     /// Do one crafting tick. If the craft has finished the device will be put in READY mode
     void tick();
