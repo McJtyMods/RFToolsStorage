@@ -38,5 +38,6 @@ public class RFToolsStorageJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         StorageRecipeTransferHandler.register(registration);
+        StorageScannerRecipeTransferHandler.register(registration);
     }
 }

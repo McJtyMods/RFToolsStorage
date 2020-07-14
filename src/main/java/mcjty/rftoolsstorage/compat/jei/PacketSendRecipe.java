@@ -2,6 +2,10 @@ package mcjty.rftoolsstorage.compat.jei;
 
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
+import mcjty.rftoolsbase.modules.tablet.items.TabletContainer;
+import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
+import mcjty.rftoolsbase.modules.various.VariousSetup;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -59,9 +63,12 @@ public class PacketSendRecipe {
             if (pos == null) {
                 // Handle tablet version
                 ItemStack mainhand = player.getHeldItemMainhand();
-                // @todo 1.14 move to storage mod?
-//                if (!mainhand.isEmpty() && mainhand.getItem() == ModularStorageSetup.storageModuleTabletItem) {
-//                    if (player.openContainer instanceof ModularStorageItemContainer) {
+                if (!mainhand.isEmpty() && mainhand.getItem() instanceof TabletItem) {
+                    if (player.openContainer instanceof TabletContainer) {
+                        TabletContainer tabletContainer = (TabletContainer) player.openContainer;
+//                        tabletContainer
+                        // @todo
+                    }
 //                        ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
 //                        storageItemContainer.getJEIRecipeAcceptor().setGridContents(stacks);
 //                    } else if (player.openContainer instanceof RemoteStorageItemContainer) {
@@ -71,7 +78,7 @@ public class PacketSendRecipe {
 //                        StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
 //                        storageItemContainer.getStorageScannerTileEntity().setGridContents(stacks);
 //                    }
-//                }
+                }
             } else {
                 TileEntity te = world.getTileEntity(pos);
                 if (te instanceof JEIRecipeAcceptor) {
