@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.compat.jei;
 
-import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mezz.jei.api.constants.VanillaRecipeCategoryUid;
 import mezz.jei.api.gui.IRecipeLayout;

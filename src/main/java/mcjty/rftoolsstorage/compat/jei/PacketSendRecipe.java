@@ -6,6 +6,7 @@ import mcjty.rftoolsbase.modules.tablet.items.TabletContainer;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolsbase.modules.various.VariousSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -64,8 +65,9 @@ public class PacketSendRecipe {
                 // Handle tablet version
                 ItemStack mainhand = player.getHeldItemMainhand();
                 if (!mainhand.isEmpty() && mainhand.getItem() instanceof TabletItem) {
-                    if (player.openContainer instanceof TabletContainer) {
-                        TabletContainer tabletContainer = (TabletContainer) player.openContainer;
+                    if (player.openContainer instanceof StorageScannerContainer) {
+                        StorageScannerContainer container = (StorageScannerContainer) player.openContainer;
+//                        container
 //                        tabletContainer
                         // @todo
                     }
