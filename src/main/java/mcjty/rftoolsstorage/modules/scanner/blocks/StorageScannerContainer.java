@@ -42,7 +42,7 @@ public class StorageScannerContainer extends GenericContainer {
         }
     }
 
-    private StorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
+    protected StorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
         super(type, id, CONTAINER_FACTORY.get(), pos, tileEntity);
     }
 
@@ -51,12 +51,7 @@ public class StorageScannerContainer extends GenericContainer {
     }
 
     public static StorageScannerContainer createRemote(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
-        return new StorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity) {
-            @Override
-            protected boolean isRemoteContainer() {
-                return true;
-            }
-        };
+        return new RemoteStorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity);
     }
 
     protected boolean isRemoteContainer() {
