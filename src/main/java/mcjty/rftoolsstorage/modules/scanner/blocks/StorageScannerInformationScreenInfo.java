@@ -122,13 +122,13 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     }
 
     @Override
-    public void render(int mode, MatrixStack matrixStack, IRenderTypeBuffer buffer, @Nonnull TypedMap data, Direction orientation, double x, double y, double z, double scale) {
+    public void render(int mode, MatrixStack matrixStack, IRenderTypeBuffer buffer, @Nonnull TypedMap data, Direction orientation, double scale) {
         if (mode == MODE_POWER) {
-            DefaultPowerInformationRenderer.renderDefault(matrixStack, buffer, data, orientation, x, y, z, scale);
+            DefaultPowerInformationRenderer.renderDefault(matrixStack, buffer, data, orientation, scale);
         } else if (mode == MODE_POWER_GRAPHICAL) {
-            DefaultPowerInformationRenderer.renderGraphical(matrixStack, buffer, data, orientation, x, y, z, scale);
+            DefaultPowerInformationRenderer.renderGraphical(matrixStack, buffer, data, orientation, scale);
         } else {
-            StorageScannerInformationRenderer.renderCrafting(matrixStack, buffer, data, orientation, x, y, z, scale);
+            StorageScannerInformationRenderer.renderCrafting(matrixStack, buffer, data, orientation, scale);
         }
     }
 }
