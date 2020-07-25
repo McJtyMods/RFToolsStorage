@@ -2,9 +2,9 @@ package mcjty.rftoolsstorage.modules.scanner.client;
 
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
@@ -12,10 +12,8 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.network.PacketRequestDataFromServer;
-import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.client.GuiTools;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsbase.tools.ManualHelper;
@@ -37,7 +35,6 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.energy.CapabilityEnergy;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -640,10 +637,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         }
 
         if (!tileEntity.isDummy()) {
-            tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(e -> {
-                energyBar.maxValue(((GenericEnergyStorage) e).getCapacity());
-                energyBar.value(((GenericEnergyStorage) e).getEnergy());
-            });
+            updateEnergyBar(energyBar);
             exportToStarred.setCurrentChoice(tileEntity.isExportToCurrent() ? 0 : 1);
         } else {
             if (System.currentTimeMillis() - lastTime > 300) {
