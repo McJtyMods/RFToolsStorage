@@ -1,0 +1,21 @@
+{
+    "item.rftoolsstorage.storage_module0": "Tier 1 Lagermodul",
+    "item.rftoolsstorage.storage_module1": "Tier 2 Lagermodul",
+    "item.rftoolsstorage.storage_module2": "Tier 3 Lagermodul",
+    "item.rftoolsstorage.storage_module3": "Tier 4 Lagermodul",
+    "item.rftoolsstorage.storage_module6": "Remote Lagermodul",
+    "item.rftoolsstorage.storage_module_tablet": "Lagertablet",
+    "item.rftoolsstorage.filter_module": "Filter Modul",
+    "item.rftoolsstorage.oredict_module": "Erzwörterbuch Typ Modul",
+    "item.rftoolsstorage.generic_module": "Übergeordnetes Typ Modul",
+
+    "block.rftoolsstorage.modular_storage": "Modulares Lager",
+    "block.rftoolsstorage.remote_storage": "Fernlager",
+    "block.rftoolsstorage.storage_scanner": "Lagerscanner",
+
+    "_comment": "Kreative Registerkarte",
+    "itemGroup.rftoolsstorage": "RFTools Storage",
+
+    "_comment": "Nachrichten",
+    "message.rftoolsstorage.shiftmessage": "<Drücke Shift>"
+}
