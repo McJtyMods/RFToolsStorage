@@ -1,11 +1,11 @@
 package mcjty.rftoolsstorage.modules.modularstorage.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.container.BaseSlot;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.client.GuiTools;
-import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
@@ -437,7 +437,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
                 for (int i = 0 ; i < handler.getSlots(); i++) {
                     ItemStack stack = handler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
-                        String displayName = stack.getDisplayName().getFormattedText();
+                        String displayName = stack.getDisplayName().getString() /* was getFormattedText() */;
                         if (filterText.isEmpty() || displayName.toLowerCase().contains(filterText)) {
                             items.add(Pair.of(stack, i + SLOT_STORAGE));
                         }
@@ -612,7 +612,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             }
         }
 
-        drawWindow();
+        drawWindow(xxx);
     }
 
     @Override
@@ -631,8 +631,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
 
     @Override
-    protected void drawWindow() {
-        super.drawWindow();
+    protected void drawWindow(MatrixStack matrixStack) {
+        super.drawWindow(matrixStack);
         craftingGrid.draw();
     }
 }

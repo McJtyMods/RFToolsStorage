@@ -42,6 +42,6 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float v, int i, int i2) {
-        drawWindow();
+        drawWindow(xxx);
     }
 }

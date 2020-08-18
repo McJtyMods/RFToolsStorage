@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
@@ -423,7 +424,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         ResourceLocation largest2 = findLargestTag(s2);
         int rc = largest1.compareTo(largest2);
         if (rc == 0) {
-            return s1.getDisplayName().getFormattedText().compareTo(s2.getDisplayName().getFormattedText());
+            return s1.getDisplayName().getString() /* was getFormattedText() */.compareTo(s2.getDisplayName().getFormattedText());
         }
         return rc;
     }
@@ -431,7 +432,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static int compareByMod(ItemStack s1, ItemStack s2) {
         int rc = s1.getItem().getRegistryName().getNamespace().compareTo(s2.getItem().getRegistryName().getNamespace());
         if (rc == 0) {
-            return s1.getDisplayName().getFormattedText().compareTo(s2.getDisplayName().getFormattedText());
+            return s1.getDisplayName().getString() /* was getFormattedText() */.compareTo(s2.getDisplayName().getFormattedText());
         }
         return rc;
     }
@@ -649,7 +650,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             exportToStarred.setCurrentChoice(exportToCurrentReceived ? 0 : 1);
         }
 
-        drawWindow();
+        drawWindow(xxx);
     }
 
     @Override
@@ -696,11 +697,11 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static long lastTime = 0;
 
     @Override
-    protected void drawWindow() {
+    protected void drawWindow(MatrixStack matrixStack) {
         if (!init) {
             return;
         }
-        super.drawWindow();
+        super.drawWindow(matrixStack);
         craftingGrid.draw();
     }
 

@@ -37,8 +37,8 @@ public class NameItemSorter implements ItemSorter {
     }
 
     public static int compareNames(Pair<ItemStack, Integer> o1, Pair<ItemStack, Integer> o2) {
-        String name1 = o1.getLeft().getDisplayName().getFormattedText().toLowerCase();
-        String name2 = o2.getLeft().getDisplayName().getFormattedText().toLowerCase();
+        String name1 = o1.getLeft().getDisplayName().getString() /* was getFormattedText() */.toLowerCase();
+        String name2 = o2.getLeft().getDisplayName().getString() /* was getFormattedText() */.toLowerCase();
         return name1.compareTo(name2);
     }
 

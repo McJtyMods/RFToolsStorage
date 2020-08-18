@@ -23,11 +23,11 @@ public class DefaultTypeModule implements TypeModule {
 
     @Override
     public String getLongLabel(ItemStack stack) {
-        return stack.getDisplayName().getFormattedText();
+        return stack.getDisplayName().getString() /* was getFormattedText() */;
     }
 
     @Override
     public String getShortLabel(ItemStack stack) {
-        return stack.getDisplayName().getFormattedText();
+        return stack.getDisplayName().getString() /* was getFormattedText() */;
     }
 }

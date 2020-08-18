@@ -118,7 +118,7 @@ public class PacketGetInventoryInfo {
                     ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                     if (!storageModule.isEmpty()) {
                         if (storageModule.hasTag() && storageModule.getTag().contains("display")) {
-                            return storageModule.getDisplayName().getFormattedText();
+                            return storageModule.getDisplayName().getString() /* was getFormattedText() */;
                         }
                     }
                     return finalDisplayName;

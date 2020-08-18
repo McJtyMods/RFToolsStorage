@@ -44,10 +44,12 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
@@ -149,7 +151,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private final CraftingGrid craftingGrid = new CraftingGrid();
 
     // If set this is a dummy tile entity
-    private DimensionType dummyType = null;
+    private DimensionId dummyType = null;
 
     public StorageScannerTileEntity() {
         super(StorageScannerSetup.TYPE_STORAGE_SCANNER.get());
@@ -504,7 +506,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (split.startsWith("@")) {
             return s -> BlockTools.getModid(s).toLowerCase().startsWith(split.substring(1));
         } else {
-            return s -> s.getDisplayName().getFormattedText().toLowerCase().contains(split);
+            return s -> s.getDisplayName().getString() /* was getFormattedText() */.toLowerCase().contains(split);
         }
     }
 
@@ -1319,11 +1321,11 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public DimensionType getDimensionType() {
+    public DimensionId getDimension() {
         if (dummyType != null) {
             return dummyType;
         }
-        return super.getDimensionType();
+        return super.getDimension();
     }
 
     /**
