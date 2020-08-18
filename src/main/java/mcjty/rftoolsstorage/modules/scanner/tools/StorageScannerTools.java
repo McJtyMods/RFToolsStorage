@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.tools;
 
 import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.ClientCommandHandler;
@@ -10,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class StorageScannerTools {
 
-    public static void scannerSearch(PlayerEntity player, DimensionType dim, BlockPos pos, String text) {
+    public static void scannerSearch(PlayerEntity player, DimensionId dim, BlockPos pos, String text) {
         World world = WorldTools.getWorld(player.world, dim);
         if (WorldTools.isLoaded(world, pos)) {
             TileEntity te = world.getTileEntity(pos);
@@ -32,7 +32,7 @@ public class StorageScannerTools {
         }
     }
 
-    public static void requestContents(PlayerEntity player, DimensionType dim, BlockPos pos, BlockPos invpos) {
+    public static void requestContents(PlayerEntity player, DimensionId dim, BlockPos pos, BlockPos invpos) {
         World world = WorldTools.getWorld(player.world, dim);
         if (WorldTools.isLoaded(world, pos)) {
             TileEntity te = world.getTileEntity(pos);

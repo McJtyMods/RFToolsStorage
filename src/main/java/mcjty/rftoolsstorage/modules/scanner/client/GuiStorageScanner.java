@@ -183,7 +183,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         window.event("bottom", (source, params) -> moveBottom());
         window.event("remove", (source, params) -> removeFromList());
         window.event("scan", (source, params) -> RFToolsStorageMessages.INSTANCE.sendToServer(
-                new PacketGetInventoryInfo(tileEntity.getDimensionType(), tileEntity.getStorageScannerPos(), true)));
+                new PacketGetInventoryInfo(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), true)));
 
         minecraft.keyboardListener.enableRepeatEvents(true);
 
@@ -196,10 +196,10 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         }
 
         BlockPos pos = tileEntity.getCraftingGridContainerPos();
-        craftingGrid.initGui(modBase, RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimensionType(), tileEntity.getCraftingGridProvider(), guiLeft, guiTop, xSize, ySize);
+        craftingGrid.initGui(modBase, RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), tileEntity.getCraftingGridProvider(), guiLeft, guiTop, xSize, ySize);
         sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder()
                 .put(CommandHandler.PARAM_POS, pos)
-                .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimensionType())
+                .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimension())
                 .build());
 
         if (StorageScannerConfiguration.hilightStarredOnGuiOpen.get()) {
@@ -351,7 +351,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (!text.isEmpty()) {
             sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_SCANNER_SEARCH,
                     TypedMap.builder()
-                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimensionType().getId())
+                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimension().getRegistryName().toString())
                             .put(CommandHandler.PARAM_SCANNER_POS, tileEntity.getStorageScannerPos())
                             .put(CommandHandler.PARAM_SEARCH_TEXT, text)
                             .build());
@@ -363,7 +363,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (c != null) {
             sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_SCANNER_CONTENTS,
                     TypedMap.builder()
-                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimensionType().getId())
+                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimension().getRegistryName().toString())
                             .put(CommandHandler.PARAM_SCANNER_POS, tileEntity.getStorageScannerPos())
                             .put(CommandHandler.PARAM_INV_POS, c)
                             .build());
@@ -392,7 +392,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private void requestListsIfNeeded() {
         listDirty--;
         if (listDirty <= 0) {
-            RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGetInventoryInfo(tileEntity.getDimensionType(), tileEntity.getStorageScannerPos(), false));
+            RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGetInventoryInfo(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), false));
             getInventoryOnServer();
             listDirty = 20;
         }
@@ -424,7 +424,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         ResourceLocation largest2 = findLargestTag(s2);
         int rc = largest1.compareTo(largest2);
         if (rc == 0) {
-            return s1.getDisplayName().getString() /* was getFormattedText() */.compareTo(s2.getDisplayName().getFormattedText());
+            return s1.getDisplayName().getString() /* was getFormattedText() */.compareTo(s2.getDisplayName().getString());
         }
         return rc;
     }
@@ -432,7 +432,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static int compareByMod(ItemStack s1, ItemStack s2) {
         int rc = s1.getItem().getRegistryName().getNamespace().compareTo(s2.getItem().getRegistryName().getNamespace());
         if (rc == 0) {
-            return s1.getDisplayName().getString() /* was getFormattedText() */.compareTo(s2.getDisplayName().getFormattedText());
+            return s1.getDisplayName().getString() /* was getFormattedText() */.compareTo(s2.getDisplayName().getString());
         }
         return rc;
     }
@@ -463,8 +463,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 Collections.sort(fromServer_craftable, GuiStorageScanner::compareByTag);
                 break;
             case NAME:
-                Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
-                Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getDisplayName().getFormattedText()));
+                Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getDisplayName().getString()));
+                Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getDisplayName().getString()));
                 break;
         }
 
@@ -527,7 +527,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (selectedContainerPos == null) {
             return;
         }
-        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestItem(tileEntity.getDimensionType(), tileEntity.getStorageScannerPos(), selectedContainerPos, stack, amount, craftable));
+        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestItem(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), selectedContainerPos, stack, amount, craftable));
         getInventoryOnServer();
     }
 
@@ -599,7 +599,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float v, int i, int i2) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float v, int i, int i2) {
         if (!init) {
             return;
         }
@@ -643,18 +643,18 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         } else {
             if (System.currentTimeMillis() - lastTime > 300) {
                 lastTime = System.currentTimeMillis();
-                RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestDataFromServer(tileEntity.getDimensionType(),
+                RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestDataFromServer(tileEntity.getDimension(),
                         tileEntity.getPos(), StorageScannerTileEntity.CMD_SCANNER_INFO, TypedMap.EMPTY, tileEntity.isDummy()));
             }
             energyBar.value(rfReceived);
             exportToStarred.setCurrentChoice(exportToCurrentReceived ? 0 : 1);
         }
 
-        drawWindow(xxx);
+        drawWindow(matrixStack);
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(int i1, int i2) {
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int i1, int i2) {
         if (!init) {
             return;
         }
@@ -666,7 +666,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             drawHoveringText(tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, minecraft.fontRenderer);
         }
 
-        super.drawGuiContainerForegroundLayer(i1, i2);
+        super.drawGuiContainerForegroundLayer(matrixStack, i1, i2);
     }
 
     @Override

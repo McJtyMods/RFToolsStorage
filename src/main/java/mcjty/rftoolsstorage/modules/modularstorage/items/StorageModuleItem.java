@@ -144,7 +144,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
         if (player != null) {
             CompoundNBT tag = stack.getOrCreateTag();
             if (!tag.contains("createdBy")) {
-                tag.putString("createdBy", player.getName().getFormattedText());
+                tag.putString("createdBy", player.getName().getString());   // @todo 1.16 getFormattedText
             }
         }
     }

@@ -161,10 +161,10 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             throw new RuntimeException("Should not happen!");
         }
 
-        craftingGrid.initGui(modBase, RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimensionType(), provider, guiLeft, guiTop, xSize, ySize);
+        craftingGrid.initGui(modBase, RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), provider, guiLeft, guiTop, xSize, ySize);
         sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder()
                 .put(CommandHandler.PARAM_POS, pos)
-                .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimensionType())
+                .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimension())
                 .build());
     }
 
@@ -599,7 +599,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float v, int i, int i2) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float v, int i, int i2) {
         updateList();
 
         if (tileEntity != null) {
@@ -612,11 +612,11 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             }
         }
 
-        drawWindow(xxx);
+        drawWindow(matrixStack);
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(int i1, int i2) {
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int i1, int i2) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
 
@@ -625,7 +625,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             drawHoveringText(tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, minecraft.fontRenderer);
         }
 
-        super.drawGuiContainerForegroundLayer(i1, i2);
+        super.drawGuiContainerForegroundLayer(matrixStack, i1, i2);
     }
 
 

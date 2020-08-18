@@ -13,6 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
@@ -56,18 +57,18 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
             Tools.safeConsume(world.getTileEntity(data.getPos()), (ModularStorageTileEntity te) -> {
                 int maxSize = te.getMaxSize();
                 if (maxSize == 0) {
-                    probeInfo.text(TextFormatting.YELLOW + "No storage module!");
+                    probeInfo.text(new StringTextComponent(TextFormatting.YELLOW + "No storage module!"));  // @todo 1.16
                 } else {
                     IItemHandler cardHandler = te.getCardHandler();
                     ItemStack storageModule = cardHandler.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                     if (!storageModule.isEmpty() && storageModule.getTag().contains("display")) {
-                        probeInfo.text(TextFormatting.YELLOW + "Module: " + TextFormatting.WHITE + storageModule.getDisplayName());
+                        probeInfo.text(new StringTextComponent(TextFormatting.YELLOW + "Module: " + TextFormatting.WHITE + storageModule.getDisplayName()));    // @todo 1.16
                     }
                     int stacks = te.getNumStacks();
                     if (stacks == -1) {
-                        probeInfo.text(TextFormatting.YELLOW + "Maximum size: " + maxSize);
+                        probeInfo.text(new StringTextComponent(TextFormatting.YELLOW + "Maximum size: " + maxSize));    // @todo 1.16
                     } else {
-                        probeInfo.text(TextFormatting.GREEN + "" + stacks + " out of " + maxSize);
+                        probeInfo.text(new StringTextComponent(TextFormatting.GREEN + "" + stacks + " out of " + maxSize)); // @todo 1.16
                     }
                 }
             }, "Bad tile entity!");

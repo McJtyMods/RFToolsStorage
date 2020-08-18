@@ -3,11 +3,12 @@ package mcjty.rftoolsstorage.setup;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
+import mcjty.lib.varia.DimensionId;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
 import mcjty.rftoolsstorage.modules.scanner.tools.StorageScannerTools;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.dimension.DimensionType;
 
 public class CommandHandler {
 
@@ -17,7 +18,7 @@ public class CommandHandler {
 
     public static final String CMD_REQUEST_SCANNER_CONTENTS = "requestScannerContents";
     public static final String CMD_SCANNER_SEARCH = "scannerSearch";
-    public static final Key<Integer> PARAM_SCANNER_DIM = new Key<>("scannerdim", Type.INTEGER);
+    public static final Key<String> PARAM_SCANNER_DIM = new Key<>("scannerdim", Type.STRING);
     public static final Key<BlockPos> PARAM_SCANNER_POS = new Key<>("scannerpos", Type.BLOCKPOS);
     public static final Key<BlockPos> PARAM_INV_POS = new Key<>("invpos", Type.BLOCKPOS);
     public static final Key<String> PARAM_SEARCH_TEXT = new Key<>("text", Type.STRING);
@@ -52,17 +53,17 @@ public class CommandHandler {
 
     public static final String CMD_REQUEST_GRID_SYNC = "requestGridSync";
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
-    public static final Key<DimensionType> PARAM_DIMENSION = new Key<>("dimension", Type.DIMENSION_TYPE);
+    public static final Key<DimensionId> PARAM_DIMENSION = new Key<>("dimension", Type.DIMENSION_TYPE);
 
     public static final String CMD_GET_COUNTER_INFO = "getCounterInfo";
 
     public static void registerCommands() {
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_REQUEST_SCANNER_CONTENTS, (player, arguments) -> {
-            StorageScannerTools.requestContents(player, DimensionType.getById(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_INV_POS));
+            StorageScannerTools.requestContents(player, DimensionId.fromResourceLocation(new ResourceLocation(arguments.get(PARAM_SCANNER_DIM))), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_INV_POS));
             return true;
         });
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_SCANNER_SEARCH, (player, arguments) -> {
-            StorageScannerTools.scannerSearch(player, DimensionType.getById(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_SEARCH_TEXT));
+            StorageScannerTools.scannerSearch(player, DimensionId.fromResourceLocation(new ResourceLocation(arguments.get(PARAM_SCANNER_DIM))), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_SEARCH_TEXT));
             return true;
         });
 

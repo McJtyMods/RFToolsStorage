@@ -50,7 +50,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -159,7 +158,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     // Used for a dummy tile entity (tablet usage)
-    public StorageScannerTileEntity(DimensionType type) {
+    public StorageScannerTileEntity(DimensionId type) {
         this();
         dummyType = type;
     }
