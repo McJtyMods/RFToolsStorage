@@ -19,6 +19,8 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
+import java.util.Objects;
+
 public class DumpScreenModule implements IScreenModule<IModuleData> {
 
     public static int COLS = 7;
@@ -51,7 +53,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
         matchingTag = tagCompound.getBoolean("matchingTag");
         if (tagCompound.contains("monitorx")) {
             this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("monitordim")));
-            if (dim.equals(this.dim)) {
+            if (Objects.equals(dim, this.dim)) {
                 BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                 int dx = Math.abs(c.getX() - pos.getX());
                 int dy = Math.abs(c.getY() - pos.getY());
