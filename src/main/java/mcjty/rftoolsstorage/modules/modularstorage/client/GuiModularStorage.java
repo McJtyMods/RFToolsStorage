@@ -622,7 +622,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
         List<String> tooltips = craftingGrid.getWindow().getTooltips();
         if (tooltips != null) {
-            drawHoveringText(tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, minecraft.fontRenderer);
+            drawHoveringText(matrixStack, tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, minecraft.fontRenderer);
         }
 
         super.drawGuiContainerForegroundLayer(matrixStack, i1, i2);
@@ -633,6 +633,6 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     @Override
     protected void drawWindow(MatrixStack matrixStack) {
         super.drawWindow(matrixStack);
-        craftingGrid.draw();
+        craftingGrid.draw(matrixStack);
     }
 }

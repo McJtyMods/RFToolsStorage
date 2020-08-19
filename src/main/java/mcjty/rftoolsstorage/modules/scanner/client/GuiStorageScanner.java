@@ -663,16 +663,16 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         List<String> tooltips = craftingGrid.getWindow().getTooltips();
         if (tooltips != null) {
-            drawHoveringText(tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, minecraft.fontRenderer);
+            drawHoveringText(matrixStack, tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, minecraft.fontRenderer);
         }
 
         super.drawGuiContainerForegroundLayer(matrixStack, i1, i2);
     }
 
     @Override
-    protected void drawStackTooltips(int mouseX, int mouseY) {
+    protected void drawStackTooltips(MatrixStack matrixStack, int mouseX, int mouseY) {
         if (init) {
-            super.drawStackTooltips(mouseX, mouseY);
+            super.drawStackTooltips(matrixStack, mouseX, mouseY);
         }
     }
 
@@ -702,7 +702,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             return;
         }
         super.drawWindow(matrixStack);
-        craftingGrid.draw();
+        craftingGrid.draw(matrixStack);
     }
 
 }

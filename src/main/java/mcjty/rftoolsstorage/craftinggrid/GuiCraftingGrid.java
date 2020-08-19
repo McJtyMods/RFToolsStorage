@@ -145,7 +145,7 @@ public class GuiCraftingGrid {
         }
     }
 
-    public void draw() {
+    public void draw(MatrixStack matrixStack) {
         int selected = recipeList.getSelected();
         storeButton.enabled(selected != -1);
         populateList();
@@ -168,7 +168,7 @@ public class GuiCraftingGrid {
             lastTestTimer = 0;
         }
 
-        craftWindow.draw();
+        craftWindow.draw(matrixStack);
 
         if (testResultFromServer != null) {
             GlStateManager.pushMatrix();
@@ -181,7 +181,7 @@ public class GuiCraftingGrid {
                     GlStateManager.colorMask(true, true, true, false);
                     int xPos = slot.xPos;
                     int yPos = slot.yPos;
-                    Screen.fill(new MatrixStack(), xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);   // @todo 1.16
+                    Screen.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                 }
             }
             for (int i = 0; i < 9; i++) {
@@ -192,7 +192,7 @@ public class GuiCraftingGrid {
                         GlStateManager.colorMask(true, true, true, false);
                         int xPos = slot.xPos;
                         int yPos = slot.yPos;
-                        Screen.fill(new MatrixStack(), xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);   // @todo 1.16
+                        Screen.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                     }
                 }
             }
