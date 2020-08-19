@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.modules.scanner.network;
 
 
 import mcjty.lib.varia.BlockTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
@@ -16,7 +17,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -29,13 +29,13 @@ import java.util.stream.Stream;
 
 public class PacketGetInventoryInfo {
 
-    private DimensionType id;
+    private DimensionId id;
     private BlockPos pos;
     private boolean doscan;
 
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
-        buf.writeInt(id.getId());
+        id.toBytes(buf);
         buf.writeBoolean(doscan);
     }
 
@@ -44,11 +44,11 @@ public class PacketGetInventoryInfo {
 
     public PacketGetInventoryInfo(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        id = DimensionType.getById(buf.readInt());
+        id = DimensionId.fromPacket(buf);
         doscan = buf.readBoolean();
     }
 
-    public PacketGetInventoryInfo(DimensionType worldId, BlockPos pos, boolean doscan) {
+    public PacketGetInventoryInfo(DimensionId worldId, BlockPos pos, boolean doscan) {
         this.id = worldId;
         this.pos = pos;
         this.doscan = doscan;

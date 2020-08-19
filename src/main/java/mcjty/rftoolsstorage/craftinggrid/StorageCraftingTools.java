@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.craftinggrid;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
 import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
@@ -15,7 +16,6 @@ import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -309,7 +309,7 @@ public class StorageCraftingTools {
         }).orElse(new int[0]);
     }
 
-    public static void craftFromGrid(PlayerEntity player, int count, boolean test, BlockPos pos, DimensionType type) {
+    public static void craftFromGrid(PlayerEntity player, int count, boolean test, BlockPos pos, DimensionId type) {
 //        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);  // @todo 1.14
         int[] testResult = new int[0];
         TileEntity te = WorldTools.getWorld(player.getEntityWorld(), type).getTileEntity(pos);
@@ -321,7 +321,7 @@ public class StorageCraftingTools {
         }
     }
 
-    public static void requestGridSync(PlayerEntity player, BlockPos pos, DimensionType type) {
+    public static void requestGridSync(PlayerEntity player, BlockPos pos, DimensionId type) {
         World world = WorldTools.getWorld(player.getEntityWorld(), type);
         CraftingGridProvider provider = null;
         TileEntity te = world.getTileEntity(pos);

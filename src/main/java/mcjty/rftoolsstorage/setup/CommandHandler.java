@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.setup;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
+import mcjty.lib.varia.DimensionId;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
 import mcjty.rftoolsstorage.modules.scanner.tools.StorageScannerTools;
@@ -52,7 +53,7 @@ public class CommandHandler {
 
     public static final String CMD_REQUEST_GRID_SYNC = "requestGridSync";
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
-    public static final Key<DimensionType> PARAM_DIMENSION = new Key<>("dimension", Type.DIMENSION_TYPE);
+    public static final Key<DimensionId> PARAM_DIMENSION = new Key<>("dimension", Type.DIMENSION_TYPE);
 
     public static final String CMD_GET_COUNTER_INFO = "getCounterInfo";
 

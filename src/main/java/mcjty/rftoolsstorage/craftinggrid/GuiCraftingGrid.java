@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.craftinggrid;
 import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.base.ModBase;
 import mcjty.lib.base.StyleConfig;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
@@ -10,7 +11,7 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.client.GuiTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
@@ -24,7 +25,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.Optional;
@@ -48,14 +48,14 @@ public class GuiCraftingGrid {
     private GenericGuiContainer<?, ?> gui;
     private CraftingGridProvider provider;
     private BlockPos pos;
-    private DimensionType type;
+    private DimensionId type;
 
     public static int[] testResultFromServer = null;
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
     public void initGui(final ModBase modBase, final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?, ?> gui,
-                        BlockPos pos, DimensionType type, CraftingGridProvider provider,
+                        BlockPos pos, DimensionId type, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;
         this.gui = gui;

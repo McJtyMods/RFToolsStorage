@@ -350,7 +350,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (!text.isEmpty()) {
             sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_SCANNER_SEARCH,
                     TypedMap.builder()
-                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimensionType().getId())
+                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimensionType().getInternalId())
                             .put(CommandHandler.PARAM_SCANNER_POS, tileEntity.getStorageScannerPos())
                             .put(CommandHandler.PARAM_SEARCH_TEXT, text)
                             .build());
@@ -362,7 +362,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (c != null) {
             sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_SCANNER_CONTENTS,
                     TypedMap.builder()
-                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimensionType().getId())
+                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimensionType().getInternalId())
                             .put(CommandHandler.PARAM_SCANNER_POS, tileEntity.getStorageScannerPos())
                             .put(CommandHandler.PARAM_INV_POS, c)
                             .build());
