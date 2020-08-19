@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import mcjty.lib.client.CustomRenderTypes;
 import mcjty.lib.client.RenderHelper;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
@@ -20,7 +21,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 public class StorageControlClientScreenModule implements IClientScreenModule<StorageControlScreenModule.ModuleDataStacks> {
     private ItemStackList stacks = ItemStackList.create(9);
@@ -169,7 +169,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
 
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionType dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
         if (tagCompound != null) {
             for (int i = 0 ; i < stacks.size() ; i++) {
                 if (tagCompound.contains("stack"+i)) {
