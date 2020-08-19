@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.varia.BlockTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
@@ -87,7 +88,7 @@ public class DumpModuleItem extends GenericModuleItem {
             if (block != null && !block.isAir(state, world, pos)) {
                 name = BlockTools.getReadableName(world, pos);
             }
-            ModuleTools.setPositionInModule(stack, world.getDimension().getType(), pos, name);
+            ModuleTools.setPositionInModule(stack, DimensionId.fromWorld(world), pos, name);
             if (world.isRemote) {
                 Logging.message(context.getPlayer(), "Storage module is set to block '" + name + "'");
             }

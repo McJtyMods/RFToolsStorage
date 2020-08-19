@@ -1,14 +1,15 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.crafting.INBTPreservingIngredient;
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.client.GuiTools;
+import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
@@ -29,7 +30,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
@@ -46,7 +46,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
     @Override
     public void openGui(@Nonnull PlayerEntity player, @Nonnull ItemStack tabletItem, @Nonnull ItemStack containingItem) {
         BlockPos pos = ModuleTools.getPositionFromModule(containingItem);
-        DimensionType dimensionType = ModuleTools.getDimensionFromModule(containingItem);
+        DimensionId dimensionType = ModuleTools.getDimensionFromModule(containingItem);
         GuiTools.openRemoteGui(player, dimensionType, pos, te -> new INamedContainerProvider() {
             @Override
             public ITextComponent getDisplayName() {
@@ -98,7 +98,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
             if (block != null && !block.isAir(state, world, pos)) {
                 name = BlockTools.getReadableName(world, pos);
             }
-            ModuleTools.setPositionInModule(stack, world.getDimension().getType(), pos, name);
+            ModuleTools.setPositionInModule(stack, DimensionId.fromWorld(world), pos, name);
             if (world.isRemote) {
                 Logging.message(player, "Storage module is set to block '" + name + "'");
             }
