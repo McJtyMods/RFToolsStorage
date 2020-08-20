@@ -6,9 +6,7 @@ import mcjty.lib.varia.Tools;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.ProbeMode;
+import mcjty.theoneprobe.api.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -20,6 +18,9 @@ import net.minecraftforge.items.IItemHandler;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static mcjty.theoneprobe.api.TextStyleClass.INFO;
+import static mcjty.theoneprobe.api.TextStyleClass.WARNING;
 
 public class RFToolsStorageTOPDriver implements TOPDriver {
 
@@ -57,18 +58,18 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
             Tools.safeConsume(world.getTileEntity(data.getPos()), (ModularStorageTileEntity te) -> {
                 int maxSize = te.getMaxSize();
                 if (maxSize == 0) {
-                    probeInfo.text(new StringTextComponent(TextFormatting.YELLOW + "No storage module!"));  // @todo 1.16
+                    probeInfo.text(CompoundText.create().style(WARNING).text("No storage module!"));
                 } else {
                     IItemHandler cardHandler = te.getCardHandler();
                     ItemStack storageModule = cardHandler.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                     if (!storageModule.isEmpty() && storageModule.getTag().contains("display")) {
-                        probeInfo.text(new StringTextComponent(TextFormatting.YELLOW + "Module: " + TextFormatting.WHITE + storageModule.getDisplayName()));    // @todo 1.16
+                        probeInfo.text(CompoundText.createLabelInfo("Module: ", storageModule.getDisplayName()));
                     }
                     int stacks = te.getNumStacks();
                     if (stacks == -1) {
-                        probeInfo.text(new StringTextComponent(TextFormatting.YELLOW + "Maximum size: " + maxSize));    // @todo 1.16
+                        probeInfo.text(CompoundText.createLabelInfo("Maximum size: ", maxSize));
                     } else {
-                        probeInfo.text(new StringTextComponent(TextFormatting.GREEN + "" + stacks + " out of " + maxSize)); // @todo 1.16
+                        probeInfo.text(CompoundText.create().style(INFO).text(stacks + " out of " + maxSize));
                     }
                 }
             }, "Bad tile entity!");
