@@ -3,7 +3,6 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
@@ -22,14 +21,13 @@ public class CraftingManagerBlock extends BaseBlock {
     private static final VoxelShape SHAPE = VoxelShapes.create(.1, .1, .4, 1, 1, 1);
 
 
-    private static final Block.Properties STANDARD_GLASS = Block.Properties.create(Material.GLASS)
-            .hardnessAndResistance(2.0f)
-            .sound(SoundType.GLASS);
-
-
     public CraftingManagerBlock() {
         super(new BlockBuilder()
-                .properties(STANDARD_GLASS)
+                .properties(Properties.create(Material.GLASS)
+                        .hardnessAndResistance(2.0f)
+                        .sound(SoundType.GLASS)
+                        .setOpaque((state, world, pos) -> false)
+                )
                 .info(key("message.rftoolsstorage.shiftmessage"))
                 .infoShift(header(), gold())
                 .tileEntitySupplier(CraftingManagerTileEntity::new)
@@ -51,12 +49,6 @@ public class CraftingManagerBlock extends BaseBlock {
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
     }
-
-//@todo 1.16
-//    @Override
-//    public boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
-//        return false;
-//    }
 
     @Override
     public boolean isSideInvisible(BlockState state, BlockState adjacentBlockState, Direction side) {
