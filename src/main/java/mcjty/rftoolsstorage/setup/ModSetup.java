@@ -8,6 +8,7 @@ import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -26,7 +27,9 @@ public class ModSetup extends DefaultModSetup {
     public void init(FMLCommonSetupEvent e) {
         super.init(e);
         MinecraftForge.EVENT_BUS.register(new ForgeEventHandlers());
-        CommandHandler.registerCommands();
+        DeferredWorkQueue.runLater(() -> {
+            CommandHandler.registerCommands();
+        });
         RFToolsStorageMessages.registerMessages("rftoolsstorage");
         craftingDeviceRegistry.init();
         RFToolsStorage.screenModuleRegistry.registerBuiltins();

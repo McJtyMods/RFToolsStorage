@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.craftinggrid;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import mcjty.lib.base.ModBase;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
@@ -55,7 +54,7 @@ public class GuiCraftingGrid {
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
-    public void initGui(final ModBase modBase, final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?, ?> gui,
+    public void initGui(final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?, ?> gui,
                         BlockPos pos, DimensionId type, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;

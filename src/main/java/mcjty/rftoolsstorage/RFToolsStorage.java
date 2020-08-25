@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage;
 
-import mcjty.lib.base.ModBase;
 import mcjty.rftoolsstorage.modules.scanner.ScannerModuleRegistry;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.ModSetup;
@@ -12,7 +11,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(RFToolsStorage.MODID)
-public class RFToolsStorage implements ModBase {
+public class RFToolsStorage {
 
     public static final String MODID = "rftoolsstorage";
 
@@ -31,10 +30,5 @@ public class RFToolsStorage implements ModBase {
         Registration.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLCommonSetupEvent event) -> setup.init(event));
-    }
-
-    @Override
-    public String getModId() {
-        return MODID;
     }
 }
