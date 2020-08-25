@@ -2,10 +2,10 @@ package mcjty.rftoolsstorage.modules.modularstorage.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.base.StyleConfig;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.BaseSlot;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
-import mcjty.lib.client.GuiTools;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
@@ -87,7 +87,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //    }
 
     public GuiModularStorage(ModularStorageTileEntity tileEntity, ModularStorageContainer container, PlayerInventory inventory) {
-        super(RFToolsStorage.instance, tileEntity, container, inventory, ManualHelper.create("rftoolsstorage:modularstorage/modularstorage"));
+        super(tileEntity, container, inventory, ManualHelper.create("rftoolsstorage:modularstorage/modularstorage"));
 
         craftingGrid = new GuiCraftingGrid();
 
@@ -161,7 +161,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             throw new RuntimeException("Should not happen!");
         }
 
-        craftingGrid.initGui(modBase, RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), provider, guiLeft, guiTop, xSize, ySize);
+        craftingGrid.initGui(RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), provider, guiLeft, guiTop, xSize, ySize);
         sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder()
                 .put(CommandHandler.PARAM_POS, pos)
                 .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimension())

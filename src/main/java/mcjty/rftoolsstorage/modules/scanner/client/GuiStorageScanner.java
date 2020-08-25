@@ -90,7 +90,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     public static List<ItemStack> fromServer_craftable = new ArrayList<>();
 
     public GuiStorageScanner(StorageScannerTileEntity te, StorageScannerContainer container, PlayerInventory playerInventory) {
-        super(RFToolsStorage.instance, te, container, playerInventory, ManualHelper.create("rftoolsstorage:scanner/scanner"));
+        super(te, container, playerInventory, ManualHelper.create("rftoolsstorage:scanner/scanner"));
 
         craftingGrid = new GuiCraftingGrid();
 
@@ -196,7 +196,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         }
 
         BlockPos pos = tileEntity.getCraftingGridContainerPos();
-        craftingGrid.initGui(modBase, RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), tileEntity.getCraftingGridProvider(), guiLeft, guiTop, xSize, ySize);
+        craftingGrid.initGui(RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), tileEntity.getCraftingGridProvider(), guiLeft, guiTop, xSize, ySize);
         sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder()
                 .put(CommandHandler.PARAM_POS, pos)
                 .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimension())
