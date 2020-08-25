@@ -22,7 +22,7 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
     private static final ResourceLocation guiElements = new ResourceLocation(RFToolsBase.MODID, "textures/gui/guielements.png");
 
     public GuiCraftingManager(CraftingManagerTileEntity tileEntity, CraftingManagerContainer container, PlayerInventory inventory) {
-        super(RFToolsStorage.instance, tileEntity, container, inventory, ManualEntry.EMPTY);
+        super(tileEntity, container, inventory, ManualEntry.EMPTY);
 
         xSize = WIDTH;
         ySize = HEIGHT;
