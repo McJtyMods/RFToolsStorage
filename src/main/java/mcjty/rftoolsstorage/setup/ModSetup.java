@@ -9,7 +9,6 @@ import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 public class ModSetup extends DefaultModSetup {
@@ -31,10 +30,6 @@ public class ModSetup extends DefaultModSetup {
         RFToolsStorageMessages.registerMessages("rftoolsstorage");
         craftingDeviceRegistry.init();
         RFToolsStorage.screenModuleRegistry.registerBuiltins();
-    }
-
-    public void initClient(FMLClientSetupEvent e) {
-        ClientCommandHandler.registerCommands();
     }
 
     @Override

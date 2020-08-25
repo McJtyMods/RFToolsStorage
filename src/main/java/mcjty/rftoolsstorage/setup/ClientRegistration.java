@@ -20,6 +20,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -28,15 +29,19 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void init(FMLClientSetupEvent e) {
-        GenericGuiContainer.register(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), GuiModularStorage::new);
-        GenericGuiContainer.register(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), GuiCraftingManager::new);
+        DeferredWorkQueue.runLater(() -> {
+            GenericGuiContainer.register(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), GuiModularStorage::new);
+            GenericGuiContainer.register(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), GuiCraftingManager::new);
 
-        GenericGuiContainer.register(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
-        ScreenManager.IScreenFactory<StorageScannerContainer, GuiStorageScanner> factory = (container, inventory, title) -> {
-            TileEntity te = container.getTe();
-            return Tools.safeMap(te, (StorageScannerTileEntity tile) -> new GuiStorageScanner(tile, container, inventory), "Invalid tile entity!");
-        };
-        ScreenManager.registerFactory(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
+            GenericGuiContainer.register(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
+            ScreenManager.IScreenFactory<StorageScannerContainer, GuiStorageScanner> factory = (container, inventory, title) -> {
+                TileEntity te = container.getTe();
+                return Tools.safeMap(te, (StorageScannerTileEntity tile) -> new GuiStorageScanner(tile, container, inventory), "Invalid tile entity!");
+            };
+            ScreenManager.registerFactory(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
+
+            ClientCommandHandler.registerCommands();
+        });
 
         RenderTypeLookup.setRenderLayer(CraftingManagerSetup.CRAFTING_MANAGER.get(), RenderType.getCutout());
         RenderTypeLookup.setRenderLayer(ModularStorageSetup.MODULAR_STORAGE.get(), RenderType.getCutout());
