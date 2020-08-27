@@ -5,6 +5,8 @@ import mcjty.rftoolsstorage.setup.ClientSetup;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.ModSetup;
 import mcjty.rftoolsstorage.setup.Registration;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -30,7 +32,9 @@ public class RFToolsStorage {
         Registration.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(setup::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
+        });
     }
 }
