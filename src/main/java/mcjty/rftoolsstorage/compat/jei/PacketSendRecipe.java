@@ -2,10 +2,7 @@ package mcjty.rftoolsstorage.compat.jei;
 
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
-import mcjty.rftoolsbase.modules.tablet.items.TabletContainer;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
-import mcjty.rftoolsbase.modules.various.VariousSetup;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;

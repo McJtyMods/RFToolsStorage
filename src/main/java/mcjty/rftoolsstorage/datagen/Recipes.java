@@ -2,7 +2,7 @@ package mcjty.rftoolsstorage.datagen;
 
 import mcjty.lib.crafting.CopyNBTRecipeBuilder;
 import mcjty.lib.datagen.BaseRecipeProvider;
-import mcjty.rftoolsbase.modules.various.VariousSetup;
+import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import net.minecraft.data.DataGenerator;
@@ -21,7 +21,7 @@ public class Recipes extends BaseRecipeProvider {
         add('C', Tags.Items.CHESTS);
         add('q', Items.QUARTZ);
         add('Q', Items.QUARTZ_BLOCK);
-        add('F', VariousSetup.MACHINE_FRAME.get());
+        add('F', VariousModule.MACHINE_FRAME.get());
     }
 
     @Override
@@ -42,17 +42,17 @@ public class Recipes extends BaseRecipeProvider {
                 " C ", "gXg", "QRQ");
         build(consumer, CopyNBTRecipeBuilder.shapedRecipe(ModularStorageSetup.STORAGE_MODULE3.get())
                         .key('g', Items.DIAMOND_BLOCK)
-                        .key('t', VariousSetup.INFUSED_DIAMOND.get())
+                        .key('t', VariousModule.INFUSED_DIAMOND.get())
                         .key('X', ModularStorageSetup.STORAGE_MODULE2.get())
                         .addCriterion("storage", hasItem(ModularStorageSetup.STORAGE_MODULE2.get())),
                 "tCt", "gXg", "QRQ");
 
         build(consumer, ShapedRecipeBuilder.shapedRecipe(ModularStorageSetup.MODULAR_STORAGE.get())
-                        .addCriterion("frame", hasItem(VariousSetup.MACHINE_FRAME.get())),
+                        .addCriterion("frame", hasItem(VariousModule.MACHINE_FRAME.get())),
                 "rCr", "qFq", "rqr");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(StorageScannerSetup.STORAGE_SCANNER.get())
                         .key('g', Items.GOLD_INGOT)
-                        .addCriterion("frame", hasItem(VariousSetup.MACHINE_FRAME.get())),
+                        .addCriterion("frame", hasItem(VariousModule.MACHINE_FRAME.get())),
                 "ToT", "gFg", "ToT");
         build(consumer, ShapedRecipeBuilder.shapedRecipe(StorageScannerSetup.STORAGECONTROL_MODULE.get())
                         .key('X', Items.CRAFTING_TABLE)
