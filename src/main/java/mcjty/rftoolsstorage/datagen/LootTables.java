@@ -1,8 +1,8 @@
 package mcjty.rftoolsstorage.datagen;
 
 import mcjty.lib.datagen.BaseLootTableProvider;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
-import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import net.minecraft.data.DataGenerator;
 
 public class LootTables extends BaseLootTableProvider {
@@ -13,8 +13,8 @@ public class LootTables extends BaseLootTableProvider {
 
     @Override
     protected void addTables() {
-        lootTables.put(ModularStorageSetup.MODULAR_STORAGE.get(), createStandardTable("storage", ModularStorageSetup.MODULAR_STORAGE.get()));
-        lootTables.put(StorageScannerSetup.STORAGE_SCANNER.get(), createStandardTable("storage", StorageScannerSetup.STORAGE_SCANNER.get()));
+        lootTables.put(ModularStorageModule.MODULAR_STORAGE.get(), createStandardTable("storage", ModularStorageModule.MODULAR_STORAGE.get()));
+        lootTables.put(StorageScannerModule.STORAGE_SCANNER.get(), createStandardTable("storage", StorageScannerModule.STORAGE_SCANNER.get()));
 
     }
 }

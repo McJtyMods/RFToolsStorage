@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.modules.scanner.blocks;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
-import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
@@ -47,11 +47,11 @@ public class StorageScannerContainer extends GenericContainer {
     }
 
     public static StorageScannerContainer create(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
-        return new StorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER.get(), id, pos, tileEntity);
+        return new StorageScannerContainer(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), id, pos, tileEntity);
     }
 
     public static StorageScannerContainer createRemote(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
-        return new RemoteStorageScannerContainer(StorageScannerSetup.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity);
+        return new RemoteStorageScannerContainer(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity);
     }
 
     protected boolean isRemoteContainer() {

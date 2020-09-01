@@ -2,9 +2,6 @@ package mcjty.rftoolsstorage.setup;
 
 
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
-import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
@@ -33,10 +30,6 @@ public class Registration {
         CONTAINERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
         ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-
-        ModularStorageSetup.register();
-        StorageScannerSetup.register();
-        CraftingManagerSetup.register();
     }
 
     public static Item.Properties createStandardProperties() {

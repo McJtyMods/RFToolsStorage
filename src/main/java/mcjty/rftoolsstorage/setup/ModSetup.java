@@ -2,9 +2,8 @@ package mcjty.rftoolsstorage.setup;
 
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
-import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingDeviceRegistry;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -17,10 +16,9 @@ public class ModSetup extends DefaultModSetup {
     public boolean xnet = false;
 
     public ClientStorageHolder clientStorageHolder = new ClientStorageHolder();
-    public CraftingDeviceRegistry craftingDeviceRegistry = new CraftingDeviceRegistry();
 
     public ModSetup() {
-        createTab("rftoolsstorage", () -> new ItemStack(ModularStorageSetup.STORAGE_MODULE0.get()));
+        createTab("rftoolsstorage", () -> new ItemStack(ModularStorageModule.STORAGE_MODULE0.get()));
     }
 
     @Override
@@ -31,8 +29,6 @@ public class ModSetup extends DefaultModSetup {
             CommandHandler.registerCommands();
         });
         RFToolsStorageMessages.registerMessages("rftoolsstorage");
-        craftingDeviceRegistry.init();
-        RFToolsStorage.screenModuleRegistry.registerBuiltins();
     }
 
     @Override

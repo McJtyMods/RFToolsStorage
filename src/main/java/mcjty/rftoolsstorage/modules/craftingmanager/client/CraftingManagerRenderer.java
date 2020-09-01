@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -50,7 +50,7 @@ public class CraftingManagerRenderer extends TileEntityRenderer<CraftingManagerT
     }
 
     public static void register() {
-        ClientRegistry.bindTileEntityRenderer(CraftingManagerSetup.TYPE_CRAFTING_MANAGER.get(), CraftingManagerRenderer::new);
+        ClientRegistry.bindTileEntityRenderer(CraftingManagerModule.TYPE_CRAFTING_MANAGER.get(), CraftingManagerRenderer::new);
     }
 
 }
