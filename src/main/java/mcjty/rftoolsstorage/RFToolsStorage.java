@@ -1,15 +1,15 @@
 package mcjty.rftoolsstorage;
 
-import mcjty.rftoolsstorage.modules.scanner.ScannerModuleRegistry;
-import mcjty.rftoolsstorage.setup.ClientSetup;
+import mcjty.lib.modules.Modules;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.ModSetup;
 import mcjty.rftoolsstorage.setup.Registration;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(RFToolsStorage.MODID)
@@ -19,22 +19,28 @@ public class RFToolsStorage {
 
     @SuppressWarnings("PublicField")
     public static ModSetup setup = new ModSetup();
-    public static ScannerModuleRegistry screenModuleRegistry = new ScannerModuleRegistry();
+    private Modules modules = new Modules();
 
     public static RFToolsStorage instance;
 
     public RFToolsStorage() {
         instance = this;
+        setupModules();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SERVER_CONFIG);
-
+        Config.register(modules);
         Registration.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(setup::init);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::init);
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(modules::initClient);
         });
+    }
+
+    private void setupModules() {
+        modules.register(new CraftingManagerModule());
+        modules.register(new ModularStorageModule());
+        modules.register(new StorageScannerModule());
     }
 }

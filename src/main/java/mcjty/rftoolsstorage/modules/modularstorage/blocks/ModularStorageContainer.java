@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 import mcjty.lib.container.*;
 import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.client.SlotOffsetCalculator;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.modules.modularstorage.network.PacketStorageInfoToClient;
@@ -47,7 +47,7 @@ public class ModularStorageContainer extends GenericContainer {
             .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18));
 
     public ModularStorageContainer(int id, BlockPos pos, PlayerEntity player, ModularStorageTileEntity tileEntity) {
-        super(ModularStorageSetup.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity);
+        super(ModularStorageModule.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity);
     }
 
     @Override

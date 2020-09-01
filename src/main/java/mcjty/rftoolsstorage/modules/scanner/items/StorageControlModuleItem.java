@@ -12,7 +12,7 @@ import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
-import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.Block;
@@ -40,7 +40,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
 
     @Override
     public Item getInstalledTablet() {
-        return StorageScannerSetup.TABLET_SCANNER.get();
+        return StorageScannerModule.TABLET_SCANNER.get();
     }
 
     @Override

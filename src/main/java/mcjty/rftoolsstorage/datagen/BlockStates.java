@@ -3,8 +3,8 @@ package mcjty.rftoolsstorage.datagen;
 import mcjty.lib.datagen.BaseBlockStateProvider;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularTypeModule;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularAmountOverlay;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageBlock;
@@ -63,7 +63,7 @@ public class BlockStates extends BaseBlockStateProvider {
                 .end()
                 .texture("overlaya", modLoc("block/overlayamount"));
 
-        getMultipartBuilder(ModularStorageSetup.MODULAR_STORAGE.get())
+        getMultipartBuilder(ModularStorageModule.MODULAR_STORAGE.get())
                 .part().modelFile(main).addModel().condition(BlockStateProperties.FACING, Direction.NORTH).end()
                 .part().modelFile(main).rotationY(180).addModel().condition(BlockStateProperties.FACING, Direction.SOUTH).end()
                 .part().modelFile(main).rotationY(270).addModel().condition(BlockStateProperties.FACING, Direction.WEST).end()
@@ -120,7 +120,7 @@ public class BlockStates extends BaseBlockStateProvider {
                 .texture("side", modLoc("block/machinecraftingmanager"))
                 .texture("bottom", new ResourceLocation(RFToolsBase.MODID, "block/base/machinebottom"));
 
-        MultiPartBlockStateBuilder bld = getMultipartBuilder(CraftingManagerSetup.CRAFTING_MANAGER.get());
+        MultiPartBlockStateBuilder bld = getMultipartBuilder(CraftingManagerModule.CRAFTING_MANAGER.get());
         bld.part().modelFile(model).addModel();
     }
 

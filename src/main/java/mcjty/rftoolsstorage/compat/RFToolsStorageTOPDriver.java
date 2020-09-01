@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.compat;
 import mcjty.lib.compat.theoneprobe.McJtyLibTOPDriver;
 import mcjty.lib.compat.theoneprobe.TOPDriver;
 import mcjty.lib.varia.Tools;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.theoneprobe.api.*;
@@ -11,7 +11,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
@@ -32,7 +31,7 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
         ResourceLocation id = blockState.getBlock().getRegistryName();
         if (!drivers.containsKey(id)) {
-            if (blockState.getBlock() == ModularStorageSetup.MODULAR_STORAGE.get()) {
+            if (blockState.getBlock() == ModularStorageModule.MODULAR_STORAGE.get()) {
                 drivers.put(id, new ModularStorageDriver());
             } else {
                 drivers.put(id, new DefaultDriver());

@@ -4,7 +4,7 @@ import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
-import mcjty.rftoolsstorage.setup.ClientCommandHandler;
+import mcjty.rftoolsstorage.modules.scanner.client.ClientCommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;

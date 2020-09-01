@@ -14,7 +14,7 @@ import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IModularStorage;
 import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.*;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageSetup;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
 import mcjty.rftoolsstorage.storage.StorageInfo;
@@ -94,7 +94,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private String filter = "";
 
     public ModularStorageTileEntity() {
-        super(ModularStorageSetup.TYPE_MODULAR_STORAGE.get());
+        super(ModularStorageModule.TYPE_MODULAR_STORAGE.get());
     }
 
     @Override

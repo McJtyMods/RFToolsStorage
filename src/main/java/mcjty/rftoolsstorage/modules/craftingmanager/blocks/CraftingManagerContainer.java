@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
-import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.BlockPos;
@@ -35,7 +35,7 @@ public class CraftingManagerContainer extends GenericContainer {
             .playerSlots(85, 125));
 
     public CraftingManagerContainer(int id, BlockPos pos, PlayerEntity player, CraftingManagerTileEntity tileEntity) {
-        super(CraftingManagerSetup.CONTAINER_CRAFTING_MANAGER.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity);
+        super(CraftingManagerModule.CONTAINER_CRAFTING_MANAGER.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity);
     }
 
     @Override

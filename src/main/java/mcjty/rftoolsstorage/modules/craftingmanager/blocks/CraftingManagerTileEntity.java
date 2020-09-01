@@ -6,9 +6,11 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
-import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerSetup;
-import mcjty.rftoolsstorage.modules.craftingmanager.system.*;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingQueue;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
+import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.InventoryHelper;
@@ -60,7 +62,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     private boolean devicesDirty = true;
 
     public CraftingManagerTileEntity() {
-        super(CraftingManagerSetup.TYPE_CRAFTING_MANAGER.get());
+        super(CraftingManagerModule.TYPE_CRAFTING_MANAGER.get());
         for (int i = 0; i < 4; i++) {
             queues[i] = new CraftingQueue();
         }
@@ -239,9 +241,9 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 // @todo THIS IS WRONG! Should not remove devices that are already present because they may be doing something!
             ItemStack deviceStack = items.getStackInSlot(i);
             ResourceLocation id = deviceStack.getItem().getRegistryName();
-            ResourceLocation deviceId = RFToolsStorage.setup.craftingDeviceRegistry.getDeviceForBlock(id);
+            ResourceLocation deviceId = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceForBlock(id);
             if (deviceId != null) {
-                Supplier<ICraftingDevice> device = RFToolsStorage.setup.craftingDeviceRegistry.getDeviceSupplier(deviceId);
+                Supplier<ICraftingDevice> device = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
                 ICraftingDevice craftingDevice = device.get();
                 queues[i].setDevice(craftingDevice);
                 // Init device from ID?
@@ -294,7 +296,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             CompoundNBT deviceNBT = (CompoundNBT) nbt;
             if (!deviceNBT.isEmpty()) {
                 ResourceLocation deviceId = new ResourceLocation(deviceNBT.getString("deviceId"));
-                Supplier<ICraftingDevice> deviceSupplier = RFToolsStorage.setup.craftingDeviceRegistry.getDeviceSupplier(deviceId);
+                Supplier<ICraftingDevice> deviceSupplier = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
                 ICraftingDevice device = deviceSupplier.get();
                 queues[i].setDevice(device);
                 device.read(deviceNBT);

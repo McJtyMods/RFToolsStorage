@@ -27,7 +27,7 @@ import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
-import mcjty.rftoolsstorage.modules.scanner.StorageScannerSetup;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemCount;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemKey;
 import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
@@ -153,7 +153,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private DimensionId dummyType = null;
 
     public StorageScannerTileEntity() {
-        super(StorageScannerSetup.TYPE_STORAGE_SCANNER.get());
+        super(StorageScannerModule.TYPE_STORAGE_SCANNER.get());
         radius = (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) ? 0 : 1;
     }
 
