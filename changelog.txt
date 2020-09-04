@@ -1,4 +1,4 @@
-Upcoming:
+1.16-2.0.4-beta:
 - Fixed a potential crash with the storage module item when hovering over it
 
 2.0.3-beta:
