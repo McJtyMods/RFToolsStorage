@@ -34,7 +34,7 @@ public class StorageEntry {
             }
         }
 
-        uuid = nbt.getUniqueId("UUID");
+        uuid = nbt.hasUniqueId("UUID") ? nbt.getUniqueId("UUID") : null;
         version = nbt.getInt("version");
         creationTime = nbt.getLong("crTime");
         updateTime = nbt.getLong("upTime");

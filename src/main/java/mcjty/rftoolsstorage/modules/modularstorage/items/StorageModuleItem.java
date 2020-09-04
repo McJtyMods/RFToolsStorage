@@ -52,7 +52,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                     }),
                     parameter("uuid", stack -> {
                         CompoundNBT tag = stack.getTag();
-                        if (tag != null) {
+                        if (tag != null && tag.hasUniqueId("uuid")) {
                             return tag.getUniqueId("uuid").toString();
                         } else {
                             return "<unset>";
@@ -111,9 +111,13 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
         if (tag == null) {
             return null;
         }
-        UUID uuid = tag.getUniqueId("uuid");
-        int version = tag.getInt("version");
-        return RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
+        if (tag.hasUniqueId("uuid")) {
+            UUID uuid = tag.getUniqueId("uuid");
+            int version = tag.getInt("version");
+            return RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
+        } else {
+            return null;
+        }
     }
 
     private boolean isRemoteModule() {
