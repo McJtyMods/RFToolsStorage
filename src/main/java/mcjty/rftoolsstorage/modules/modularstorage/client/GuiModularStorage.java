@@ -13,11 +13,11 @@ import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.RFToolsBase;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridProvider;
 import mcjty.rftoolsstorage.craftinggrid.GuiCraftingGrid;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageConfiguration;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
@@ -87,7 +87,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //    }
 
     public GuiModularStorage(ModularStorageTileEntity tileEntity, ModularStorageContainer container, PlayerInventory inventory) {
-        super(tileEntity, container, inventory, ManualHelper.create("rftoolsstorage:modularstorage/modularstorage"));
+        super(tileEntity, container, inventory, ModularStorageModule.MODULAR_STORAGE.get().getManualEntry());
 
         craftingGrid = new GuiCraftingGrid();
 
