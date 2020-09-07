@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.builder.BlockBuilder;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolsstorage.compat.RFToolsStorageTOPDriver;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularTypeModule;
 import net.minecraft.block.Block;
@@ -29,6 +30,7 @@ public class ModularStorageBlock extends BaseBlock {
         super(new BlockBuilder()
                 .topDriver(RFToolsStorageTOPDriver.DRIVER)
                 .tileEntitySupplier(ModularStorageTileEntity::new)
+                .manualEntry(ManualHelper.create("rftoolsstorage:modularstorage/modularstorage"))
                 .info(key("message.rftoolsstorage.shiftmessage"))
                 .infoShift(header())
         );

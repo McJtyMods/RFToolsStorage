@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage;
 
+import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
@@ -10,7 +11,6 @@ import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
@@ -26,7 +26,7 @@ import static mcjty.rftoolsstorage.setup.Registration.*;
 
 public class ModularStorageModule implements IModule {
 
-    public static final RegistryObject<Block> MODULAR_STORAGE = BLOCKS.register("modular_storage", ModularStorageBlock::new);
+    public static final RegistryObject<BaseBlock> MODULAR_STORAGE = BLOCKS.register("modular_storage", ModularStorageBlock::new);
     public static final RegistryObject<Item> MODULAR_STORAGE_ITEM = ITEMS.register("modular_storage", () -> new BlockItem(MODULAR_STORAGE.get(), Registration.createStandardProperties()));
     public static final RegistryObject<TileEntityType<?>> TYPE_MODULAR_STORAGE = TILES.register("modular_storage", () -> TileEntityType.Builder.create(ModularStorageTileEntity::new, MODULAR_STORAGE.get()).build(null));
     public static final RegistryObject<ContainerType<ModularStorageContainer>> CONTAINER_MODULAR_STORAGE = CONTAINERS.register("modular_storage", GenericContainer::createContainerType);
