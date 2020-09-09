@@ -7,6 +7,7 @@ import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerContainer;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -27,6 +28,10 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
 
         xSize = WIDTH;
         ySize = HEIGHT;
+    }
+
+    public static void register() {
+        register(CraftingManagerModule.CONTAINER_CRAFTING_MANAGER.get(), GuiCraftingManager::new);
     }
 
     @Override
