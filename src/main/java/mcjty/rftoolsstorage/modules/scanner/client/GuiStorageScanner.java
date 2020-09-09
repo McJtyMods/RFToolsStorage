@@ -15,6 +15,7 @@ import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.GuiCraftingGrid;
@@ -28,10 +29,12 @@ import mcjty.rftoolsstorage.modules.scanner.network.PacketReturnInventoryInfo;
 import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
@@ -95,6 +98,15 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         xSize = STORAGE_MONITOR_WIDTH;
         ySize = STORAGE_MONITOR_HEIGHT;
+    }
+
+    public static void register() {
+        register(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
+        ScreenManager.IScreenFactory<StorageScannerContainer, GuiStorageScanner> factory = (container, inventory, title) -> {
+            TileEntity te = container.getTe();
+            return Tools.safeMap(te, (StorageScannerTileEntity tile) -> new GuiStorageScanner(tile, container, inventory), "Invalid tile entity!");
+        };
+        ScreenManager.registerFactory(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
     }
 
     @Override

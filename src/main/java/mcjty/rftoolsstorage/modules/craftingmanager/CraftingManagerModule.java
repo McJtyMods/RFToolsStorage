@@ -1,23 +1,19 @@
 package mcjty.rftoolsstorage.modules.craftingmanager;
 
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerBlock;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerContainer;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
-import mcjty.rftoolsstorage.modules.craftingmanager.client.CraftingManagerRenderer;
+import mcjty.rftoolsstorage.modules.craftingmanager.client.ClientSetup;
 import mcjty.rftoolsstorage.modules.craftingmanager.client.GuiCraftingManager;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingDeviceRegistry;
 import mcjty.rftoolsstorage.setup.Registration;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -37,7 +33,7 @@ public class CraftingManagerModule implements IModule {
 
     public CraftingManagerModule() {
         CRAFTING_DEVICE_REGISTRY = new CraftingDeviceRegistry();
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(CraftingManagerModule::modelInit);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
     }
 
     @Override
@@ -48,18 +44,13 @@ public class CraftingManagerModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(CONTAINER_CRAFTING_MANAGER.get(), GuiCraftingManager::new);
+            GuiCraftingManager.register();
         });
 
-        RenderTypeLookup.setRenderLayer(CRAFTING_MANAGER.get(), RenderType.getCutout());
+        ClientSetup.initClient();
     }
 
     @Override
     public void initConfig() {
-
-    }
-
-    public static void modelInit(ModelRegistryEvent event) {
-        CraftingManagerRenderer.register();
     }
 }

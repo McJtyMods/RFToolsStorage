@@ -2,17 +2,15 @@ package mcjty.rftoolsstorage.modules.modularstorage;
 
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageBlock;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
+import mcjty.rftoolsstorage.modules.modularstorage.client.ClientSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -45,15 +43,14 @@ public class ModularStorageModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         DeferredWorkQueue.runLater(() -> {
-            GenericGuiContainer.register(CONTAINER_MODULAR_STORAGE.get(), GuiModularStorage::new);
+            GuiModularStorage.register();
         });
 
-        RenderTypeLookup.setRenderLayer(MODULAR_STORAGE.get(), RenderType.getCutout());
+        ClientSetup.initClient();
     }
 
     @Override
     public void initConfig() {
         ModularStorageConfiguration.init(Config.SERVER_BUILDER, Config.CLIENT_BUILDER);
-
     }
 }

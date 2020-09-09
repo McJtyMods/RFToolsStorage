@@ -103,6 +103,10 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         }
     }
 
+    public static void register() {
+        register(ModularStorageModule.CONTAINER_MODULAR_STORAGE.get(), GuiModularStorage::new);
+    }
+
     @Override
     public void init() {
         super.init();
