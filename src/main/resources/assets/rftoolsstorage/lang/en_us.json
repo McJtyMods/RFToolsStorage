@@ -50,18 +50,5 @@
     "message.rftoolsstorage.storage_module.items": "Contents: ",
     "message.rftoolsstorage.storage_module.advanced": "Advanced: ",
 
-    "message.rftoolsstorage.modular_storage.header": "This modular storage system can store a lot of items and allows easy searching and filtering. You must first insert a storage module item before you can use it",
-
-    "rftoolsstorage.category.main": "RFTools Storage",
-    "rftoolsstorage.category.main.description": "RFTools Storage is all about storing items and accessing them in an easy way",
-    "rftoolsstorage.category.modularstorage": "Modular Storage",
-    "rftoolsstorage.category.modularstorage.description": "A flexible storage solution",
-    "rftoolsstorage.category.scanner": "Storage Scanner",
-    "rftoolsstorage.category.scanner.description": "Powerful block that can access nearby inventories from a centralized place",
-    "rftoolsstorage.entry.modularstorage": "Modular Storage",
-    "rftoolsstorage.page.modularstorage0": "The Modular Storage block is a powerful passive inventory that can store up to 500 stacks (with the right storage module)",
-    "rftoolsstorage.entry.storagemodules": "Storage Modules",
-    "rftoolsstorage.page.storagemodules0": "There are 4 tiers of storage modules which you can directly use in a Modular Storage block",
-    "rftoolsstorage.entry.scanner": "Storage Scanner",
-    "rftoolsstorage.page.scanner0": "The Storage Scanner is a powerful block that can search nearby inventories and display items in them. It's also possible to access those items and store them again"
+    "message.rftoolsstorage.modular_storage.header": "This modular storage system can store a lot of items and allows easy searching and filtering. You must first insert a storage module item before you can use it"
 }
