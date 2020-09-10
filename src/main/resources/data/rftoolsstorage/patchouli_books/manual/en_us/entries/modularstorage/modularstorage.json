@@ -1,12 +1,12 @@
 {
-  "name": "rftoolsstorage.entry.modularstorage",
+  "name": "Modular Storage",
   "icon": "rftoolsstorage:modular_storage",
   "category": "rftoolsstorage:category_rftoolsstorage_modularstorage",
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "rftoolsstorage.page.modularstorage0"
+      "text": "The Modular Storage block is a powerful passive inventory that can store up to 500 stacks (with the right storage module)"
     }
   ]
 }

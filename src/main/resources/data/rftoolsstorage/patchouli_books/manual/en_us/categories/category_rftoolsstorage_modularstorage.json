@@ -1,6 +1,6 @@
 {
-  "name": "rftoolsstorage.category.modularstorage",
-  "description": "rftoolsstorage.category.modularstorage.description",
+  "name": "Modular Storage",
+  "description": "A flexible storage solution",
   "parent": "rftoolsstorage:category_rftoolsstorage",
   "icon": "rftoolsstorage:modular_storage",
   "sortnum": 10
