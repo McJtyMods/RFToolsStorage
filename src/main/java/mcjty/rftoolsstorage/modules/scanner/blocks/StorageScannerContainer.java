@@ -73,7 +73,7 @@ public class StorageScannerContainer extends GenericContainer {
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         addInventory(CONTAINER_GRID, ((StorageScannerTileEntity) te).getCraftingGrid().getCraftingGridInventory());
-        generateSlots();
+        generateSlots(inventory.player);
     }
 
 }
