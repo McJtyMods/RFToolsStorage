@@ -42,6 +42,6 @@ public class CraftingManagerContainer extends GenericContainer {
     public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
         addInventory(CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
-        generateSlots();
+        generateSlots(inventory.player);
     }
 }

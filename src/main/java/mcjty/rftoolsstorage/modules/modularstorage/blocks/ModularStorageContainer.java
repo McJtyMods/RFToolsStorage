@@ -57,7 +57,7 @@ public class ModularStorageContainer extends GenericContainer {
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         addInventory(CONTAINER_GRID, modularStorageTileEntity.getCraftingGrid().getCraftingGridInventory());
-        generateSlots();
+        generateSlots(inventory.player);
     }
 
     private int getAdjustedY(int y, boolean onClient) {
@@ -68,7 +68,7 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     @Override
-    public void generateSlots() {
+    public void generateSlots(PlayerEntity player) {
         boolean onClient = getTe().getWorld().isRemote();
 
         for (SlotFactory slotFactory : CONTAINER_FACTORY.get().getSlots()) {
@@ -79,7 +79,7 @@ public class ModularStorageContainer extends GenericContainer {
                 int index = slotFactory.getIndex();
                 int x = slotFactory.getX();
                 int y = slotFactory.getY();
-                slot = this.createSlot(slotFactory, inventory, index, x, y, slotType);
+                slot = this.createSlot(slotFactory, player, inventory, index, x, y, slotType);
             } else if (slotFactory.getSlotType() == SlotType.SLOT_SPECIFICITEM) {
                 final SlotDefinition slotDefinition = slotFactory.getSlotDefinition();
                 slot = new SlotItemHandler(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(),
