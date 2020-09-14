@@ -137,12 +137,17 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private boolean openWideView = true;
 
     private final LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
-    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get()));
-    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(this::createItemHandler);
+
+    private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
+    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
+
+    private final NoDirectionItemHander items = createItemHandler();
+    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getPos(), StorageScannerTileEntity.this))
-            .energyHandler(energyHandler)
-            .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
+            .energyHandler(() -> energyStorage)
+            .itemHandler(() -> items));
     private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
@@ -221,11 +226,11 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     private long getStoredPower() {
-        return energyHandler.map(GenericEnergyStorage::getEnergy).orElse(0L);
+        return energyStorage.getEnergy();
     }
 
     private void consumeEnergy(long e) {
-        energyHandler.ifPresent(h -> h.consumeEnergy(e));
+        energyStorage.consumeEnergy(e);
     }
 
     @Override
@@ -240,30 +245,28 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 xnetDelay = XNETDELAY;
             }
 
-            itemHandler.ifPresent(h -> {
-                if (!h.getStackInSlot(StorageScannerContainer.SLOT_IN).isEmpty()) {
-                    if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
-                        return;
-                    }
-
-                    ItemStack stack = h.getStackInSlot(StorageScannerContainer.SLOT_IN);
-                    stack = injectStackInternal(stack, exportToCurrent, this::isInputFromGui);
-                    h.setStackInSlot(StorageScannerContainer.SLOT_IN, stack);
-
-                    consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
+            if (!items.getStackInSlot(StorageScannerContainer.SLOT_IN).isEmpty()) {
+                if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
+                    return;
                 }
-                if (!h.getStackInSlot(StorageScannerContainer.SLOT_IN_AUTO).isEmpty()) {
-                    if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
-                        return;
-                    }
 
-                    ItemStack stack = h.getStackInSlot(StorageScannerContainer.SLOT_IN_AUTO);
-                    stack = injectStackInternal(stack, false, this::isInputFromAuto);
-                    h.setStackInSlot(StorageScannerContainer.SLOT_IN_AUTO, stack);
+                ItemStack stack = items.getStackInSlot(StorageScannerContainer.SLOT_IN);
+                stack = injectStackInternal(stack, exportToCurrent, this::isInputFromGui);
+                items.setStackInSlot(StorageScannerContainer.SLOT_IN, stack);
 
-                    consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
+                consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
+            }
+            if (!items.getStackInSlot(StorageScannerContainer.SLOT_IN_AUTO).isEmpty()) {
+                if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
+                    return;
                 }
-            });
+
+                ItemStack stack = items.getStackInSlot(StorageScannerContainer.SLOT_IN_AUTO);
+                stack = injectStackInternal(stack, false, this::isInputFromAuto);
+                items.setStackInSlot(StorageScannerContainer.SLOT_IN_AUTO, stack);
+
+                consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
+            }
         }
     }
 
@@ -1044,52 +1047,50 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         int finalAmount = amount;
         int finalRf = rf;
 
-        itemHandler.ifPresent(h -> {
-            ItemStack outSlot = h.getStackInSlot(StorageScannerContainer.SLOT_OUT);
-            if (!outSlot.isEmpty()) {
-                // Check if the items are the same and there is room
-                if (!ItemHandlerHelper.canItemStacksStack(outSlot, requested)) {
-                    return;
-                }
-                if (outSlot.getCount() >= requested.getMaxStackSize()) {
-                    return;
-                }
-                todo[0] = Math.min(todo[0], requested.getMaxStackSize() - outSlot.getCount());
-            }
-
-            if (invPos.getY() == -1) {
-                Iterator<BlockPos> iterator = inventories.stream()
-                        .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
-                        .filter(p -> isOutputFromGui(p) && isRoutable(p))
-                        .iterator();
-                while (iterator.hasNext()) {
-                    BlockPos blockPos = iterator.next();
-                    outSlot = requestStackFromInv(blockPos, requested, todo, outSlot);
-                    if (todo[0] == 0) {
-                        break;
-                    }
-
-                }
-            } else {
-                if (isOutputFromGui(invPos)) {
-                    outSlot = requestStackFromInv(invPos, requested, todo, outSlot);
-                }
-            }
-
-            if (todo[0] == finalAmount) {
-                // Nothing happened
+        ItemStack outSlot = items.getStackInSlot(StorageScannerContainer.SLOT_OUT);
+        if (!outSlot.isEmpty()) {
+            // Check if the items are the same and there is room
+            if (!ItemHandlerHelper.canItemStacksStack(outSlot, requested)) {
                 return;
             }
-
-            consumeEnergy(finalRf);
-            h.setStackInSlot(StorageScannerContainer.SLOT_OUT, outSlot);
-
-            if (StorageScannerConfiguration.requestStraightToInventory.get()) {
-                if (player.inventory.addItemStackToInventory(outSlot)) {
-                    h.setStackInSlot(StorageScannerContainer.SLOT_OUT, ItemStack.EMPTY);
-                }
+            if (outSlot.getCount() >= requested.getMaxStackSize()) {
+                return;
             }
-        });
+            todo[0] = Math.min(todo[0], requested.getMaxStackSize() - outSlot.getCount());
+        }
+
+        if (invPos.getY() == -1) {
+            Iterator<BlockPos> iterator = inventories.stream()
+                    .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
+                    .filter(p -> isOutputFromGui(p) && isRoutable(p))
+                    .iterator();
+            while (iterator.hasNext()) {
+                BlockPos blockPos = iterator.next();
+                outSlot = requestStackFromInv(blockPos, requested, todo, outSlot);
+                if (todo[0] == 0) {
+                    break;
+                }
+
+            }
+        } else {
+            if (isOutputFromGui(invPos)) {
+                outSlot = requestStackFromInv(invPos, requested, todo, outSlot);
+            }
+        }
+
+        if (todo[0] == finalAmount) {
+            // Nothing happened
+            return;
+        }
+
+        consumeEnergy(finalRf);
+        items.setStackInSlot(StorageScannerContainer.SLOT_OUT, outSlot);
+
+        if (StorageScannerConfiguration.requestStraightToInventory.get()) {
+            if (player.inventory.addItemStackToInventory(outSlot)) {
+                items.setStackInSlot(StorageScannerContainer.SLOT_OUT, ItemStack.EMPTY);
+            }
+        }
     }
 
     private void addItemStack(List<ItemStack> stacks, Set<Item> foundItems, ItemStack stack) {
