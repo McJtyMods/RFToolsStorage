@@ -15,7 +15,6 @@ import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -42,7 +41,7 @@ public class ModularStorageModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        DeferredWorkQueue.runLater(() -> {
+        event.enqueueWork(() -> {
             GuiModularStorage.register();
         });
 
