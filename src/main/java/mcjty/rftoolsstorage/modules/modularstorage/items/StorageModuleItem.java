@@ -192,7 +192,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
 
     @Override
     public Collection<String> getTagsToPreserve() {
-        return Arrays.asList("uuidMost", "uuidLeast");
+        return Arrays.asList("uuid");
     }
 
     @Override
@@ -204,20 +204,6 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
         }
         return new ActionResult<>(ActionResultType.SUCCESS, stack);
     }
-
-    // Called from the Remote or Modular store TE's to update the stack size for this item while it is inside that TE.
-//    public static void updateStackSize(ItemStack stack, int numStacks) {
-//        if (stack.isEmpty()) {
-//            return;
-//        }
-//        NBTTagCompound tagCompound = stack.getTagCompound();
-//        if (tagCompound == null) {
-//            tagCompound = new NBTTagCompound();
-//            stack.setTagCompound(tagCompound);
-//        }
-//        tagCompound.setInteger("count", numStacks);
-//    }
-
 
     @Override
     public void addInformation(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flags) {
