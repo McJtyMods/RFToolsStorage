@@ -9,12 +9,13 @@ import net.minecraft.command.Commands;
 public class ModCommands {
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
-        LiteralCommandNode<CommandSource> cmdList = dispatcher.register(
+        LiteralCommandNode<CommandSource> commands = dispatcher.register(
                 Commands.literal(RFToolsStorage.MODID)
                         .then(CommandList.register(dispatcher))
+                        .then(CommandRestore.register(dispatcher))
         );
 
-        dispatcher.register(Commands.literal("rfstor").redirect(cmdList));
+        dispatcher.register(Commands.literal("rfstor").redirect(commands));
     }
 
 }
