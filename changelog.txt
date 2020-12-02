@@ -1,5 +1,6 @@
 Upcoming:
 - Command restore actually works now
+- Added back support for the XNet channel support
 
 1.15-1.1.11:
 - New 'rftoolsstorage restore' command that you can use to restore a lost modular storage card

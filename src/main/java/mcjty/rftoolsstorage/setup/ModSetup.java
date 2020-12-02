@@ -2,12 +2,14 @@ package mcjty.rftoolsstorage.setup;
 
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
-import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingDeviceRegistry;
+import mcjty.lib.varia.Logging;
+import mcjty.rftoolsstorage.compat.xnet.XNetSupport;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DeferredWorkQueue;
+import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -36,5 +38,10 @@ public class ModSetup extends DefaultModSetup {
         MainCompatHandler.registerWaila();
         MainCompatHandler.registerTOP();
         xnet = ModList.get().isLoaded("xnet");
+        if (xnet) {
+            Logging.log("RFTools Detected XNet: enabling support");
+            InterModComms.sendTo("xnet", "getXNet", XNetSupport.GetXNet::new);
+        }
+
     }
 }
