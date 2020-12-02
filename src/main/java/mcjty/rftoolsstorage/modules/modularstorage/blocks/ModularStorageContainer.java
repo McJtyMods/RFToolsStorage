@@ -32,15 +32,15 @@ public class ModularStorageContainer extends GenericContainer {
     public static final String CONTAINER_CARDS = "cards";       // The three cards
 
     public static final int SLOT_STORAGE_MODULE = 0;
-    public static final int SLOT_TYPE_MODULE = 1;
+    public static final int SLOT_TYPE_MODULE = 1;   // No longer supported
     public static final int SLOT_FILTER_MODULE = 2;
     public static final int SLOT_STORAGE = 3;
     public static final int MAXSIZE_STORAGE = 500;  // @todo, should be max of all possible storages
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(SLOT_STORAGE)
             .slot(specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157)
-            .slot(specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, 5, 175)
-            .slot(specific(stack -> stack.getItem() instanceof FilterModuleItem), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 193)
+            .slot(specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, -18, -18)  // No longer supported
+            .slot(specific(stack -> stack.getItem() instanceof FilterModuleItem), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 175)
             .box(generic().in(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 500 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0) // Dummy slot positions
             .playerSlots(91, 157)
             .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
@@ -86,6 +86,9 @@ public class ModularStorageContainer extends GenericContainer {
                         getAdjustedY(slotFactory.getY(), onClient)) {
                     @Override
                     public boolean isItemValid(ItemStack stack) {
+                        if (((ModularStorageTileEntity)te).isLocked()) {
+                            return false;
+                        }
                         return slotDefinition.itemStackMatches(stack);
                     }
                 };
@@ -97,6 +100,9 @@ public class ModularStorageContainer extends GenericContainer {
                         getAdjustedY(slotFactory.getY(), onClient)) {
                     @Override
                     public boolean isItemValid(@Nonnull ItemStack stack) {
+                        if (!((ModularStorageTileEntity)te).isLocked()) {
+                            return false;
+                        }
                         return getItemHandler().isItemValid(slotNumber, stack);
                     }
                 };
@@ -128,13 +134,14 @@ public class ModularStorageContainer extends GenericContainer {
         String viewMode = modularStorageTileEntity.getViewMode();
         boolean groupMode = modularStorageTileEntity.isGroupMode();
         String filter = modularStorageTileEntity.getFilter();
+        boolean locked = modularStorageTileEntity.isLocked();
 
         for (IContainerListener listener : this.listeners) {
             if (listener instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity) listener;
                 RFToolsStorageMessages.INSTANCE.sendTo(new PacketStorageInfoToClient(
                         modularStorageTileEntity.getPos(),
-                        sortMode, viewMode, groupMode, filter),
+                        sortMode, viewMode, groupMode, filter, locked),
                         ((ServerPlayerEntity)player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
             }
         }

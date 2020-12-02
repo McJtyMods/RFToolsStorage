@@ -34,7 +34,10 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
@@ -69,22 +72,12 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     private ImageChoiceLabel sortMode;
     private ImageChoiceLabel groupMode;
     private Label amountLabel;
+    private ToggleButton lockButton;
     private Button cycleButton;
     private Button compactButton;
+    private Label warningLabel;
 
     private GuiCraftingGrid craftingGrid;
-
-    // @todo 1.14
-//    public GuiModularStorage(ModularStorageTileEntity modularStorageTileEntity, ModularStorageContainer container) {
-//        this(modularStorageTileEntity, (Container) container);
-//    }
-//    public GuiModularStorage(RemoteStorageItemContainer container) {
-//        this(null, container);
-//    }
-//
-//    public GuiModularStorage(ModularStorageItemContainer container) {
-//        this(null, container);
-//    }
 
     public GuiModularStorage(ModularStorageTileEntity tileEntity, ModularStorageContainer container, PlayerInventory inventory) {
         super(tileEntity, container, inventory, ModularStorageModule.MODULAR_STORAGE.get().getManualEntry());
@@ -117,15 +110,20 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         Slider slider = slider(241, 3, 11, ySize - 89).desiredWidth(11).vertical()
                 .scrollableName("items");
 
-
-        Panel modePanel = setupModePanel();
-
+        warningLabel = label(20, 20, 200, 20, "Lock the storage to access the items!");
+        lockButton = new ToggleButton().hint(5, ySize - 23-18, 16, 16)
+                .text("L")
+                .name("lock")
+                .event(this::updateSettings)
+                .tooltips("Lock/unlock the module slots");
         cycleButton = button(5, ySize - 23, 16, 16, "C")
                 .name("cycle")
                 .channel("cycle")
                 .tooltips("Cycle to the next storage module");
 
-        Panel toplevel = Widgets.positional().children(itemList, slider, modePanel, cycleButton);
+        Panel modePanel = setupModePanel();
+
+        Panel toplevel = Widgets.positional().children(itemList, slider, modePanel, lockButton, cycleButton, warningLabel);
 
         toplevel.setBackgrounds(iconLocationTop, iconLocation);
         toplevel.setBackgroundLayout(false, ySize - ModularStorageConfiguration.height1.get() + 2);
@@ -209,6 +207,9 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             setViewMode(tileEntity.getViewMode());
             setSortMode(tileEntity.getSortMode());
             groupMode.setCurrentChoice(tileEntity.isGroupMode() ? 1 : 0);
+            lockButton.pressed(tileEntity.isLocked());
+            warningLabel.visible(!tileEntity.isLocked());
+            itemList.visible(tileEntity.isLocked());
         } else {
             ItemStack heldItem = minecraft.player.getHeldItem(Hand.MAIN_HAND);
             if (!heldItem.isEmpty() && heldItem.hasTag()) {
@@ -247,7 +248,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     private void cycleStorage() {
         if (tileEntity != null) {
-            window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ModularStorageTileEntity.ACTION_CYCLE);
+            window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ACTION_CYCLE);
         } else {
             sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_CYCLE_STORAGE);
         }
@@ -255,7 +256,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     private void compact() {
         if (tileEntity != null) {
-            window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ModularStorageTileEntity.ACTION_COMPACT);
+            window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ACTION_COMPACT);
         } else {
             sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_COMPACT);
         }
@@ -267,12 +268,16 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             tileEntity.setViewMode(viewMode.getCurrentChoice());
             tileEntity.setFilter(filter.getText());
             tileEntity.setGroupMode(groupMode.getCurrentChoiceIndex() == 1);
-            sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, ModularStorageTileEntity.CMD_SETTINGS,
+            tileEntity.setLocked(lockButton.isPressed());
+            warningLabel.visible(!tileEntity.isLocked());
+            itemList.visible(tileEntity.isLocked());
+            sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, CMD_SETTINGS,
                     TypedMap.builder()
                             .put(PARAM_SORTMODE, sortMode.getCurrentChoice())
                             .put(PARAM_VIEWMODE, viewMode.getCurrentChoice())
                             .put(PARAM_FILTER, filter.getText())
                             .put(PARAM_GROUPMODE, groupMode.getCurrentChoiceIndex() == 1)
+                            .put(PARAM_LOCKED, lockButton.isPressed())
                             .build());
         } else {
             // @todo 1.14
@@ -617,6 +622,18 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         }
 
         drawWindow(matrixStack);
+    }
+
+    @Override
+    protected void drawStackTooltips(MatrixStack matrixStack, int mouseX, int mouseY) {
+        Slot slot = getSelectedSlot(mouseX, mouseY);
+        if (slot instanceof SlotItemHandler && !(slot instanceof BaseSlot)) {
+            if (tileEntity.isLocked()) {
+                renderTooltip(matrixStack, new StringTextComponent("Unlock to access these slots").mergeStyle(TextFormatting.RED), mouseX, mouseY);
+                return;
+            }
+        }
+        super.drawStackTooltips(matrixStack, mouseX, mouseY);
     }
 
     @Override

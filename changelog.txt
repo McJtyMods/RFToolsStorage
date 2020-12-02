@@ -1,5 +1,6 @@
 Upcoming:
 - Added back support for the XNet channel support
+- To avoid an interaction bug with inventory tweaks the modular storage system has been modified to use a locking system where you have to lock you storage item before you can use the modular storage
 
 1.16-2.0.6:
 - Fixed a problem with upgrading storage modules. The contents would be lost
