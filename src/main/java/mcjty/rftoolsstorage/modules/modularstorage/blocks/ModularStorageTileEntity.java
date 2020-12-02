@@ -49,6 +49,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     public static final Key<String> PARAM_VIEWMODE = new Key<>("viewmode", Type.STRING);
     public static final Key<String> PARAM_SORTMODE = new Key<>("sortmode", Type.STRING);
     public static final Key<Boolean> PARAM_GROUPMODE = new Key<>("groupmode", Type.BOOLEAN);
+    public static final Key<Boolean> PARAM_LOCKED = new Key<>("locked", Type.BOOLEAN);
 
     public static final String ACTION_COMPACT = "compact";
     public static final String ACTION_CYCLE = "cycle";
@@ -84,6 +85,24 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
             }
             markDirtyClient();
         }
+
+        @Nonnull
+        @Override
+        public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+            if (locked) {
+                return stack;
+            }
+            return super.insertItem(slot, stack, simulate);
+        }
+
+        @Nonnull
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            if (locked) {
+                return ItemStack.EMPTY;
+            }
+            return super.extractItem(slot, amount, simulate);
+        }
     };
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
@@ -92,6 +111,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private String viewMode = "";
     private boolean groupMode = false;
     private String filter = "";
+    private boolean locked = false;
 
     public ModularStorageTileEntity() {
         super(ModularStorageModule.TYPE_MODULAR_STORAGE.get());
@@ -201,11 +221,12 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     /**
      * Called from the container (detectAndSendChanges) and executed on the client.
      */
-    public void syncInventoryFromServer(String sortMode, String viewMode, boolean groupMode, String filter) {
+    public void syncInventoryFromServer(String sortMode, String viewMode, boolean groupMode, String filter, boolean locked) {
         this.sortMode = sortMode;
         this.viewMode = viewMode;
         this.groupMode = groupMode;
         this.filter = filter;
+        this.locked = locked;
     }
 
     @Override
@@ -230,6 +251,18 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         if (tagCompound.contains("Info")) {
             CompoundNBT infoTag = tagCompound.getCompound("Info");
             cardHandler.deserializeNBT(infoTag.getCompound("Cards"));
+
+            if (infoTag.contains("locked")) {
+                locked = infoTag.getBoolean("locked");
+            } else {
+                // Old storage. Set a reasonable default based on the presence of a card in the slot
+                if (cardHandler.getStackInSlot(SLOT_STORAGE_MODULE).isEmpty()) {
+                    // No storage card, initialize locked to false
+                    locked = false;
+                } else {
+                    locked = true;
+                }
+            }
         }
     }
 
@@ -255,6 +288,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         super.writeInfo(tagCompound);
         CompoundNBT infoTag = getOrCreateInfo(tagCompound);
         infoTag.put("Cards", cardHandler.serializeNBT());
+        infoTag.putBoolean("locked", locked);
     }
 
     private void writeCardStack(CompoundNBT tagCompound, String cardName, ItemStack card) {
@@ -274,6 +308,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
             setViewMode(params.get(PARAM_VIEWMODE));
             setSortMode(params.get(PARAM_SORTMODE));
             setGroupMode(params.get(PARAM_GROUPMODE));
+            setLocked(params.get(PARAM_LOCKED));
             markDirtyClient();
             return true;
         }
@@ -286,6 +321,15 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
             inventory.setStackInSlot(i, ItemStack.EMPTY);
         }
         markDirty();
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+        markDirtyClient();
+    }
+
+    public boolean isLocked() {
+        return locked;
     }
 
     private void cycle() {
@@ -381,6 +425,24 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                         }
                     }
                     return true;
+                }
+
+                @Nonnull
+                @Override
+                public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+                    if (!locked) {
+                        return stack;
+                    }
+                    return super.insertItem(slot, stack, simulate);
+                }
+
+                @Nonnull
+                @Override
+                public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                    if (!locked) {
+                        return ItemStack.EMPTY;
+                    }
+                    return super.extractItem(slot, amount, simulate);
                 }
             };
             if (!world.isRemote) {
