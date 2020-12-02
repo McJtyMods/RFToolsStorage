@@ -267,8 +267,6 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             tileEntity.setFilter(filter.getText());
             tileEntity.setGroupMode(groupMode.getCurrentChoiceIndex() == 1);
             tileEntity.setLocked(lockButton.isPressed());
-            warningLabel.visible(!tileEntity.isLocked());
-            itemList.visible(tileEntity.isLocked());
             sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, CMD_SETTINGS,
                     TypedMap.builder()
                             .put(PARAM_SORTMODE, sortMode.getCurrentChoice())
@@ -645,6 +643,10 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         }
 
         super.drawGuiContainerForegroundLayer(i1, i2);
+
+        warningLabel.visible(!tileEntity.isLocked());
+        itemList.visible(tileEntity.isLocked());
+        lockButton.pressed(tileEntity.isLocked());
 
         if (tileEntity.isLocked()) {
             minecraft.getTextureManager().bindTexture(guiElements);
