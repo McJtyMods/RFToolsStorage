@@ -647,6 +647,18 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         }
 
         super.drawGuiContainerForegroundLayer(matrixStack, i1, i2);
+
+        warningLabel.visible(!tileEntity.isLocked());
+        itemList.visible(tileEntity.isLocked());
+        lockButton.pressed(tileEntity.isLocked());
+
+        if (tileEntity.isLocked()) {
+            minecraft.getTextureManager().bindTexture(guiElements);
+
+            int offset = 300;
+            blit(matrixStack, 5, 157, offset, 96, 96, 16, 16, 256, 256);
+            blit(matrixStack, 5, 175, offset, 96, 96, 16, 16, 256, 256);
+        }
     }
 
 

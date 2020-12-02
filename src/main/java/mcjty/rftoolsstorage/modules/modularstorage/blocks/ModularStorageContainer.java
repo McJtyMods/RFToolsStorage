@@ -103,7 +103,7 @@ public class ModularStorageContainer extends GenericContainer {
                         if (!((ModularStorageTileEntity)te).isLocked()) {
                             return false;
                         }
-                        return getItemHandler().isItemValid(slotNumber, stack);
+                        return getItemHandler().isItemValid(slotNumber-3, stack);
                     }
                 };
             }
