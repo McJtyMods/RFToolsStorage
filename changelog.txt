@@ -1,4 +1,4 @@
-Upcoming:
+1.15-1.1.12:
 - Command restore actually works now
 - Added back support for the XNet channel support
 - To avoid an interaction bug with inventory tweaks the modular storage system has been modified to use a locking system where you have to lock you storage item before you can use the modular storage
