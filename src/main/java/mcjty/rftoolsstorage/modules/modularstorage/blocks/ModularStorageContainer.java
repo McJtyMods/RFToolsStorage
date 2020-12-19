@@ -67,26 +67,75 @@ public class ModularStorageContainer extends GenericContainer {
         return y;
     }
 
+    private boolean isLocked() {
+        return ((ModularStorageTileEntity)te).isLocked();
+    }
+
     @Override
     public void generateSlots(PlayerEntity player) {
         boolean onClient = getTe().getWorld().isRemote();
 
         for (SlotFactory slotFactory : CONTAINER_FACTORY.get().getSlots()) {
             Slot slot;
-            if (CONTAINER_GRID.equals(slotFactory.getInventoryName())) {
-                SlotType slotType = slotFactory.getSlotType();
-                IItemHandler inventory = this.inventories.get(slotFactory.getInventoryName());
-                int index = slotFactory.getIndex();
-                int x = slotFactory.getX();
-                int y = slotFactory.getY();
-                slot = this.createSlot(slotFactory, player, inventory, index, x, y, slotType);
+            if (slotFactory.getSlotType() == SlotType.SLOT_GHOST) {
+                slot = new GhostSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
+                    @Override
+                    public boolean canTakeStack(PlayerEntity player) {
+                        if (!isLocked()) {
+                            return false;
+                        }
+                        return super.canTakeStack(player);
+                    }
+
+                    @Override
+                    public boolean isItemValid(ItemStack stack) {
+                        if (!isLocked()) {
+                            return false;
+                        }
+                        return super.isItemValid(stack);
+                    }
+
+                    @Override
+                    public void putStack(ItemStack stack) {
+                        if (!isLocked()) {
+                            return;
+                        }
+                        super.putStack(stack);
+                    }
+                };
+            } else if (slotFactory.getSlotType() == SlotType.SLOT_GHOSTOUT) {
+                slot = new GhostOutputSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
+                    @Override
+                    public boolean canTakeStack(PlayerEntity player) {
+                        if (!isLocked()) {
+                            return false;
+                        }
+                        return super.canTakeStack(player);
+                    }
+
+                    @Override
+                    public boolean isItemValid(ItemStack stack) {
+                        if (!isLocked()) {
+                            return false;
+                        }
+                        return super.isItemValid(stack);
+                    }
+
+                    @Override
+                    public void putStack(ItemStack stack) {
+                        if (!isLocked()) {
+                            return;
+                        }
+                        super.putStack(stack);
+                    }
+                };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_SPECIFICITEM) {
                 final SlotDefinition slotDefinition = slotFactory.getSlotDefinition();
                 slot = new SlotItemHandler(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(),
                         getAdjustedY(slotFactory.getY(), onClient)) {
                     @Override
                     public boolean isItemValid(ItemStack stack) {
-                        if (((ModularStorageTileEntity)te).isLocked()) {
+                        if (isLocked()) {
                             return false;
                         }
                         return slotDefinition.itemStackMatches(stack);
@@ -100,10 +149,10 @@ public class ModularStorageContainer extends GenericContainer {
                         getAdjustedY(slotFactory.getY(), onClient)) {
                     @Override
                     public boolean isItemValid(@Nonnull ItemStack stack) {
-                        if (!((ModularStorageTileEntity)te).isLocked()) {
+                        if (!isLocked()) {
                             return false;
                         }
-                        return getItemHandler().isItemValid(slotNumber-3, stack);
+                        return getItemHandler().isItemValid(slotNumber - 3, stack);
                     }
                 };
             }

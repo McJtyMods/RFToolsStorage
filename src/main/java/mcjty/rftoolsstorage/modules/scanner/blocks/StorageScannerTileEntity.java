@@ -206,7 +206,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                     TileEntity tileEntity = world.getTileEntity(p);
                     if (tileEntity instanceof CraftingManagerTileEntity) {
                         // @todo crafting manager
-                    } else if (!(tileEntity instanceof StorageScannerTileEntity)) {
+                    } else if (tileEntity != null && !(tileEntity instanceof StorageScannerTileEntity)) {
                         itemSource.add(tileEntity, 0);
                     }
                 });

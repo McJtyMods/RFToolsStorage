@@ -5,6 +5,7 @@ import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.BaseSlot;
 import mcjty.lib.container.GhostOutputSlot;
+import mcjty.lib.container.GhostSlot;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.layout.HorizontalAlignment;
@@ -168,6 +169,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
                 .put(CommandHandler.PARAM_POS, pos)
                 .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimension())
                 .build());
+        getWindowManager().addWindow(craftingGrid.getWindow());
     }
 
     private Panel setupModePanel() {
@@ -627,7 +629,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     @Override
     protected void drawStackTooltips(MatrixStack matrixStack, int mouseX, int mouseY) {
         Slot slot = getSelectedSlot(mouseX, mouseY);
-        if (slot instanceof SlotItemHandler && !(slot instanceof BaseSlot)) {
+        if (slot instanceof SlotItemHandler && !(slot instanceof BaseSlot) && !(slot instanceof GhostOutputSlot) && !(slot instanceof GhostSlot)) {
             if (tileEntity.isLocked()) {
                 renderTooltip(matrixStack, new StringTextComponent("Unlock to access these slots").mergeStyle(TextFormatting.RED), mouseX, mouseY);
                 return;
@@ -656,8 +658,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             minecraft.getTextureManager().bindTexture(guiElements);
 
             int offset = 300;
-            blit(matrixStack, 5, 157, offset, 96, 96, 16, 16, 256, 256);
-            blit(matrixStack, 5, 175, offset, 96, 96, 16, 16, 256, 256);
+            blit(matrixStack, 5, ySize-79, offset, 96, 96, 16, 16, 256, 256);
+            blit(matrixStack, 5, ySize-61, offset, 96, 96, 16, 16, 256, 256);
         }
     }
 

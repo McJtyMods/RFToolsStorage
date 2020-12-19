@@ -1,3 +1,9 @@
+Upcoming:
+- Fixed JEI messing with the crafting grid part of the modular storage and storage scanner
+- Fixed a problem with tags for crafting in both the modular storage and storage scanner. i.e. a furnace can now be crafted from different types of cobblestone
+- Fixed a gui problem with modular storage with smaller fonts
+- Also locked the crafting grid
+
 1.16-2.0.7:
 - Added back support for the XNet channel support
 - To avoid an interaction bug with inventory tweaks the modular storage system has been modified to use a locking system where you have to lock you storage item before you can use the modular storage
