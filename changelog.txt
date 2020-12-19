@@ -1,3 +1,9 @@
+Upcoming:
+- Fixed JEI messing with the crafting grid part of the modular storage and storage scanner
+- Fixed a problem with tags for crafting in both the modular storage and storage scanner. i.e. a furnace can now be crafted from different types of cobblestone
+- Fixed a gui problem with modular storage with smaller fonts
+- Also locked the crafting grid
+
 1.15-1.1.12:
 - Command restore actually works now
 - Added back support for the XNet channel support

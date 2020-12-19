@@ -291,12 +291,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         infoTag.putBoolean("locked", locked);
     }
 
-    private void writeCardStack(CompoundNBT tagCompound, String cardName, ItemStack card) {
-        CompoundNBT storageNBT = new CompoundNBT();
-        card.write(storageNBT);
-        tagCompound.put(cardName, storageNBT);
-    }
-
     @Override
     public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
         boolean rc = super.execute(playerMP, command, params);

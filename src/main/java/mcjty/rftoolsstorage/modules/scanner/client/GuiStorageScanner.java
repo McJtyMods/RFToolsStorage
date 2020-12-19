@@ -216,6 +216,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (StorageScannerConfiguration.hilightStarredOnGuiOpen.get()) {
             storageList.selected(0);
         }
+        getWindowManager().addWindow(craftingGrid.getWindow());
 
         init = true;
     }
