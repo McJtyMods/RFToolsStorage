@@ -38,6 +38,8 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -690,16 +692,18 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected List<String> addCustomLines(List<String> oldList, BlockRender blockRender, ItemStack stack) {
+    protected List<ITextComponent> addCustomLines(List<ITextComponent> oldList, BlockRender blockRender, ItemStack stack) {
         if (blockRender.getUserObject() instanceof Boolean) {
             boolean craftable = (Boolean)(blockRender.getUserObject());
-            List<String> newlist = new ArrayList<>();
+            List<ITextComponent> newlist = new ArrayList<>();
             if (craftable) {
-                newlist.add(TextFormatting.GOLD + "Craftable");
+                newlist.add(new StringTextComponent("Craftable").mergeStyle(TextFormatting.GOLD));
             }
-            newlist.add(TextFormatting.GREEN + "Click: " + TextFormatting.WHITE + "full stack");
-            newlist.add(TextFormatting.GREEN + "Shift + click: " + TextFormatting.WHITE + "single item");
-            newlist.add("");
+            newlist.add(new StringTextComponent("Click: ").mergeStyle(TextFormatting.GREEN)
+                    .append(new StringTextComponent("full stack").mergeStyle(TextFormatting.WHITE)));
+            newlist.add(new StringTextComponent("Shift + click: ").mergeStyle(TextFormatting.GREEN)
+                    .append(new StringTextComponent("single item").mergeStyle(TextFormatting.WHITE)));
+            newlist.add(new StringTextComponent(""));
             newlist.addAll(oldList);
             return newlist;
         } else {
