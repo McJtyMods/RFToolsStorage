@@ -15,6 +15,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
 import java.text.DateFormat;
@@ -34,7 +35,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
 
     private final int tier;
 
-    private final TooltipBuilder tooltipBuilder = new TooltipBuilder()
+    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
             .info(header(),
                     parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsString),
                     key("message.rftoolsstorage.shiftmessage"))
@@ -208,7 +209,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     @Override
     public void addInformation(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flags) {
         super.addInformation(itemStack, worldIn, list, flags);
-        tooltipBuilder.makeTooltip(new ResourceLocation(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
+        tooltipBuilder.get().makeTooltip(new ResourceLocation(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
     }
 
 }
