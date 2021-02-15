@@ -1,4 +1,4 @@
-Upcoming:
+1.16-2.0.10:
 - Fixed a problem with the crafting grids on the modular storage and storage scanner. They would not allow storing recipes anymore
 - Fixed crafting in the modular storage or storage scanner with recipes that don't take up the full 3x3 grid
 
