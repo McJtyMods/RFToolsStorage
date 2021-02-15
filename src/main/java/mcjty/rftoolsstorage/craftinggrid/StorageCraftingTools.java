@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
@@ -105,32 +106,40 @@ public class StorageCraftingTools {
 
         List<Pair<IItemKey, ItemStack>> undo = new ArrayList<>();
         List<ItemStack> result = new ArrayList<>();
-        CraftingInventory inventory = craftingRecipe.getInventory();
 
         Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
-        List<Ingredient> ingredients = recipe.map(IRecipe::getIngredients).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
+        return recipe.map(r -> {
+            int w = 3;
+            int h = 3;
+            if (r instanceof ShapedRecipe) {
+                w = ((ShapedRecipe) r).getRecipeWidth();
+                h = ((ShapedRecipe) r).getRecipeHeight();
+            }
+            List<Ingredient> ingredients = r.getIngredients();
+            for (int x = 0 ; x < w ; x++) {
+                for (int y = 0 ; y < h ; y++) {
+                    int i = y * w + x;
+                    int workIndex = y * 3 + x;
+                    workInventory.setInventorySlotContents(workIndex, ItemStack.EMPTY);
+                    if (i < ingredients.size()) {
+                        Ingredient ingredient = ingredients.get(i);
+                        ItemStack[] stacks = ingredient.getMatchingStacks();
+                        if (stacks.length > 0) {
+                            ItemStack stack = stacks[0];
+                            if (!stack.isEmpty()) {
+                                int count = stack.getCount();
+                                count = findMatchingItems(workInventory, undo, workIndex, ingredients.get(i), count, itemSource);
 
-        for (int i = 0; i < inventory.getSizeInventory(); i++) {
-            workInventory.setInventorySlotContents(i, ItemStack.EMPTY);
-            if (i < ingredients.size()) {
-                Ingredient ingredient = ingredients.get(i);
-                ItemStack[] stacks = ingredient.getMatchingStacks();
-                if (stacks.length > 0) {
-                    ItemStack stack = stacks[0];
-                    if (!stack.isEmpty()) {
-                        int count = stack.getCount();
-                        count = findMatchingItems(workInventory, undo, i, ingredients.get(i), count, itemSource);
-
-                        if (count > 0) {
-                            // Couldn't find all items.
-                            undo(player, itemSource, undo);
-                            return Collections.emptyList();
+                                if (count > 0) {
+                                    // Couldn't find all items.
+                                    undo(player, itemSource, undo);
+                                    return Collections.<ItemStack>emptyList();
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
-        return recipe.map(r -> {
             if (!r.matches(workInventory, player.getEntityWorld())) {
                 result.clear();
                 undo(player, itemSource, undo);

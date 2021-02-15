@@ -8,6 +8,7 @@ import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.container.GhostSlot;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
+import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
@@ -169,7 +170,12 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
                 .put(CommandHandler.PARAM_POS, pos)
                 .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimension())
                 .build());
-        getWindowManager().addWindow(craftingGrid.getWindow());
+    }
+
+    @Override
+    protected void registerWindows(WindowManager mgr) {
+        super.registerWindows(mgr);
+        mgr.addWindow(craftingGrid.getWindow());
     }
 
     private Panel setupModePanel() {
@@ -376,7 +382,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //            }
 //        }
         boolean r = super.mouseClicked(x, y, button);
-        craftingGrid.getWindow().mouseClicked(x, y, button);
+//        craftingGrid.getWindow().mouseClicked(x, y, button);
         if (button == 1) {
             Slot slot = getSelectedSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
@@ -392,20 +398,20 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     @Override
     public boolean mouseDragged(double x, double y, int button, double scaledX, double scaledY) {
-        craftingGrid.getWindow().mouseDragged(x, y, button);
+//        craftingGrid.getWindow().mouseDragged(x, y, button);
         return super.mouseDragged(x, y, button, scaledX, scaledY);
     }
 
     @Override
     public boolean mouseScrolled(double x, double y, double amount) {
-        craftingGrid.getWindow().mouseScrolled(x, y, amount);
+//        craftingGrid.getWindow().mouseScrolled(x, y, amount);
         return super.mouseScrolled(x, y, amount);
     }
 
     @Override
     public boolean mouseReleased(double x, double y, int button) {
         boolean rc = super.mouseReleased(x, y, button);
-        craftingGrid.getWindow().mouseReleased(x, y, button);
+//        craftingGrid.getWindow().mouseReleased(x, y, button);
         return rc;
     }
 
@@ -605,7 +611,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         }
 
         // @todo 1.14 rc handling is probably not right
-        craftingGrid.getWindow().keyTyped(keyCode, keyCode);
+//        craftingGrid.getWindow().keyTyped(keyCode, keyCode);
         return rc;
     }
 

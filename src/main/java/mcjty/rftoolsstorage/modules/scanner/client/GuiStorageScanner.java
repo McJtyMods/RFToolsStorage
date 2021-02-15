@@ -7,6 +7,7 @@ import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GhostOutputSlot;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
+import mcjty.lib.gui.WindowManager;
 import mcjty.lib.gui.events.BlockRenderEvent;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
@@ -101,6 +102,12 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         xSize = STORAGE_MONITOR_WIDTH;
         ySize = STORAGE_MONITOR_HEIGHT;
+    }
+
+    @Override
+    protected void registerWindows(WindowManager mgr) {
+        super.registerWindows(mgr);
+        mgr.addWindow(craftingGrid.getWindow());
     }
 
     public static void register() {
@@ -219,7 +226,6 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (StorageScannerConfiguration.hilightStarredOnGuiOpen.get()) {
             storageList.selected(0);
         }
-        getWindowManager().addWindow(craftingGrid.getWindow());
 
         init = true;
     }
@@ -273,7 +279,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     @Override
     public boolean mouseClicked(double x, double y, int button) {
         boolean r = super.mouseClicked(x, y, button);
-        craftingGrid.getWindow().mouseClicked(x, y, button);
+//        craftingGrid.getWindow().mouseClicked(x, y, button);
         if (button == 1) {
             Slot slot = getSelectedSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
@@ -285,20 +291,20 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
     @Override
     public boolean mouseDragged(double x, double y, int button, double scaledX, double scaledY) {
-        craftingGrid.getWindow().mouseDragged(x, y, button);
+//        craftingGrid.getWindow().mouseDragged(x, y, button);
         return super.mouseDragged(x, y, button, scaledX, scaledY);
     }
 
     @Override
     public boolean mouseScrolled(double x, double y, double amount) {
-        craftingGrid.getWindow().mouseScrolled(x, y, amount);
+//        craftingGrid.getWindow().mouseScrolled(x, y, amount);
         return super.mouseScrolled(x, y, amount);
     }
 
     @Override
     public boolean mouseReleased(double x, double y, int button) {
         boolean rc = super.mouseReleased(x, y, button);
-        craftingGrid.getWindow().mouseReleased(x, y, button);
+//        craftingGrid.getWindow().mouseReleased(x, y, button);
         return rc;
     }
 
@@ -306,7 +312,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         boolean rc = super.keyPressed(keyCode, scanCode, modifiers);
         // @todo 1.14 rc handling is probably not right
-        craftingGrid.getWindow().keyTyped(keyCode, keyCode);
+//        craftingGrid.getWindow().keyTyped(keyCode, keyCode);
         return rc;
     }
 

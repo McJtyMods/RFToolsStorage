@@ -150,7 +150,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Nonnull
     public int[] craft(PlayerEntity player, int n, boolean test) {
         InventoriesItemSource itemSource = new InventoriesItemSource().add(new InvWrapper(player.inventory), 0);
-        getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> itemSource.add(h, 0));
+        globalHandler.ifPresent(h -> itemSource.add(h, 0));
 
         if (test) {
             return StorageCraftingTools.testCraftItems(player, n, craftingGrid.getActiveRecipe(), itemSource);
