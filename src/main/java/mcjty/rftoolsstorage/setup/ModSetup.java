@@ -38,7 +38,7 @@ public class ModSetup extends DefaultModSetup {
         MainCompatHandler.registerTOP();
         xnet = ModList.get().isLoaded("xnet");
         if (xnet) {
-            Logging.log("RFTools Detected XNet: enabling support");
+            Logging.log("RFTools Storage Detected XNet: enabling support");
             InterModComms.sendTo("xnet", "getXNet", XNetSupport.GetXNet::new);
         }
 
