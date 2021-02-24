@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import io.netty.buffer.ByteBuf;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -9,14 +9,7 @@ public class PacketCraftTestResultToClient {
 
     private int[] testResult;
 
-    public void fromBytes(ByteBuf buf) {
-        testResult = new int[10];
-        for (int i = 0; i < 10; i++) {
-            testResult[i] = buf.readInt();
-        }
-    }
-
-    public void toBytes(ByteBuf buf) {
+    public void toBytes(PacketBuffer buf) {
         for (int i = 0; i < 10; i++) {
             buf.writeInt(testResult[i]);
         }
@@ -25,7 +18,11 @@ public class PacketCraftTestResultToClient {
     public PacketCraftTestResultToClient() {
     }
 
-    public PacketCraftTestResultToClient(ByteBuf buf) {
+    public PacketCraftTestResultToClient(PacketBuffer buf) {
+        testResult = new int[10];
+        for (int i = 0; i < 10; i++) {
+            testResult[i] = buf.readInt();
+        }
     }
 
     public PacketCraftTestResultToClient(int[] testResult) {
@@ -36,7 +33,6 @@ public class PacketCraftTestResultToClient {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             GuiCraftingGrid.testResultFromServer = testResult;
-
         });
         ctx.setPacketHandled(true);
     }

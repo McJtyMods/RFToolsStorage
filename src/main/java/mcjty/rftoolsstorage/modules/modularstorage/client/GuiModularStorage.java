@@ -580,7 +580,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
                 itemList.children(new Panel().layout(new HorizontalLayout().setHorizontalMargin(2).setVerticalMargin(0)).desiredHeight(10).children(groupLabel));
             }
 
-            panel = horizontal(DEFAULT_HORIZONTAL_MARGIN, spacing).desiredHeight(12).userObject(new Integer(-1)).desiredHeight(16);
+            panel = horizontal(DEFAULT_HORIZONTAL_MARGIN, spacing).desiredHeight(12).userObject(-1).desiredHeight(16);
             currentPos = MutablePair.of(panel, 0);
             itemList.children(panel);
         }

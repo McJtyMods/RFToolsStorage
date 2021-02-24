@@ -3,6 +3,8 @@ package mcjty.rftoolsstorage.craftinggrid;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import mcjty.lib.base.StyleConfig;
+import mcjty.lib.client.GuiTools;
+import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
@@ -10,7 +12,6 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.client.GuiTools;
 import mcjty.lib.varia.DimensionId;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
@@ -30,6 +31,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 import java.util.Optional;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
+import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.CONTAINER_GRID;
 
 
 public class GuiCraftingGrid {
@@ -170,23 +172,13 @@ public class GuiCraftingGrid {
         craftWindow.draw(matrixStack);
 
         if (testResultFromServer != null) {
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
+            matrixStack.push();
+            matrixStack.translate(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
 
             if (testResultFromServer[9] > 0) {
-                Slot slot = gui.getContainer().getSlot(CraftingGridInventory.SLOT_GHOSTOUTPUT);
-
-                if (slot != null) {
-                    GlStateManager.colorMask(true, true, true, false);
-                    int xPos = slot.xPos;
-                    int yPos = slot.yPos;
-                    Screen.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
-                }
-            }
-            for (int i = 0; i < 9; i++) {
-                if (testResultFromServer[i] > 0) {
-                    Slot slot = gui.getContainer().getSlot(CraftingGridInventory.SLOT_GHOSTINPUT + i);
-
+                Container container = gui.getContainer();
+                if (container instanceof GenericContainer) {
+                    Slot slot = ((GenericContainer) container).getSlotByInventoryAndIndex(CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT);
                     if (slot != null) {
                         GlStateManager.colorMask(true, true, true, false);
                         int xPos = slot.xPos;
@@ -195,7 +187,21 @@ public class GuiCraftingGrid {
                     }
                 }
             }
-            GlStateManager.popMatrix();
+            for (int i = 0; i < 9; i++) {
+                if (testResultFromServer[i] > 0) {
+                    Container container = gui.getContainer();
+                    if (container instanceof GenericContainer) {
+                        Slot slot = ((GenericContainer) container).getSlotByInventoryAndIndex(CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT + i);
+                        if (slot != null) {
+                            GlStateManager.colorMask(true, true, true, false);
+                            int xPos = slot.xPos;
+                            int yPos = slot.yPos;
+                            Screen.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
+                        }
+                    }
+                }
+            }
+            matrixStack.pop();
         }
     }
 
