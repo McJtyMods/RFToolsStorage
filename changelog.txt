@@ -1,5 +1,6 @@
 Upcoming:
 - The crafting grid in the modular storage and storage scanner shows the missing items again
+- Fixed a few tooltip problems in the modular storage block
 
 1.16-2.0.10:
 - Fixed a problem with the crafting grids on the modular storage and storage scanner. They would not allow storing recipes anymore

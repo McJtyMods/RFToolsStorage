@@ -289,34 +289,6 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         return r;
     }
 
-    @Override
-    public boolean mouseDragged(double x, double y, int button, double scaledX, double scaledY) {
-//        craftingGrid.getWindow().mouseDragged(x, y, button);
-        return super.mouseDragged(x, y, button, scaledX, scaledY);
-    }
-
-    @Override
-    public boolean mouseScrolled(double x, double y, double amount) {
-//        craftingGrid.getWindow().mouseScrolled(x, y, amount);
-        return super.mouseScrolled(x, y, amount);
-    }
-
-    @Override
-    public boolean mouseReleased(double x, double y, int button) {
-        boolean rc = super.mouseReleased(x, y, button);
-//        craftingGrid.getWindow().mouseReleased(x, y, button);
-        return rc;
-    }
-
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        boolean rc = super.keyPressed(keyCode, scanCode, modifiers);
-        // @todo 1.14 rc handling is probably not right
-//        craftingGrid.getWindow().keyTyped(keyCode, keyCode);
-        return rc;
-    }
-
-
     private void moveUp() {
         sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, StorageScannerTileEntity.CMD_UP,
                 TypedMap.builder().put(PARAM_INDEX, storageList.getSelected() - 1).build());
