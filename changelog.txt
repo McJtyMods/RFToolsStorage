@@ -1,4 +1,4 @@
-Upcoming:
+1.16-2.0.11:
 - The crafting grid in the modular storage and storage scanner shows the missing items again
 - Fixed a few tooltip problems in the modular storage block
 
