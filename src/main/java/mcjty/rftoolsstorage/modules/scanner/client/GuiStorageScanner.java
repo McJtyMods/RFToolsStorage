@@ -678,9 +678,9 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 newlist.add(new StringTextComponent("Craftable").mergeStyle(TextFormatting.GOLD));
             }
             newlist.add(new StringTextComponent("Click: ").mergeStyle(TextFormatting.GREEN)
-                    .append(new StringTextComponent("full stack").mergeStyle(TextFormatting.WHITE)));
+                    .appendSibling(new StringTextComponent("full stack").mergeStyle(TextFormatting.WHITE)));
             newlist.add(new StringTextComponent("Shift + click: ").mergeStyle(TextFormatting.GREEN)
-                    .append(new StringTextComponent("single item").mergeStyle(TextFormatting.WHITE)));
+                    .appendSibling(new StringTextComponent("single item").mergeStyle(TextFormatting.WHITE)));
             newlist.add(new StringTextComponent(""));
             newlist.addAll(oldList);
             return newlist;
