@@ -13,6 +13,8 @@ public class StorageScannerConfiguration {
     public static ForgeConfigSpec.BooleanValue hilightStarredOnGuiOpen;
     public static ForgeConfigSpec.BooleanValue requestStraightToInventory;
 
+    public static ForgeConfigSpec.BooleanValue scannerNoRestrictions;
+
     public static ForgeConfigSpec.IntValue STORAGE_CONTROL_RFPERTICK; //6;
     public static ForgeConfigSpec.IntValue DUMP_RFPERTICK; //0;
 
@@ -54,6 +56,9 @@ public class StorageScannerConfiguration {
         xnetRequired = SERVER_BUILDER
                 .comment("If this is true then XNet is required (if present) to be able to connect storages to a storage scanner")
                 .define("xnetRequired", false);
+        scannerNoRestrictions = SERVER_BUILDER
+                .comment("If this is true the scanner will not respect claimed players and not use a fake player to access inventories. The default is false which should make it impossible to scan inventories from other players (if properly claimed)")
+                .define("scannerNoRestrictions", false);
 
         SERVER_BUILDER.pop();
         CLIENT_BUILDER.pop();
