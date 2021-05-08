@@ -1,4 +1,4 @@
-Upcoming:
+1.16-2.0.12:
 - By default the storage scanner will no longer be able to scan inventories that don't belong to the player that placed the storage scanner. There is a new scannerNoRestrictions configuration flag that you can use to go back to the old behaviour
 
 1.16-2.0.11:
