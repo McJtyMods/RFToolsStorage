@@ -1,0 +1,21 @@
+{
+    "item.rftoolsstorage.storage_module0": "Модуль: Хранилище 1 уровня",
+    "item.rftoolsstorage.storage_module1": "Модуль: Хранилище 2 уровня",
+    "item.rftoolsstorage.storage_module2": "Модуль: Хранилище 3 уровня",
+    "item.rftoolsstorage.storage_module3": "Модуль: Хранилище 4 уровня",
+    "item.rftoolsstorage.storage_module6": "Модуль: Удалённое хранилище",
+    "item.rftoolsstorage.storage_module_tablet": "Планшет хранилища",
+    "item.rftoolsstorage.filter_module": "Модуль: Фильтр",
+    "item.rftoolsstorage.oredict_module": "Модуль: Тип словаря руд",
+    "item.rftoolsstorage.generic_module": "Общий тип модуля",
+
+    "block.rftoolsstorage.modular_storage": "Модульное хранилище",
+    "block.rftoolsstorage.remote_storage": "Удалённое хранилище",
+    "block.rftoolsstorage.storage_scanner": "Сканер хранилища",
+
+    "_comment": "Творческая вкладка",
+    "itemGroup.rftoolsstorage": "RFTools Storage",
+
+    "_comment": "Сообщения",
+    "message.rftoolsstorage.shiftmessage": "<Нажмите Shift>"
+}
