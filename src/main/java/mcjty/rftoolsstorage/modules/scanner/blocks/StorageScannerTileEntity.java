@@ -148,7 +148,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
-            .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getPos(), StorageScannerTileEntity.this))
+            .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items));
     private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
@@ -177,7 +177,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Override
     public void setRecipe(int index, ItemStack[] stacks) {
         craftingGrid.setRecipe(index, stacks);
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -187,7 +187,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     @Override
     public void markInventoryDirty() {
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -204,7 +204,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         inventories.stream()
                 .filter(p -> isOutputFromGui(p) && isRoutable(p))
                 .forEachOrdered(p -> {
-                    TileEntity tileEntity = world.getTileEntity(p);
+                    TileEntity tileEntity = level.getBlockEntity(p);
                     if (tileEntity instanceof CraftingManagerTileEntity) {
                         // @todo crafting manager
                     } else if (tileEntity != null && !(tileEntity instanceof StorageScannerTileEntity)) {
@@ -225,7 +225,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         for (int i = 0; i < stacks.size(); i++) {
             craftingGrid.getCraftingGridInventory().setStackInSlot(i, stacks.get(i));
         }
-        markDirty();
+        setChanged();
     }
 
     private long getStoredPower() {
@@ -238,8 +238,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     @Override
     public void tick() {
-        if (!world.isRemote) {
-            craftingSystem.tick(world);
+        if (!level.isClientSide) {
+            craftingSystem.tick(level);
 
             xnetDelay--;
             if (xnetDelay < 0) {
@@ -277,34 +277,34 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Override
     public ItemStack injectStackFromScreen(ItemStack stack, PlayerEntity player) {
         if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
-            player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Not enough power to insert items!"), false);
+            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Not enough power to insert items!"), false);
             return stack;
         }
         if (!checkForRoutableInventories()) {
-            player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "There are no routable inventories!"), false);
+            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "There are no routable inventories!"), false);
             return stack;
         }
         stack = injectStackInternal(stack, false, this::isInputFromScreen);
         if (stack.isEmpty()) {
             consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
-            SoundTools.playSound(world, SoundEvents.ENTITY_ITEM_PICKUP, getPos().getX(), getPos().getY(), getPos().getZ(), 1.0f, 3.0f);
+            SoundTools.playSound(level, SoundEvents.ITEM_PICKUP, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), 1.0f, 3.0f);
         }
         return stack;
     }
 
     private boolean checkForRoutableInventories() {
         return inventories.stream()
-                .filter(p -> isValid(p) && (!p.equals(getPos()) && isRoutable(p)) && WorldTools.isLoaded(world, p))
-                .anyMatch(p -> world.getTileEntity(p) != null);
+                .filter(p -> isValid(p) && (!p.equals(getBlockPos()) && isRoutable(p)) && WorldTools.isLoaded(level, p))
+                .anyMatch(p -> level.getBlockEntity(p) != null);
     }
 
     private ItemStack injectStackInternal(ItemStack stack, boolean toSelected, @Nonnull Function<BlockPos, Boolean> testAccess) {
         if (toSelected && lastSelectedInventory != null && lastSelectedInventory.getY() != -1) {
             // Try to insert into the selected inventory
-            TileEntity te = world.getTileEntity(lastSelectedInventory);
+            TileEntity te = level.getBlockEntity(lastSelectedInventory);
             if (te != null && !(te instanceof StorageScannerTileEntity)) {
                 if (testAccess.apply(lastSelectedInventory) && getInputMatcher(lastSelectedInventory).test(stack)) {
-                    stack = InventoryTools.insertItem(world, lastSelectedInventory, null, stack);
+                    stack = InventoryTools.insertItem(level, lastSelectedInventory, null, stack);
                     if (stack.isEmpty()) {
                         return stack;
                     }
@@ -314,13 +314,13 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
         final ItemStack finalStack = stack;
         Iterator<TileEntity> iterator = inventories.stream()
-                .filter(p -> testAccess.apply(p) && !p.equals(getPos()) && isRoutable(p) && WorldTools.isLoaded(world, p) && getInputMatcher(p).test(finalStack))
-                .map(world::getTileEntity)
+                .filter(p -> testAccess.apply(p) && !p.equals(getBlockPos()) && isRoutable(p) && WorldTools.isLoaded(level, p) && getInputMatcher(p).test(finalStack))
+                .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .iterator();
         while (!stack.isEmpty() && iterator.hasNext()) {
             TileEntity te = iterator.next();
-            stack = InventoryTools.insertItem(world, te.getPos(), null, stack);
+            stack = InventoryTools.insertItem(level, te.getBlockPos(), null, stack);
         }
         return stack;
     }
@@ -339,7 +339,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return;
         }
         if (getStoredPower() < StorageScannerConfiguration.rfPerRequest.get()) {
-            player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Not enough power to request items!"), false);
+            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Not enough power to request items!"), false);
             return;
         }
 
@@ -361,7 +361,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                 });
         if (orig != cnt[0]) {
             consumeEnergy(StorageScannerConfiguration.rfPerRequest.get());
-            SoundTools.playSound(world, SoundEvents.ENTITY_ITEM_PICKUP, getPos().getX(), getPos().getY(), getPos().getZ(), 1.0f, 1.0f);
+            SoundTools.playSound(level, SoundEvents.ITEM_PICKUP, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), 1.0f, 1.0f);
         }
     }
 
@@ -378,8 +378,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (stack.isEmpty()) {
             return false;
         }
-        if (!player.inventory.addItemStackToInventory(stack)) {
-            player.entityDropItem(stack, 1.05f);
+        if (!player.inventory.add(stack)) {
+            player.spawnAtLocation(stack, 1.05f);
         }
         return true;
     }
@@ -388,8 +388,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public int countItems(Predicate<ItemStack> matcher, boolean starred, @Nullable Integer maxneeded) {
         final int[] cc = {0};
         inventories.stream()
-                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(world, p))
-                .map(world::getTileEntity)
+                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(level, p))
+                .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .allMatch(te -> {
                     InventoryTools.getItems(te, matcher)
@@ -406,8 +406,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Override
     public ItemStack getItem(Predicate<ItemStack> matcher, boolean starred) {
         return inventories.stream()
-                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(world, p))
-                .map(world::getTileEntity)
+                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(level, p))
+                .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .map(te -> InventoryTools.getFirstMatchingItem(te, matcher))
                 .filter(s -> !s.isEmpty())
@@ -426,8 +426,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return 0;
         }
         Iterator<TileEntity> iterator = inventories.stream()
-                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(world, p))
-                .map(world::getTileEntity)
+                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(level, p))
+                .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .iterator();
 
@@ -437,7 +437,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             Integer cachedCount = null;
             if (te instanceof IInventoryTracker) {
                 IInventoryTracker tracker = (IInventoryTracker) te;
-                CachedItemCount itemCount = cachedCounts.get(new CachedItemKey(te.getPos(), stack.getItem(), 0 /* @todo 1.14 stack.getMetadata()*/));
+                CachedItemCount itemCount = cachedCounts.get(new CachedItemKey(te.getBlockPos(), stack.getItem(), 0 /* @todo 1.14 stack.getMetadata()*/));
                 if (itemCount != null) {
                     Integer oldVersion = itemCount.getVersion();
                     if (oldVersion == tracker.getVersion()) {
@@ -453,7 +453,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                         .forEach(s -> cc[0] += s.getCount());
                 if (te instanceof IInventoryTracker) {
                     IInventoryTracker tracker = (IInventoryTracker) te;
-                    cachedCounts.put(new CachedItemKey(te.getPos(), stack.getItem(), 0 /* @todc 1.14 meta */), new CachedItemCount(tracker.getVersion(), cc[0]));
+                    cachedCounts.put(new CachedItemKey(te.getBlockPos(), stack.getItem(), 0 /* @todc 1.14 meta */), new CachedItemCount(tracker.getVersion(), cc[0]));
                 }
                 cnt += cc[0];
             }
@@ -469,7 +469,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (other.isEmpty()) {
             return false;
         }
-        return thisItem.isItemEqual(other);
+        return thisItem.sameItem(other);
     }
 
 
@@ -481,9 +481,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         Predicate<ItemStack> finalMatcher = matcher;
         inventories.stream()
                 .filter(this::isValid)
-                .map(world::getTileEntity)
+                .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity))
-                .forEach(te -> InventoryTools.getItems(te, finalMatcher).forEach(s -> output.add(te.getPos())));
+                .forEach(te -> InventoryTools.getItems(te, finalMatcher).forEach(s -> output.add(te.getBlockPos())));
         return output;
     }
 
@@ -509,7 +509,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (split.startsWith("@")) {
             return s -> BlockTools.getModid(s).toLowerCase().startsWith(split.substring(1));
         } else {
-            return s -> s.getDisplayName().getString() /* was getFormattedText() */.toLowerCase().contains(split);
+            return s -> s.getHoverName().getString() /* was getFormattedText() */.toLowerCase().contains(split);
         }
     }
 
@@ -640,7 +640,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         BlockPos p2 = inventories.get(index);
         inventories.set(index - 1, p2);
         inventories.set(index, p1);
-        markDirty();
+        setChanged();
     }
 
     private void moveTop(int index) {
@@ -653,7 +653,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         BlockPos p = inventories.get(index);
         inventories.remove(index);
         inventories.add(0, p);
-        markDirty();
+        setChanged();
     }
 
     private void moveDown(int index) {
@@ -667,7 +667,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         BlockPos p2 = inventories.get(index + 1);
         inventories.set(index, p2);
         inventories.set(index + 1, p1);
-        markDirty();
+        setChanged();
     }
 
     private void moveBottom(int index) {
@@ -680,7 +680,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         BlockPos p = inventories.get(index);
         inventories.remove(index);
         inventories.add(p);
-        markDirty();
+        setChanged();
     }
 
     private void removeInventory(int index) {
@@ -699,14 +699,14 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (craftingInventories != null) {
             craftingInventories.remove(removed);
         }
-        markDirty();
+        setChanged();
     }
 
     private boolean canPlayerAccess(FakePlayer fakePlayer, BlockPos p) {
         if (StorageScannerConfiguration.scannerNoRestrictions.get()) {
             return true;
         }
-        return world.getBlockState(p).canEntityDestroy(world, p, fakePlayer);
+        return level.getBlockState(p).canEntityDestroy(level, p, fakePlayer);
     }
 
     private FakePlayer getFakePlayer() {
@@ -714,9 +714,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (owner == null) {
             owner = UUID.nameUUIDFromBytes("rftools_storage".getBytes());
         }
-        FakePlayer player = FakePlayerFactory.get((ServerWorld) world, new GameProfile(owner, "rftools_storage"));
-        player.setWorld(world);
-        player.setPosition(pos.getX(), pos.getY(), pos.getZ());
+        FakePlayer player = FakePlayerFactory.get((ServerWorld) level, new GameProfile(owner, "rftools_storage"));
+        player.setLevel(level);
+        player.setPos(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ());
         return player;
     }
 
@@ -746,7 +746,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
         for (BlockPos p : old) {
             if (xnetAccess.containsKey(p) || inRange(p)) {
-                TileEntity te = world.getTileEntity(p);
+                TileEntity te = level.getBlockEntity(p);
                 if (te != null && !(te instanceof StorageScannerTileEntity)) {
                     if (canPlayerAccess(fakePlayer, p)) {
                         if (te instanceof CraftingManagerTileEntity) {
@@ -769,9 +769,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
 
         // Now append all inventories that are new.
-        for (int x = getPos().getX() - radius; x <= getPos().getX() + radius; x++) {
-            for (int z = getPos().getZ() - radius; z <= getPos().getZ() + radius; z++) {
-                for (int y = getPos().getY() - radius; y <= getPos().getY() + radius; y++) {
+        for (int x = getBlockPos().getX() - radius; x <= getBlockPos().getX() + radius; x++) {
+            for (int z = getBlockPos().getZ() - radius; z <= getBlockPos().getZ() + radius; z++) {
+                for (int y = getBlockPos().getY() - radius; y <= getBlockPos().getY() + radius; y++) {
                     BlockPos p = new BlockPos(x, y, z);
                     inventoryAddNew(oldAdded, seenPositions, p);
                 }
@@ -790,7 +790,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (craftingInventories == null) {
             craftingInventories = new ArrayList<>();
             getAllInventories().forEach(pos -> {
-                if (world.getTileEntity(pos) instanceof CraftingManagerTileEntity) {
+                if (level.getBlockEntity(pos) instanceof CraftingManagerTileEntity) {
                     craftingInventories.add(pos);
                 }
             });
@@ -806,7 +806,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private void inventoryAddNew(Set<BlockPos> oldAdded,
                                  Set<BlockPos> seenPositions, BlockPos p) {
         if (!oldAdded.contains(p)) {
-            TileEntity te = world.getTileEntity(p);
+            TileEntity te = level.getBlockEntity(p);
             if (canPlayerAccess(lazyPlayer.get(), p)) {
                 if (te != null && !(te instanceof StorageScannerTileEntity)) {
                     if (te instanceof CraftingManagerTileEntity) {
@@ -827,7 +827,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     private boolean inRange(BlockPos p) {
-        return p.getX() >= getPos().getX() - radius && p.getX() <= getPos().getX() + radius && p.getY() >= getPos().getY() - radius && p.getY() <= getPos().getY() + radius && p.getZ() >= getPos().getZ() - radius && p.getZ() <= getPos().getZ() + radius;
+        return p.getX() >= getBlockPos().getX() - radius && p.getX() <= getBlockPos().getX() + radius && p.getY() >= getBlockPos().getY() - radius && p.getY() <= getBlockPos().getY() + radius && p.getZ() >= getBlockPos().getZ() - radius && p.getZ() <= getBlockPos().getZ() + radius;
     }
 
     private static final ItemStack DUMMY = new ItemStack(Items.BEDROCK, 666);
@@ -840,7 +840,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         FakePlayer fakePlayer = lazyPlayer.get();
         return inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && ((!doRoutable) || isRoutable(p)))
-                .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
+                .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                 .filter(p -> canPlayerAccess(fakePlayer, p))
                 .map(this::getItemHandlerAt)
                 .map(handler -> handler.map(h -> {
@@ -874,7 +874,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         FakePlayer fakePlayer = lazyPlayer.get();
         inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && (!doRoutable) || isRoutable(p))
-                .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
+                .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                 .filter(p -> canPlayerAccess(fakePlayer, p))
                 .map(this::getItemHandlerAt)
                 .allMatch(handler -> {
@@ -904,10 +904,10 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     @Nonnull
     private LazyOptional<IItemHandler> getItemHandlerAt(BlockPos p) {
-        if (!WorldTools.isLoaded(world, p)) {
+        if (!WorldTools.isLoaded(level, p)) {
             return LazyOptional.empty();
         }
-        TileEntity te = world.getTileEntity(p);
+        TileEntity te = level.getBlockEntity(p);
         if (te == null || te instanceof StorageScannerTileEntity) {
             return LazyOptional.empty();
         }
@@ -948,8 +948,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
         FakePlayer fakePlayer = lazyPlayer.get();
         Iterator<LazyOptional<IItemHandler>> iterator = inventories.stream()
-                .filter(p -> isInputFromAuto(p) && (!p.equals(getPos()) && isRoutable(p) && getInputMatcher(p).test(stack)))
-                .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
+                .filter(p -> isInputFromAuto(p) && (!p.equals(getBlockPos()) && isRoutable(p) && getInputMatcher(p).test(stack)))
+                .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                 .filter(p -> canPlayerAccess(fakePlayer, p))
                 .map(this::getItemHandlerAt)
                 .filter(LazyOptional::isPresent)
@@ -965,7 +965,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     private ItemStack requestStackFromInv(BlockPos invPos, ItemStack requested, Integer[] todo, ItemStack outSlot) {
-        TileEntity tileEntity = world.getTileEntity(invPos);
+        TileEntity tileEntity = level.getBlockEntity(invPos);
         if (tileEntity instanceof StorageScannerTileEntity) {
             return outSlot;
         }
@@ -1026,7 +1026,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             // There are missing items. Check if there are recipes for them
             for (Ingredient ingredient : missing) {
                 if (!getAllInventories().anyMatch(p -> {
-                    TileEntity te = world.getTileEntity(p);
+                    TileEntity te = level.getBlockEntity(p);
                     if (te instanceof CraftingManagerTileEntity) {
                         CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
                         if (craftingManager.canCraft(ingredient)) {
@@ -1096,7 +1096,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (invPos.getY() == -1) {
             FakePlayer fakePlayer = lazyPlayer.get();
             Iterator<BlockPos> iterator = inventories.stream()
-                    .filter(p -> !(world.getTileEntity(p) instanceof CraftingManagerTileEntity))
+                    .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                     .filter(p -> canPlayerAccess(fakePlayer, p))
                     .filter(p -> isOutputFromGui(p) && isRoutable(p))
                     .iterator();
@@ -1123,7 +1123,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         items.setStackInSlot(StorageScannerContainer.SLOT_OUT, outSlot);
 
         if (StorageScannerConfiguration.requestStraightToInventory.get()) {
-            if (player.inventory.addItemStackToInventory(outSlot)) {
+            if (player.inventory.add(outSlot)) {
                 items.setStackInSlot(StorageScannerContainer.SLOT_OUT, ItemStack.EMPTY);
             }
         }
@@ -1165,7 +1165,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     private void addItemsFromInventory(BlockPos cpos, Set<Item> foundItems, List<ItemStack> stacks, List<ItemStack> craftable) {
-        TileEntity tileEntity = world.getTileEntity(cpos);
+        TileEntity tileEntity = level.getBlockEntity(cpos);
         if (tileEntity instanceof CraftingManagerTileEntity) {
             for (ItemStack stack : ((CraftingManagerTileEntity) tileEntity).getCraftables()) {
                 addItemStack(craftable, foundItems, stack);
@@ -1185,7 +1185,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public void setSortingMode(SortingMode sortingMode) {
         this.sortingMode = sortingMode;
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -1242,8 +1242,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
+    public CompoundNBT save(CompoundNBT tagCompound) {
+        super.save(tagCompound);
         tagCompound.put("CS", craftingSystem.write());
         ListNBT list = new ListNBT();
         for (BlockPos c : inventories) {
@@ -1282,7 +1282,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         for (int i = 0; i < inventory.getSlots(); i++) {
             inventory.setStackInSlot(i, ItemStack.EMPTY);
         }
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -1373,7 +1373,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * @return
      */
     public BlockPos getCraftingGridContainerPos() {
-        return getPos();
+        return getBlockPos();
     }
 
     /**
@@ -1391,7 +1391,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * @return
      */
     public BlockPos getStorageScannerPos() {
-        return getPos();
+        return getBlockPos();
     }
 
     public CraftingSystem getCraftingSystem() {

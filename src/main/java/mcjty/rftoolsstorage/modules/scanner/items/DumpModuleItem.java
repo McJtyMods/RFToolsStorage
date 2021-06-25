@@ -18,10 +18,12 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import net.minecraft.item.Item.Properties;
+
 public class DumpModuleItem extends GenericModuleItem {
 
     public DumpModuleItem() {
-        super(new Properties().defaultMaxDamage(1).group(RFToolsStorage.setup.getTab()));
+        super(new Properties().defaultDurability(1).tab(RFToolsStorage.setup.getTab()));
     }
 
     @Override
@@ -76,11 +78,11 @@ public class DumpModuleItem extends GenericModuleItem {
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        ItemStack stack = context.getItem();
-        World world = context.getWorld();
-        BlockPos pos = context.getPos();
-        TileEntity te = world.getTileEntity(pos);
+    public ActionResultType useOn(ItemUseContext context) {
+        ItemStack stack = context.getItemInHand();
+        World world = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        TileEntity te = world.getBlockEntity(pos);
         if (te instanceof IStorageScanner) {
             BlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
@@ -89,12 +91,12 @@ public class DumpModuleItem extends GenericModuleItem {
                 name = BlockTools.getReadableName(world, pos);
             }
             ModuleTools.setPositionInModule(stack, DimensionId.fromWorld(world), pos, name);
-            if (world.isRemote) {
+            if (world.isClientSide) {
                 Logging.message(context.getPlayer(), "Storage module is set to block '" + name + "'");
             }
         } else {
             ModuleTools.clearPositionInModule(stack);
-            if (world.isRemote) {
+            if (world.isClientSide) {
                 Logging.message(context.getPlayer(), "Storage module is cleared");
             }
         }

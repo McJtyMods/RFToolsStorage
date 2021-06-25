@@ -64,12 +64,12 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
             BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
-                BlockPos pos = extractorPos.offset(side);
+                BlockPos pos = extractorPos.relative(side);
                 if (!WorldTools.isLoaded(world, pos)) {
                     continue;
                 }
 
-                TileEntity te = world.getTileEntity(pos);
+                TileEntity te = world.getBlockEntity(pos);
                 if (te instanceof StorageScannerTileEntity) {
                     StorageScannerTileEntity scanner = (StorageScannerTileEntity) te;
                     scanner.register(access);
@@ -82,8 +82,8 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
         BlockPos consumerPos = context.findConsumerPosition(sidedConsumer.getConsumerId());
         if (consumerPos != null) {
             Direction side = sidedConsumer.getSide();
-            BlockPos pos = consumerPos.offset(side);
-            TileEntity te = context.getControllerWorld().getTileEntity(pos);
+            BlockPos pos = consumerPos.relative(side);
+            TileEntity te = context.getControllerWorld().getBlockEntity(pos);
             if (te != null) {
                 LazyOptional<IItemHandler> handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
                 if (handler.isPresent()) {

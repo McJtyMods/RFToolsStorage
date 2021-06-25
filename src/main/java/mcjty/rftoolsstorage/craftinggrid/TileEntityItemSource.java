@@ -31,7 +31,7 @@ public class TileEntityItemSource implements IItemSource {
         if (inv instanceof IItemHandler) {
             return ((IItemHandler) inv).getStackInSlot(slot);
         } else if (inv instanceof IInventory) {
-            return ((IInventory) inv).getStackInSlot(slot);
+            return ((IInventory) inv).getItem(slot);
         }
         return ItemStack.EMPTY;
     }
@@ -45,14 +45,14 @@ public class TileEntityItemSource implements IItemSource {
             return handler.insertItem(slot, stack, false).isEmpty();
         } else if (inv instanceof IInventory) {
             IInventory inventory = (IInventory) inv;
-            ItemStack oldStack = inventory.getStackInSlot(slot);
+            ItemStack oldStack = inventory.getItem(slot);
             if (!oldStack.isEmpty()) {
                 if ((stack.getCount() + oldStack.getCount()) > stack.getMaxStackSize()) {
                     return false;
                 }
                 stack.grow(oldStack.getCount());
             }
-            inventory.setInventorySlotContents(slot, stack);
+            inventory.setItem(slot, stack);
             return true;
         }
         return false;
@@ -76,7 +76,7 @@ public class TileEntityItemSource implements IItemSource {
         if (inv instanceof IItemHandler) {
             return ((IItemHandler) inv).getSlots();
         } else if (inv instanceof IInventory) {
-            return ((IInventory) inv).getSizeInventory();
+            return ((IInventory) inv).getContainerSize();
         }
         return 0;
     }

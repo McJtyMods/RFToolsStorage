@@ -19,9 +19,9 @@ import java.util.Set;
 public class StorageScannerTools {
 
     public static void scannerSearch(PlayerEntity player, DimensionId dim, BlockPos pos, String text) {
-        World world = WorldTools.getWorld(player.world, dim);
+        World world = WorldTools.getWorld(player.level, dim);
         if (WorldTools.isLoaded(world, pos)) {
-            TileEntity te = world.getTileEntity(pos);
+            TileEntity te = world.getBlockEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
                 Set<BlockPos> inventories = scannerTileEntity.performSearch(text);
@@ -33,9 +33,9 @@ public class StorageScannerTools {
     }
 
     public static void requestContents(PlayerEntity player, DimensionId dim, BlockPos pos, BlockPos invpos) {
-        World world = WorldTools.getWorld(player.world, dim);
+        World world = WorldTools.getWorld(player.level, dim);
         if (WorldTools.isLoaded(world, pos)) {
-            TileEntity te = world.getTileEntity(pos);
+            TileEntity te = world.getBlockEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
                 List<ItemStack> stacks = new ArrayList<>();

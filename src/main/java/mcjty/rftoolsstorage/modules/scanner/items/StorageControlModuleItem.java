@@ -36,6 +36,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
+import net.minecraft.item.Item.Properties;
+
 public class StorageControlModuleItem extends GenericModuleItem implements INBTPreservingIngredient, ITabletSupport {
 
     @Override
@@ -81,16 +83,16 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
     }
 
     public StorageControlModuleItem() {
-        super(new Properties().maxStackSize(1).defaultMaxDamage(1).group(RFToolsStorage.setup.getTab()));
+        super(new Properties().stacksTo(1).defaultDurability(1).tab(RFToolsStorage.setup.getTab()));
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        ItemStack stack = context.getItem();
-        World world = context.getWorld();
+    public ActionResultType useOn(ItemUseContext context) {
+        ItemStack stack = context.getItemInHand();
+        World world = context.getLevel();
         PlayerEntity player = context.getPlayer();
-        BlockPos pos = context.getPos();
-        TileEntity te = world.getTileEntity(pos);
+        BlockPos pos = context.getClickedPos();
+        TileEntity te = world.getBlockEntity(pos);
         if (te instanceof IStorageScanner) {
             BlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
@@ -99,12 +101,12 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
                 name = BlockTools.getReadableName(world, pos);
             }
             ModuleTools.setPositionInModule(stack, DimensionId.fromWorld(world), pos, name);
-            if (world.isRemote) {
+            if (world.isClientSide) {
                 Logging.message(player, "Storage module is set to block '" + name + "'");
             }
         } else {
             ModuleTools.clearPositionInModule(stack);
-            if (world.isRemote) {
+            if (world.isClientSide) {
                 Logging.message(player, "Storage module is cleared");
             }
         }

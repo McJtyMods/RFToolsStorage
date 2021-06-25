@@ -16,6 +16,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
+
 public class DumpClientScreenModule implements IClientScreenModule<IModuleData> {
     private String line = "";
     private int color = 0xffffff;
@@ -61,7 +63,7 @@ public class DumpClientScreenModule implements IClientScreenModule<IModuleData> 
             }
             for (int i = 0 ; i < stacks.length ; i++) {
                 if (tagCompound.contains("stack"+i)) {
-                    stacks[i] = ItemStack.read(tagCompound.getCompound("stack" + i));
+                    stacks[i] = ItemStack.of(tagCompound.getCompound("stack" + i));
                 }
             }
         }

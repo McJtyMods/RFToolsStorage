@@ -100,8 +100,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         craftingGrid = new GuiCraftingGrid();
 
-        xSize = STORAGE_MONITOR_WIDTH;
-        ySize = STORAGE_MONITOR_HEIGHT;
+        imageWidth = STORAGE_MONITOR_WIDTH;
+        imageHeight = STORAGE_MONITOR_HEIGHT;
     }
 
     @Override
@@ -116,7 +116,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             TileEntity te = container.getTe();
             return Tools.safeMap(te, (StorageScannerTileEntity tile) -> new GuiStorageScanner(tile, container, inventory), "Invalid tile entity!");
         };
-        ScreenManager.registerFactory(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
+        ScreenManager.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
     }
 
     @Override
@@ -191,7 +191,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         Panel toplevel = positional().background(iconLocation)
                 .children(storagePanel, itemPanel, scanPanel, exportToStarred);
-        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
+        toplevel.bounds(leftPos, topPos, imageWidth, imageHeight);
 
         window = new Window(this, toplevel);
 
@@ -206,7 +206,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         window.event("scan", (source, params) -> RFToolsStorageMessages.INSTANCE.sendToServer(
                 new PacketGetInventoryInfo(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), true)));
 
-        minecraft.keyboardListener.enableRepeatEvents(true);
+        minecraft.keyboardHandler.setSendRepeatsToGui(true);
 
         fromServer_foundInventories.clear();
         fromServer_inventory.clear();
@@ -217,7 +217,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         }
 
         BlockPos pos = tileEntity.getCraftingGridContainerPos();
-        craftingGrid.initGui(RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), tileEntity.getCraftingGridProvider(), guiLeft, guiTop, xSize, ySize);
+        craftingGrid.initGui(RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), tileEntity.getCraftingGridProvider(), leftPos, topPos, imageWidth, imageHeight);
         sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder()
                 .put(CommandHandler.PARAM_POS, pos)
                 .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimension())
@@ -281,7 +281,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         boolean r = super.mouseClicked(x, y, button);
 //        craftingGrid.getWindow().mouseClicked(x, y, button);
         if (button == 1) {
-            Slot slot = getSelectedSlot(x, y);
+            Slot slot = findSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
                 window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, StorageScannerTileEntity.ACTION_CLEARGRID);
             }
@@ -336,7 +336,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             // @todo 1.14
 //            RFTools.instance.clientInfo.hilightBlock(c.getPos(), System.currentTimeMillis() + 1000 * StorageScannerConfiguration.hilightTime.get());
             Logging.message(minecraft.player, "The inventory is now highlighted");
-            minecraft.player.closeScreen();
+            minecraft.player.closeContainer();
         }
     }
 
@@ -403,7 +403,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         int s = -1;
         ResourceLocation largestTag = null;
         for (ResourceLocation tag : tags) {
-            int size = ItemTags.getCollection().get(tag).getAllElements().size();
+            int size = ItemTags.getAllTags().getTag(tag).getValues().size();
             if (size > s) {
                 s = size;
                 largestTag = tag;
@@ -417,7 +417,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         ResourceLocation largest2 = findLargestTag(s2);
         int rc = largest1.compareTo(largest2);
         if (rc == 0) {
-            return s1.getDisplayName().getString() /* was getFormattedText() */.compareTo(s2.getDisplayName().getString());
+            return s1.getHoverName().getString() /* was getFormattedText() */.compareTo(s2.getHoverName().getString());
         }
         return rc;
     }
@@ -425,7 +425,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static int compareByMod(ItemStack s1, ItemStack s2) {
         int rc = s1.getItem().getRegistryName().getNamespace().compareTo(s2.getItem().getRegistryName().getNamespace());
         if (rc == 0) {
-            return s1.getDisplayName().getString() /* was getFormattedText() */.compareTo(s2.getDisplayName().getString());
+            return s1.getHoverName().getString() /* was getFormattedText() */.compareTo(s2.getHoverName().getString());
         }
         return rc;
     }
@@ -456,8 +456,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 Collections.sort(fromServer_craftable, GuiStorageScanner::compareByTag);
                 break;
             case NAME:
-                Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getDisplayName().getString()));
-                Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getDisplayName().getString()));
+                Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
+                Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
                 break;
         }
 
@@ -592,7 +592,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(MatrixStack matrixStack, float v, int i, int i2) {
         if (!init) {
             return;
         }
@@ -637,7 +637,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             if (System.currentTimeMillis() - lastTime > 300) {
                 lastTime = System.currentTimeMillis();
                 RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestDataFromServer(tileEntity.getDimension(),
-                        tileEntity.getPos(), StorageScannerTileEntity.CMD_SCANNER_INFO, TypedMap.EMPTY, tileEntity.isDummy()));
+                        tileEntity.getBlockPos(), StorageScannerTileEntity.CMD_SCANNER_INFO, TypedMap.EMPTY, tileEntity.isDummy()));
             }
             energyBar.value(rfReceived);
             exportToStarred.setCurrentChoice(exportToCurrentReceived ? 0 : 1);
@@ -647,7 +647,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int i1, int i2) {
+    protected void renderLabels(MatrixStack matrixStack, int i1, int i2) {
         if (!init) {
             return;
         }
@@ -656,10 +656,10 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         List<String> tooltips = craftingGrid.getWindow().getTooltips();
         if (tooltips != null) {
-            drawHoveringText(matrixStack, tooltips, window.getTooltipItems(), x - guiLeft, y - guiTop, minecraft.fontRenderer);
+            drawHoveringText(matrixStack, tooltips, window.getTooltipItems(), x - leftPos, y - topPos, minecraft.font);
         }
 
-        super.drawGuiContainerForegroundLayer(matrixStack, i1, i2);
+        super.renderLabels(matrixStack, i1, i2);
     }
 
     @Override
@@ -675,12 +675,12 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             boolean craftable = (Boolean)(blockRender.getUserObject());
             List<ITextComponent> newlist = new ArrayList<>();
             if (craftable) {
-                newlist.add(new StringTextComponent("Craftable").mergeStyle(TextFormatting.GOLD));
+                newlist.add(new StringTextComponent("Craftable").withStyle(TextFormatting.GOLD));
             }
-            newlist.add(new StringTextComponent("Click: ").mergeStyle(TextFormatting.GREEN)
-                    .appendSibling(new StringTextComponent("full stack").mergeStyle(TextFormatting.WHITE)));
-            newlist.add(new StringTextComponent("Shift + click: ").mergeStyle(TextFormatting.GREEN)
-                    .appendSibling(new StringTextComponent("single item").mergeStyle(TextFormatting.WHITE)));
+            newlist.add(new StringTextComponent("Click: ").withStyle(TextFormatting.GREEN)
+                    .append(new StringTextComponent("full stack").withStyle(TextFormatting.WHITE)));
+            newlist.add(new StringTextComponent("Shift + click: ").withStyle(TextFormatting.GREEN)
+                    .append(new StringTextComponent("single item").withStyle(TextFormatting.WHITE)));
             newlist.add(new StringTextComponent(""));
             newlist.addAll(oldList);
             return newlist;

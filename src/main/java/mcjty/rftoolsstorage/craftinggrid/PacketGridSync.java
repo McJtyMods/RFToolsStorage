@@ -35,7 +35,7 @@ public class PacketGridSync {
             int ss = buf.readInt();
             ItemStack[] stacks = new ItemStack[ss];
             for (int j = 0 ; j < ss ; j++) {
-                stacks[j] = buf.readItemStack();
+                stacks[j] = buf.readItem();
             }
             recipes.add(stacks);
         }
@@ -53,7 +53,7 @@ public class PacketGridSync {
         for (ItemStack[] recipe : recipes) {
             buf.writeInt(recipe.length);
             for (ItemStack stack : recipe) {
-                buf.writeItemStack(stack);
+                buf.writeItem(stack);
             }
         }
     }
@@ -68,7 +68,7 @@ public class PacketGridSync {
             ItemStack[] stacks = new ItemStack[10];
             stacks[0] = recipe.getResult();
             for (int j = 0 ; j < 9 ; j++) {
-                stacks[j+1] = inventory.getStackInSlot(j);
+                stacks[j+1] = inventory.getItem(j);
             }
             recipes.add(stacks);
         }
@@ -87,7 +87,7 @@ public class PacketGridSync {
             }
             te = container.getTe();
         } else {
-            te = world.getTileEntity(pos);
+            te = world.getBlockEntity(pos);
         }
 
         if (te instanceof CraftingGridProvider) {
@@ -103,7 +103,7 @@ public class PacketGridSync {
     }
 
     private static GenericContainer getOpenContainer() {
-        Container container = McJtyLib.proxy.getClientPlayer().openContainer;
+        Container container = McJtyLib.proxy.getClientPlayer().containerMenu;
         if (container instanceof GenericContainer) {
             return (GenericContainer) container;
         } else {

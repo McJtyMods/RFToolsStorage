@@ -54,7 +54,7 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
         @Override
         public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, PlayerEntity player, World world, BlockState blockState, IProbeHitData data) {
             McJtyLibTOPDriver.DRIVER.addStandardProbeInfo(mode, probeInfo, player, world, blockState, data);
-            Tools.safeConsume(world.getTileEntity(data.getPos()), (ModularStorageTileEntity te) -> {
+            Tools.safeConsume(world.getBlockEntity(data.getPos()), (ModularStorageTileEntity te) -> {
                 int maxSize = te.getMaxSize();
                 if (maxSize == 0) {
                     probeInfo.text(CompoundText.create().style(WARNING).text("No storage module!"));
@@ -62,7 +62,7 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
                     IItemHandler cardHandler = te.getCardHandler();
                     ItemStack storageModule = cardHandler.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                     if (!storageModule.isEmpty() && storageModule.getTag().contains("display")) {
-                        probeInfo.text(CompoundText.createLabelInfo("Module: ", storageModule.getDisplayName()));
+                        probeInfo.text(CompoundText.createLabelInfo("Module: ", storageModule.getHoverName()));
                     }
                     int stacks = te.getNumStacks();
                     if (stacks == -1) {

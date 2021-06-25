@@ -19,13 +19,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice.Status;
+
 public class VanillaCraftingDevice implements ICraftingDevice {
 
     public static final ResourceLocation DEVICE_VANILLA_CRAFTING = new ResourceLocation(RFToolsStorage.MODID, "vanilla_crafting");
 
     private CraftingInventory inventory = new CraftingInventory(new Container(null, -1) {
         @Override
-        public boolean canInteractWith(PlayerEntity playerIn) {
+        public boolean stillValid(PlayerEntity playerIn) {
             return false;
         }
     }, 3, 3);
@@ -70,11 +72,11 @@ public class VanillaCraftingDevice implements ICraftingDevice {
             return false;
         }
         for (int i = 0 ; i < items.size() ; i++) {
-            inventory.setInventorySlotContents(i, items.get(i).copy());
+            inventory.setItem(i, items.get(i).copy());
         }
         if (!recipe.matches(inventory, world)) {
-            for (int i = 0 ; i < inventory.getSizeInventory() ; i++) {
-                inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+            for (int i = 0 ; i < inventory.getContainerSize() ; i++) {
+                inventory.setItem(i, ItemStack.EMPTY);
             }
             return false;
         }
@@ -84,7 +86,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     @Override
     public ItemStack getCraftingItem() {
-        return recipe.getCraftingResult(inventory);
+        return recipe.assemble(inventory);
     }
 
     @Override
@@ -92,7 +94,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
         if (getStatus() == Status.READY) {
             List<ItemStack> result = new ArrayList<>();
             ticks = -1;
-            ItemStack rc = recipe.getCraftingResult(inventory);
+            ItemStack rc = recipe.assemble(inventory);
             if (!rc.isEmpty()) {
                 result.add(rc);
             }
@@ -100,9 +102,9 @@ public class VanillaCraftingDevice implements ICraftingDevice {
                 result.add((ItemStack) item);
             }
 
-            for (int i = 0 ; i < inventory.getSizeInventory() ; i++) {
+            for (int i = 0 ; i < inventory.getContainerSize() ; i++) {
                 // @todo should items left in the work inventory also be put back?
-                inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+                inventory.setItem(i, ItemStack.EMPTY);
             }
             return result;
         }
@@ -126,7 +128,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     @Override
     public void read(CompoundNBT tag) {
-        cardStack = ItemStack.read(tag.getCompound("cardStack"));
+        cardStack = ItemStack.of(tag.getCompound("cardStack"));
         ticks = tag.getInt("ticks");
     }
 
@@ -134,7 +136,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     public void write(CompoundNBT tag) {
         tag.putInt("ticks", ticks);
         CompoundNBT compoundNBT = new CompoundNBT();
-        cardStack.write(compoundNBT);
+        cardStack.save(compoundNBT);
         tag.put("cardStack", compoundNBT);
     }
 }

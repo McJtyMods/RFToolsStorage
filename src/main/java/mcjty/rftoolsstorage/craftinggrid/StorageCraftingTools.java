@@ -34,12 +34,12 @@ public class StorageCraftingTools {
     private static int[] tryRecipe(PlayerEntity player, CraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
         CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
             @Override
-            public boolean canInteractWith(PlayerEntity var1) {
+            public boolean stillValid(PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
 
-        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
+        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         List<Ingredient> ingredients = recipe.map(IRecipe::getIngredients).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
 
         int[] missingCount = new int[10];
@@ -48,7 +48,7 @@ public class StorageCraftingTools {
             if (i < 9) {
                 if (i < ingredients.size()) {
                     Ingredient ingredient = ingredients.get(i);
-                    ItemStack[] stacks = ingredient.getMatchingStacks();
+                    ItemStack[] stacks = ingredient.getItems();
                     if (stacks.length > 0) {
                         ItemStack stack = stacks[0];
                         if (!stack.isEmpty()) {
@@ -56,7 +56,7 @@ public class StorageCraftingTools {
                         }
                     }
                 }
-                workInventory.setInventorySlotContents(i, ItemStack.EMPTY);
+                workInventory.setItem(i, ItemStack.EMPTY);
             }
         }
 
@@ -74,14 +74,14 @@ public class StorageCraftingTools {
                                 missingCount[i] -= size;
                                 size = 0;
                             }
-                            workInventory.setInventorySlotContents(i, input.copy());
+                            workInventory.setItem(i, input.copy());
                         }
                     }
                 }
             }
         }
 
-        missingCount[9] = recipe.map(r -> r.matches(workInventory, player.getEntityWorld()) ? 0 : 1).orElse(0);
+        missingCount[9] = recipe.map(r -> r.matches(workInventory, player.getCommandSenderWorld()) ? 0 : 1).orElse(0);
 
         if (missingCount[9] == 0) {
             for (int i = 0; i < 9; i++) {
@@ -99,7 +99,7 @@ public class StorageCraftingTools {
                                                                IItemSource itemSource) {
         CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
             @Override
-            public boolean canInteractWith(PlayerEntity var1) {
+            public boolean stillValid(PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
@@ -107,7 +107,7 @@ public class StorageCraftingTools {
         List<Pair<IItemKey, ItemStack>> undo = new ArrayList<>();
         List<ItemStack> result = new ArrayList<>();
 
-        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
+        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         return recipe.map(r -> {
             int w = 3;
             int h = 3;
@@ -120,10 +120,10 @@ public class StorageCraftingTools {
                 for (int y = 0 ; y < h ; y++) {
                     int i = y * w + x;
                     int workIndex = y * 3 + x;
-                    workInventory.setInventorySlotContents(workIndex, ItemStack.EMPTY);
+                    workInventory.setItem(workIndex, ItemStack.EMPTY);
                     if (i < ingredients.size()) {
                         Ingredient ingredient = ingredients.get(i);
-                        ItemStack[] stacks = ingredient.getMatchingStacks();
+                        ItemStack[] stacks = ingredient.getItems();
                         if (stacks.length > 0) {
                             ItemStack stack = stacks[0];
                             if (!stack.isEmpty()) {
@@ -140,12 +140,12 @@ public class StorageCraftingTools {
                     }
                 }
             }
-            if (!r.matches(workInventory, player.getEntityWorld())) {
+            if (!r.matches(workInventory, player.getCommandSenderWorld())) {
                 result.clear();
                 undo(player, itemSource, undo);
                 return result;
             }
-            ItemStack stack = r.getCraftingResult(workInventory);
+            ItemStack stack = r.assemble(workInventory);
             if (!stack.isEmpty()) {
                 result.add(stack);
                 List<ItemStack> remaining = r.getRemainingItems(workInventory);
@@ -170,7 +170,7 @@ public class StorageCraftingTools {
             ItemStack input = pair.getValue();
             if (!input.isEmpty()) {
                 if (stack.test(input)) {
-                    workInventory.setInventorySlotContents(i, input.copy());
+                    workInventory.setItem(i, input.copy());
                     int ss = count;
                     if (input.getCount() - ss < 0) {
                         ss = input.getCount();
@@ -202,11 +202,11 @@ public class StorageCraftingTools {
                 }
             }
         }
-        player.openContainer.detectAndSendChanges();
+        player.containerMenu.broadcastChanges();
     }
 
     public static void craftItems(PlayerEntity player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
+        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
             return;
@@ -215,7 +215,7 @@ public class StorageCraftingTools {
         final int[] n = {nn};
         recipe.ifPresent(r -> {
 
-            ItemStack recipeResult = r.getRecipeOutput();
+            ItemStack recipeResult = r.getResultItem();
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {
                     n[0] = recipeResult.getMaxStackSize();
@@ -236,8 +236,8 @@ public class StorageCraftingTools {
                         return;
                     }
                     for (ItemStack stack : result) {
-                        if (!player.inventory.addItemStackToInventory(stack)) {
-                            player.entityDropItem(stack, 1.05f);
+                        if (!player.inventory.add(stack)) {
+                            player.spawnAtLocation(stack, 1.05f);
                         }
                     }
                 }
@@ -248,7 +248,7 @@ public class StorageCraftingTools {
 
     @Nonnull
     public static int[] testCraftItems(PlayerEntity player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getEntityWorld());
+        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
             return new int[0];
@@ -256,7 +256,7 @@ public class StorageCraftingTools {
 
         final int[] n = {nn};
         return recipe.map(r -> {
-            ItemStack recipeResult = r.getRecipeOutput();
+            ItemStack recipeResult = r.getResultItem();
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {
                     n[0] = recipeResult.getMaxStackSize();
@@ -287,19 +287,19 @@ public class StorageCraftingTools {
     public static void craftFromGrid(PlayerEntity player, int count, boolean test, BlockPos pos, DimensionId type) {
 //        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);  // @todo 1.14
         int[] testResult = new int[0];
-        TileEntity te = WorldTools.getWorld(player.getEntityWorld(), type).getTileEntity(pos);
+        TileEntity te = WorldTools.getWorld(player.getCommandSenderWorld(), type).getBlockEntity(pos);
         if (te instanceof CraftingGridProvider) {
             testResult = ((CraftingGridProvider) te).craft(player, count, test);
         }
         if (testResult.length > 0) {
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketCraftTestResultToClient(testResult), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorageMessages.INSTANCE.sendTo(new PacketCraftTestResultToClient(testResult), ((ServerPlayerEntity) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
     public static void requestGridSync(PlayerEntity player, BlockPos pos, DimensionId type) {
-        World world = WorldTools.getWorld(player.getEntityWorld(), type);
+        World world = WorldTools.getWorld(player.getCommandSenderWorld(), type);
         CraftingGridProvider provider = null;
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (te instanceof CraftingGridProvider && te instanceof GenericTileEntity) {
             provider = ((CraftingGridProvider) te);
         }
@@ -309,7 +309,7 @@ public class StorageCraftingTools {
         }
 
         if (provider != null) {
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketGridToClient(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorageMessages.INSTANCE.sendTo(new PacketGridToClient(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), ((ServerPlayerEntity) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 }

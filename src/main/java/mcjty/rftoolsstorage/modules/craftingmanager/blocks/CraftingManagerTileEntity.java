@@ -54,7 +54,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     private final NoDirectionItemHander items = createItemHandler();
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Modular Storage")
-            .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getPos(), player, CraftingManagerTileEntity.this))
+            .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getBlockPos(), player, CraftingManagerTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
     // @todo save/load requests in NBT
@@ -101,7 +101,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         for (ItemStack stack : output) {
             ItemStack left = storage.insertInternal(stack, false);
             // @todo What should we do here? Currently we just spawn the items in the world
-            InventoryHelper.spawnItemStack(world, storage.getPos().getX() + .5, storage.getPos().getY() + 1.5, storage.getPos().getZ() + .5, left);
+            InventoryHelper.dropItemStack(level, storage.getBlockPos().getX() + .5, storage.getBlockPos().getY() + 1.5, storage.getBlockPos().getZ() + .5, left);
         }
     }
 
@@ -207,7 +207,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
                 ItemStack cardResult = CraftingCardItem.getResult(cardStack);
                 if (request.getIngredient().test(cardResult)) {
                     // Request needed ingredients from the storage scanner
-                    queue.getDevice().setupCraft(world, cardStack);
+                    queue.getDevice().setupCraft(level, cardStack);
                     return queue.getDevice().getIngredients();
                 }
             }
@@ -228,7 +228,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             updateDevices();
         }
 
-        if (!queue.getDevice().insertIngredients(world, ingredients)) {
+        if (!queue.getDevice().insertIngredients(level, ingredients)) {
             // For some reason there was a failure inserting ingredients
             return false;
         }
@@ -258,14 +258,14 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         ItemStack origMimic1 = items.getStackInSlot(1);
         ItemStack origMimic2 = items.getStackInSlot(2);
         ItemStack origMimic3 = items.getStackInSlot(3);
-        readClientDataFromNBT(pkt.getNbtCompound());
+        readClientDataFromNBT(pkt.getTag());
         ItemStack mimic0 = items.getStackInSlot(0);
         ItemStack mimic1 = items.getStackInSlot(1);
         ItemStack mimic2 = items.getStackInSlot(2);
         ItemStack mimic3 = items.getStackInSlot(3);
-        if (!ItemStack.areItemsEqual(origMimic0, mimic0) || !ItemStack.areItemsEqual(origMimic1, mimic1) || !ItemStack.areItemsEqual(origMimic2, mimic2) || !ItemStack.areItemsEqual(origMimic3, mimic3)) {
+        if (!ItemStack.isSame(origMimic0, mimic0) || !ItemStack.isSame(origMimic1, mimic1) || !ItemStack.isSame(origMimic2, mimic2) || !ItemStack.isSame(origMimic3, mimic3)) {
             ModelDataManager.requestModelDataRefresh(this);
-            world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
         }
     }
 
@@ -273,10 +273,10 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     @Nonnull
     @Override
     public IModelData getModelData() {
-        BlockState mimic0 = items.getStackInSlot(0).isEmpty() ? null : ((BlockItem) items.getStackInSlot(0).getItem()).getBlock().getDefaultState();
-        BlockState mimic1 = items.getStackInSlot(1).isEmpty() ? null : ((BlockItem) items.getStackInSlot(1).getItem()).getBlock().getDefaultState();
-        BlockState mimic2 = items.getStackInSlot(2).isEmpty() ? null : ((BlockItem) items.getStackInSlot(2).getItem()).getBlock().getDefaultState();
-        BlockState mimic3 = items.getStackInSlot(3).isEmpty() ? null : ((BlockItem) items.getStackInSlot(3).getItem()).getBlock().getDefaultState();
+        BlockState mimic0 = items.getStackInSlot(0).isEmpty() ? null : ((BlockItem) items.getStackInSlot(0).getItem()).getBlock().defaultBlockState();
+        BlockState mimic1 = items.getStackInSlot(1).isEmpty() ? null : ((BlockItem) items.getStackInSlot(1).getItem()).getBlock().defaultBlockState();
+        BlockState mimic2 = items.getStackInSlot(2).isEmpty() ? null : ((BlockItem) items.getStackInSlot(2).getItem()).getBlock().defaultBlockState();
+        BlockState mimic3 = items.getStackInSlot(3).isEmpty() ? null : ((BlockItem) items.getStackInSlot(3).getItem()).getBlock().defaultBlockState();
 
         return new ModelDataMap.Builder()
                 .withInitial(MIMIC[0], mimic0)
@@ -306,8 +306,8 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
+    public CompoundNBT save(CompoundNBT tagCompound) {
+        super.save(tagCompound);
         ListNBT deviceList = new ListNBT();
         for (int i = 0 ; i < queues.length ; i++) {
             CompoundNBT deviceNBT = new CompoundNBT();

@@ -60,7 +60,7 @@ public class StorageConnectorSettings extends AbstractConnectorSettings {
         for (int i = 0 ; i < InventoryAccessSettings.FILTER_SIZE ; i++) {
             if (tag.contains("filter" + i)) {
                 CompoundNBT itemTag = tag.getCompound("filter" + i);
-                accessSettings.getFilters().set(i, ItemStack.read(itemTag));
+                accessSettings.getFilters().set(i, ItemStack.of(itemTag));
             } else {
                 accessSettings.getFilters().set(i, ItemStack.EMPTY);
             }
@@ -84,7 +84,7 @@ public class StorageConnectorSettings extends AbstractConnectorSettings {
         for (int i = 0 ; i < InventoryAccessSettings.FILTER_SIZE ; i++) {
             if (!accessSettings.getFilters().get(i).isEmpty()) {
                 CompoundNBT itemTag = new CompoundNBT();
-                accessSettings.getFilters().get(i).write(itemTag);
+                accessSettings.getFilters().get(i).save(itemTag);
                 tag.put("filter" + i, itemTag);
             }
         }

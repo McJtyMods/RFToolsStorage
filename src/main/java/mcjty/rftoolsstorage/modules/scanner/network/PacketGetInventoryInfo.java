@@ -65,11 +65,11 @@ public class PacketGetInventoryInfo {
 
     private void sendReplyToClient(List<PacketReturnInventoryInfo.InventoryInfo> reply, ServerPlayerEntity player) {
         PacketReturnInventoryInfo msg = new PacketReturnInventoryInfo(reply);
-        RFToolsStorageMessages.INSTANCE.sendTo(msg, player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+        RFToolsStorageMessages.INSTANCE.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(PlayerEntity entityPlayerMP) {
-        World world = WorldTools.getWorld(entityPlayerMP.world, id);
+        World world = WorldTools.getWorld(entityPlayerMP.level, id);
         if (world == null) {
             return Optional.empty();
         }
@@ -78,7 +78,7 @@ public class PacketGetInventoryInfo {
             return Optional.empty();
         }
 
-        TileEntity te = world.getTileEntity(pos);
+        TileEntity te = world.getBlockEntity(pos);
         if (te instanceof StorageScannerTileEntity) {
             StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
             Stream<BlockPos> inventories;
@@ -105,12 +105,12 @@ public class PacketGetInventoryInfo {
         if (!WorldTools.isLoaded(world, pos)) {
             displayName = "[UNLOADED]";
             block = null;
-        } else if (world.isAirBlock(pos)) {
+        } else if (world.isEmptyBlock(pos)) {
             displayName = "[REMOVED]";
             block = null;
         } else {
             displayName = BlockTools.getReadableName(world, pos);
-            TileEntity storageTe = world.getTileEntity(pos);
+            TileEntity storageTe = world.getBlockEntity(pos);
             if (storageTe instanceof ModularStorageTileEntity) {
                 ModularStorageTileEntity storageTileEntity = (ModularStorageTileEntity) storageTe;
                 String finalDisplayName = displayName;
@@ -118,7 +118,7 @@ public class PacketGetInventoryInfo {
                     ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                     if (!storageModule.isEmpty()) {
                         if (storageModule.hasTag() && storageModule.getTag().contains("display")) {
-                            return storageModule.getDisplayName().getString() /* was getFormattedText() */;
+                            return storageModule.getHoverName().getString() /* was getFormattedText() */;
                         }
                     }
                     return finalDisplayName;

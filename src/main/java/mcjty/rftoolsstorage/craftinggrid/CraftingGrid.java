@@ -34,7 +34,7 @@ public class CraftingGrid {
         CraftingRecipe recipe = recipes[index];
         recipe.setResult(stacks[0]);
         for (int i = 0 ; i < 9 ; i++) {
-            recipe.getInventory().setInventorySlotContents(i, stacks[i+1]);
+            recipe.getInventory().setItem(i, stacks[i+1]);
         }
     }
 
@@ -47,7 +47,7 @@ public class CraftingGrid {
         CraftingRecipe recipe = getRecipe(index);
         craftingGridInventory.setStackInSlot(CraftingGridInventory.SLOT_GHOSTOUTPUT, recipe.getResult());
         for (int i = 0 ; i < 9 ; i++) {
-            craftingGridInventory.setStackInSlot(i+CraftingGridInventory.SLOT_GHOSTINPUT, recipe.getInventory().getStackInSlot(i));
+            craftingGridInventory.setStackInSlot(i+CraftingGridInventory.SLOT_GHOSTINPUT, recipe.getInventory().getItem(i));
         }
     }
 
@@ -59,7 +59,7 @@ public class CraftingGrid {
             CompoundNBT CompoundNBT = new CompoundNBT();
             ItemStack stack = craftingGridInventory.getStackInSlot(i);
             if (!stack.isEmpty()) {
-                stack.write(CompoundNBT);
+                stack.save(CompoundNBT);
             }
             bufferTagList.add(CompoundNBT);
         }
@@ -83,7 +83,7 @@ public class CraftingGrid {
         ListNBT bufferTagList = tagCompound.getList("grid", Constants.NBT.TAG_COMPOUND);
         for (int i = 0 ; i < craftingGridInventory.getSlots() ; i++) {
             CompoundNBT CompoundNBT = bufferTagList.getCompound(i);
-            craftingGridInventory.setStackInSlot(i, ItemStack.read(CompoundNBT));
+            craftingGridInventory.setStackInSlot(i, ItemStack.of(CompoundNBT));
         }
 
         ListNBT recipeTagList = tagCompound.getList("recipes", Constants.NBT.TAG_COMPOUND);

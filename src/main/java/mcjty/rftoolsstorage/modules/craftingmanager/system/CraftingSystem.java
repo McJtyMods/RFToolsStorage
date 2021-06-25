@@ -74,7 +74,7 @@ public class CraftingSystem {
 
         boolean checkSuspendedCrafts[] = { false };
         storage.getCraftingInventories().forEach(pos -> {
-            TileEntity te = world.getTileEntity(pos);
+            TileEntity te = world.getBlockEntity(pos);
             if (te instanceof CraftingManagerTileEntity) {
                 CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
                 boolean ready = craftingManager.tick(this);
@@ -110,7 +110,7 @@ public class CraftingSystem {
     private void startRequest(World world, CraftingRequest request) {
         BestDevice bestDevice = storage.getCraftingInventories().stream().collect(BestDevice::new,
                 (best, pos) -> {
-                    TileEntity te = world.getTileEntity(pos);
+                    TileEntity te = world.getBlockEntity(pos);
                     if (te instanceof CraftingManagerTileEntity) {
                         CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
                         Pair<Double, Integer> pair = craftingManager.getCraftingQuality(request.getIngredient(), request.getAmount());
@@ -159,7 +159,7 @@ public class CraftingSystem {
             ItemStack left = storage.insertInternal(stack, false);
             if (!left.isEmpty()) {
                 // This could not be inserted. Only thing we can do now is to spawn the item on the ground
-                InventoryHelper.spawnItemStack(world, storage.getPos().getX() + .5, storage.getPos().getY() + 1.5, storage.getPos().getZ() + .5,
+                InventoryHelper.dropItemStack(world, storage.getBlockPos().getX() + .5, storage.getBlockPos().getY() + 1.5, storage.getBlockPos().getZ() + .5,
                         left);
             }
         }
@@ -175,7 +175,7 @@ public class CraftingSystem {
      * Called from the storage scanner: request the craft of the given stack
      */
     public void requestCraft(ItemStack stack, int amount) {
-        CraftingRequest request = new CraftingRequest(newRequestId(), Ingredient.fromStacks(stack), amount, -1);
+        CraftingRequest request = new CraftingRequest(newRequestId(), Ingredient.of(stack), amount, -1);
         queuedRequests.add(request);
     }
 

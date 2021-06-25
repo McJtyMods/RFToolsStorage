@@ -22,14 +22,14 @@ public class CommandList implements Command<CommandSource> {
 
     public static ArgumentBuilder<CommandSource, ?> register(CommandDispatcher<CommandSource> dispatcher) {
         return Commands.literal("list")
-                .requires(cs -> cs.hasPermissionLevel(2))
+                .requires(cs -> cs.hasPermission(2))
                 .executes(CMD);
     }
 
 
     @Override
     public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
-        for (StorageEntry storage : StorageHolder.get(context.getSource().getWorld()).getStorages()) {
+        for (StorageEntry storage : StorageHolder.get(context.getSource().getLevel()).getStorages()) {
             String createdBy = storage.getCreatedBy();
             String uuid = storage.getUuid().toString();
             String createdByColor;
@@ -50,7 +50,7 @@ public class CommandList implements Command<CommandSource> {
                     TextFormatting.YELLOW + "%s" + TextFormatting.WHITE + ", Update " +
                     TextFormatting.YELLOW + "%s",
                     uuid, createdByColor, createdBy, createTimeF, updateTimeF);
-            context.getSource().sendFeedback(new StringTextComponent(output), false);
+            context.getSource().sendSuccess(new StringTextComponent(output), false);
 
         }
         return 0;

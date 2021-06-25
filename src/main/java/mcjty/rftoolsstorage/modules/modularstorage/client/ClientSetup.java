@@ -6,6 +6,6 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 
 public class ClientSetup {
     public static void initClient() {
-        RenderTypeLookup.setRenderLayer(ModularStorageModule.MODULAR_STORAGE.get(), RenderType.getCutout());
+        RenderTypeLookup.setRenderLayer(ModularStorageModule.MODULAR_STORAGE.get(), RenderType.cutout());
     }
 }

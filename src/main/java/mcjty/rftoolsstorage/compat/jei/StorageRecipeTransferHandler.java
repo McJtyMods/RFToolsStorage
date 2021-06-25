@@ -33,7 +33,7 @@ public class StorageRecipeTransferHandler implements IRecipeTransferHandler<Modu
         Map<Integer, ? extends IGuiIngredient<ItemStack>> guiIngredients = recipeLayout.getItemStacks().getGuiIngredients();
 
         TileEntity inventory = container.getTe();
-        BlockPos pos = inventory.getPos();
+        BlockPos pos = inventory.getBlockPos();
 
         if (doTransfer) {
             RFToolsStorageJeiPlugin.transferRecipe(guiIngredients, pos);

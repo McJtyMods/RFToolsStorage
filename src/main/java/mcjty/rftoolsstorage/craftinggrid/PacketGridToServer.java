@@ -19,7 +19,7 @@ public class PacketGridToServer extends PacketGridSync {
         convertToBytes(buf);
         buf.writeInt(stacks.length);
         for (ItemStack stack : stacks) {
-            buf.writeItemStack(stack);
+            buf.writeItem(stack);
         }
     }
 
@@ -31,7 +31,7 @@ public class PacketGridToServer extends PacketGridSync {
         int len = buf.readInt();
         stacks = new ItemStack[len];
         for (int i = 0 ; i < len ; i++) {
-            stacks[i] = buf.readItemStack();
+            stacks[i] = buf.readItem();
         }
     }
 
@@ -47,7 +47,7 @@ public class PacketGridToServer extends PacketGridSync {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             PlayerEntity player = ctx.getSender();
-            World world = player.getEntityWorld();
+            World world = player.getCommandSenderWorld();
             CraftingGridProvider provider = handleMessage(WorldTools.getWorld(world, type), player);
             if (provider != null) {
                 CraftingGridInventory inventory = provider.getCraftingGrid().getCraftingGridInventory();

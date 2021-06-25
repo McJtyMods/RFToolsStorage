@@ -16,17 +16,19 @@ import net.minecraft.world.IBlockReader;
 import static mcjty.lib.builder.TooltipBuilder.*;
 
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 public class CraftingManagerBlock extends BaseBlock {
 
-    private static final VoxelShape SHAPE = VoxelShapes.create(.1, .1, .4, 1, 1, 1);
+    private static final VoxelShape SHAPE = VoxelShapes.box(.1, .1, .4, 1, 1, 1);
 
 
     public CraftingManagerBlock() {
         super(new BlockBuilder()
-                .properties(Properties.create(Material.GLASS)
-                        .hardnessAndResistance(2.0f)
+                .properties(Properties.of(Material.GLASS)
+                        .strength(2.0f)
                         .sound(SoundType.GLASS)
-                        .setOpaque((state, world, pos) -> false)
+                        .isRedstoneConductor((state, world, pos) -> false)
                 )
                 .info(key("message.rftoolsstorage.shiftmessage"))
                 .infoShift(header(), gold())
@@ -35,7 +37,7 @@ public class CraftingManagerBlock extends BaseBlock {
     }
 
     @Override
-    public VoxelShape getRenderShape(BlockState p_196247_1_, IBlockReader p_196247_2_, BlockPos p_196247_3_) {
+    public VoxelShape getOcclusionShape(BlockState p_196247_1_, IBlockReader p_196247_2_, BlockPos p_196247_3_) {
         return SHAPE;
     }
 
@@ -46,14 +48,14 @@ public class CraftingManagerBlock extends BaseBlock {
 
     // @todo temporary
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
+    public BlockRenderType getRenderShape(BlockState state) {
         return BlockRenderType.MODEL;
     }
 
     @Override
-    public boolean isSideInvisible(BlockState state, BlockState adjacentBlockState, Direction side) {
+    public boolean skipRendering(BlockState state, BlockState adjacentBlockState, Direction side) {
         if (side == Direction.UP || side == Direction.DOWN) {
-            return adjacentBlockState.getBlock() == this ? true : super.isSideInvisible(state, adjacentBlockState, side);
+            return adjacentBlockState.getBlock() == this ? true : super.skipRendering(state, adjacentBlockState, side);
         }
         return false;
     }

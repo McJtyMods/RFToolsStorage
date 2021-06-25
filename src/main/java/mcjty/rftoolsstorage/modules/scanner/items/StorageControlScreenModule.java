@@ -97,7 +97,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
             return null;
         }
 
-        TileEntity te = world.getTileEntity(coordinate);
+        TileEntity te = world.getBlockEntity(coordinate);
         if (te == null) {
             return null;
         }
@@ -115,7 +115,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
             setupCoordinateFromNBT(tagCompound, dim, pos);
             for (int i = 0; i < stacks.size(); i++) {
                 if (tagCompound.contains("stack" + i)) {
-                    stacks.set(i, ItemStack.read(tagCompound.getCompound("stack" + i)));
+                    stacks.set(i, ItemStack.of(tagCompound.getCompound("stack" + i)));
                 }
             }
         }
@@ -148,7 +148,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         if (te != null) {
             int i = getHighlightedStack(x, y);
             if (i != -1 && !stacks.get(i).isEmpty()) {
-                return Collections.singletonList(TextFormatting.GREEN + "Item: " + TextFormatting.WHITE + stacks.get(i).getDisplayName());
+                return Collections.singletonList(TextFormatting.GREEN + "Item: " + TextFormatting.WHITE + stacks.get(i).getHoverName());
             }
         }
         return Collections.emptyList();
@@ -189,7 +189,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         if (other.isEmpty()) {
             return false;
         }
-        return thisItem.isItemEqual(other);
+        return thisItem.sameItem(other);
     }
 
 
@@ -198,11 +198,11 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         if (dirty >= 0) {
             CompoundNBT newCompound = tagCompound.copy();
             CompoundNBT tc = new CompoundNBT();
-            stacks.get(dirty).write(tc);
+            stacks.get(dirty).save(tc);
             newCompound.put("stack" + dirty, tc);
             if (player != null) {
-                SoundTools.playSound(player.getEntityWorld(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,
-                        player.getPosition().getX(), player.getPosition().getY(), player.getPosition().getZ(), 1.0f, 1.0f);
+                SoundTools.playSound(player.getCommandSenderWorld(), SoundEvents.EXPERIENCE_ORB_PICKUP,
+                        player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(), 1.0f, 1.0f);
             }
             dirty = -1;
             return newCompound;
@@ -216,40 +216,40 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
             return;
         }
         if (BlockPosTools.INVALID.equals(coordinate)) {
-            player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to storage scanner!"), false);
+            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to storage scanner!"), false);
             return;
         }
-        IStorageScanner scannerTileEntity = getStorageScanner(player.world, dim, coordinate);
+        IStorageScanner scannerTileEntity = getStorageScanner(player.level, dim, coordinate);
         if (scannerTileEntity == null) {
             return;
         }
         if (hitx >= 0) {
             boolean insertStackActive = hitx >= 0 && hitx < 60 && hity > 98;
             if (insertStackActive) {
-                if (isShown(player.getHeldItem(Hand.MAIN_HAND))) {
-                    ItemStack stack = scannerTileEntity.injectStackFromScreen(player.getHeldItem(Hand.MAIN_HAND), player);
-                    player.setHeldItem(Hand.MAIN_HAND, stack);
+                if (isShown(player.getItemInHand(Hand.MAIN_HAND))) {
+                    ItemStack stack = scannerTileEntity.injectStackFromScreen(player.getItemInHand(Hand.MAIN_HAND), player);
+                    player.setItemInHand(Hand.MAIN_HAND, stack);
                 }
-                player.openContainer.detectAndSendChanges();
+                player.containerMenu.broadcastChanges();
                 return;
             }
 
             boolean insertAllActive = hitx >= 60 && hity > 98;
             if (insertAllActive) {
-                for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-                    if (isShown(player.inventory.getStackInSlot(i))) {
-                        ItemStack stack = scannerTileEntity.injectStackFromScreen(player.inventory.getStackInSlot(i), player);
-                        player.inventory.setInventorySlotContents(i, stack);
+                for (int i = 0; i < player.inventory.getContainerSize(); i++) {
+                    if (isShown(player.inventory.getItem(i))) {
+                        ItemStack stack = scannerTileEntity.injectStackFromScreen(player.inventory.getItem(i), player);
+                        player.inventory.setItem(i, stack);
                     }
                 }
-                player.openContainer.detectAndSendChanges();
+                player.containerMenu.broadcastChanges();
                 return;
             }
 
             int i = getHighlightedStack(hitx, hity);
             if (i != -1) {
                 if (stacks.get(i).isEmpty()) {
-                    ItemStack heldItem = player.getHeldItemMainhand();
+                    ItemStack heldItem = player.getMainHandItem();
                     if (!heldItem.isEmpty()) {
                         ItemStack stack = heldItem.copy();
                         stack.setCount(1);
@@ -257,7 +257,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
                         dirty = i;
                     }
                 } else {
-                    scannerTileEntity.giveToPlayerFromScreen(stacks.get(i), player.isSneaking(), player);
+                    scannerTileEntity.giveToPlayerFromScreen(stacks.get(i), player.isShiftKeyDown(), player);
                 }
             }
         }

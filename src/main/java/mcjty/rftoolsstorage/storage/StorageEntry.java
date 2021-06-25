@@ -30,11 +30,11 @@ public class StorageEntry {
             int slot = itemTags.getInt("Slot");
 
             if (slot >= 0 && slot < stacks.size()) {
-                stacks.set(slot, ItemStack.read(itemTags));
+                stacks.set(slot, ItemStack.of(itemTags));
             }
         }
 
-        uuid = nbt.hasUniqueId("UUID") ? nbt.getUniqueId("UUID") : null;
+        uuid = nbt.hasUUID("UUID") ? nbt.getUUID("UUID") : null;
         version = nbt.getInt("version");
         creationTime = nbt.getLong("crTime");
         updateTime = nbt.getLong("upTime");
@@ -91,12 +91,12 @@ public class StorageEntry {
             if (!stacks.get(i).isEmpty()) {
                 CompoundNBT itemTag = new CompoundNBT();
                 itemTag.putInt("Slot", i);
-                stacks.get(i).write(itemTag);
+                stacks.get(i).save(itemTag);
                 nbtTagList.add(itemTag);
             }
         }
         nbt.put("Items", nbtTagList);
-        nbt.putUniqueId("UUID", uuid);
+        nbt.putUUID("UUID", uuid);
         return nbt;
     }
 

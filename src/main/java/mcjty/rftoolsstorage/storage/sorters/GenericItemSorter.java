@@ -70,7 +70,7 @@ public class GenericItemSorter implements ItemSorter {
                     return category;
                 }
             }
-            String displayName = object.getKey().getDisplayName().getString() /* was getFormattedText() */;
+            String displayName = object.getKey().getHoverName().getString() /* was getFormattedText() */;
             if (displayName.contains("Ingot")) {
                 return "Ingots";
             }

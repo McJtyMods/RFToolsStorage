@@ -14,14 +14,14 @@ public class PacketReturnStorageToClient {
     private StorageEntry entry;
 
     public void toBytes(PacketBuffer buf) {
-        buf.writeUniqueId(uuid);
+        buf.writeUUID(uuid);
         CompoundNBT nbt = entry.write();
-        buf.writeCompoundTag(nbt);
+        buf.writeNbt(nbt);
     }
 
     public PacketReturnStorageToClient(PacketBuffer buf) {
-        this.uuid = buf.readUniqueId();
-        CompoundNBT nbt = buf.readCompoundTag();
+        this.uuid = buf.readUUID();
+        CompoundNBT nbt = buf.readNbt();
         entry = new StorageEntry(nbt);
     }
 

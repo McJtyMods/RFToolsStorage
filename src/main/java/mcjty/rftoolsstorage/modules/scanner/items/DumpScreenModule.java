@@ -42,7 +42,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
             setupCoordinateFromNBT(tagCompound, dim, pos);
             for (int i = 0; i < stacks.size(); i++) {
                 if (tagCompound.contains("stack" + i)) {
-                    stacks.set(i, ItemStack.read(tagCompound.getCompound("stack" + i)));
+                    stacks.set(i, ItemStack.of(tagCompound.getCompound("stack" + i)));
                 }
             }
         }
@@ -86,7 +86,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
         if (other.isEmpty()) {
             return false;
         }
-        return thisItem.isItemEqual(other);
+        return thisItem.sameItem(other);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
             return;
         }
         if (BlockPosTools.INVALID.equals(coordinate)) {
-            player.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to storage scanner!"), false);
+            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to storage scanner!"), false);
             return;
         }
 
@@ -105,13 +105,13 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
         }
         int xoffset = 5;
         if (x >= xoffset) {
-            for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-                if (isShown(player.inventory.getStackInSlot(i))) {
-                    ItemStack stack = scannerTileEntity.injectStackFromScreen(player.inventory.getStackInSlot(i), player);
-                    player.inventory.setInventorySlotContents(i, stack);
+            for (int i = 0; i < player.inventory.getContainerSize(); i++) {
+                if (isShown(player.inventory.getItem(i))) {
+                    ItemStack stack = scannerTileEntity.injectStackFromScreen(player.inventory.getItem(i), player);
+                    player.inventory.setItem(i, stack);
                 }
             }
-            player.openContainer.detectAndSendChanges();
+            player.containerMenu.broadcastChanges();
             return;
         }
     }

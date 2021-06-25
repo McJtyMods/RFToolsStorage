@@ -22,6 +22,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
+
 public class StorageControlClientScreenModule implements IClientScreenModule<StorageControlScreenModule.ModuleDataStacks> {
     private ItemStackList stacks = ItemStackList.create(9);
 
@@ -42,7 +44,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         }
 
         if (renderInfo.hitx >= 0) {
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.translate(-0.5F, 0.5F, 0.07F);
             float f3 = 0.0105F;
             matrixStack.scale(f3 * renderInfo.factor, -f3 * renderInfo.factor, f3);
@@ -64,10 +66,10 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
                 }
                 y += 35;
             }
-            matrixStack.pop();
+            matrixStack.popPose();
         }
 
-        matrixStack.push();
+        matrixStack.pushPose();
         float f3 = 0.0105F;
         matrixStack.translate(-0.5F, 0.5F, 0.06F);
         float factor = renderInfo.factor;
@@ -87,9 +89,9 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
             y += 24;
         }
 
-        matrixStack.pop();
+        matrixStack.popPose();
 
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.translate(-0.5F, 0.5F, 0.08F);
         f3 = 0.0050F;
         matrixStack.scale(f3 * factor, -f3 * factor, 0.0001f);
@@ -109,11 +111,11 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         }
 
         boolean insertStackActive = renderInfo.hitx >= 0 && renderInfo.hitx < 60 && renderInfo.hity > 98 && renderInfo.hity <= 120;
-        fontRenderer.renderString("Insert Stack", 20, y - 20, insertStackActive ? 0xffffff : 0x666666, false, matrixStack.getLast().getMatrix(), buffer, false, 0, renderInfo.getLightmapValue());
+        fontRenderer.drawInBatch("Insert Stack", 20, y - 20, insertStackActive ? 0xffffff : 0x666666, false, matrixStack.last().pose(), buffer, false, 0, renderInfo.getLightmapValue());
         boolean insertAllActive = renderInfo.hitx >= 60 && renderInfo.hitx <= 120 && renderInfo.hity > 98 && renderInfo.hity <= 120;
-        fontRenderer.renderString("Insert All", 120, y - 20, insertAllActive ? 0xffffff : 0x666666, false, matrixStack.getLast().getMatrix(), buffer, false, 0, renderInfo.getLightmapValue());
+        fontRenderer.drawInBatch("Insert All", 120, y - 20, insertAllActive ? 0xffffff : 0x666666, false, matrixStack.last().pose(), buffer, false, 0, renderInfo.getLightmapValue());
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     @Override
@@ -122,14 +124,14 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
     }
 
     private void renderSlot(MatrixStack matrixStack, IRenderTypeBuffer buffer, int currenty, ItemStack stack, int x, int lightmapValue) {
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.translate((float)x+8f, (float)currenty+8f, 5);
         matrixStack.scale(16, 16, 16);
 
         ItemRenderer itemRender = Minecraft.getInstance().getItemRenderer();
-        IBakedModel ibakedmodel = itemRender.getItemModelWithOverrides(stack, Minecraft.getInstance().world, (LivingEntity)null);
-        itemRender.renderItem(stack, ItemCameraTransforms.TransformType.GUI, false, matrixStack, buffer, lightmapValue, OverlayTexture.NO_OVERLAY, ibakedmodel);
-        matrixStack.pop();
+        IBakedModel ibakedmodel = itemRender.getModel(stack, Minecraft.getInstance().level, (LivingEntity)null);
+        itemRender.render(stack, ItemCameraTransforms.TransformType.GUI, false, matrixStack, buffer, lightmapValue, OverlayTexture.NO_OVERLAY, ibakedmodel);
+        matrixStack.popPose();
     }
 
     private void renderSlotOverlay(MatrixStack matrixStack, IRenderTypeBuffer buffer, FontRenderer fontRenderer, int currenty, ItemStack stack, int amount, int x, int lightmapValue) {
@@ -144,7 +146,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
             } else {
                 s1 = String.valueOf(amount / 1000000000) + "g";
             }
-            fontRenderer.renderString(s1, x + 19 - 2 - fontRenderer.getStringWidth(s1), currenty + 6 + 3, 16777215, false, matrixStack.getLast().getMatrix(), buffer, false, 0, lightmapValue);
+            fontRenderer.drawInBatch(s1, x + 19 - 2 - fontRenderer.width(s1), currenty + 6 + 3, 16777215, false, matrixStack.last().pose(), buffer, false, 0, lightmapValue);
 
             if (stack.getItem().showDurabilityBar(stack)) {
                 double health = stack.getItem().getDurabilityForDisplay(stack);
@@ -161,10 +163,10 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
     }
 
     private static void renderQuad(IVertexBuilder builder, int x, int y, int width, int height, int color, double offset, int lightmapValue) {
-        builder.pos(x, y, offset).color(1.0f, 1.0f, 1.0f, 1.0f).lightmap(lightmapValue).endVertex();
-        builder.pos(x, (y + height), offset).color(1.0f, 1.0f, 1.0f, 1.0f).lightmap(lightmapValue).endVertex();
-        builder.pos((x + width), (y + height), offset).color(1.0f, 1.0f, 1.0f, 1.0f).lightmap(lightmapValue).endVertex();
-        builder.pos((x + width), y, offset).color(1.0f, 1.0f, 1.0f, 1.0f).lightmap(lightmapValue).endVertex();
+        builder.vertex(x, y, offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
+        builder.vertex(x, (y + height), offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
+        builder.vertex((x + width), (y + height), offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
+        builder.vertex((x + width), y, offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
     }
 
 
@@ -173,7 +175,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         if (tagCompound != null) {
             for (int i = 0 ; i < stacks.size() ; i++) {
                 if (tagCompound.contains("stack"+i)) {
-                    stacks.set(i, ItemStack.read(tagCompound.getCompound("stack" + i)));
+                    stacks.set(i, ItemStack.of(tagCompound.getCompound("stack" + i)));
                 }
             }
         }

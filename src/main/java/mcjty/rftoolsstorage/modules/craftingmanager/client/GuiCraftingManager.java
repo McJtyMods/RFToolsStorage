@@ -26,8 +26,8 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
     public GuiCraftingManager(CraftingManagerTileEntity tileEntity, CraftingManagerContainer container, PlayerInventory inventory) {
         super(tileEntity, container, inventory, ManualEntry.EMPTY);
 
-        xSize = WIDTH;
-        ySize = HEIGHT;
+        imageWidth = WIDTH;
+        imageHeight = HEIGHT;
     }
 
     public static void register() {
@@ -40,14 +40,14 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
 
         Panel toplevel = positional();
         toplevel.background(background);
-        toplevel.bounds(guiLeft, guiTop, xSize, ySize);
+        toplevel.bounds(leftPos, topPos, imageWidth, imageHeight);
 
         window = new Window(this, toplevel);
     }
 
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(MatrixStack matrixStack, float v, int i, int i2) {
         drawWindow(matrixStack);
     }
 }

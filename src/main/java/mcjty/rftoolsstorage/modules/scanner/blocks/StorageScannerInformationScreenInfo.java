@@ -83,12 +83,12 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
             int idx = 0;
 
             CraftingSystem craftingSystem = scanner.getCraftingSystem();
-            World world = scanner.getWorld();
+            World world = scanner.getLevel();
             for (BlockPos pos : scanner.getCraftingInventories()) {
                 if (idx >= CRAFT_KEYS.length) {
                     break;
                 }
-                TileEntity te = world.getTileEntity(pos);
+                TileEntity te = world.getBlockEntity(pos);
                 if (te instanceof CraftingManagerTileEntity) {
                     CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
                     for (CraftingQueue queue : craftingManager.getQueues()) {
@@ -107,7 +107,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
                 if (idx >= CRAFT_KEYS.length) {
                     break;
                 }
-                ItemStack[] stacks = request.getIngredient().getMatchingStacks();
+                ItemStack[] stacks = request.getIngredient().getItems();
                 if (stacks.length > 0) {
                     add(builder, idx++, stacks[0], "Missing");
                 }

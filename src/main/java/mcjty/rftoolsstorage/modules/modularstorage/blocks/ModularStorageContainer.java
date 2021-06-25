@@ -73,60 +73,60 @@ public class ModularStorageContainer extends GenericContainer {
 
     @Override
     public void generateSlots(PlayerEntity player) {
-        boolean onClient = getTe().getWorld().isRemote();
+        boolean onClient = getTe().getLevel().isClientSide();
 
         for (SlotFactory slotFactory : CONTAINER_FACTORY.get().getSlots()) {
             Slot slot;
             if (slotFactory.getSlotType() == SlotType.SLOT_GHOST) {
                 slot = new GhostSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
                     @Override
-                    public boolean canTakeStack(PlayerEntity player) {
+                    public boolean mayPickup(PlayerEntity player) {
                         if (!isLocked()) {
                             return false;
                         }
-                        return super.canTakeStack(player);
+                        return super.mayPickup(player);
                     }
 
                     @Override
-                    public boolean isItemValid(ItemStack stack) {
+                    public boolean mayPlace(ItemStack stack) {
                         if (!isLocked()) {
                             return false;
                         }
-                        return super.isItemValid(stack);
+                        return super.mayPlace(stack);
                     }
 
                     @Override
-                    public void putStack(ItemStack stack) {
+                    public void set(ItemStack stack) {
                         if (!isLocked()) {
                             return;
                         }
-                        super.putStack(stack);
+                        super.set(stack);
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_GHOSTOUT) {
                 slot = new GhostOutputSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
                     @Override
-                    public boolean canTakeStack(PlayerEntity player) {
+                    public boolean mayPickup(PlayerEntity player) {
                         if (!isLocked()) {
                             return false;
                         }
-                        return super.canTakeStack(player);
+                        return super.mayPickup(player);
                     }
 
                     @Override
-                    public boolean isItemValid(ItemStack stack) {
+                    public boolean mayPlace(ItemStack stack) {
                         if (!isLocked()) {
                             return false;
                         }
-                        return super.isItemValid(stack);
+                        return super.mayPlace(stack);
                     }
 
                     @Override
-                    public void putStack(ItemStack stack) {
+                    public void set(ItemStack stack) {
                         if (!isLocked()) {
                             return;
                         }
-                        super.putStack(stack);
+                        super.set(stack);
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_SPECIFICITEM) {
@@ -134,7 +134,7 @@ public class ModularStorageContainer extends GenericContainer {
                 slot = new SlotItemHandler(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(),
                         getAdjustedY(slotFactory.getY(), onClient)) {
                     @Override
-                    public boolean isItemValid(ItemStack stack) {
+                    public boolean mayPlace(ItemStack stack) {
                         if (isLocked()) {
                             return false;
                         }
@@ -148,11 +148,11 @@ public class ModularStorageContainer extends GenericContainer {
                 slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(),
                         getAdjustedY(slotFactory.getY(), onClient)) {
                     @Override
-                    public boolean isItemValid(@Nonnull ItemStack stack) {
+                    public boolean mayPlace(@Nonnull ItemStack stack) {
                         if (!isLocked()) {
                             return false;
                         }
-                        return getItemHandler().isItemValid(slotNumber - 3, stack);
+                        return getItemHandler().isItemValid(index - 3, stack);
                     }
                 };
             }
@@ -161,22 +161,22 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     @Override
-    public void putStackInSlot(int slotID, ItemStack stack) {
-        super.putStackInSlot(slotID, stack);
+    public void setItem(int slotID, ItemStack stack) {
+        super.setItem(slotID, stack);
     }
 
     @Override
-    public ItemStack slotClick(int index, int button, ClickType mode, PlayerEntity player) {
-        if (index == SLOT_STORAGE_MODULE && !player.getEntityWorld().isRemote) {
+    public ItemStack clicked(int index, int button, ClickType mode, PlayerEntity player) {
+        if (index == SLOT_STORAGE_MODULE && !player.getCommandSenderWorld().isClientSide) {
             // @todo 1.14
 //            modularStorageTileEntity.copyToModule();
         }
-        return super.slotClick(index, button, mode, player);
+        return super.clicked(index, button, mode, player);
     }
 
     @Override
-    public void detectAndSendChanges() {
-        super.detectAndSendChanges();
+    public void broadcastChanges() {
+        super.broadcastChanges();
 
         ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
         String sortMode = modularStorageTileEntity.getSortMode();
@@ -185,13 +185,13 @@ public class ModularStorageContainer extends GenericContainer {
         String filter = modularStorageTileEntity.getFilter();
         boolean locked = modularStorageTileEntity.isLocked();
 
-        for (IContainerListener listener : this.listeners) {
+        for (IContainerListener listener : this.containerListeners) {
             if (listener instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity) listener;
                 RFToolsStorageMessages.INSTANCE.sendTo(new PacketStorageInfoToClient(
-                        modularStorageTileEntity.getPos(),
+                        modularStorageTileEntity.getBlockPos(),
                         sortMode, viewMode, groupMode, filter, locked),
-                        ((ServerPlayerEntity)player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+                        ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         }
     }

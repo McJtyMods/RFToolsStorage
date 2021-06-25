@@ -7,7 +7,7 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 
 public class ClientSetup {
     public static void initClient() {
-        RenderTypeLookup.setRenderLayer(CraftingManagerModule.CRAFTING_MANAGER.get(), RenderType.getCutout());
+        RenderTypeLookup.setRenderLayer(CraftingManagerModule.CRAFTING_MANAGER.get(), RenderType.cutout());
     }
 
     public static void modelInit(ModelRegistryEvent event) {

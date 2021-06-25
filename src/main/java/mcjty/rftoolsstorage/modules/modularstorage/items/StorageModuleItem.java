@@ -24,6 +24,8 @@ import java.util.*;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
+import net.minecraft.item.Item.Properties;
+
 public class StorageModuleItem extends Item implements INBTPreservingIngredient, IStorageModuleItem {
 
     public static final int STORAGE_TIER1 = 0;
@@ -53,8 +55,8 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                     }),
                     parameter("uuid", stack -> {
                         CompoundNBT tag = stack.getTag();
-                        if (tag != null && tag.hasUniqueId("uuid")) {
-                            return tag.getUniqueId("uuid").toString();
+                        if (tag != null && tag.hasUUID("uuid")) {
+                            return tag.getUUID("uuid").toString();
                         } else {
                             return "<unset>";
                         }
@@ -112,8 +114,8 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
         if (tag == null) {
             return null;
         }
-        if (tag.hasUniqueId("uuid")) {
-            UUID uuid = tag.getUniqueId("uuid");
+        if (tag.hasUUID("uuid")) {
+            UUID uuid = tag.getUUID("uuid");
             int version = tag.getInt("version");
             return RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
         } else {
@@ -129,14 +131,14 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
         if (!stack.hasTag()) {
             return false;
         }
-        return stack.getTag().hasUniqueId("uuid");
+        return stack.getTag().hasUUID("uuid");
     }
 
     public StorageModuleItem(int tier) {
         super(new Properties()
-                .maxStackSize(1)
-                .maxDamage(0)
-                .group(RFToolsStorage.setup.getTab()));
+                .stacksTo(1)
+                .durability(0)
+                .tab(RFToolsStorage.setup.getTab()));
         this.tier = tier;
     }
 
@@ -145,7 +147,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     @Override
-    public void onCreated(ItemStack stack, World worldIn, PlayerEntity player) {
+    public void onCraftedBy(ItemStack stack, World worldIn, PlayerEntity player) {
         if (player != null) {
             CompoundNBT tag = stack.getOrCreateTag();
             if (!tag.contains("createdBy")) {
@@ -160,11 +162,11 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
             throw new RuntimeException("This is not supposed to happen! Needs to be a storage item!");
         }
         CompoundNBT nbt = stack.getOrCreateTag();
-        if (!nbt.hasUniqueId("uuid")) {
-            nbt.putUniqueId("uuid", UUID.randomUUID());
+        if (!nbt.hasUUID("uuid")) {
+            nbt.putUUID("uuid", UUID.randomUUID());
             nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
         }
-        return nbt.getUniqueId("uuid");
+        return nbt.getUUID("uuid");
     }
 
     public static String getCreatedBy(ItemStack storageCard) {
@@ -197,9 +199,9 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
-        ItemStack stack = player.getHeldItem(hand);
-        if (!world.isRemote) {
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!world.isClientSide) {
             Logging.message(player, TextFormatting.YELLOW + "Place this module in a storage module tablet to access contents");
             return new ActionResult<>(ActionResultType.SUCCESS, stack);
         }
@@ -207,8 +209,8 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     @Override
-    public void addInformation(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flags) {
-        super.addInformation(itemStack, worldIn, list, flags);
+    public void appendHoverText(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flags) {
+        super.appendHoverText(itemStack, worldIn, list, flags);
         tooltipBuilder.get().makeTooltip(new ResourceLocation(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
     }
 

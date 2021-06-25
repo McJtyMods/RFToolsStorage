@@ -172,54 +172,54 @@ public class GuiCraftingGrid {
         craftWindow.draw(matrixStack);
 
         if (testResultFromServer != null) {
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.translate(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
 
             if (testResultFromServer[9] > 0) {
-                Container container = gui.getContainer();
+                Container container = gui.getMenu();
                 if (container instanceof GenericContainer) {
                     Slot slot = ((GenericContainer) container).getSlotByInventoryAndIndex(CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT);
                     if (slot != null) {
-                        GlStateManager.colorMask(true, true, true, false);
-                        int xPos = slot.xPos;
-                        int yPos = slot.yPos;
+                        GlStateManager._colorMask(true, true, true, false);
+                        int xPos = slot.x;
+                        int yPos = slot.y;
                         Screen.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                     }
                 }
             }
             for (int i = 0; i < 9; i++) {
                 if (testResultFromServer[i] > 0) {
-                    Container container = gui.getContainer();
+                    Container container = gui.getMenu();
                     if (container instanceof GenericContainer) {
                         Slot slot = ((GenericContainer) container).getSlotByInventoryAndIndex(CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT + i);
                         if (slot != null) {
-                            GlStateManager.colorMask(true, true, true, false);
-                            int xPos = slot.xPos;
-                            int yPos = slot.yPos;
+                            GlStateManager._colorMask(true, true, true, false);
+                            int xPos = slot.x;
+                            int yPos = slot.y;
                             Screen.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                         }
                     }
                 }
             }
-            matrixStack.pop();
+            matrixStack.popPose();
         }
     }
 
     private void testRecipe() {
         CraftingInventory inv = new CraftingInventory(new Container(null, -1) {
             @Override
-            public boolean canInteractWith(PlayerEntity var1) {
+            public boolean stillValid(PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
 
         for (int i = 0; i < 9; i++) {
-            inv.setInventorySlotContents(i, provider.getCraftingGrid().getCraftingGridInventory().getStackInSlot(i + 1));
+            inv.setItem(i, provider.getCraftingGrid().getCraftingGridInventory().getStackInSlot(i + 1));
         }
 
         // Compare current contents to avoid unneeded slot update.
-        Optional<ICraftingRecipe> recipe = CraftingRecipe.findRecipe(mc.world, inv);
-        ItemStack newResult = recipe.map(r -> r.getCraftingResult(inv)).orElse(ItemStack.EMPTY);
+        Optional<ICraftingRecipe> recipe = CraftingRecipe.findRecipe(mc.level, inv);
+        ItemStack newResult = recipe.map(r -> r.assemble(inv)).orElse(ItemStack.EMPTY);
         provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }
 

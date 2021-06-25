@@ -51,7 +51,7 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
     }
 
     @Override
-    public void read(CompoundNBT nbt) {
+    public void load(CompoundNBT nbt) {
         ListNBT storages = nbt.getList("Storages", Constants.NBT.TAG_COMPOUND);
         for (INBT storage : storages) {
             StorageEntry entry = new StorageEntry((CompoundNBT) storage);
@@ -60,7 +60,7 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT nbt) {
+    public CompoundNBT save(CompoundNBT nbt) {
         ListNBT storages = new ListNBT();
         for (Map.Entry<UUID, StorageEntry> entry : storageEntryMap.entrySet()) {
             storages.add(entry.getValue().write());

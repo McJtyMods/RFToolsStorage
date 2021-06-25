@@ -7,7 +7,7 @@ public class SlotOffsetCalculator {
 
     // Client side code!
     public static int getYOffset() {
-        double height = Minecraft.getInstance().getMainWindow().getScaledHeight();
+        double height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
         int ySize;
 
         if (height > 510) {

@@ -20,10 +20,10 @@ public class PacketStorageInfoToClient {
 
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
-        buf.writeString(viewMode);
-        buf.writeString(sortMode);
+        buf.writeUtf(viewMode);
+        buf.writeUtf(sortMode);
         buf.writeBoolean(groupMode);
-        buf.writeString(filter);
+        buf.writeUtf(filter);
         buf.writeBoolean(locked);
     }
 
@@ -32,10 +32,10 @@ public class PacketStorageInfoToClient {
 
     public PacketStorageInfoToClient(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        viewMode = buf.readString(32767);
-        sortMode = buf.readString(32767);
+        viewMode = buf.readUtf(32767);
+        sortMode = buf.readUtf(32767);
         groupMode = buf.readBoolean();
-        filter = buf.readString(32767);
+        filter = buf.readUtf(32767);
         locked = buf.readBoolean();
     }
 
@@ -52,7 +52,7 @@ public class PacketStorageInfoToClient {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = McJtyLib.proxy.getClientWorld().getTileEntity(pos);
+            TileEntity te = McJtyLib.proxy.getClientWorld().getBlockEntity(pos);
             if (te instanceof ModularStorageTileEntity) {
                 ModularStorageTileEntity storage = (ModularStorageTileEntity) te;
                 storage.syncInventoryFromServer(sortMode, viewMode, groupMode, filter, locked);

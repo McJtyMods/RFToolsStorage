@@ -29,10 +29,10 @@ public class ItemFilterCache {
     private boolean itemMatches(ItemStack stack) {
         if (stacks != null) {
             for (ItemStack itemStack : stacks) {
-                if (matchDamage && itemStack.getDamage() != stack.getDamage()) {    // @todo 1.14, used to be meta. Check!
+                if (matchDamage && itemStack.getDamageValue() != stack.getDamageValue()) {    // @todo 1.14, used to be meta. Check!
                     continue;
                 }
-                if (nbtMode && !ItemStack.areItemStackTagsEqual(itemStack, stack)) {
+                if (nbtMode && !ItemStack.tagMatches(itemStack, stack)) {
                     continue;
                 }
                 if (itemStack.getItem().equals(stack.getItem())) {

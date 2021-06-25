@@ -25,14 +25,14 @@ public class PacketReturnInventoryInfo {
         buf.writeInt(inventories.size());
         for (InventoryInfo info : inventories) {
             buf.writeBlockPos(info.getPos());
-            buf.writeString(info.getName());
+            buf.writeUtf(info.getName());
             buf.writeBoolean(info.isRoutable());
             if (info.getBlock() == null) {
                 buf.writeBoolean(false);
             } else {
                 buf.writeBoolean(true);
                 String id = info.getBlock().getRegistryName().toString();
-                buf.writeString(id);
+                buf.writeUtf(id);
             }
         }
     }
@@ -45,11 +45,11 @@ public class PacketReturnInventoryInfo {
         inventories = new ArrayList<>(size);
         for (int i = 0 ; i < size ; i++) {
             BlockPos pos = buf.readBlockPos();
-            String name = buf.readString(32767);
+            String name = buf.readUtf(32767);
             boolean routable = buf.readBoolean();
             Block block = null;
             if (buf.readBoolean()) {
-                block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(buf.readString(32767)));
+                block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(buf.readUtf(32767)));
             }
             inventories.add(new InventoryInfo(pos, name, routable, block));
         }

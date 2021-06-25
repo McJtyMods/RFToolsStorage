@@ -21,7 +21,7 @@ public class CommandRestore implements Command<CommandSource> {
 
     public static ArgumentBuilder<CommandSource, ?> register(CommandDispatcher<CommandSource> dispatcher) {
         return Commands.literal("restore")
-                .requires(cs -> cs.hasPermissionLevel(2))
+                .requires(cs -> cs.hasPermission(2))
                 .then(Commands.argument("uuid", StringArgumentType.word())
                         .executes(CMD));
     }
@@ -30,22 +30,22 @@ public class CommandRestore implements Command<CommandSource> {
     public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
         String uuidString = context.getArgument("uuid", String.class);
 
-        ItemStack stack = context.getSource().asPlayer().getHeldItemMainhand();
+        ItemStack stack = context.getSource().getPlayerOrException().getMainHandItem();
         if (!(stack.getItem() instanceof StorageModuleItem)) {
-            context.getSource().sendFeedback(
-                    new StringTextComponent("Keep a storage module in your main hand!").modifyStyle(style -> style.applyFormatting(TextFormatting.RED)), true);
+            context.getSource().sendSuccess(
+                    new StringTextComponent("Keep a storage module in your main hand!").withStyle(style -> style.applyFormat(TextFormatting.RED)), true);
             return 0;
         }
 
         int maxSize = StorageModuleItem.getSize(stack);
 
-        StorageHolder holder = StorageHolder.get(context.getSource().getWorld());
+        StorageHolder holder = StorageHolder.get(context.getSource().getLevel());
         StorageEntry foundEntry = null;
         for (StorageEntry storage : holder.getStorages()) {
             if (storage.getUuid().toString().startsWith(uuidString)) {
                 if (foundEntry != null) {
-                    context.getSource().sendFeedback(
-                            new StringTextComponent("Multiple storage entries match this UUID part!").modifyStyle(style -> style.applyFormatting(TextFormatting.RED)), true);
+                    context.getSource().sendSuccess(
+                            new StringTextComponent("Multiple storage entries match this UUID part!").withStyle(style -> style.applyFormat(TextFormatting.RED)), true);
                     return 0;
                 }
                 foundEntry = storage;
@@ -54,15 +54,15 @@ public class CommandRestore implements Command<CommandSource> {
 
         if (foundEntry != null) {
             if (foundEntry.getStacks().size() != maxSize) {
-                context.getSource().sendFeedback(
-                        new StringTextComponent("Wrong foundEntry module tier! " + foundEntry.getStacks().size() + " stacks are required!").modifyStyle(style -> style.applyFormatting(TextFormatting.RED)), true);
+                context.getSource().sendSuccess(
+                        new StringTextComponent("Wrong foundEntry module tier! " + foundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(TextFormatting.RED)), true);
             } else {
-                stack.getOrCreateTag().putUniqueId("uuid", foundEntry.getUuid());
-                context.getSource().asPlayer().container.detectAndSendChanges();
+                stack.getOrCreateTag().putUUID("uuid", foundEntry.getUuid());
+                context.getSource().getPlayerOrException().inventoryMenu.broadcastChanges();
             }
         } else {
-            context.getSource().sendFeedback(
-                    new StringTextComponent("No storage found with UUID " + uuidString).modifyStyle(style -> style.applyFormatting(TextFormatting.RED)), true);
+            context.getSource().sendSuccess(
+                    new StringTextComponent("No storage found with UUID " + uuidString).withStyle(style -> style.applyFormat(TextFormatting.RED)), true);
         }
         return 0;
     }

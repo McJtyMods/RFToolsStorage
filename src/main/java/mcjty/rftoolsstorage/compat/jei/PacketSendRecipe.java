@@ -22,7 +22,7 @@ public class PacketSendRecipe {
     public void toBytes(PacketBuffer buf) {
         buf.writeInt(stacks.size());
         for (ItemStack stack : stacks) {
-            buf.writeItemStack(stack);
+            buf.writeItem(stack);
         }
         if (pos != null) {
             buf.writeBoolean(true);
@@ -39,7 +39,7 @@ public class PacketSendRecipe {
         int l = buf.readInt();
         stacks = ItemStackList.create(l);
         for (int i = 0 ; i < l ; i++) {
-            stacks.set(i, buf.readItemStack());
+            stacks.set(i, buf.readItem());
         }
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
@@ -57,13 +57,13 @@ public class PacketSendRecipe {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             ServerPlayerEntity player = ctx.getSender();
-            World world = player.getEntityWorld();
+            World world = player.getCommandSenderWorld();
             if (pos == null) {
                 // Handle tablet version
-                ItemStack mainhand = player.getHeldItemMainhand();
+                ItemStack mainhand = player.getMainHandItem();
                 if (!mainhand.isEmpty() && mainhand.getItem() instanceof TabletItem) {
-                    if (player.openContainer instanceof StorageScannerContainer) {
-                        StorageScannerContainer container = (StorageScannerContainer) player.openContainer;
+                    if (player.containerMenu instanceof StorageScannerContainer) {
+                        StorageScannerContainer container = (StorageScannerContainer) player.containerMenu;
 //                        container
 //                        tabletContainer
                         // @todo
@@ -79,7 +79,7 @@ public class PacketSendRecipe {
 //                    }
                 }
             } else {
-                TileEntity te = world.getTileEntity(pos);
+                TileEntity te = world.getBlockEntity(pos);
                 if (te instanceof JEIRecipeAcceptor) {
                     JEIRecipeAcceptor acceptor = (JEIRecipeAcceptor) te;
                     acceptor.setGridContents(stacks);

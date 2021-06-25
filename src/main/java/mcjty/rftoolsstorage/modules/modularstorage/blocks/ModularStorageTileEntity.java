@@ -68,7 +68,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     private final LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
-            .containerSupplier((windowId,player) -> new ModularStorageContainer(windowId, getPos(), player, ModularStorageTileEntity.this))
+            .containerSupplier((windowId,player) -> new ModularStorageContainer(windowId, getBlockPos(), player, ModularStorageTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
     private GlobalStorageItemWrapper globalWrapper;
@@ -120,7 +120,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Override
     public void setRecipe(int index, ItemStack[] stacks) {
         craftingGrid.setRecipe(index, stacks);
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -133,7 +133,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         for (int i = 0 ; i < stacks.size() ; i++) {
             craftingGrid.getCraftingGridInventory().setStackInSlot(i, stacks.get(i));
         }
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -143,7 +143,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     @Override
     public void markInventoryDirty() {
-        markDirty();
+        setChanged();
     }
 
     @Override
@@ -168,7 +168,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     public void setGroupMode(boolean groupMode) {
         this.groupMode = groupMode;
-        markDirty();
+        setChanged();
     }
 
     public String getSortMode() {
@@ -177,7 +177,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     public void setSortMode(String sortMode) {
         this.sortMode = sortMode;
-        markDirty();
+        setChanged();
     }
 
     public String getFilter() {
@@ -186,7 +186,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     public void setFilter(String filter) {
         this.filter = filter;
-        markDirty();
+        setChanged();
     }
 
     public String getViewMode() {
@@ -195,7 +195,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     public void setViewMode(String viewMode) {
         this.viewMode = viewMode;
-        markDirty();
+        setChanged();
     }
 
     public int getRenderLevel() {
@@ -267,8 +267,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT tagCompound) {
-        super.write(tagCompound);
+    public CompoundNBT save(CompoundNBT tagCompound) {
+        super.save(tagCompound);
 
         tagCompound.putString("sortMode", sortMode);
         tagCompound.putString("viewMode", viewMode);
@@ -314,7 +314,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         for (int i = 0; i < inventory.getSlots(); i++) {
             inventory.setStackInSlot(i, ItemStack.EMPTY);
         }
-        markDirty();
+        setChanged();
     }
 
     public void setLocked(boolean locked) {
@@ -406,7 +406,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private IItemHandlerModifiable createGlobalHandler() {
         StorageInfo info = getStorageInfo();
         if (globalWrapper == null) {
-            globalWrapper = new GlobalStorageItemWrapper(info, world.isRemote) {
+            globalWrapper = new GlobalStorageItemWrapper(info, level.isClientSide) {
                 @Override
                 public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
                     boolean rc = super.isItemValid(slot, stack);
@@ -439,7 +439,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                     return super.extractItem(slot, amount, simulate);
                 }
             };
-            if (!world.isRemote) {
+            if (!level.isClientSide) {
                 globalWrapper.setListener((version, slot) -> {
                     ItemStack storageSlot = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
                     if (storageSlot.getItem() instanceof StorageModuleItem) {

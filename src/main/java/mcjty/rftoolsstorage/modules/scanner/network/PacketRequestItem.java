@@ -55,14 +55,14 @@ public class PacketRequestItem {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = WorldTools.getWorld(ctx.getSender().world, dimensionId);
+            World world = WorldTools.getWorld(ctx.getSender().level, dimensionId);
             if (world == null) {
                 return;
             }
             if (!WorldTools.isLoaded(world, pos)) {
                 return;
             }
-            TileEntity te = world.getTileEntity(pos);
+            TileEntity te = world.getBlockEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity tileEntity = (StorageScannerTileEntity) te;
                 if (craftable) {
