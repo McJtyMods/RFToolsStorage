@@ -152,7 +152,7 @@ public class ModularStorageContainer extends GenericContainer {
                         if (!isLocked()) {
                             return false;
                         }
-                        return getItemHandler().isItemValid(index - 3, stack);
+                        return getItemHandler().isItemValid((((Slot)this).index) - 3, stack);
                     }
                 };
             }
