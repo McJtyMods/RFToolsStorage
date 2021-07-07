@@ -31,20 +31,20 @@ public class Recipes extends BaseRecipeProvider {
                         .unlockedBy("redstone", has(Items.REDSTONE)),
                 " C ", "gig", "qrq");
         build(consumer, CopyNBTRecipeBuilder.shapedRecipe(ModularStorageModule.STORAGE_MODULE1.get())
-                        .key('g', Items.GOLD_INGOT)
-                        .key('X', ModularStorageModule.STORAGE_MODULE0.get())
-                        .addCriterion("storage", has(ModularStorageModule.STORAGE_MODULE0.get())),
+                        .define('g', Items.GOLD_INGOT)
+                        .define('X', ModularStorageModule.STORAGE_MODULE0.get())
+                        .unlockedBy("storage", has(ModularStorageModule.STORAGE_MODULE0.get())),
                 " C ", "gXg", "qrq");
         build(consumer, CopyNBTRecipeBuilder.shapedRecipe(ModularStorageModule.STORAGE_MODULE2.get())
-                        .key('g', Items.GOLD_BLOCK)
-                        .key('X', ModularStorageModule.STORAGE_MODULE1.get())
-                        .addCriterion("storage", has(ModularStorageModule.STORAGE_MODULE1.get())),
+                        .define('g', Items.GOLD_BLOCK)
+                        .define('X', ModularStorageModule.STORAGE_MODULE1.get())
+                        .unlockedBy("storage", has(ModularStorageModule.STORAGE_MODULE1.get())),
                 " C ", "gXg", "QRQ");
         build(consumer, CopyNBTRecipeBuilder.shapedRecipe(ModularStorageModule.STORAGE_MODULE3.get())
-                        .key('g', Items.DIAMOND_BLOCK)
-                        .key('t', VariousModule.INFUSED_DIAMOND.get())
-                        .key('X', ModularStorageModule.STORAGE_MODULE2.get())
-                        .addCriterion("storage", has(ModularStorageModule.STORAGE_MODULE2.get())),
+                        .define('g', Items.DIAMOND_BLOCK)
+                        .define('t', VariousModule.INFUSED_DIAMOND.get())
+                        .define('X', ModularStorageModule.STORAGE_MODULE2.get())
+                        .unlockedBy("storage", has(ModularStorageModule.STORAGE_MODULE2.get())),
                 "tCt", "gXg", "QRQ");
 
         build(consumer, ShapedRecipeBuilder.shaped(ModularStorageModule.MODULAR_STORAGE.get())
