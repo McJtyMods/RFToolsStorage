@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.blocks;
 
 import com.google.common.base.Function;
-import com.mojang.authlib.GameProfile;
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.api.infusable.CapabilityInfusable;
@@ -49,9 +48,10 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.*;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -97,7 +97,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public static long rfReceived = 0;
     public static boolean exportToCurrentReceived = false;
 
-    private final Lazy<FakePlayer> lazyPlayer = Lazy.of(this::getFakePlayer);
+    private final FakePlayerGetter lazyPlayer = new FakePlayerGetter(this, "rftools_storage");
 
     @Override
     public IAction[] getActions() {
@@ -702,24 +702,12 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         setChanged();
     }
 
-    private boolean canPlayerAccess(FakePlayer fakePlayer, BlockPos p) {
+    private boolean canPlayerAccess(PlayerEntity fakePlayer, BlockPos p) {
         if (StorageScannerConfiguration.scannerNoRestrictions.get()) {
             return true;
         }
         return level.getBlockState(p).canEntityDestroy(level, p, fakePlayer);
     }
-
-    private FakePlayer getFakePlayer() {
-        UUID owner = getOwnerUUID();
-        if (owner == null) {
-            owner = UUID.nameUUIDFromBytes("rftools_storage".getBytes());
-        }
-        FakePlayer player = FakePlayerFactory.get((ServerWorld) level, new GameProfile(owner, "rftools_storage"));
-        player.setLevel(level);
-        player.setPos(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ());
-        return player;
-    }
-
 
     @Override
     public void clearCachedCounts() {
@@ -742,7 +730,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         inventories = new ArrayList<>();
         craftingInventories = new ArrayList<>();
 
-        FakePlayer fakePlayer = lazyPlayer.get();
+        PlayerEntity fakePlayer = lazyPlayer.get();
 
         for (BlockPos p : old) {
             if (xnetAccess.containsKey(p) || inRange(p)) {
@@ -837,7 +825,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (getStoredPower() < StorageScannerConfiguration.rfPerRequest.get()) {
             return ItemStack.EMPTY;
         }
-        FakePlayer fakePlayer = lazyPlayer.get();
+        PlayerEntity fakePlayer = lazyPlayer.get();
         return inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && ((!doRoutable) || isRoutable(p)))
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
@@ -871,7 +859,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
         final ItemStack[] result = {ItemStack.EMPTY};
         final int[] cnt = {match.getMaxStackSize() < amount ? match.getMaxStackSize() : amount};
-        FakePlayer fakePlayer = lazyPlayer.get();
+        PlayerEntity fakePlayer = lazyPlayer.get();
         inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && (!doRoutable) || isRoutable(p))
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
@@ -946,7 +934,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public ItemStack insertInternal(ItemStack stack, boolean simulate) {
         final ItemStack[] toInsert = {stack.copy()};
 
-        FakePlayer fakePlayer = lazyPlayer.get();
+        PlayerEntity fakePlayer = lazyPlayer.get();
         Iterator<LazyOptional<IItemHandler>> iterator = inventories.stream()
                 .filter(p -> isInputFromAuto(p) && (!p.equals(getBlockPos()) && isRoutable(p) && getInputMatcher(p).test(stack)))
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
@@ -1094,7 +1082,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
 
         if (invPos.getY() == -1) {
-            FakePlayer fakePlayer = lazyPlayer.get();
+            PlayerEntity fakePlayer = lazyPlayer.get();
             Iterator<BlockPos> iterator = inventories.stream()
                     .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                     .filter(p -> canPlayerAccess(fakePlayer, p))
