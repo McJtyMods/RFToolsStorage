@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import mcjty.lib.client.RenderHelper;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import net.minecraft.block.BlockState;
@@ -40,7 +41,7 @@ public class CraftingManagerRenderer extends TileEntityRenderer<CraftingManagerT
                     matrixStack.scale(.3f, .3f, .3f);
                     matrixStack.translate(((i & 1) == 0) ? .45f : 1.8f, 0.93f, ((i & 2) == 0) ? .45f : 1.8f);
                     BlockState state = ((BlockItem) stack.getItem()).getBlock().defaultBlockState();
-                    blockRenderer.renderBlock(state, matrixStack, buffer, 0xf000f0, combinedOverlay, EmptyModelData.INSTANCE);
+                    blockRenderer.renderBlock(state, matrixStack, buffer, RenderHelper.MAX_BRIGHTNESS, combinedOverlay, EmptyModelData.INSTANCE);
                     matrixStack.popPose();
                 }
             }
