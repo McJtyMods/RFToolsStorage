@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.modules.scanner.items;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mcjty.lib.client.RenderHelper;
-import mcjty.lib.varia.DimensionId;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
 import mcjty.rftoolsbase.api.screens.ITextRenderHelper;
@@ -13,10 +12,9 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
 
 public class DumpClientScreenModule implements IClientScreenModule<IModuleData> {
     private String line = "";
@@ -53,7 +51,7 @@ public class DumpClientScreenModule implements IClientScreenModule<IModuleData> 
 
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
         if (tagCompound != null) {
             line = tagCompound.getString("text");
             if (tagCompound.contains("color")) {
