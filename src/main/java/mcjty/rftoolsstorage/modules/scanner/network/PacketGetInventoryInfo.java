@@ -15,7 +15,9 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -29,13 +31,13 @@ import java.util.stream.Stream;
 
 public class PacketGetInventoryInfo {
 
-    private DimensionId id;
+    private RegistryKey<World> id;
     private BlockPos pos;
     private boolean doscan;
 
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
-        id.toBytes(buf);
+        buf.writeResourceLocation(id.location());
         buf.writeBoolean(doscan);
     }
 
@@ -44,11 +46,11 @@ public class PacketGetInventoryInfo {
 
     public PacketGetInventoryInfo(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        id = DimensionId.fromPacket(buf);
+        id = RegistryKey.create(Registry.DIMENSION_REGISTRY, buf.readResourceLocation());
         doscan = buf.readBoolean();
     }
 
-    public PacketGetInventoryInfo(DimensionId worldId, BlockPos pos, boolean doscan) {
+    public PacketGetInventoryInfo(RegistryKey<World> worldId, BlockPos pos, boolean doscan) {
         this.id = worldId;
         this.pos = pos;
         this.doscan = doscan;

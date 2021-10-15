@@ -5,6 +5,7 @@ import mcjty.lib.varia.WorldTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -35,7 +36,7 @@ public class PacketGridToServer extends PacketGridSync {
         }
     }
 
-    public PacketGridToServer(BlockPos pos, DimensionId type, CraftingGrid grid) {
+    public PacketGridToServer(BlockPos pos, RegistryKey<World> type, CraftingGrid grid) {
         init(pos, type, grid);
         stacks = new ItemStack[10];
         for (int i = 0 ; i < 10 ; i++) {

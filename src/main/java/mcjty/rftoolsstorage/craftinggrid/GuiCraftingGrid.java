@@ -12,7 +12,6 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.varia.DimensionId;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
@@ -24,8 +23,10 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.Optional;
@@ -50,14 +51,14 @@ public class GuiCraftingGrid {
     private GenericGuiContainer<?, ?> gui;
     private CraftingGridProvider provider;
     private BlockPos pos;
-    private DimensionId type;
+    private RegistryKey<World> type;
 
     public static int[] testResultFromServer = null;
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
     public void initGui(final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?, ?> gui,
-                        BlockPos pos, DimensionId type, CraftingGridProvider provider,
+                        BlockPos pos, RegistryKey<World> type, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;
         this.gui = gui;

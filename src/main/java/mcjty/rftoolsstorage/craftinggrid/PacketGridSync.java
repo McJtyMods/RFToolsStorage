@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.lib.McJtyLib;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -10,7 +9,9 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
 public class PacketGridSync {
 
     protected BlockPos pos;
-    protected DimensionId type;
+    protected RegistryKey<World> type;
     private List<ItemStack[]> recipes;
 
     public void convertFromBytes(PacketBuffer buf) {
@@ -28,7 +29,7 @@ public class PacketGridSync {
         } else {
             pos = null;
         }
-        type = DimensionId.fromPacket(buf);
+        type = RegistryKey.create(Registry.DIMENSION_REGISTRY, buf.readResourceLocation());
         int s = buf.readInt();
         recipes = new ArrayList<>(s);
         for (int i = 0 ; i < s ; i++) {
@@ -48,7 +49,7 @@ public class PacketGridSync {
         } else {
             buf.writeBoolean(false);
         }
-        type.toBytes(buf);
+        buf.writeResourceLocation(type.location());
         buf.writeInt(recipes.size());
         for (ItemStack[] recipe : recipes) {
             buf.writeInt(recipe.length);
@@ -58,7 +59,7 @@ public class PacketGridSync {
         }
     }
 
-    protected void init(BlockPos pos, DimensionId type, CraftingGrid grid) {
+    protected void init(BlockPos pos, RegistryKey<World> type, CraftingGrid grid) {
         this.pos = pos;
         this.type = type;
         recipes = new ArrayList<>();

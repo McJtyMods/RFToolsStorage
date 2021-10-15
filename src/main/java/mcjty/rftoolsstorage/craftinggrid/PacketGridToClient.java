@@ -1,9 +1,9 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.lib.McJtyLib;
-import mcjty.lib.varia.DimensionId;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -23,7 +23,7 @@ public class PacketGridToClient extends PacketGridSync {
         convertFromBytes(buf);
     }
 
-    public PacketGridToClient(BlockPos pos, DimensionId type, CraftingGrid grid) {
+    public PacketGridToClient(BlockPos pos, RegistryKey<World> type, CraftingGrid grid) {
         init(pos, type, grid);
     }
 

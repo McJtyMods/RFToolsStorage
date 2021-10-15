@@ -1,13 +1,14 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -15,7 +16,7 @@ import java.util.function.Supplier;
 
 public class PacketRequestItem {
 
-    private DimensionId dimensionId;
+    private RegistryKey<World> dimensionId;
     private BlockPos pos;
     private BlockPos inventoryPos;
     private ItemStack item;
@@ -23,7 +24,7 @@ public class PacketRequestItem {
     private boolean craftable;
 
     public void toBytes(PacketBuffer buf) {
-        dimensionId.toBytes(buf);
+        buf.writeResourceLocation(dimensionId.location());
         buf.writeBlockPos(pos);
         buf.writeBlockPos(inventoryPos);
         buf.writeInt(amount);
@@ -35,7 +36,7 @@ public class PacketRequestItem {
     }
 
     public PacketRequestItem(PacketBuffer buf) {
-        dimensionId = DimensionId.fromPacket(buf);
+        dimensionId = RegistryKey.create(Registry.DIMENSION_REGISTRY, buf.readResourceLocation());
         pos = buf.readBlockPos();
         inventoryPos = buf.readBlockPos();
         amount = buf.readInt();
@@ -43,7 +44,8 @@ public class PacketRequestItem {
         craftable = buf.readBoolean();
     }
 
-    public PacketRequestItem(DimensionId dimensionId, BlockPos pos, BlockPos inventoryPos, ItemStack item, int amount, boolean craftable) {
+    public PacketRequestItem(RegistryKey<World>
+                                     dimensionId, BlockPos pos, BlockPos inventoryPos, ItemStack item, int amount, boolean craftable) {
         this.dimensionId = dimensionId;
         this.pos = pos;
         this.inventoryPos = inventoryPos;

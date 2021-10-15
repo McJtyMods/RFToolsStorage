@@ -16,9 +16,11 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -30,7 +32,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         IScreenModuleUpdater {
     private ItemStackList stacks = ItemStackList.create(9);
 
-    protected DimensionId dim = DimensionId.overworld();
+    protected RegistryKey<World> dim = World.OVERWORLD;
     protected BlockPos coordinate = BlockPosTools.INVALID;
     private boolean starred = false;
     private int dirty = -1;
@@ -87,7 +89,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         return new ModuleDataStacks(amounts);
     }
 
-    public static IStorageScanner getStorageScanner(World worldObj, DimensionId dim, BlockPos coordinate) {
+    public static IStorageScanner getStorageScanner(World worldObj, RegistryKey<World> dim, BlockPos coordinate) {
         World world = WorldTools.getWorld(worldObj, dim);
         if (world == null) {
             return null;
@@ -110,7 +112,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
+    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
         if (tagCompound != null) {
             setupCoordinateFromNBT(tagCompound, dim, pos);
             for (int i = 0; i < stacks.size(); i++) {
@@ -154,11 +156,11 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         return Collections.emptyList();
     }
 
-    protected void setupCoordinateFromNBT(CompoundNBT tagCompound, DimensionId dim, BlockPos pos) {
+    protected void setupCoordinateFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
         coordinate = BlockPosTools.INVALID;
         starred = tagCompound.getBoolean("starred");
         if (tagCompound.contains("monitorx")) {
-            this.dim = DimensionId.fromResourceLocation(new ResourceLocation(tagCompound.getString("monitordim")));
+            this.dim = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("monitordim")));
             BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
             int dx = Math.abs(c.getX() - pos.getX());
             int dy = Math.abs(c.getY() - pos.getY());

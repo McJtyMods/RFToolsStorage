@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
@@ -16,6 +15,7 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -284,7 +284,7 @@ public class StorageCraftingTools {
         }).orElse(new int[0]);
     }
 
-    public static void craftFromGrid(PlayerEntity player, int count, boolean test, BlockPos pos, DimensionId type) {
+    public static void craftFromGrid(PlayerEntity player, int count, boolean test, BlockPos pos, RegistryKey<World> type) {
 //        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);  // @todo 1.14
         int[] testResult = new int[0];
         TileEntity te = WorldTools.getWorld(player.getCommandSenderWorld(), type).getBlockEntity(pos);
@@ -296,7 +296,7 @@ public class StorageCraftingTools {
         }
     }
 
-    public static void requestGridSync(PlayerEntity player, BlockPos pos, DimensionId type) {
+    public static void requestGridSync(PlayerEntity player, BlockPos pos, RegistryKey<World> type) {
         World world = WorldTools.getWorld(player.getCommandSenderWorld(), type);
         CraftingGridProvider provider = null;
         TileEntity te = world.getBlockEntity(pos);
