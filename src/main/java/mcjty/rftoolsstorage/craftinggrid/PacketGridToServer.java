@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;

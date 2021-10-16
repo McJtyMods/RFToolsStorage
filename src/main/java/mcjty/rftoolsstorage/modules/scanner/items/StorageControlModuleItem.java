@@ -3,7 +3,6 @@ package mcjty.rftoolsstorage.modules.scanner.items;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.crafting.INBTPreservingIngredient;
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;

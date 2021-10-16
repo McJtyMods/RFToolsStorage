@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
@@ -17,8 +16,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import net.minecraft.item.Item.Properties;
 
 public class DumpModuleItem extends GenericModuleItem {
 

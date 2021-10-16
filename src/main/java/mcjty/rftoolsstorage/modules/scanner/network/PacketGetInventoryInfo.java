@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.modules.scanner.network;
 
 
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;

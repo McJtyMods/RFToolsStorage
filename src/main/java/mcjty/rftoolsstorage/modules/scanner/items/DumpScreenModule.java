@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.DimensionId;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.lib.varia.ItemStackTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
