@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
 import mcjty.lib.network.NetworkTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -35,7 +35,7 @@ public class PacketRequestItem {
     }
 
     public PacketRequestItem(PacketBuffer buf) {
-        dimensionId = WorldTools.getId(buf.readResourceLocation());
+        dimensionId = LevelTools.getId(buf.readResourceLocation());
         pos = buf.readBlockPos();
         inventoryPos = buf.readBlockPos();
         amount = buf.readInt();
@@ -56,11 +56,11 @@ public class PacketRequestItem {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = WorldTools.getLevel(ctx.getSender().level, dimensionId);
+            World world = LevelTools.getLevel(ctx.getSender().level, dimensionId);
             if (world == null) {
                 return;
             }
-            if (!WorldTools.isLoaded(world, pos)) {
+            if (!LevelTools.isLoaded(world, pos)) {
                 return;
             }
             TileEntity te = world.getBlockEntity(pos);

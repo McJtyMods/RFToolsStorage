@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.setup;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
 import mcjty.rftoolsstorage.modules.scanner.tools.StorageScannerTools;
@@ -60,11 +60,11 @@ public class CommandHandler {
 
     public static void registerCommands() {
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_REQUEST_SCANNER_CONTENTS, (player, arguments) -> {
-            StorageScannerTools.requestContents(player, WorldTools.getId(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_INV_POS));
+            StorageScannerTools.requestContents(player, LevelTools.getId(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_INV_POS));
             return true;
         });
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_SCANNER_SEARCH, (player, arguments) -> {
-            StorageScannerTools.scannerSearch(player, WorldTools.getId(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_SEARCH_TEXT));
+            StorageScannerTools.scannerSearch(player, LevelTools.getId(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_SEARCH_TEXT));
             return true;
         });
 

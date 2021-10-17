@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.tools;
 
 import mcjty.lib.typed.TypedMap;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.client.ClientCommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
@@ -19,8 +19,8 @@ import java.util.Set;
 public class StorageScannerTools {
 
     public static void scannerSearch(PlayerEntity player, RegistryKey<World> dim, BlockPos pos, String text) {
-        World world = WorldTools.getLevel(player.level, dim);
-        if (WorldTools.isLoaded(world, pos)) {
+        World world = LevelTools.getLevel(player.level, dim);
+        if (LevelTools.isLoaded(world, pos)) {
             TileEntity te = world.getBlockEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
@@ -33,8 +33,8 @@ public class StorageScannerTools {
     }
 
     public static void requestContents(PlayerEntity player, RegistryKey<World> dim, BlockPos pos, BlockPos invpos) {
-        World world = WorldTools.getLevel(player.level, dim);
-        if (WorldTools.isLoaded(world, pos)) {
+        World world = LevelTools.getLevel(player.level, dim);
+        if (LevelTools.isLoaded(world, pos)) {
             TileEntity te = world.getBlockEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;

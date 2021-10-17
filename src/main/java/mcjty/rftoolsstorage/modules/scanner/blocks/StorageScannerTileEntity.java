@@ -295,7 +295,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     private boolean checkForRoutableInventories() {
         return inventories.stream()
-                .filter(p -> isValid(p) && (!p.equals(getBlockPos()) && isRoutable(p)) && WorldTools.isLoaded(level, p))
+                .filter(p -> isValid(p) && (!p.equals(getBlockPos()) && isRoutable(p)) && LevelTools.isLoaded(level, p))
                 .anyMatch(p -> level.getBlockEntity(p) != null);
     }
 
@@ -315,7 +315,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
         final ItemStack finalStack = stack;
         Iterator<TileEntity> iterator = inventories.stream()
-                .filter(p -> testAccess.apply(p) && !p.equals(getBlockPos()) && isRoutable(p) && WorldTools.isLoaded(level, p) && getInputMatcher(p).test(finalStack))
+                .filter(p -> testAccess.apply(p) && !p.equals(getBlockPos()) && isRoutable(p) && LevelTools.isLoaded(level, p) && getInputMatcher(p).test(finalStack))
                 .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .iterator();
@@ -389,7 +389,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public int countItems(Predicate<ItemStack> matcher, boolean starred, @Nullable Integer maxneeded) {
         final int[] cc = {0};
         inventories.stream()
-                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(level, p))
+                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && LevelTools.isLoaded(level, p))
                 .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .allMatch(te -> {
@@ -407,7 +407,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Override
     public ItemStack getItem(Predicate<ItemStack> matcher, boolean starred) {
         return inventories.stream()
-                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(level, p))
+                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && LevelTools.isLoaded(level, p))
                 .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .map(te -> InventoryTools.getFirstMatchingItem(te, matcher))
@@ -427,7 +427,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return 0;
         }
         Iterator<TileEntity> iterator = inventories.stream()
-                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && WorldTools.isLoaded(level, p))
+                .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && LevelTools.isLoaded(level, p))
                 .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .iterator();
@@ -893,7 +893,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     @Nonnull
     private LazyOptional<IItemHandler> getItemHandlerAt(BlockPos p) {
-        if (!WorldTools.isLoaded(level, p)) {
+        if (!LevelTools.isLoaded(level, p)) {
             return LazyOptional.empty();
         }
         TileEntity te = level.getBlockEntity(p);

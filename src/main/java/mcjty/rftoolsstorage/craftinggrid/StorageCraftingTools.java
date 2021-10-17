@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.lib.tileentity.GenericTileEntity;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.entity.player.PlayerEntity;
@@ -287,7 +287,7 @@ public class StorageCraftingTools {
     public static void craftFromGrid(PlayerEntity player, int count, boolean test, BlockPos pos, RegistryKey<World> type) {
 //        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);  // @todo 1.14
         int[] testResult = new int[0];
-        TileEntity te = WorldTools.getLevel(player.getCommandSenderWorld(), type).getBlockEntity(pos);
+        TileEntity te = LevelTools.getLevel(player.getCommandSenderWorld(), type).getBlockEntity(pos);
         if (te instanceof CraftingGridProvider) {
             testResult = ((CraftingGridProvider) te).craft(player, count, test);
         }
@@ -297,7 +297,7 @@ public class StorageCraftingTools {
     }
 
     public static void requestGridSync(PlayerEntity player, BlockPos pos, RegistryKey<World> type) {
-        World world = WorldTools.getLevel(player.getCommandSenderWorld(), type);
+        World world = LevelTools.getLevel(player.getCommandSenderWorld(), type);
         CraftingGridProvider provider = null;
         TileEntity te = world.getBlockEntity(pos);
         if (te instanceof CraftingGridProvider && te instanceof GenericTileEntity) {

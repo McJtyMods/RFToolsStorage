@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.compat.xnet;
 
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
@@ -65,7 +65,7 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
             if (extractorPos != null) {
                 Direction side = entry.getKey().getSide();
                 BlockPos pos = extractorPos.relative(side);
-                if (!WorldTools.isLoaded(world, pos)) {
+                if (!LevelTools.isLoaded(world, pos)) {
                     continue;
                 }
 

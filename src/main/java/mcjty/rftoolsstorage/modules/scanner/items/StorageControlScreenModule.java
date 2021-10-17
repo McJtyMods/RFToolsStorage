@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.lib.varia.SoundTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.IScreenModuleUpdater;
@@ -91,12 +91,12 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
     }
 
     public static IStorageScanner getStorageScanner(World worldObj, RegistryKey<World> dim, BlockPos coordinate) {
-        World world = WorldTools.getLevel(worldObj, dim);
+        World world = LevelTools.getLevel(worldObj, dim);
         if (world == null) {
             return null;
         }
 
-        if (!WorldTools.isLoaded(world, coordinate)) {
+        if (!LevelTools.isLoaded(world, coordinate)) {
             return null;
         }
 
@@ -122,7 +122,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
                 }
             }
         }
-        IStorageScanner te = getStorageScanner(WorldTools.getOverworld(), dim, coordinate);
+        IStorageScanner te = getStorageScanner(LevelTools.getOverworld(), dim, coordinate);
         if (te != null) {
             te.clearCachedCounts();
         }
@@ -161,7 +161,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         coordinate = BlockPosTools.INVALID;
         starred = tagCompound.getBoolean("starred");
         if (tagCompound.contains("monitorx")) {
-            this.dim = WorldTools.getId(tagCompound.getString("monitordim"));
+            this.dim = LevelTools.getId(tagCompound.getString("monitordim"));
             BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
             int dx = Math.abs(c.getX() - pos.getX());
             int dy = Math.abs(c.getY() - pos.getY());

@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.craftinggrid;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.varia.Logging;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.container.Container;
@@ -29,7 +29,7 @@ public class PacketGridSync {
         } else {
             pos = null;
         }
-        type = WorldTools.getId(buf.readResourceLocation());
+        type = LevelTools.getId(buf.readResourceLocation());
         int s = buf.readInt();
         recipes = new ArrayList<>(s);
         for (int i = 0 ; i < s ; i++) {

@@ -2,7 +2,7 @@ package mcjty.rftoolsstorage.modules.scanner.network;
 
 
 import mcjty.lib.varia.BlockTools;
-import mcjty.lib.varia.WorldTools;
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
@@ -44,7 +44,7 @@ public class PacketGetInventoryInfo {
 
     public PacketGetInventoryInfo(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        id = WorldTools.getId(buf.readResourceLocation());
+        id = LevelTools.getId(buf.readResourceLocation());
         doscan = buf.readBoolean();
     }
 
@@ -69,12 +69,12 @@ public class PacketGetInventoryInfo {
     }
 
     private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(PlayerEntity entityPlayerMP) {
-        World world = WorldTools.getLevel(entityPlayerMP.level, id);
+        World world = LevelTools.getLevel(entityPlayerMP.level, id);
         if (world == null) {
             return Optional.empty();
         }
 
-        if (!WorldTools.isLoaded(world, pos)) {
+        if (!LevelTools.isLoaded(world, pos)) {
             return Optional.empty();
         }
 
@@ -102,7 +102,7 @@ public class PacketGetInventoryInfo {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         String displayName;
-        if (!WorldTools.isLoaded(world, pos)) {
+        if (!LevelTools.isLoaded(world, pos)) {
             displayName = "[UNLOADED]";
             block = null;
         } else if (world.isEmptyBlock(pos)) {
