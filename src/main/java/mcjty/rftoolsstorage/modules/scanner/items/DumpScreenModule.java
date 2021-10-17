@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.modules.scanner.items;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.lib.varia.ItemStackTools;
+import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.data.IModuleData;
@@ -13,9 +14,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -53,7 +52,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
         coordinate = BlockPosTools.INVALID;
         matchingTag = tagCompound.getBoolean("matchingTag");
         if (tagCompound.contains("monitorx")) {
-            this.dim = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("monitordim")));
+            this.dim = WorldTools.getId(tagCompound.getString("monitordim"));
             if (Objects.equals(dim, this.dim)) {
                 BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
                 int dx = Math.abs(c.getX() - pos.getX());

@@ -8,7 +8,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -36,7 +35,7 @@ public class PacketRequestItem {
     }
 
     public PacketRequestItem(PacketBuffer buf) {
-        dimensionId = RegistryKey.create(Registry.DIMENSION_REGISTRY, buf.readResourceLocation());
+        dimensionId = WorldTools.getId(buf.readResourceLocation());
         pos = buf.readBlockPos();
         inventoryPos = buf.readBlockPos();
         amount = buf.readInt();
@@ -57,7 +56,7 @@ public class PacketRequestItem {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = WorldTools.getWorld(ctx.getSender().level, dimensionId);
+            World world = WorldTools.getLevel(ctx.getSender().level, dimensionId);
             if (world == null) {
                 return;
             }

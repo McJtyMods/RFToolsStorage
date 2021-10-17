@@ -19,7 +19,7 @@ import java.util.Set;
 public class StorageScannerTools {
 
     public static void scannerSearch(PlayerEntity player, RegistryKey<World> dim, BlockPos pos, String text) {
-        World world = WorldTools.getWorld(player.level, dim);
+        World world = WorldTools.getLevel(player.level, dim);
         if (WorldTools.isLoaded(world, pos)) {
             TileEntity te = world.getBlockEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
@@ -33,7 +33,7 @@ public class StorageScannerTools {
     }
 
     public static void requestContents(PlayerEntity player, RegistryKey<World> dim, BlockPos pos, BlockPos invpos) {
-        World world = WorldTools.getWorld(player.level, dim);
+        World world = WorldTools.getLevel(player.level, dim);
         if (WorldTools.isLoaded(world, pos)) {
             TileEntity te = world.getBlockEntity(pos);
             if (te instanceof StorageScannerTileEntity) {

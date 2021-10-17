@@ -3,13 +3,12 @@ package mcjty.rftoolsstorage.setup;
 import mcjty.lib.McJtyLib;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
+import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
 import mcjty.rftoolsstorage.modules.scanner.tools.StorageScannerTools;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 public class CommandHandler {
@@ -61,11 +60,11 @@ public class CommandHandler {
 
     public static void registerCommands() {
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_REQUEST_SCANNER_CONTENTS, (player, arguments) -> {
-            StorageScannerTools.requestContents(player, RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(arguments.get(PARAM_SCANNER_DIM))), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_INV_POS));
+            StorageScannerTools.requestContents(player, WorldTools.getId(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_INV_POS));
             return true;
         });
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_SCANNER_SEARCH, (player, arguments) -> {
-            StorageScannerTools.scannerSearch(player, RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(arguments.get(PARAM_SCANNER_DIM))), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_SEARCH_TEXT));
+            StorageScannerTools.scannerSearch(player, WorldTools.getId(arguments.get(PARAM_SCANNER_DIM)), arguments.get(PARAM_SCANNER_POS), arguments.get(PARAM_SEARCH_TEXT));
             return true;
         });
 

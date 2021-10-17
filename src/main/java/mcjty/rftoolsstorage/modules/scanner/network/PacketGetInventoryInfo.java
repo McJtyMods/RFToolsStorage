@@ -16,7 +16,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -45,7 +44,7 @@ public class PacketGetInventoryInfo {
 
     public PacketGetInventoryInfo(PacketBuffer buf) {
         pos = buf.readBlockPos();
-        id = RegistryKey.create(Registry.DIMENSION_REGISTRY, buf.readResourceLocation());
+        id = WorldTools.getId(buf.readResourceLocation());
         doscan = buf.readBoolean();
     }
 
@@ -70,7 +69,7 @@ public class PacketGetInventoryInfo {
     }
 
     private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(PlayerEntity entityPlayerMP) {
-        World world = WorldTools.getWorld(entityPlayerMP.level, id);
+        World world = WorldTools.getLevel(entityPlayerMP.level, id);
         if (world == null) {
             return Optional.empty();
         }

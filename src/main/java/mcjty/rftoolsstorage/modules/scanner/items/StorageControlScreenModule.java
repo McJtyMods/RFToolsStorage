@@ -1,7 +1,10 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import io.netty.buffer.ByteBuf;
-import mcjty.lib.varia.*;
+import mcjty.lib.varia.BlockPosTools;
+import mcjty.lib.varia.ItemStackList;
+import mcjty.lib.varia.SoundTools;
+import mcjty.lib.varia.WorldTools;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.IScreenModuleUpdater;
@@ -17,10 +20,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -90,7 +91,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
     }
 
     public static IStorageScanner getStorageScanner(World worldObj, RegistryKey<World> dim, BlockPos coordinate) {
-        World world = WorldTools.getWorld(worldObj, dim);
+        World world = WorldTools.getLevel(worldObj, dim);
         if (world == null) {
             return null;
         }
@@ -160,7 +161,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         coordinate = BlockPosTools.INVALID;
         starred = tagCompound.getBoolean("starred");
         if (tagCompound.contains("monitorx")) {
-            this.dim = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tagCompound.getString("monitordim")));
+            this.dim = WorldTools.getId(tagCompound.getString("monitordim"));
             BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
             int dx = Math.abs(c.getX() - pos.getX());
             int dy = Math.abs(c.getY() - pos.getY());

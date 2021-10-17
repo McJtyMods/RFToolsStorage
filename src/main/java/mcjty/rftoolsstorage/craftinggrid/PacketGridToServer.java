@@ -48,7 +48,7 @@ public class PacketGridToServer extends PacketGridSync {
         ctx.enqueueWork(() -> {
             PlayerEntity player = ctx.getSender();
             World world = player.getCommandSenderWorld();
-            CraftingGridProvider provider = handleMessage(WorldTools.getWorld(world, type), player);
+            CraftingGridProvider provider = handleMessage(WorldTools.getLevel(world, type), player);
             if (provider != null) {
                 CraftingGridInventory inventory = provider.getCraftingGrid().getCraftingGridInventory();
                 for (int i = 0 ; i < 10 ; i++) {
