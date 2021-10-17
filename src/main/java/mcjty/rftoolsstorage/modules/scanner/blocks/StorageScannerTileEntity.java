@@ -508,7 +508,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     private static Predicate<ItemStack> makeSearchPredicate(String split) {
         if (split.startsWith("@")) {
-            return s -> BlockTools.getModid(s).toLowerCase().startsWith(split.substring(1));
+            return s -> Tools.getModid(s).toLowerCase().startsWith(split.substring(1));
         } else {
             return s -> s.getHoverName().getString() /* was getFormattedText() */.toLowerCase().contains(split);
         }

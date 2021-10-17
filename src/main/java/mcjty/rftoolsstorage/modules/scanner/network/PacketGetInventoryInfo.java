@@ -1,8 +1,8 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
 
-import mcjty.lib.varia.BlockTools;
 import mcjty.lib.varia.LevelTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
@@ -109,7 +109,7 @@ public class PacketGetInventoryInfo {
             displayName = "[REMOVED]";
             block = null;
         } else {
-            displayName = BlockTools.getReadableName(world, pos);
+            displayName = Tools.getReadableName(world, pos);
             TileEntity storageTe = world.getBlockEntity(pos);
             if (storageTe instanceof ModularStorageTileEntity) {
                 ModularStorageTileEntity storageTileEntity = (ModularStorageTileEntity) storageTe;

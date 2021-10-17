@@ -2,9 +2,9 @@ package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.crafting.INBTPreservingIngredient;
-import mcjty.lib.varia.BlockTools;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
@@ -96,7 +96,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
             Block block = state.getBlock();
             String name = "<invalid>";
             if (block != null && !block.isAir(state, world, pos)) {
-                name = BlockTools.getReadableName(world, pos);
+                name = Tools.getReadableName(world, pos);
             }
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
             if (world.isClientSide) {

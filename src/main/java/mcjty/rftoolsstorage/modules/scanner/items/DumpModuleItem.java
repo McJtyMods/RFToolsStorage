@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
-import mcjty.lib.varia.BlockTools;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
@@ -85,7 +85,7 @@ public class DumpModuleItem extends GenericModuleItem {
             Block block = state.getBlock();
             String name = "<invalid>";
             if (block != null && !block.isAir(state, world, pos)) {
-                name = BlockTools.getReadableName(world, pos);
+                name = Tools.getReadableName(world, pos);
             }
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
             if (world.isClientSide) {
