@@ -212,12 +212,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         // @todo 1.14
     }
 
-
-
-    @Override
-    public void writeClientDataToNBT(CompoundNBT tagCompound) {
-    }
-
     /**
      * Called from the container (detectAndSendChanges) and executed on the client.
      */
