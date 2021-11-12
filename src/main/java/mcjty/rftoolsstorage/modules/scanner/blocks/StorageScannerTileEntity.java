@@ -151,8 +151,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
-            .dataListener(Tools.values(new ResourceLocation(RFToolsStorage.MODID, "data"), this))
-            .shortListener(Tools.bool(this::isOpenWideView, this::setOpenWideView))
+            .dataListener(Sync.values(new ResourceLocation(RFToolsStorage.MODID, "data"), this))
+            .shortListener(Sync.bool(this::isOpenWideView, this::setOpenWideView))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items));
     private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
@@ -1213,19 +1213,21 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         super.readInfo(tagCompound);
         if (tagCompound.contains("Info")) {
             CompoundNBT infoTag = tagCompound.getCompound("Info");
-            radius = infoTag.getInt("radius");
-            exportToCurrent = infoTag.getBoolean("exportC");
+            if (infoTag.contains("radius")) {
+                radius = infoTag.getInt("radius");
+            }
+            if (infoTag.contains("exportC")) {
+                exportToCurrent = infoTag.getBoolean("exportC");
+            }
             if (infoTag.contains("wideview")) {
                 openWideView = infoTag.getBoolean("wideview");
-            } else {
-                openWideView = true;
             }
-            craftingGrid.readFromNBT(infoTag.getCompound("grid"));
+            if (infoTag.contains("grid")) {
+                craftingGrid.readFromNBT(infoTag.getCompound("grid"));
+            }
             if (infoTag.contains("sortMode")) {
                 int m = infoTag.getInt("sortMode");
                 sortingMode = SortingMode.values()[m];
-            } else {
-                sortingMode = SortingMode.NAME;
             }
         } else {
             openWideView = true;
