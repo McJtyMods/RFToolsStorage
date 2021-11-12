@@ -83,7 +83,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
             } else if (slot == SLOT_FILTER_MODULE) {
                 filterCache.clear();
             }
-            markDirtyClient();
+            setChanged();
         }
 
         @Nonnull
@@ -297,7 +297,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
             setSortMode(params.get(PARAM_SORTMODE));
             setGroupMode(params.get(PARAM_GROUPMODE));
             setLocked(params.get(PARAM_LOCKED));
-            markDirtyClient();
+            setChanged();
             return true;
         }
         return false;
@@ -313,7 +313,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     public void setLocked(boolean locked) {
         this.locked = locked;
-        markDirtyClient();
+        setChanged();
     }
 
     public boolean isLocked() {
@@ -329,7 +329,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 //            }
 //            remoteId = storageTileEntity.cycle(remoteId);
 //            getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE).getTagCompound().setInteger("id", remoteId);
-//            markDirtyClient();
+//            setChanged();
 //        }
     }
 
@@ -346,7 +346,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 //        }
 //
 //        updateStackCount();
-//        markDirtyClient();
+//        setChanged();
     }
 
     @Nonnull

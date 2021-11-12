@@ -45,6 +45,7 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
@@ -150,6 +151,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
+            .dataListener(Tools.values(new ResourceLocation(RFToolsStorage.MODID, "data"), this))
+            .shortListener(Tools.bool(this::isOpenWideView, this::setOpenWideView))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items));
     private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
@@ -523,7 +526,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         if (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) {
             radius = 0;
         }
-        markDirtyClient();
+        setChanged();
     }
 
     public boolean isOpenWideView() {
@@ -532,7 +535,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public void setOpenWideView(boolean openWideView) {
         this.openWideView = openWideView;
-        markDirtyClient();
+        setChanged();
     }
 
     public boolean isExportToCurrent() {
@@ -541,12 +544,12 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public void setExportToCurrent(boolean exportToCurrent) {
         this.exportToCurrent = exportToCurrent;
-        markDirtyClient();
+        setChanged();
     }
 
     private void toggleExportRoutable() {
         exportToCurrent = !exportToCurrent;
-        markDirtyClient();
+        setChanged();
     }
 
     public boolean isRoutable(BlockPos p) {
@@ -622,7 +625,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         } else {
             routable.add(p);
         }
-        markDirtyClient();
+        setChanged();
     }
 
     public void register(Map<BlockPos, InventoryAccessSettings> access) {
