@@ -11,6 +11,7 @@ import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IAction;
 import mcjty.lib.bindings.IValue;
 import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.sync.GuiSync;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -139,6 +140,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private BlockPos lastSelectedInventory = null;
 
     // Indicates if for this storage scanner the inventories should be shown wide
+    @GuiSync
     private boolean openWideView = true;
 
     private final LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
@@ -152,9 +154,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
             .dataListener(Sync.values(new ResourceLocation(RFToolsStorage.MODID, "data"), this))
-            .shortListener(Sync.bool(this::isOpenWideView, this::setOpenWideView))
             .energyHandler(() -> energyStorage)
-            .itemHandler(() -> items));
+            .itemHandler(() -> items)
+            .setupSync(this));
     private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
