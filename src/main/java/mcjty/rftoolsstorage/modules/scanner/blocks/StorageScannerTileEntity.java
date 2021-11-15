@@ -1,9 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.blocks;
 
 import com.google.common.base.Function;
-import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.api.infusable.CapabilityInfusable;
 import mcjty.lib.api.infusable.DefaultInfusable;
 import mcjty.lib.api.infusable.IInfusable;
 import mcjty.lib.bindings.DefaultAction;
@@ -12,6 +10,8 @@ import mcjty.lib.bindings.IAction;
 import mcjty.lib.bindings.IValue;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.sync.GuiSync;
+import mcjty.lib.tileentity.Cap;
+import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
@@ -55,7 +55,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -146,17 +145,21 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private final LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
 
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
+    @Cap(type = CapType.ENERGY)
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
 
     private final NoDirectionItemHander items = createItemHandler();
+    @Cap(type = CapType.ITEMS)
     private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
 
+    @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
             .dataListener(Sync.values(new ResourceLocation(RFToolsStorage.MODID, "data"), this))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items)
             .setupSync(this));
+    @Cap(type = CapType.INFUSABLE)
     private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
@@ -1413,18 +1416,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return itemHandler.cast();
-        }
-        if (cap == CapabilityEnergy.ENERGY) {
-            return energyHandler.cast();
-        }
-        if (cap == CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY) {
-            return screenHandler.cast();
-        }
-        if (cap == CapabilityInfusable.INFUSABLE_CAPABILITY) {
-            return infusableHandler.cast();
-        }
         if (cap == CapabilityInformationScreenInfo.INFORMATION_SCREEN_INFO_CAPABILITY) {
             return infoScreenInfo.cast();
         }
