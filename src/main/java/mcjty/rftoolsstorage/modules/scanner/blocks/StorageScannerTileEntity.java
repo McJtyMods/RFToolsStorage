@@ -144,9 +144,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     private final LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
 
-    private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
     @Cap(type = CapType.ENERGY)
-    private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
+    private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
 
     private final NoDirectionItemHander items = createItemHandler();
     @Cap(type = CapType.ITEMS)
@@ -159,6 +158,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items)
             .setupSync(this));
+
     @Cap(type = CapType.INFUSABLE)
     private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
 
