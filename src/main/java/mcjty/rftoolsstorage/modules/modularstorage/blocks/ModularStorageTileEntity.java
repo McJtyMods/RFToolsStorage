@@ -3,12 +3,13 @@ package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.DefaultAction;
 import mcjty.lib.bindings.IAction;
+import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
-import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.Cached;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
@@ -41,13 +42,6 @@ import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageC
 
 public class ModularStorageTileEntity extends GenericTileEntity implements IInventoryTracker,
         CraftingGridProvider, JEIRecipeAcceptor, IModularStorage {
-
-    public static final String CMD_SETTINGS = "storage.settings";
-    public static final Key<String> PARAM_FILTER = new Key<>("filter", Type.STRING);
-    public static final Key<String> PARAM_VIEWMODE = new Key<>("viewmode", Type.STRING);
-    public static final Key<String> PARAM_SORTMODE = new Key<>("sortmode", Type.STRING);
-    public static final Key<Boolean> PARAM_GROUPMODE = new Key<>("groupmode", Type.BOOLEAN);
-    public static final Key<Boolean> PARAM_LOCKED = new Key<>("locked", Type.BOOLEAN);
 
     public static final String ACTION_COMPACT = "compact";
     public static final String ACTION_CYCLE = "cycle";
@@ -285,23 +279,22 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         infoTag.putBoolean("locked", locked);
     }
 
-    @Override
-    public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
-        boolean rc = super.execute(playerMP, command, params);
-        if (rc) {
-            return true;
-        }
-        if (CMD_SETTINGS.equals(command)) {
-            setFilter(params.get(PARAM_FILTER));
-            setViewMode(params.get(PARAM_VIEWMODE));
-            setSortMode(params.get(PARAM_SORTMODE));
-            setGroupMode(params.get(PARAM_GROUPMODE));
-            setLocked(params.get(PARAM_LOCKED));
-            setChanged();
-            return true;
-        }
-        return false;
-    }
+    public static final Key<String> PARAM_FILTER = new Key<>("filter", Type.STRING);
+    public static final Key<String> PARAM_VIEWMODE = new Key<>("viewmode", Type.STRING);
+    public static final Key<String> PARAM_SORTMODE = new Key<>("sortmode", Type.STRING);
+    public static final Key<Boolean> PARAM_GROUPMODE = new Key<>("groupmode", Type.BOOLEAN);
+    public static final Key<Boolean> PARAM_LOCKED = new Key<>("locked", Type.BOOLEAN);
+    @ServerCommand
+    public static final Command<?> CMD_SETTINGS = Command.<ModularStorageTileEntity>create("storage.settings")
+            .buildCommand((te, player, params) -> {
+                te.setFilter(params.get(PARAM_FILTER));
+                te.setViewMode(params.get(PARAM_VIEWMODE));
+                te.setSortMode(params.get(PARAM_SORTMODE));
+                te.setGroupMode(params.get(PARAM_GROUPMODE));
+                te.setLocked(params.get(PARAM_LOCKED));
+                te.setChanged();
+            });
+
 
     private void clearGrid() {
         CraftingGridInventory inventory = craftingGrid.getCraftingGridInventory();
