@@ -8,6 +8,8 @@ import mcjty.lib.bindings.DefaultAction;
 import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IAction;
 import mcjty.lib.bindings.IValue;
+import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.sync.GuiSync;
 import mcjty.lib.tileentity.Cap;
@@ -76,14 +78,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public static final String CMD_SCANNER_INFO = "getScannerInfo";
     public static final Key<Long> PARAM_ENERGY = new Key<>("energy", Type.LONG);
     public static final Key<Boolean> PARAM_EXPORT = new Key<>("export", Type.BOOLEAN);
-
-    public static final String CMD_UP = "scanner.up";
-    public static final String CMD_TOP = "scanner.top";
-    public static final String CMD_DOWN = "scanner.down";
-    public static final String CMD_BOTTOM = "scanner.bottom";
-    public static final String CMD_REMOVE = "scanner.remove";
-    public static final String CMD_TOGGLEROUTABLE = "scanner.toggleRoutable";
-    public static final String CMD_SETVIEW = "scanner.setView";
 
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
@@ -1284,37 +1278,28 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         setChanged();
     }
 
-    @Override
-    public boolean execute(PlayerEntity playerMP, String command, TypedMap params) {
-        boolean rc = super.execute(playerMP, command, params);
-        if (rc) {
-            return true;
-        }
-        if (CMD_UP.equals(command)) {
-            moveUp(params.get(PARAM_INDEX));
-            return true;
-        } else if (CMD_TOP.equals(command)) {
-            moveTop(params.get(PARAM_INDEX));
-            return true;
-        } else if (CMD_DOWN.equals(command)) {
-            moveDown(params.get(PARAM_INDEX));
-            return true;
-        } else if (CMD_BOTTOM.equals(command)) {
-            moveBottom(params.get(PARAM_INDEX));
-            return true;
-        } else if (CMD_REMOVE.equals(command)) {
-            removeInventory(params.get(PARAM_INDEX));
-            return true;
-        } else if (CMD_TOGGLEROUTABLE.equals(command)) {
-            toggleRoutable(params.get(PARAM_POS));
-            return true;
-        } else if (CMD_SETVIEW.equals(command)) {
-            setOpenWideView(params.get(PARAM_VIEW));
-            return true;
-        }
-        return false;
-    }
-
+    @ServerCommand
+    public static final Command<?> CMD_UP = Command.<StorageScannerTileEntity>create("scanner.up",
+        (te, player, params) -> te.moveUp(params.get(PARAM_INDEX)));
+    @ServerCommand
+    public static final Command<?> CMD_TOP = Command.<StorageScannerTileEntity>create("scanner.top",
+        (te, player, params) -> te.moveTop(params.get(PARAM_INDEX)));
+    @ServerCommand
+    public static final Command<?> CMD_DOWN = Command.<StorageScannerTileEntity>create("scanner.down",
+        (te, player, params) -> te.moveDown(params.get(PARAM_INDEX)));
+    @ServerCommand
+    public static final Command<?> CMD_BOTTOM = Command.<StorageScannerTileEntity>create("scanner.bottom",
+        (te, player, params) -> te.moveBottom(params.get(PARAM_INDEX)));
+    @ServerCommand
+    public static final Command<?> CMD_REMOVE = Command.<StorageScannerTileEntity>create("scanner.remove",
+        (te, player, params) -> te.removeInventory(params.get(PARAM_INDEX)));
+    @ServerCommand
+    public static final Command<?> CMD_TOGGLEROUTABLE = Command.<StorageScannerTileEntity>create("scanner.toggleRoutable",
+        (te, player, params) -> te.toggleRoutable(params.get(PARAM_POS)));
+    @ServerCommand
+    public static final Command<?> CMD_SETVIEW = Command.<StorageScannerTileEntity>create("scanner.setView",
+        (te, player, params) -> te.setOpenWideView(params.get(PARAM_VIEW)));
+    
     @Nullable
     @Override
     public TypedMap executeWithResult(String command, TypedMap args) {

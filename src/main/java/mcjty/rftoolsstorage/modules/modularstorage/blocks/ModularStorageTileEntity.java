@@ -285,8 +285,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     public static final Key<Boolean> PARAM_GROUPMODE = new Key<>("groupmode", Type.BOOLEAN);
     public static final Key<Boolean> PARAM_LOCKED = new Key<>("locked", Type.BOOLEAN);
     @ServerCommand
-    public static final Command<?> CMD_SETTINGS = Command.<ModularStorageTileEntity>create("storage.settings")
-            .buildCommand((te, player, params) -> {
+    public static final Command<?> CMD_SETTINGS = Command.<ModularStorageTileEntity>create("storage.settings",
+            (te, player, params) -> {
                 te.setFilter(params.get(PARAM_FILTER));
                 te.setViewMode(params.get(PARAM_VIEWMODE));
                 te.setSortMode(params.get(PARAM_SORTMODE));
