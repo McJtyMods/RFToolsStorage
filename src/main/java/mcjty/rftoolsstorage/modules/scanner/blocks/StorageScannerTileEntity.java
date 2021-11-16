@@ -143,7 +143,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
-            .containerSupplier((windowId,player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
+            .containerSupplier((windowId, player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
             .dataListener(Sync.values(new ResourceLocation(RFToolsStorage.MODID, "data"), this))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items)
@@ -981,9 +981,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
      * Called from the crafting manager. There are three possible results:
      * - Returns null: the ingredients are not available and there are no crafters able to make them
      * - Returns empty list: the ingredients are not available but there are crafters that are able to make
-     *   them and requestCraft consumers will be fired for all missing items
+     * them and requestCraft consumers will be fired for all missing items
      * - Returns a list of itemstacks as extracted from the storage scanner. The craft can go on
-     *
+     * <p>
      * If the extract is true the requested items are actually extracted in case they are available. Otherwise
      * nothing happens (and an empty list will be returned or null)
      */
@@ -1031,7 +1031,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             return Collections.emptyList();
         }
     }
-
 
 
     // Meant to be used from the gui
@@ -1276,48 +1275,38 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     @ServerCommand
     public static final Command<?> CMD_UP = Command.<StorageScannerTileEntity>create("scanner.up",
-        (te, player, params) -> te.moveUp(params.get(PARAM_INDEX)));
+            (te, player, params) -> te.moveUp(params.get(PARAM_INDEX)));
     @ServerCommand
     public static final Command<?> CMD_TOP = Command.<StorageScannerTileEntity>create("scanner.top",
-        (te, player, params) -> te.moveTop(params.get(PARAM_INDEX)));
+            (te, player, params) -> te.moveTop(params.get(PARAM_INDEX)));
     @ServerCommand
     public static final Command<?> CMD_DOWN = Command.<StorageScannerTileEntity>create("scanner.down",
-        (te, player, params) -> te.moveDown(params.get(PARAM_INDEX)));
+            (te, player, params) -> te.moveDown(params.get(PARAM_INDEX)));
     @ServerCommand
     public static final Command<?> CMD_BOTTOM = Command.<StorageScannerTileEntity>create("scanner.bottom",
-        (te, player, params) -> te.moveBottom(params.get(PARAM_INDEX)));
+            (te, player, params) -> te.moveBottom(params.get(PARAM_INDEX)));
     @ServerCommand
     public static final Command<?> CMD_REMOVE = Command.<StorageScannerTileEntity>create("scanner.remove",
-        (te, player, params) -> te.removeInventory(params.get(PARAM_INDEX)));
+            (te, player, params) -> te.removeInventory(params.get(PARAM_INDEX)));
     @ServerCommand
     public static final Command<?> CMD_TOGGLEROUTABLE = Command.<StorageScannerTileEntity>create("scanner.toggleRoutable",
-        (te, player, params) -> te.toggleRoutable(params.get(PARAM_POS)));
+            (te, player, params) -> te.toggleRoutable(params.get(PARAM_POS)));
     @ServerCommand
     public static final Command<?> CMD_SETVIEW = Command.<StorageScannerTileEntity>create("scanner.setView",
-        (te, player, params) -> te.setOpenWideView(params.get(PARAM_VIEW)));
+            (te, player, params) -> te.setOpenWideView(params.get(PARAM_VIEW)));
 
     public static final Key<Long> PARAM_ENERGY = new Key<>("energy", Type.LONG);
     public static final Key<Boolean> PARAM_EXPORT = new Key<>("export", Type.BOOLEAN);
     @ServerCommand
     public static final Command<?> CMD_SCANNER_INFO = Command.<StorageScannerTileEntity>createWR("getScannerInfo",
-        (te, player, params) -> TypedMap.builder()
-                .put(PARAM_ENERGY, te.getStoredPower())
-                .put(PARAM_EXPORT, te.isExportToCurrent())
-                .build());
-
-    @Override
-    public boolean receiveDataFromServer(String command, @Nonnull TypedMap result) {
-        boolean rc = super.receiveDataFromServer(command, result);
-        if (rc) {
-            return rc;
-        }
-        if (CMD_SCANNER_INFO.equals(command)) {
-            rfReceived = result.get(PARAM_ENERGY);
-            exportToCurrentReceived = result.get(PARAM_EXPORT);
-            return true;
-        }
-        return false;
-    }
+            (te, player, params) -> TypedMap.builder()
+                    .put(PARAM_ENERGY, te.getStoredPower())
+                    .put(PARAM_EXPORT, te.isExportToCurrent())
+                    .build(),
+            (te, player, params) -> {
+                rfReceived = params.get(PARAM_ENERGY);
+                exportToCurrentReceived = params.get(PARAM_EXPORT);
+            });
 
     /**
      * Return true if this is a dummy TE. i.e. this happens only when accessing a
