@@ -75,10 +75,6 @@ import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContaine
 public class StorageScannerTileEntity extends GenericTileEntity implements ITickableTileEntity,
         CraftingGridProvider, JEIRecipeAcceptor, IStorageScanner {
 
-    public static final String CMD_SCANNER_INFO = "getScannerInfo";
-    public static final Key<Long> PARAM_ENERGY = new Key<>("energy", Type.LONG);
-    public static final Key<Boolean> PARAM_EXPORT = new Key<>("export", Type.BOOLEAN);
-
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
     public static final Key<Boolean> PARAM_VIEW = new Key<>("view", Type.BOOLEAN);
@@ -1299,22 +1295,15 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @ServerCommand
     public static final Command<?> CMD_SETVIEW = Command.<StorageScannerTileEntity>create("scanner.setView",
         (te, player, params) -> te.setOpenWideView(params.get(PARAM_VIEW)));
-    
-    @Nullable
-    @Override
-    public TypedMap executeWithResult(String command, TypedMap args) {
-        TypedMap result = super.executeWithResult(command, args);
-        if (result != null) {
-            return result;
-        }
-        if (CMD_SCANNER_INFO.equals(command)) {
-            return TypedMap.builder()
-                    .put(PARAM_ENERGY, getStoredPower())
-                    .put(PARAM_EXPORT, isExportToCurrent())
-                    .build();
-        }
-        return null;
-    }
+
+    public static final Key<Long> PARAM_ENERGY = new Key<>("energy", Type.LONG);
+    public static final Key<Boolean> PARAM_EXPORT = new Key<>("export", Type.BOOLEAN);
+    @ServerCommand
+    public static final Command<?> CMD_SCANNER_INFO = Command.<StorageScannerTileEntity>createWR("getScannerInfo",
+        (te, player, params) -> TypedMap.builder()
+                .put(PARAM_ENERGY, te.getStoredPower())
+                .put(PARAM_EXPORT, te.isExportToCurrent())
+                .build());
 
     @Override
     public boolean receiveDataFromServer(String command, @Nonnull TypedMap result) {
