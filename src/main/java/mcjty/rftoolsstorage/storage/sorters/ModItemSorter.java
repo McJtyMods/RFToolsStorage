@@ -78,15 +78,9 @@ public class ModItemSorter implements ItemSorter {
         Item item = stack.getItem();
         if (item instanceof BlockItem) {
             Block block = ((BlockItem) item).getBlock();
-            if (block != null) {
-                return getModidForBlock(block);
-            }
-            return "Unknown";
+            return getModidForBlock(block);
         } else {
-            if (item != null) {
-                return getModidForItem(item);
-            }
-            return "Unknown";
+            return getModidForItem(item);
         }
     }
 

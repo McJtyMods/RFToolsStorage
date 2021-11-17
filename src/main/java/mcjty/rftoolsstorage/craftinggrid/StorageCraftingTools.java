@@ -34,7 +34,7 @@ public class StorageCraftingTools {
     private static int[] tryRecipe(PlayerEntity player, CraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
         CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
             @Override
-            public boolean stillValid(PlayerEntity var1) {
+            public boolean stillValid(@Nonnull PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);
@@ -99,7 +99,7 @@ public class StorageCraftingTools {
                                                                IItemSource itemSource) {
         CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
             @Override
-            public boolean stillValid(PlayerEntity var1) {
+            public boolean stillValid(@Nonnull PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);

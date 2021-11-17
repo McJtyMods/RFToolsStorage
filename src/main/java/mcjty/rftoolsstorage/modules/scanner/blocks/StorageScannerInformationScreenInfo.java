@@ -72,12 +72,10 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     @Override
     public TypedMap getInfo(int mode) {
         if (mode == MODE_POWER || mode == MODE_POWER_GRAPHICAL) {
-            return scanner.getCapability(CapabilityEnergy.ENERGY).map(h -> {
-                return TypedMap.builder()
-                        .put(ENERGY, (long) h.getEnergyStored())
-                        .put(MAXENERGY, (long) h.getMaxEnergyStored())
-                        .build();
-            }).orElse(TypedMap.EMPTY);
+            return scanner.getCapability(CapabilityEnergy.ENERGY).map(h -> TypedMap.builder()
+                    .put(ENERGY, (long) h.getEnergyStored())
+                    .put(MAXENERGY, (long) h.getMaxEnergyStored())
+                    .build()).orElse(TypedMap.EMPTY);
         } else {
             TypedMap.Builder builder = TypedMap.builder();
             int idx = 0;

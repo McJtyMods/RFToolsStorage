@@ -4,7 +4,6 @@ import mcjty.lib.McJtyLib;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 

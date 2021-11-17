@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
@@ -30,13 +31,14 @@ public class RFToolsStorageJeiPlugin implements IModPlugin {
         RFToolsStorageMessages.INSTANCE.sendToServer(new PacketSendRecipe(items, pos));
     }
 
+    @Nonnull
     @Override
     public ResourceLocation getPluginUid() {
         return new ResourceLocation(RFToolsStorage.MODID, "rftoolsstorage");
     }
 
     @Override
-    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+    public void registerRecipeTransferHandlers(@Nonnull IRecipeTransferRegistration registration) {
         StorageRecipeTransferHandler.register(registration);
         StorageScannerRecipeTransferHandler.register(registration);
         RemoteStorageScannerRecipeTransferHandler.register(registration);

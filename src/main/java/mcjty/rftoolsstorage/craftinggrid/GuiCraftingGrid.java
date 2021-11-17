@@ -16,6 +16,7 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -29,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
@@ -184,7 +186,7 @@ public class GuiCraftingGrid {
                         GlStateManager._colorMask(true, true, true, false);
                         int xPos = slot.x;
                         int yPos = slot.y;
-                        Screen.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
+                        AbstractGui.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                     }
                 }
             }
@@ -197,7 +199,7 @@ public class GuiCraftingGrid {
                             GlStateManager._colorMask(true, true, true, false);
                             int xPos = slot.x;
                             int yPos = slot.y;
-                            Screen.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
+                            AbstractGui.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                         }
                     }
                 }
@@ -209,7 +211,7 @@ public class GuiCraftingGrid {
     private void testRecipe() {
         CraftingInventory inv = new CraftingInventory(new Container(null, -1) {
             @Override
-            public boolean stillValid(PlayerEntity var1) {
+            public boolean stillValid(@Nonnull PlayerEntity var1) {
                 return false;
             }
         }, 3, 3);

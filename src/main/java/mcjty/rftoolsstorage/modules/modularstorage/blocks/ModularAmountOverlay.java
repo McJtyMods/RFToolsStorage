@@ -2,6 +2,8 @@ package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import net.minecraft.util.IStringSerializable;
 
+import javax.annotation.Nonnull;
+
 public enum ModularAmountOverlay implements IStringSerializable {
     AMOUNT_NONE("none"),
     AMOUNT_EMPTY("empty"),
@@ -28,6 +30,7 @@ public enum ModularAmountOverlay implements IStringSerializable {
         this.name = name;
     }
 
+    @Nonnull
     @Override
     public String getSerializedName() {
         return name;

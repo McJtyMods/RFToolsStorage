@@ -23,8 +23,8 @@ import java.util.Objects;
 
 public class DumpScreenModule implements IScreenModule<IModuleData> {
 
-    public static int COLS = 7;
-    public static int ROWS = 4;
+    public static final int COLS = 7;
+    public static final int ROWS = 4;
 
     private ItemStackList stacks = ItemStackList.create(COLS * ROWS);
     protected RegistryKey<World> dim = World.OVERWORLD;

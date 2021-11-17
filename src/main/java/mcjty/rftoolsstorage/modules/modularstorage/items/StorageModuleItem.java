@@ -17,6 +17,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Lazy;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -147,12 +148,10 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     @Override
-    public void onCraftedBy(ItemStack stack, World worldIn, PlayerEntity player) {
-        if (player != null) {
-            CompoundNBT tag = stack.getOrCreateTag();
-            if (!tag.contains("createdBy")) {
-                tag.putString("createdBy", player.getName().getString());   // @todo 1.16 getFormattedText
-            }
+    public void onCraftedBy(@Nonnull ItemStack stack, @Nonnull World worldIn, @Nonnull PlayerEntity player) {
+        CompoundNBT tag = stack.getOrCreateTag();
+        if (!tag.contains("createdBy")) {
+            tag.putString("createdBy", player.getName().getString());   // @todo 1.16 getFormattedText
         }
     }
 
@@ -198,8 +197,9 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
         return Arrays.asList("uuid");
     }
 
+    @Nonnull
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, @Nonnull Hand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
             Logging.message(player, TextFormatting.YELLOW + "Place this module in a storage module tablet to access contents");
@@ -209,7 +209,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable World worldIn, List<ITextComponent> list, ITooltipFlag flags) {
+    public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable World worldIn, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag flags) {
         super.appendHoverText(itemStack, worldIn, list, flags);
         tooltipBuilder.get().makeTooltip(new ResourceLocation(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
     }

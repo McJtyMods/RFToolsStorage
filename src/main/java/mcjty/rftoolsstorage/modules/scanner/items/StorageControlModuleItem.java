@@ -35,6 +35,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
 
 public class StorageControlModuleItem extends GenericModuleItem implements INBTPreservingIngredient, ITabletSupport {
 
@@ -48,14 +49,15 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
         BlockPos pos = ModuleTools.getPositionFromModule(containingItem);
         RegistryKey<World> dimensionType = ModuleTools.getDimensionFromModule(containingItem);
         GuiTools.openRemoteGui(player, dimensionType, pos, te -> new INamedContainerProvider() {
+            @Nonnull
             @Override
             public ITextComponent getDisplayName() {
                 return new StringTextComponent("Remote Storage Scanner");
             }
 
-            @Nullable
+            @Nonnull
             @Override
-            public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
+            public Container createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) {
                 StorageScannerContainer container = StorageScannerContainer.createRemote(id, pos, (StorageScannerTileEntity) te);
                 te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
                     container.setupInventories(h, inventory);
@@ -84,6 +86,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
         super(new Properties().stacksTo(1).defaultDurability(1).tab(RFToolsStorage.setup.getTab()));
     }
 
+    @Nonnull
     @Override
     public ActionResultType useOn(ItemUseContext context) {
         ItemStack stack = context.getItemInHand();
@@ -139,6 +142,6 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
     // @todo 1.14 implement!
     @Override
     public Collection<String> getTagsToPreserve() {
-        return null;
+        return Collections.emptyList();
     }
 }

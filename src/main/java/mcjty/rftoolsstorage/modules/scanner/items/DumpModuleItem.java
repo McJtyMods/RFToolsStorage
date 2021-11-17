@@ -17,6 +17,8 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+
 public class DumpModuleItem extends GenericModuleItem {
 
     public DumpModuleItem() {
@@ -74,6 +76,7 @@ public class DumpModuleItem extends GenericModuleItem {
                 .toggle("matchingTag", "Matching Tag", "If enabled use common tags", "to match items");
     }
 
+    @Nonnull
     @Override
     public ActionResultType useOn(ItemUseContext context) {
         ItemStack stack = context.getItemInHand();
@@ -84,7 +87,7 @@ public class DumpModuleItem extends GenericModuleItem {
             BlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
             String name = "<invalid>";
-            if (block != null && !block.isAir(state, world, pos)) {
+            if (!block.isAir(state, world, pos)) {
                 name = Tools.getReadableName(world, pos);
             }
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);

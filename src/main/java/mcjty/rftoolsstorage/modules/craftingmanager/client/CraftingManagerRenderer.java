@@ -17,6 +17,8 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
 
+import javax.annotation.Nonnull;
+
 public class CraftingManagerRenderer extends TileEntityRenderer<CraftingManagerTileEntity> {
 
     public CraftingManagerRenderer(TileEntityRendererDispatcher dispatcher) {
@@ -24,7 +26,7 @@ public class CraftingManagerRenderer extends TileEntityRenderer<CraftingManagerT
     }
 
     @Override
-    public void render(CraftingManagerTileEntity te, float v, MatrixStack matrixStack, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
+    public void render(CraftingManagerTileEntity te, float v, @Nonnull MatrixStack matrixStack, @Nonnull IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
 
         te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
             matrixStack.pushPose();

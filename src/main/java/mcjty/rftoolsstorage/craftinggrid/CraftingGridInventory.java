@@ -11,8 +11,8 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     public static final int SLOT_GHOSTOUTPUT = 0;
     public static final int SLOT_GHOSTINPUT = 1;
 
-    public static int GRID_WIDTH = 66;
-    public static int GRID_HEIGHT = 208;
+    public static final int GRID_WIDTH = 66;
+    public static final int GRID_HEIGHT = 208;
     public static final int GRID_XOFFSET = -GRID_WIDTH - 2 + 7;
     public static final int GRID_YOFFSET = 127;
 
@@ -65,6 +65,7 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     }
 
     @Override
+    @Nonnull
     public ItemStack getStackInSlot(int index) {
         return stacks.get(index);
     }

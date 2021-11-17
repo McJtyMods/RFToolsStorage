@@ -22,6 +22,7 @@ public class StorageScannerRecipeTransferHandler implements IRecipeTransferHandl
         transferRegistry.addRecipeTransferHandler(new StorageScannerRecipeTransferHandler(), VanillaRecipeCategoryUid.CRAFTING);
     }
 
+    @Nonnull
     @Override
     public Class<StorageScannerContainer> getContainerClass() {
         return StorageScannerContainer.class;

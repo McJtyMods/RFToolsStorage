@@ -394,7 +394,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     @Nonnull
     private static ResourceLocation findLargestTag(ItemStack stack) {
         Set<ResourceLocation> tags = stack.getItem().getTags();
-        if (tags == null || tags.isEmpty()) {
+        if (tags.isEmpty()) {
             return stack.getItem().getRegistryName();
         }
         if (tags.size() == 1) {
@@ -592,7 +592,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int i, int i2) {
         if (!init) {
             return;
         }
@@ -647,7 +647,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int i1, int i2) {
+    protected void renderLabels(@Nonnull MatrixStack matrixStack, int i1, int i2) {
         if (!init) {
             return;
         }

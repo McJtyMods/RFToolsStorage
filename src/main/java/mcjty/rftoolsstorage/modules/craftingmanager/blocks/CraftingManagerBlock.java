@@ -18,6 +18,8 @@ import static mcjty.lib.builder.TooltipBuilder.*;
 
 import net.minecraft.block.AbstractBlock.Properties;
 
+import javax.annotation.Nonnull;
+
 public class CraftingManagerBlock extends BaseBlock {
 
     private static final VoxelShape SHAPE = VoxelShapes.box(.1, .1, .4, 1, 1, 1);
@@ -37,7 +39,8 @@ public class CraftingManagerBlock extends BaseBlock {
     }
 
     @Override
-    public VoxelShape getOcclusionShape(BlockState p_196247_1_, IBlockReader p_196247_2_, BlockPos p_196247_3_) {
+    @Nonnull
+    public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull IBlockReader reader, @Nonnull BlockPos pos) {
         return SHAPE;
     }
 
@@ -47,13 +50,16 @@ public class CraftingManagerBlock extends BaseBlock {
     }
 
     // @todo temporary
+    @SuppressWarnings("deprecation")
     @Override
-    public BlockRenderType getRenderShape(BlockState state) {
+    @Nonnull
+    public BlockRenderType getRenderShape(@Nonnull BlockState state) {
         return BlockRenderType.MODEL;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public boolean skipRendering(BlockState state, BlockState adjacentBlockState, Direction side) {
+    public boolean skipRendering(@Nonnull BlockState state, @Nonnull BlockState adjacentBlockState, @Nonnull Direction side) {
         if (side == Direction.UP || side == Direction.DOWN) {
             return adjacentBlockState.getBlock() == this ? true : super.skipRendering(state, adjacentBlockState, side);
         }

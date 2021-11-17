@@ -44,6 +44,7 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -316,7 +317,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
 
     @Override
-    public boolean isHovering(Slot slotIn, double x, double y) {
+    public boolean isHovering(@Nonnull Slot slotIn, double x, double y) {
         if (slotIn instanceof BaseSlot && ((BaseSlot) slotIn).getTe() instanceof ModularStorageTileEntity){ // @todo 1.14 || slotIn.inventory instanceof ModularStorageItemInventory || slotIn.inventory instanceof RemoteStorageItemInventory) {
             Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
             if (widget instanceof BlockRender) {
@@ -597,7 +598,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int i, int i2) {
         updateList();
 
         if (tileEntity != null) {
@@ -614,7 +615,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void renderTooltip(MatrixStack matrixStack, int x, int y) {
+    protected void renderTooltip(@Nonnull MatrixStack matrixStack, int x, int y) {
         Slot slot = findSlot(x, y);
         if (slot instanceof SlotItemHandler && !(slot instanceof BaseSlot) && !(slot instanceof GhostOutputSlot) && !(slot instanceof GhostSlot)) {
             if (tileEntity.isLocked()) {
@@ -630,7 +631,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void renderLabels(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
 

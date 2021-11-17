@@ -28,10 +28,9 @@ public class CraftingManagerModule implements IModule {
     public static final RegistryObject<TileEntityType<CraftingManagerTileEntity>> TYPE_CRAFTING_MANAGER = TILES.register("crafting_manager", () -> TileEntityType.Builder.of(CraftingManagerTileEntity::new, CRAFTING_MANAGER.get()).build(null));
     public static final RegistryObject<ContainerType<CraftingManagerContainer>> CONTAINER_CRAFTING_MANAGER = CONTAINERS.register("crafting_manager", GenericContainer::createContainerType);
 
-    public static CraftingDeviceRegistry CRAFTING_DEVICE_REGISTRY;
+    public static final CraftingDeviceRegistry CRAFTING_DEVICE_REGISTRY = new CraftingDeviceRegistry();
 
     public CraftingManagerModule() {
-        CRAFTING_DEVICE_REGISTRY = new CraftingDeviceRegistry();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
     }
 

@@ -18,8 +18,8 @@ public class RFToolsStorage {
     public static final String MODID = "rftoolsstorage";
 
     @SuppressWarnings("PublicField")
-    public static ModSetup setup = new ModSetup();
-    private Modules modules = new Modules();
+    public static final ModSetup setup = new ModSetup();
+    private final Modules modules = new Modules();
 
     public static RFToolsStorage instance;
 

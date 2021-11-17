@@ -123,11 +123,11 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
 
     private void renderSlot(MatrixStack matrixStack, IRenderTypeBuffer buffer, int currenty, ItemStack stack, int x, int lightmapValue) {
         matrixStack.pushPose();
-        matrixStack.translate((float)x+8f, (float)currenty+8f, 5);
+        matrixStack.translate(x +8f, currenty +8f, 5);
         matrixStack.scale(16, 16, 16);
 
         ItemRenderer itemRender = Minecraft.getInstance().getItemRenderer();
-        IBakedModel ibakedmodel = itemRender.getModel(stack, Minecraft.getInstance().level, (LivingEntity)null);
+        IBakedModel ibakedmodel = itemRender.getModel(stack, Minecraft.getInstance().level, null);
         itemRender.render(stack, ItemCameraTransforms.TransformType.GUI, false, matrixStack, buffer, lightmapValue, OverlayTexture.NO_OVERLAY, ibakedmodel);
         matrixStack.popPose();
     }

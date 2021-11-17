@@ -16,7 +16,7 @@ public class ModSetup extends DefaultModSetup {
 
     public boolean xnet = false;
 
-    public ClientStorageHolder clientStorageHolder = new ClientStorageHolder();
+    public final ClientStorageHolder clientStorageHolder = new ClientStorageHolder();
 
     public ModSetup() {
         createTab("rftoolsstorage", () -> new ItemStack(ModularStorageModule.STORAGE_MODULE0.get()));

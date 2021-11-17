@@ -88,7 +88,7 @@ public class ModularStorageContainer extends GenericContainer {
                     }
 
                     @Override
-                    public boolean mayPlace(ItemStack stack) {
+                    public boolean mayPlace(@Nonnull ItemStack stack) {
                         if (!isLocked()) {
                             return false;
                         }
@@ -114,7 +114,7 @@ public class ModularStorageContainer extends GenericContainer {
                     }
 
                     @Override
-                    public boolean mayPlace(ItemStack stack) {
+                    public boolean mayPlace(@Nonnull ItemStack stack) {
                         if (!isLocked()) {
                             return false;
                         }
@@ -122,7 +122,7 @@ public class ModularStorageContainer extends GenericContainer {
                     }
 
                     @Override
-                    public void set(ItemStack stack) {
+                    public void set(@Nonnull ItemStack stack) {
                         if (!isLocked()) {
                             return;
                         }
@@ -134,7 +134,7 @@ public class ModularStorageContainer extends GenericContainer {
                 slot = new SlotItemHandler(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(),
                         getAdjustedY(slotFactory.getY(), onClient)) {
                     @Override
-                    public boolean mayPlace(ItemStack stack) {
+                    public boolean mayPlace(@Nonnull ItemStack stack) {
                         if (isLocked()) {
                             return false;
                         }
@@ -161,12 +161,13 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     @Override
-    public void setItem(int slotID, ItemStack stack) {
+    public void setItem(int slotID, @Nonnull ItemStack stack) {
         super.setItem(slotID, stack);
     }
 
+    @Nonnull
     @Override
-    public ItemStack clicked(int index, int button, ClickType mode, PlayerEntity player) {
+    public ItemStack clicked(int index, int button, @Nonnull ClickType mode, @Nonnull PlayerEntity player) {
         if (index == SLOT_STORAGE_MODULE && !player.getCommandSenderWorld().isClientSide) {
             // @todo 1.14
 //            modularStorageTileEntity.copyToModule();

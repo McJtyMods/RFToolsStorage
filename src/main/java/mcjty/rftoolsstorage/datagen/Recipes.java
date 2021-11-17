@@ -12,6 +12,7 @@ import net.minecraft.item.Items;
 import net.minecraft.tags.ItemTags;
 import net.minecraftforge.common.Tags;
 
+import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public class Recipes extends BaseRecipeProvider {
@@ -25,7 +26,7 @@ public class Recipes extends BaseRecipeProvider {
     }
 
     @Override
-    protected void buildShapelessRecipes(Consumer<IFinishedRecipe> consumer) {
+    protected void buildShapelessRecipes(@Nonnull Consumer<IFinishedRecipe> consumer) {
         build(consumer, ShapedRecipeBuilder.shaped(ModularStorageModule.STORAGE_MODULE0.get())
                         .define('g', Items.GOLD_NUGGET)
                         .unlockedBy("redstone", has(Items.REDSTONE)),

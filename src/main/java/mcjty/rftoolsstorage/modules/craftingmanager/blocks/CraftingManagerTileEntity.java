@@ -305,15 +305,16 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         }
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT tagCompound) {
+    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
         super.save(tagCompound);
         ListNBT deviceList = new ListNBT();
-        for (int i = 0 ; i < queues.length ; i++) {
+        for (CraftingQueue queue : queues) {
             CompoundNBT deviceNBT = new CompoundNBT();
-            if (queues[i].hasDevice()) {
-                queues[i].getDevice().write(deviceNBT);
-                deviceNBT.putString("deviceId", queues[i].getDevice().getID().toString());
+            if (queue.hasDevice()) {
+                queue.getDevice().write(deviceNBT);
+                deviceNBT.putString("deviceId", queue.getDevice().getID().toString());
             }
             deviceList.add(deviceNBT);
         }

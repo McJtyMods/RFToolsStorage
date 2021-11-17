@@ -12,12 +12,13 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 public class CraftingRecipe {
     private CraftingInventory inv = new CraftingInventory(new Container(null, -1) {
         @Override
-        public boolean stillValid(PlayerEntity playerIn) {
+        public boolean stillValid(@Nonnull PlayerEntity playerIn) {
             return false;
         }
     }, 3, 3);
@@ -57,11 +58,7 @@ public class CraftingRecipe {
             inv.setItem(i, ItemStack.of(CompoundNBT));
         }
         CompoundNBT resultCompound = tagCompound.getCompound("Result");
-        if (resultCompound != null) {
-            result = ItemStack.of(resultCompound);
-        } else {
-            result = ItemStack.EMPTY;
-        }
+        result = ItemStack.of(resultCompound);
         keepOne = tagCompound.getBoolean("Keep");
         craftMode = CraftMode.values()[tagCompound.getByte("Int")];
         recipePresent = false;

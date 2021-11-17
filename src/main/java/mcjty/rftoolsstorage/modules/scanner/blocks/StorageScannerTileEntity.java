@@ -460,12 +460,11 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         Predicate<ItemStack> matcher = getMatcher(search);
 
         Set<BlockPos> output = new HashSet<>();
-        Predicate<ItemStack> finalMatcher = matcher;
         inventories.stream()
                 .filter(this::isValid)
                 .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity))
-                .forEach(te -> InventoryTools.getItems(te, finalMatcher).forEach(s -> output.add(te.getBlockPos())));
+                .forEach(te -> InventoryTools.getItems(te, matcher).forEach(s -> output.add(te.getBlockPos())));
         return output;
     }
 
@@ -1212,8 +1211,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT tagCompound) {
+    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
         super.save(tagCompound);
         tagCompound.put("CS", craftingSystem.write());
         ListNBT list = new ListNBT();

@@ -2,6 +2,8 @@ package mcjty.rftoolsstorage.modules.modularstorage;
 
 import net.minecraft.util.IStringSerializable;
 
+import javax.annotation.Nonnull;
+
 public enum ModularTypeModule implements IStringSerializable {
     TYPE_NONE("none"),
     TYPE_GENERIC("generic"),
@@ -13,6 +15,7 @@ public enum ModularTypeModule implements IStringSerializable {
         this.name = name;
     }
 
+    @Nonnull
     @Override
     public String getSerializedName() {
         return name;

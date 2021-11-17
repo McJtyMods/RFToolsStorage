@@ -27,7 +27,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     private CraftingInventory inventory = new CraftingInventory(new Container(null, -1) {
         @Override
-        public boolean stillValid(PlayerEntity playerIn) {
+        public boolean stillValid(@Nonnull PlayerEntity playerIn) {
             return false;
         }
     }, 3, 3);

@@ -7,6 +7,7 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,8 +60,9 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
         }
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    public CompoundNBT save(@Nonnull CompoundNBT nbt) {
         ListNBT storages = new ListNBT();
         for (Map.Entry<UUID, StorageEntry> entry : storageEntryMap.entrySet()) {
             storages.add(entry.getValue().write());

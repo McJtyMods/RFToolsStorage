@@ -22,6 +22,7 @@ public class RemoteStorageScannerRecipeTransferHandler implements IRecipeTransfe
         transferRegistry.addRecipeTransferHandler(new RemoteStorageScannerRecipeTransferHandler(), VanillaRecipeCategoryUid.CRAFTING);
     }
 
+    @Nonnull
     @Override
     public Class<RemoteStorageScannerContainer> getContainerClass() {
         return RemoteStorageScannerContainer.class;

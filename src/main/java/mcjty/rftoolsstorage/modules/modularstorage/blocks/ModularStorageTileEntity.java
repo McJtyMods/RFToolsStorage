@@ -239,8 +239,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         }
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT save(CompoundNBT tagCompound) {
+    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
         super.save(tagCompound);
 
         tagCompound.putString("sortMode", sortMode);

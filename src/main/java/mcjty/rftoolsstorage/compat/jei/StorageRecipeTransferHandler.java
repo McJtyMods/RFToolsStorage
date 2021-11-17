@@ -22,6 +22,7 @@ public class StorageRecipeTransferHandler implements IRecipeTransferHandler<Modu
         transferRegistry.addRecipeTransferHandler(new StorageRecipeTransferHandler(), VanillaRecipeCategoryUid.CRAFTING);
     }
 
+    @Nonnull
     @Override
     public Class<ModularStorageContainer> getContainerClass() {
         return ModularStorageContainer.class;
