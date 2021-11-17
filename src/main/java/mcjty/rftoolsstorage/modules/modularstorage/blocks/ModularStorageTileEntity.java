@@ -1,8 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.bindings.DefaultAction;
-import mcjty.lib.bindings.IAction;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.tileentity.Cap;
@@ -42,19 +40,6 @@ import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageC
 
 public class ModularStorageTileEntity extends GenericTileEntity implements IInventoryTracker,
         CraftingGridProvider, JEIRecipeAcceptor, IModularStorage {
-
-    public static final String ACTION_COMPACT = "compact";
-    public static final String ACTION_CYCLE = "cycle";
-    public static final String ACTION_CLEARGRID = "clearGrid";
-
-    @Override
-    public IAction[] getActions() {
-        return new IAction[] {
-                new DefaultAction(ACTION_COMPACT, this::compact),
-                new DefaultAction(ACTION_CYCLE, this::cycle),
-                new DefaultAction(ACTION_CLEARGRID, this::clearGrid),
-        };
-    }
 
     private final Cached<Predicate<ItemStack>> filterCache = Cached.of(this::createFilterCache);
 
@@ -296,6 +281,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
             });
 
 
+    @ServerCommand
+    public static final Command<?> CMD_CLEARGRID = Command.<ModularStorageTileEntity>create("clearGrid", (te, player, params) -> te.clearGrid());
+
     private void clearGrid() {
         CraftingGridInventory inventory = craftingGrid.getCraftingGridInventory();
         for (int i = 0; i < inventory.getSlots(); i++) {
@@ -313,6 +301,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         return locked;
     }
 
+    @ServerCommand
+    public static final Command<?> CMD_CYCLE = Command.<ModularStorageTileEntity>create("cycle", (te, player, params) -> te.cycle());
+
     private void cycle() {
         // @todo 1.14
 //        if (isRemote()) {
@@ -325,6 +316,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 //            setChanged();
 //        }
     }
+
+    @ServerCommand
+    public static final Command<?> CMD_COMPACT = Command.<ModularStorageTileEntity>create("compact", (te, player, params) -> te.compact());
 
     private void compact() {
         // @todo 1.14

@@ -4,8 +4,6 @@ import com.google.common.base.Function;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.api.infusable.DefaultInfusable;
 import mcjty.lib.api.infusable.IInfusable;
-import mcjty.lib.bindings.DefaultAction;
-import mcjty.lib.bindings.IAction;
 import mcjty.lib.bindings.Val;
 import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
@@ -79,8 +77,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
     public static final Key<Boolean> PARAM_VIEW = new Key<>("view", Type.BOOLEAN);
 
-    public static final String ACTION_CLEARGRID = "clearGrid";
-
     @Val
     public static final Value<?, Boolean> VALUE_EXPORT = Value.<StorageScannerTileEntity, Boolean>create("export", Type.BOOLEAN, StorageScannerTileEntity::isExportToCurrent, StorageScannerTileEntity::setExportToCurrent);
     @Val
@@ -93,13 +89,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public static boolean exportToCurrentReceived = false;
 
     private final FakePlayerGetter lazyPlayer = new FakePlayerGetter(this, "rftools_storage");
-
-    @Override
-    public IAction[] getActions() {
-        return new IAction[]{
-                new DefaultAction(ACTION_CLEARGRID, this::clearGrid),
-        };
-    }
 
     public static final int XNETDELAY = 40;
 
@@ -1258,6 +1247,10 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         infoTag.put("grid", craftingGrid.writeToNBT());
         infoTag.putInt("sortMode", sortingMode.ordinal());
     }
+
+
+    @ServerCommand
+    public static final Command<?> CMD_CLEARGRID = Command.<StorageScannerTileEntity>create("clearGrid", (te, player, params) -> te.clearGrid());
 
     private void clearGrid() {
         CraftingGridInventory inventory = craftingGrid.getCraftingGridInventory();

@@ -283,7 +283,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (button == 1) {
             Slot slot = findSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
-                window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, StorageScannerTileEntity.ACTION_CLEARGRID);
+                window.sendServerCommand(RFToolsStorageMessages.INSTANCE, CMD_CLEARGRID, TypedMap.EMPTY);
             }
         }
         return r;

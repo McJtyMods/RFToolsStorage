@@ -256,7 +256,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     private void cycleStorage() {
         if (tileEntity != null) {
-            window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ACTION_CYCLE);
+            window.sendServerCommand(RFToolsStorageMessages.INSTANCE, CMD_CYCLE, TypedMap.EMPTY);
         } else {
             sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_CYCLE_STORAGE);
         }
@@ -264,7 +264,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     private void compact() {
         if (tileEntity != null) {
-            window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ACTION_COMPACT);
+            window.sendServerCommand(RFToolsStorageMessages.INSTANCE, CMD_COMPACT, TypedMap.EMPTY);
         } else {
             sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_COMPACT);
         }
@@ -387,7 +387,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             Slot slot = findSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
                 if (tileEntity != null) {
-                    window.sendAction(RFToolsStorageMessages.INSTANCE, tileEntity, ModularStorageTileEntity.ACTION_CLEARGRID);
+                    window.sendServerCommand(RFToolsStorageMessages.INSTANCE, CMD_CLEARGRID, TypedMap.EMPTY);
                 } else {
                     sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_CLEAR_GRID);
                 }
