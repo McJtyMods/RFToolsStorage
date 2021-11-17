@@ -5,9 +5,9 @@ import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.api.infusable.DefaultInfusable;
 import mcjty.lib.api.infusable.IInfusable;
 import mcjty.lib.bindings.DefaultAction;
-import mcjty.lib.bindings.DefaultValue;
 import mcjty.lib.bindings.IAction;
-import mcjty.lib.bindings.IValue;
+import mcjty.lib.bindings.Val;
+import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
@@ -81,9 +81,12 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
 
     public static final String ACTION_CLEARGRID = "clearGrid";
 
-    public static final Key<Boolean> VALUE_EXPORT = new Key<>("export", Type.BOOLEAN);
-    public static final Key<Integer> VALUE_RADIUS = new Key<>("radius", Type.INTEGER);
-    public static final Key<String> VALUE_SORTMODE = new Key<>("sortMode", Type.STRING);
+    @Val
+    public static final Value<?, Boolean> VALUE_EXPORT = Value.<StorageScannerTileEntity, Boolean>create("export", Type.BOOLEAN, StorageScannerTileEntity::isExportToCurrent, StorageScannerTileEntity::setExportToCurrent);
+    @Val
+    public static final Value<?, Integer> VALUE_RADIUS = Value.<StorageScannerTileEntity, Integer>create("radius", Type.INTEGER, StorageScannerTileEntity::getRadius, StorageScannerTileEntity::setRadius);
+    @Val
+    public static final Value<?, String> VALUE_SORTMODE = Value.<StorageScannerTileEntity, String>create("sortMode", Type.STRING, te -> te.getSortingMode().getDescription(), (te, v) -> te.setSortingMode(SortingMode.byDescription(v)));
 
     // Client side data returned by CMD_SCANNER_INFO
     public static long rfReceived = 0;
@@ -95,15 +98,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public IAction[] getActions() {
         return new IAction[]{
                 new DefaultAction(ACTION_CLEARGRID, this::clearGrid),
-        };
-    }
-
-    @Override
-    public IValue<?>[] getValues() {
-        return new IValue[]{
-                new DefaultValue<>(VALUE_EXPORT, this::isExportToCurrent, this::setExportToCurrent),
-                new DefaultValue<>(VALUE_RADIUS, this::getRadius, this::setRadius),
-                new DefaultValue<>(VALUE_SORTMODE, () -> getSortingMode().getDescription(), s -> setSortingMode(SortingMode.byDescription(s))),
         };
     }
 

@@ -195,9 +195,9 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         window = new Window(this, toplevel);
 
-        window.bind(RFToolsStorageMessages.INSTANCE, "export", tileEntity, StorageScannerTileEntity.VALUE_EXPORT.getName());
-        window.bind(RFToolsStorageMessages.INSTANCE, "radius", tileEntity, StorageScannerTileEntity.VALUE_RADIUS.getName());
-        window.bind(RFToolsStorageMessages.INSTANCE, "sortMode", tileEntity, StorageScannerTileEntity.VALUE_SORTMODE.getName());
+        window.bind(RFToolsStorageMessages.INSTANCE, "export", tileEntity, StorageScannerTileEntity.VALUE_EXPORT.getKey().getName());
+        window.bind(RFToolsStorageMessages.INSTANCE, "radius", tileEntity, StorageScannerTileEntity.VALUE_RADIUS.getKey().getName());
+        window.bind(RFToolsStorageMessages.INSTANCE, "sortMode", tileEntity, StorageScannerTileEntity.VALUE_SORTMODE.getKey().getName());
         window.event("up", (source, params) -> moveUp());
         window.event("top", (source, params) -> moveTop());
         window.event("down", (source, params) -> moveDown());
