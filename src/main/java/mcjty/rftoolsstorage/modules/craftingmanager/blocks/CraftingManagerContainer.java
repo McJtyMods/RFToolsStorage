@@ -23,14 +23,14 @@ public class CraftingManagerContainer extends GenericContainer {
     public static final int SLOTS_DEVICE_3 = 4+24;
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(4 + 8*4)
-            .slot(generic().in(), CONTAINER_CONTAINER, SLOTS_DEVICES + 0, 22, 17)
-            .slot(generic().in(), CONTAINER_CONTAINER, SLOTS_DEVICES + 1, 22, 17+22)
-            .slot(generic().in(), CONTAINER_CONTAINER, SLOTS_DEVICES + 2, 22, 17+44)
-            .slot(generic().in(), CONTAINER_CONTAINER, SLOTS_DEVICES + 3, 22, 17+66)
-            .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), CONTAINER_CONTAINER, SLOTS_DEVICE_0, 85, 17, 8, 1)
-            .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), CONTAINER_CONTAINER, SLOTS_DEVICE_1, 85, 17+22, 8, 1)
-            .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), CONTAINER_CONTAINER, SLOTS_DEVICE_2, 85, 17+44, 8, 1)
-            .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), CONTAINER_CONTAINER, SLOTS_DEVICE_3, 85, 17+66, 8, 1)
+            .slot(generic().in(), SLOTS_DEVICES + 0, 22, 17)
+            .slot(generic().in(), SLOTS_DEVICES + 1, 22, 17+22)
+            .slot(generic().in(), SLOTS_DEVICES + 2, 22, 17+44)
+            .slot(generic().in(), SLOTS_DEVICES + 3, 22, 17+66)
+            .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), SLOTS_DEVICE_0, 85, 17, 8, 1)
+            .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), SLOTS_DEVICE_1, 85, 17+22, 8, 1)
+            .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), SLOTS_DEVICE_2, 85, 17+44, 8, 1)
+            .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), SLOTS_DEVICE_3, 85, 17+66, 8, 1)
             .playerSlots(85, 125));
 
     public CraftingManagerContainer(int id, BlockPos pos, PlayerEntity player, CraftingManagerTileEntity tileEntity) {

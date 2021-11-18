@@ -31,8 +31,8 @@ public class StorageScannerContainer extends GenericContainer {
     public static final int SLOTS = 3;
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(SLOTS)    // 1 extra slot for automation is at index 2
-            .slot(generic().in(), CONTAINER_CONTAINER, SLOT_IN, 28, 220)
-            .slot(generic().out(), CONTAINER_CONTAINER, SLOT_OUT, 55, 220)
+            .slot(generic().in(), SLOT_IN, 28, 220)
+            .slot(generic().out(), SLOT_OUT, 55, 220)
             .playerSlots(86, 162)
             .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
             .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18));
