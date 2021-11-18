@@ -4,13 +4,13 @@ import com.google.common.base.Function;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.api.infusable.DefaultInfusable;
 import mcjty.lib.api.infusable.IInfusable;
-import mcjty.lib.bindings.Val;
+import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
-import mcjty.lib.sync.GuiSync;
+import mcjty.lib.sync.SyncToGui;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -78,11 +78,11 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
     public static final Key<Boolean> PARAM_VIEW = new Key<>("view", Type.BOOLEAN);
 
-    @Val
+    @GuiValue
     public static final Value<?, Boolean> VALUE_EXPORT = Value.<StorageScannerTileEntity, Boolean>create("export", Type.BOOLEAN, StorageScannerTileEntity::isExportToCurrent, StorageScannerTileEntity::setExportToCurrent);
-    @Val
+    @GuiValue
     public static final Value<?, Integer> VALUE_RADIUS = Value.<StorageScannerTileEntity, Integer>create("radius", Type.INTEGER, StorageScannerTileEntity::getRadius, StorageScannerTileEntity::setRadius);
-    @Val
+    @GuiValue
     public static final Value<?, String> VALUE_SORTMODE = Value.<StorageScannerTileEntity, String>create("sortMode", Type.STRING, te -> te.getSortingMode().getDescription(), (te, v) -> te.setSortingMode(SortingMode.byDescription(v)));
 
     // Client side data returned by CMD_SCANNER_INFO
@@ -113,7 +113,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private BlockPos lastSelectedInventory = null;
 
     // Indicates if for this storage scanner the inventories should be shown wide
-    @GuiSync
+    @SyncToGui
     private boolean openWideView = true;
 
     private final LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
