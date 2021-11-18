@@ -86,8 +86,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public static final Value<?, String> VALUE_SORTMODE = Value.<StorageScannerTileEntity, String>create("sortMode", Type.STRING, te -> te.getSortingMode().getDescription(), (te, v) -> te.setSortingMode(SortingMode.byDescription(v)));
 
     // Client side data returned by CMD_SCANNER_INFO
-    public static long rfReceived = 0;
-    public static boolean exportToCurrentReceived = false;
+    public long rfReceived = 0;
+    public boolean exportToCurrentReceived = false;
 
     private final FakePlayerGetter lazyPlayer = new FakePlayerGetter(this, "rftools_storage");
 
@@ -1292,8 +1292,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
                     .put(PARAM_EXPORT, te.isExportToCurrent())
                     .build(),
             (te, player, params) -> {
-                rfReceived = params.get(PARAM_ENERGY);
-                exportToCurrentReceived = params.get(PARAM_EXPORT);
+                te.rfReceived = params.get(PARAM_ENERGY);
+                te.exportToCurrentReceived = params.get(PARAM_EXPORT);
             });
 
     /**

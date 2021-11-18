@@ -639,8 +639,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestDataFromServer(tileEntity.getDimension(),
                         tileEntity.getBlockPos(), StorageScannerTileEntity.CMD_SCANNER_INFO, TypedMap.EMPTY, tileEntity.isDummy()));
             }
-            energyBar.value(rfReceived);
-            exportToStarred.setCurrentChoice(exportToCurrentReceived ? 0 : 1);
+            energyBar.value(tileEntity.rfReceived);
+            exportToStarred.setCurrentChoice(tileEntity.exportToCurrentReceived ? 0 : 1);
         }
 
         drawWindow(matrixStack);
