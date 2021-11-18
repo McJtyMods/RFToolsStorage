@@ -7,6 +7,7 @@ import mcjty.lib.api.infusable.IInfusable;
 import mcjty.lib.bindings.Val;
 import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
+import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
 import mcjty.lib.sync.GuiSync;
@@ -1285,7 +1286,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public static final Key<Long> PARAM_ENERGY = new Key<>("energy", Type.LONG);
     public static final Key<Boolean> PARAM_EXPORT = new Key<>("export", Type.BOOLEAN);
     @ServerCommand
-    public static final Command<?> CMD_SCANNER_INFO = Command.<StorageScannerTileEntity>createWR("getScannerInfo",
+    public static final ResultCommand<?> CMD_SCANNER_INFO = ResultCommand.<StorageScannerTileEntity>create("getScannerInfo",
             (te, player, params) -> TypedMap.builder()
                     .put(PARAM_ENERGY, te.getStoredPower())
                     .put(PARAM_EXPORT, te.isExportToCurrent())
