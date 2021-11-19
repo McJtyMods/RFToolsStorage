@@ -38,9 +38,9 @@ public class ModularStorageContainer extends GenericContainer {
     public static final int MAXSIZE_STORAGE = 500;  // @todo, should be max of all possible storages
 
     public static final Lazy<ContainerFactory> CONTAINER_FACTORY = Lazy.of(() -> new ContainerFactory(SLOT_STORAGE)
-            .slot(specific(stack -> stack.getItem() instanceof StorageModuleItem), SLOT_STORAGE_MODULE, 5, 157)
-            .slot(specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), SLOT_TYPE_MODULE, -18, -18)  // No longer supported
-            .slot(specific(stack -> stack.getItem() instanceof FilterModuleItem), SLOT_FILTER_MODULE, 5, 175)
+            .slot(specific(stack -> stack.getItem() instanceof StorageModuleItem), CONTAINER_CARDS, SLOT_STORAGE_MODULE, 5, 157)
+            .slot(specific(stack -> false /* @todo 1.14 StorageTypeItem.class*/), CONTAINER_CARDS, SLOT_TYPE_MODULE, -18, -18)  // No longer supported
+            .slot(specific(stack -> stack.getItem() instanceof FilterModuleItem), CONTAINER_CARDS, SLOT_FILTER_MODULE, 5, 175)
             .box(generic().in(), CONTAINER_CONTAINER, 0 /*SLOT_STORAGE*/, -500, -500, 500 /* @todo 1.14 should be actual size of inventory*/, 0, 1, 0) // Dummy slot positions
             .playerSlots(91, 157)
             .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
