@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed the rendering of the storage scanner module
+
 1.16-2.0.13:
 - The storage scanner uses a better fake player that matches the name of the real player if online
 

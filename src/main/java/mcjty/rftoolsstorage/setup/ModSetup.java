@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.setup;
 import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
 import mcjty.lib.varia.Logging;
+import mcjty.rftoolsstorage.compat.rftoolsutility.RFToolsSupport;
 import mcjty.rftoolsstorage.compat.xnet.XNetSupport;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
@@ -41,6 +42,6 @@ public class ModSetup extends DefaultModSetup {
             Logging.log("RFTools Storage Detected XNet: enabling support");
             InterModComms.sendTo("xnet", "getXNet", XNetSupport.GetXNet::new);
         }
-
+        InterModComms.sendTo("rftoolsutility", "getScreenModuleRegistry", RFToolsSupport.GetScreenModuleRegistry::new);
     }
 }
