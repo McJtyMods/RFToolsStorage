@@ -4,7 +4,6 @@ import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Lazy;
@@ -12,7 +11,8 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
-import static mcjty.lib.container.SlotDefinition.*;
+import static mcjty.lib.container.SlotDefinition.generic;
+import static mcjty.lib.container.SlotDefinition.specific;
 
 public class CraftingManagerContainer extends GenericContainer {
 
@@ -33,7 +33,7 @@ public class CraftingManagerContainer extends GenericContainer {
             .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), SLOTS_DEVICE_3, 85, 17+66, 8, 1)
             .playerSlots(85, 125));
 
-    public CraftingManagerContainer(int id, BlockPos pos, PlayerEntity player, CraftingManagerTileEntity tileEntity) {
+    public CraftingManagerContainer(int id, BlockPos pos, CraftingManagerTileEntity tileEntity) {
         super(CraftingManagerModule.CONTAINER_CRAFTING_MANAGER.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity);
     }
 
