@@ -2,7 +2,7 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import mcjty.lib.api.container.DefaultContainerProvider;
-import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -49,7 +49,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             new ModelProperty<>()
     };
 
-    private final NoDirectionItemHander items = createItemHandler();
+    private final GenericItemHandler items = createItemHandler();
     @Cap(type = CapType.ITEMS)
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
     @Cap(type = CapType.CONTAINER)
@@ -323,8 +323,8 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     @Nonnull
-    private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(this, CraftingManagerContainer.CONTAINER_FACTORY.get()) {
+    private GenericItemHandler createItemHandler() {
+        return new GenericItemHandler(this, CraftingManagerContainer.CONTAINER_FACTORY.get()) {
 
             @Override
             protected void onUpdate(int index) {

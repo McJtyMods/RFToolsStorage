@@ -9,7 +9,7 @@ import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
-import mcjty.lib.container.NoDirectionItemHander;
+import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -116,9 +116,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
 
-    private final NoDirectionItemHander items = createItemHandler();
+    private final GenericItemHandler items = createItemHandler();
     @Cap(type = CapType.ITEMS)
-    private final LazyOptional<NoDirectionItemHander> itemHandler = LazyOptional.of(() -> items);
+    private final LazyOptional<GenericItemHandler> itemHandler = LazyOptional.of(() -> items);
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
@@ -1348,8 +1348,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     @Nonnull
-    private NoDirectionItemHander createItemHandler() {
-        return new NoDirectionItemHander(StorageScannerTileEntity.this, CONTAINER_FACTORY.get()) {
+    private GenericItemHandler createItemHandler() {
+        return new GenericItemHandler(StorageScannerTileEntity.this, CONTAINER_FACTORY.get()) {
 
             @Override
             public boolean isItemInsertable(int slot, @Nonnull ItemStack stack) {
