@@ -327,12 +327,12 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         return new GenericItemHandler(this, CraftingManagerContainer.CONTAINER_FACTORY.get()) {
 
             @Override
-            protected void onUpdate(int index) {
+            protected void onUpdate(int index, ItemStack stack) {
                 if (index < 4) {
                     markDirtyClient();
                     devicesDirty = true;
                 }
-                super.onUpdate(index);
+                super.onUpdate(index, stack);
             }
         };
     }
