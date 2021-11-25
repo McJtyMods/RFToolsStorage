@@ -1,6 +1,8 @@
 package mcjty.rftoolsstorage.modules.scanner.tools;
 
-public enum SortingMode {
+import mcjty.lib.varia.NamedEnum;
+
+public enum SortingMode implements NamedEnum<SortingMode> {
     AMOUNT_ASCENDING("Amount+", "Sort by amount (ascending)"),
     AMOUNT_DESCENDING("Amount-", "Sort by amount (descending)"),
     MOD("Mod", "Sort by mod"),
@@ -24,11 +26,17 @@ public enum SortingMode {
         return null;
     }
 
-    public String getDescription() {
+    public String getTooltip() {
+        return tooltip;
+    }
+
+    @Override
+    public String getName() {
         return description;
     }
 
-    public String getTooltip() {
-        return tooltip;
+    @Override
+    public String[] getDescription() {
+        return new String[] { description };
     }
 }

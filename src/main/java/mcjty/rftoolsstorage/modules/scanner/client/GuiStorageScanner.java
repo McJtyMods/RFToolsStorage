@@ -157,9 +157,9 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         sortChoice = new ChoiceLabel().hint(3, 20, 74, 12).name("sortMode").desiredWidth(60);
         for (SortingMode mode : SortingMode.values()) {
-            sortChoice.choices(mode.getDescription()).choiceTooltip(mode.getDescription(), mode.getTooltip());
+            sortChoice.choices(mode.getDescription()).choiceTooltip(mode.getName(), mode.getTooltip());
         }
-        sortChoice.choice(tileEntity.getSortingMode().getDescription());
+        sortChoice.choice(tileEntity.getSortMode().getName());
 
         searchField = textfield(3, 35, 73, 14)
                 .tooltips("Filter the list of items")
@@ -195,9 +195,9 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         window = new Window(this, toplevel);
 
-        window.bind(RFToolsStorageMessages.INSTANCE, "export", tileEntity, StorageScannerTileEntity.VALUE_EXPORT.getKey().getName());
+        window.bind(RFToolsStorageMessages.INSTANCE, "export", tileEntity, "export");
         window.bind(RFToolsStorageMessages.INSTANCE, "radius", tileEntity, StorageScannerTileEntity.VALUE_RADIUS.getKey().getName());
-        window.bind(RFToolsStorageMessages.INSTANCE, "sortMode", tileEntity, StorageScannerTileEntity.VALUE_SORTMODE.getKey().getName());
+        window.bind(RFToolsStorageMessages.INSTANCE, "sortMode", tileEntity, "sortMode");
         window.event("up", (source, params) -> moveUp());
         window.event("top", (source, params) -> moveTop());
         window.event("down", (source, params) -> moveDown());

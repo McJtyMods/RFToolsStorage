@@ -10,7 +10,6 @@ import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.NoDirectionItemHander;
-import mcjty.lib.sync.SyncToGui;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -47,7 +46,6 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
@@ -78,12 +76,12 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
     public static final Key<Boolean> PARAM_VIEW = new Key<>("view", Type.BOOLEAN);
 
-    @GuiValue
-    public static final Value<?, Boolean> VALUE_EXPORT = Value.<StorageScannerTileEntity, Boolean>create("export", Type.BOOLEAN, StorageScannerTileEntity::isExportToCurrent, StorageScannerTileEntity::setExportToCurrent);
+    @GuiValue(name = "export")
+    private boolean exportToCurrent = false;
     @GuiValue
     public static final Value<?, Integer> VALUE_RADIUS = Value.<StorageScannerTileEntity, Integer>create("radius", Type.INTEGER, StorageScannerTileEntity::getRadius, StorageScannerTileEntity::setRadius);
     @GuiValue
-    public static final Value<?, String> VALUE_SORTMODE = Value.<StorageScannerTileEntity, String>create("sortMode", Type.STRING, te -> te.getSortingMode().getDescription(), (te, v) -> te.setSortingMode(SortingMode.byDescription(v)));
+    private SortingMode sortMode = SortingMode.NAME;
 
     // Client side data returned by CMD_SCANNER_INFO
     public long rfReceived = 0;
@@ -107,13 +105,10 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     private final Set<BlockPos> routable = new HashSet<>();
     private int radius = 1;
 
-    private SortingMode sortingMode = SortingMode.NAME;
-
-    private boolean exportToCurrent = false;
     private BlockPos lastSelectedInventory = null;
 
     // Indicates if for this storage scanner the inventories should be shown wide
-    @SyncToGui
+    @GuiValue
     private boolean openWideView = true;
 
     private final LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
@@ -128,7 +123,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId, player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
-            .dataListener(Sync.values(new ResourceLocation(RFToolsStorage.MODID, "data"), this))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items)
             .setupSync(this));
@@ -1148,12 +1142,12 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
     }
 
-    public SortingMode getSortingMode() {
-        return sortingMode;
+    public SortingMode getSortMode() {
+        return sortMode;
     }
 
-    public void setSortingMode(SortingMode sortingMode) {
-        this.sortingMode = sortingMode;
+    public void setSortMode(SortingMode sortMode) {
+        this.sortMode = sortMode;
         setChanged();
     }
 
@@ -1204,11 +1198,11 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             }
             if (infoTag.contains("sortMode")) {
                 int m = infoTag.getInt("sortMode");
-                sortingMode = SortingMode.values()[m];
+                sortMode = SortingMode.values()[m];
             }
         } else {
             openWideView = true;
-            sortingMode = SortingMode.NAME;
+            sortMode = SortingMode.NAME;
         }
     }
 
@@ -1246,7 +1240,7 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         infoTag.putBoolean("exportC", exportToCurrent);
         infoTag.putBoolean("wideview", openWideView);
         infoTag.put("grid", craftingGrid.writeToNBT());
-        infoTag.putInt("sortMode", sortingMode.ordinal());
+        infoTag.putInt("sortMode", sortMode.ordinal());
     }
 
 
