@@ -53,7 +53,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     @Cap(type = CapType.ITEMS)
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Modular Storage")
+    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
             .containerSupplier(windowId -> new CraftingManagerContainer(windowId, getBlockPos(), CraftingManagerTileEntity.this))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
