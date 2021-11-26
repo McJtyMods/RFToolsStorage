@@ -438,27 +438,29 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         int spacing = 3;
 
         SortingMode mode = SortingMode.byDescription(sortChoice.getCurrentChoice());
-        switch (mode) {
-            case AMOUNT_ASCENDING:
-                Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount));
-                Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount));
-                break;
-            case AMOUNT_DESCENDING:
-                Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount).reversed());
-                Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount).reversed());
-                break;
-            case MOD:
-                Collections.sort(fromServer_inventory, GuiStorageScanner::compareByMod);
-                Collections.sort(fromServer_craftable, GuiStorageScanner::compareByMod);
-                break;
-            case TAG:
-                Collections.sort(fromServer_inventory, GuiStorageScanner::compareByTag);
-                Collections.sort(fromServer_craftable, GuiStorageScanner::compareByTag);
-                break;
-            case NAME:
-                Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
-                Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
-                break;
+        if (mode != null) {
+            switch (mode) {
+                case AMOUNT_ASCENDING:
+                    Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount));
+                    Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount));
+                    break;
+                case AMOUNT_DESCENDING:
+                    Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount).reversed());
+                    Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount).reversed());
+                    break;
+                case MOD:
+                    Collections.sort(fromServer_inventory, GuiStorageScanner::compareByMod);
+                    Collections.sort(fromServer_craftable, GuiStorageScanner::compareByMod);
+                    break;
+                case TAG:
+                    Collections.sort(fromServer_inventory, GuiStorageScanner::compareByTag);
+                    Collections.sort(fromServer_craftable, GuiStorageScanner::compareByTag);
+                    break;
+                case NAME:
+                    Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
+                    Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
+                    break;
+            }
         }
 
         String filterText = searchField.getText().toLowerCase();
