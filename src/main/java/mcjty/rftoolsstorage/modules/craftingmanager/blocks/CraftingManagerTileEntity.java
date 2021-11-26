@@ -32,7 +32,6 @@ import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -49,9 +48,16 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             new ModelProperty<>()
     };
 
-    private final GenericItemHandler items = createItemHandler();
     @Cap(type = CapType.ITEMS)
-    private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> items);
+    private final GenericItemHandler items = GenericItemHandler.create(this, CraftingManagerContainer.CONTAINER_FACTORY)
+            .onUpdate((slot, stack) -> {
+                if (slot < 4) {
+                    markDirtyClient();
+                    devicesDirty = true;
+                }
+            })
+            .build();
+
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
             .containerSupplier(windowId -> new CraftingManagerContainer(windowId, getBlockPos(), CraftingManagerTileEntity.this))
@@ -322,18 +328,4 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         return tagCompound;
     }
 
-    @Nonnull
-    private GenericItemHandler createItemHandler() {
-        return new GenericItemHandler(this, CraftingManagerContainer.CONTAINER_FACTORY.get()) {
-
-            @Override
-            protected void onUpdate(int index, ItemStack stack) {
-                if (index < 4) {
-                    markDirtyClient();
-                    devicesDirty = true;
-                }
-                super.onUpdate(index, stack);
-            }
-        };
-    }
 }

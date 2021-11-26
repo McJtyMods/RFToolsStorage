@@ -67,6 +67,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static mcjty.lib.container.GenericItemHandler.slot;
 import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer.CONTAINER_FACTORY;
 
 public class StorageScannerTileEntity extends GenericTileEntity implements ITickableTileEntity,
@@ -116,9 +117,10 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
 
-    private final GenericItemHandler items = createItemHandler();
     @Cap(type = CapType.ITEMS)
-    private final LazyOptional<GenericItemHandler> itemHandler = LazyOptional.of(() -> items);
+    private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY)
+            .insertable(slot(StorageScannerContainer.SLOT_IN_AUTO))
+            .build();
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
@@ -1345,17 +1347,6 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     @Nonnull
     private IInformationScreenInfo createScreenInfo() {
         return new StorageScannerInformationScreenInfo(this);
-    }
-
-    @Nonnull
-    private GenericItemHandler createItemHandler() {
-        return new GenericItemHandler(StorageScannerTileEntity.this, CONTAINER_FACTORY.get()) {
-
-            @Override
-            public boolean isItemInsertable(int slot, @Nonnull ItemStack stack) {
-                return slot == StorageScannerContainer.SLOT_IN_AUTO;
-            }
-        };
     }
 
     @Nonnull
