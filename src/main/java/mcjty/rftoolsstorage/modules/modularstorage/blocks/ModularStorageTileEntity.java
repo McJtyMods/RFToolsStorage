@@ -188,7 +188,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    public void readClientDataFromNBT(CompoundNBT tagCompound) {
+    public void loadClientDataFromNBT(CompoundNBT tagCompound) {
         // @todo 1.14
     }
 

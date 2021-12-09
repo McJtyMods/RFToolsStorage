@@ -264,7 +264,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         ItemStack origMimic1 = items.getStackInSlot(1);
         ItemStack origMimic2 = items.getStackInSlot(2);
         ItemStack origMimic3 = items.getStackInSlot(3);
-        readClientDataFromNBT(pkt.getTag());
+        loadClientDataFromNBT(pkt.getTag());
         ItemStack mimic0 = items.getStackInSlot(0);
         ItemStack mimic1 = items.getStackInSlot(1);
         ItemStack mimic2 = items.getStackInSlot(2);
