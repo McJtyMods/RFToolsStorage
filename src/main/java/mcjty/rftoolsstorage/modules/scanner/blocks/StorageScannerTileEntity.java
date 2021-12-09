@@ -13,7 +13,7 @@ import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
-import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.tileentity.TickingTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -42,7 +42,6 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
@@ -70,8 +69,7 @@ import java.util.stream.Stream;
 import static mcjty.lib.container.GenericItemHandler.slot;
 import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer.CONTAINER_FACTORY;
 
-public class StorageScannerTileEntity extends GenericTileEntity implements ITickableTileEntity,
-        CraftingGridProvider, JEIRecipeAcceptor, IStorageScanner {
+public class StorageScannerTileEntity extends TickingTileEntity implements CraftingGridProvider, JEIRecipeAcceptor, IStorageScanner {
 
     public static final Key<Integer> PARAM_INDEX = new Key<>("index", Type.INTEGER);
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
@@ -216,42 +214,39 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public void tick() {
-        if (!level.isClientSide) {
-            craftingSystem.tick(level);
+    protected void tickServer() {
+        craftingSystem.tick(level);
 
-            xnetDelay--;
-            if (xnetDelay < 0) {
-                // If there was no update from XNet for a while then we assume we no longer have information
-                xnetAccess = Collections.emptyMap();
-                xnetDelay = XNETDELAY;
+        xnetDelay--;
+        if (xnetDelay < 0) {
+            // If there was no update from XNet for a while then we assume we no longer have information
+            xnetAccess = Collections.emptyMap();
+            xnetDelay = XNETDELAY;
+        }
+
+        if (!items.getStackInSlot(StorageScannerContainer.SLOT_IN).isEmpty()) {
+            if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
+                return;
             }
 
-            if (!items.getStackInSlot(StorageScannerContainer.SLOT_IN).isEmpty()) {
-                if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
-                    return;
-                }
+            ItemStack stack = items.getStackInSlot(StorageScannerContainer.SLOT_IN);
+            stack = injectStackInternal(stack, exportToCurrent, this::isInputFromGui);
+            items.setStackInSlot(StorageScannerContainer.SLOT_IN, stack);
 
-                ItemStack stack = items.getStackInSlot(StorageScannerContainer.SLOT_IN);
-                stack = injectStackInternal(stack, exportToCurrent, this::isInputFromGui);
-                items.setStackInSlot(StorageScannerContainer.SLOT_IN, stack);
-
-                consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
+            consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
+        }
+        if (!items.getStackInSlot(StorageScannerContainer.SLOT_IN_AUTO).isEmpty()) {
+            if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
+                return;
             }
-            if (!items.getStackInSlot(StorageScannerContainer.SLOT_IN_AUTO).isEmpty()) {
-                if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
-                    return;
-                }
 
-                ItemStack stack = items.getStackInSlot(StorageScannerContainer.SLOT_IN_AUTO);
-                stack = injectStackInternal(stack, false, this::isInputFromAuto);
-                items.setStackInSlot(StorageScannerContainer.SLOT_IN_AUTO, stack);
+            ItemStack stack = items.getStackInSlot(StorageScannerContainer.SLOT_IN_AUTO);
+            stack = injectStackInternal(stack, false, this::isInputFromAuto);
+            items.setStackInSlot(StorageScannerContainer.SLOT_IN_AUTO, stack);
 
-                consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
-            }
+            consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
         }
     }
-
 
     @Override
     public ItemStack injectStackFromScreen(ItemStack stack, PlayerEntity player) {
