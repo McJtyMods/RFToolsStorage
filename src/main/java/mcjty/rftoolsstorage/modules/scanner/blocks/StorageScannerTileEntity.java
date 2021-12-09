@@ -1154,8 +1154,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    public void read(CompoundNBT tagCompound) {
-        super.read(tagCompound);
+    public void load(CompoundNBT tagCompound) {
+        super.load(tagCompound);
         craftingSystem.read(tagCompound.getCompound("CS"));
         ListNBT list = tagCompound.getList("inventories", Constants.NBT.TAG_COMPOUND);
         inventories.clear();
@@ -1182,8 +1182,8 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
     }
 
     @Override
-    protected void readInfo(CompoundNBT tagCompound) {
-        super.readInfo(tagCompound);
+    protected void loadInfo(CompoundNBT tagCompound) {
+        super.loadInfo(tagCompound);
         if (tagCompound.contains("Info")) {
             CompoundNBT infoTag = tagCompound.getCompound("Info");
             if (infoTag.contains("radius")) {
@@ -1208,10 +1208,9 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
         }
     }
 
-    @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
-        super.save(tagCompound);
+    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+        super.saveAdditional(tagCompound);
         tagCompound.put("CS", craftingSystem.write());
         ListNBT list = new ListNBT();
         for (BlockPos c : inventories) {
@@ -1231,12 +1230,11 @@ public class StorageScannerTileEntity extends GenericTileEntity implements ITick
             list.add(tag);
         }
         tagCompound.put("fromxnet", list);
-        return tagCompound;
     }
 
     @Override
-    protected void writeInfo(CompoundNBT tagCompound) {
-        super.writeInfo(tagCompound);
+    protected void saveInfo(CompoundNBT tagCompound) {
+        super.saveInfo(tagCompound);
         CompoundNBT infoTag = getOrCreateInfo(tagCompound);
         infoTag.putInt("radius", radius);
         infoTag.putBoolean("exportC", exportToCurrent);

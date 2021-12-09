@@ -204,8 +204,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    public void read(CompoundNBT tagCompound) {
-        super.read(tagCompound);
+    public void load(CompoundNBT tagCompound) {
+        super.load(tagCompound);
 
         sortMode = tagCompound.getString("sortMode");
         viewMode = tagCompound.getString("viewMode");
@@ -215,13 +215,13 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    protected void readCaps(CompoundNBT tagCompound) {
+    protected void loadCaps(CompoundNBT tagCompound) {
         // We don't want this
     }
 
     @Override
-    protected void readInfo(CompoundNBT tagCompound) {
-        super.readInfo(tagCompound);
+    protected void loadInfo(CompoundNBT tagCompound) {
+        super.loadInfo(tagCompound);
         if (tagCompound.contains("Info")) {
             CompoundNBT infoTag = tagCompound.getCompound("Info");
             cardHandler.deserializeNBT(infoTag.getCompound("Cards"));
@@ -240,27 +240,25 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         }
     }
 
-    @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
-        super.save(tagCompound);
+    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+        super.saveAdditional(tagCompound);
 
         tagCompound.putString("sortMode", sortMode);
         tagCompound.putString("viewMode", viewMode);
         tagCompound.putBoolean("groupMode", groupMode);
         tagCompound.putString("filter", filter);
         tagCompound.put("grid", craftingGrid.writeToNBT());
-        return tagCompound;
     }
 
     @Override
-    protected void writeCaps(CompoundNBT tagCompound) {
+    protected void saveCaps(CompoundNBT tagCompound) {
         // We don't want this
     }
 
     @Override
-    protected void writeInfo(CompoundNBT tagCompound) {
-        super.writeInfo(tagCompound);
+    protected void saveInfo(CompoundNBT tagCompound) {
+        super.saveInfo(tagCompound);
         CompoundNBT infoTag = getOrCreateInfo(tagCompound);
         infoTag.put("Cards", cardHandler.serializeNBT());
         infoTag.putBoolean("locked", locked);

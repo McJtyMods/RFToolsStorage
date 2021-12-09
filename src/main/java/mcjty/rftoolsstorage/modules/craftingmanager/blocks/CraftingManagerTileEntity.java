@@ -294,8 +294,8 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 
 
     @Override
-    public void read(CompoundNBT tagCompound) {
-        super.read(tagCompound);
+    public void load(CompoundNBT tagCompound) {
+        super.load(tagCompound);
         ListNBT deviceList = tagCompound.getList("devices", Constants.NBT.TAG_COMPOUND);
         int i = 0;
         for (INBT nbt : deviceList) {
@@ -311,10 +311,9 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         }
     }
 
-    @Nonnull
     @Override
-    public CompoundNBT save(@Nonnull CompoundNBT tagCompound) {
-        super.save(tagCompound);
+    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+        super.saveAdditional(tagCompound);
         ListNBT deviceList = new ListNBT();
         for (CraftingQueue queue : queues) {
             CompoundNBT deviceNBT = new CompoundNBT();
@@ -325,7 +324,6 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             deviceList.add(deviceNBT);
         }
         tagCompound.put("devices", deviceList);
-        return tagCompound;
     }
 
 }
