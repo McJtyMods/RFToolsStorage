@@ -1,3 +1,6 @@
+Upcoming:
+- Updated to latest version of McJtyLib
+
 1.16-2.0.14:
 - Updated to latest version of McJtyLib
 - Fixed the rendering of the storage scanner module
