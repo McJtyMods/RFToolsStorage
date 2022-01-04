@@ -47,7 +47,7 @@ public class CraftingRecipe {
     private CraftMode craftMode = CraftMode.EXT;
 
     public static Optional<net.minecraft.world.item.crafting.CraftingRecipe> findRecipe(Level world, CraftingContainer inv) {
-        return SafeClientTools.getRecipeManager(world).getRecipeFor(RecipeType.CRAFTING, inv, world);
+        return world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, inv, world);
     }
 
     public void readFromNBT(CompoundTag tagCompound) {
