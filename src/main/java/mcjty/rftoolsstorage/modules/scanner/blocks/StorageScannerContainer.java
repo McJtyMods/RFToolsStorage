@@ -44,16 +44,16 @@ public class StorageScannerContainer extends GenericContainer {
         }
     }
 
-    protected StorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
-        super(type, id, CONTAINER_FACTORY.get(), pos, tileEntity);
+    protected StorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull PlayerEntity player) {
+        super(type, id, CONTAINER_FACTORY.get(), pos, tileEntity, player);
     }
 
-    public static StorageScannerContainer create(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
-        return new StorageScannerContainer(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), id, pos, tileEntity);
+    public static StorageScannerContainer create(int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull PlayerEntity player) {
+        return new StorageScannerContainer(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), id, pos, tileEntity, player);
     }
 
-    public static StorageScannerContainer createRemote(int id, BlockPos pos, StorageScannerTileEntity tileEntity) {
-        return new RemoteStorageScannerContainer(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity);
+    public static StorageScannerContainer createRemote(int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull PlayerEntity player) {
+        return new RemoteStorageScannerContainer(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity, player);
     }
 
     protected boolean isRemoteContainer() {

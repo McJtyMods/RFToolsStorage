@@ -47,7 +47,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private final LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
-            .containerSupplier(windowId -> new ModularStorageContainer(windowId, getBlockPos(), this))
+            .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, getBlockPos(), this, player))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new))
             .setupSync(this));
 

@@ -46,8 +46,8 @@ public class ModularStorageContainer extends GenericContainer {
             .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
             .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18));
 
-    public ModularStorageContainer(int id, BlockPos pos, ModularStorageTileEntity tileEntity) {
-        super(ModularStorageModule.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity);
+    public ModularStorageContainer(int id, BlockPos pos, ModularStorageTileEntity tileEntity, @Nonnull PlayerEntity player) {
+        super(ModularStorageModule.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity, player);
     }
 
     @Override
