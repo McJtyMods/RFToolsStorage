@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.McJtyLib;
+import mcjty.lib.varia.SafeClientTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.RegistryKey;
@@ -30,8 +30,8 @@ public class PacketGridToClient extends PacketGridSync {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = McJtyLib.proxy.getClientWorld();
-            PlayerEntity player = McJtyLib.proxy.getClientPlayer();
+            World world = SafeClientTools.getClientWorld();
+            PlayerEntity player = SafeClientTools.getClientPlayer();
             handleMessage(world, player);
         });
         ctx.setPacketHandled(true);

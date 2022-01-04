@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GhostOutputSlot;
@@ -17,6 +16,7 @@ import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
 import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.SafeClientTools;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
@@ -503,7 +503,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             public void select() {
                 Object item = blockRender.getRenderItem();
                 if (item != null) {
-                    boolean shift = McJtyLib.proxy.isSneaking();
+                    boolean shift = SafeClientTools.isSneaking();
                     requestItem((ItemStack) item, shift ? 1 : -1, craftable);
                 }
             }

@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.McJtyLib;
+import mcjty.lib.varia.SafeClientTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.container.Container;
@@ -48,7 +48,7 @@ public class CraftingRecipe {
     private CraftMode craftMode = CraftMode.EXT;
 
     public static Optional<ICraftingRecipe> findRecipe(World world, CraftingInventory inv) {
-        return McJtyLib.proxy.getRecipeManager(world).getRecipeFor(IRecipeType.CRAFTING, inv, world);
+        return SafeClientTools.getRecipeManager(world).getRecipeFor(IRecipeType.CRAFTING, inv, world);
     }
 
     public void readFromNBT(CompoundNBT tagCompound) {

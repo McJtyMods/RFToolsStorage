@@ -1,9 +1,9 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.LevelTools;
+import mcjty.lib.varia.Logging;
+import mcjty.lib.varia.SafeClientTools;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.container.Container;
@@ -104,7 +104,7 @@ public class PacketGridSync {
     }
 
     private static GenericContainer getOpenContainer() {
-        Container container = McJtyLib.proxy.getClientPlayer().containerMenu;
+        Container container = SafeClientTools.getClientPlayer().containerMenu;
         if (container instanceof GenericContainer) {
             return (GenericContainer) container;
         } else {
