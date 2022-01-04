@@ -2,10 +2,10 @@ package mcjty.rftoolsstorage.modules.modularstorage.network;
 
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -18,7 +18,7 @@ public class PacketStorageInfoToClient {
     private String filter;
     private boolean locked;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeUtf(viewMode);
         buf.writeUtf(sortMode);
@@ -30,7 +30,7 @@ public class PacketStorageInfoToClient {
     public PacketStorageInfoToClient() {
     }
 
-    public PacketStorageInfoToClient(PacketBuffer buf) {
+    public PacketStorageInfoToClient(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
         viewMode = buf.readUtf(32767);
         sortMode = buf.readUtf(32767);
@@ -52,7 +52,7 @@ public class PacketStorageInfoToClient {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
+            BlockEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             if (te instanceof ModularStorageTileEntity) {
                 ModularStorageTileEntity storage = (ModularStorageTileEntity) te;
                 storage.syncInventoryFromServer(sortMode, viewMode, groupMode, filter, locked);

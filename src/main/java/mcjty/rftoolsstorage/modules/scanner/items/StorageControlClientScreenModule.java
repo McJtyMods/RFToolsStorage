@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mcjty.lib.client.CustomRenderTypes;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.varia.ItemStackList;
@@ -9,18 +9,17 @@ import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
 import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public class StorageControlClientScreenModule implements IClientScreenModule<StorageControlScreenModule.ModuleDataStacks> {
     private ItemStackList stacks = ItemStackList.create(9);
@@ -36,7 +35,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, IModuleRenderHelper renderHelper, FontRenderer fontRenderer, int currenty, StorageControlScreenModule.ModuleDataStacks screenData, ModuleRenderInfo renderInfo) {
+    public void render(PoseStack matrixStack, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, StorageControlScreenModule.ModuleDataStacks screenData, ModuleRenderInfo renderInfo) {
         if (screenData == null) {
             return;
         }
@@ -117,22 +116,22 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked) {
+    public void mouseClick(Level world, int x, int y, boolean clicked) {
 
     }
 
-    private void renderSlot(MatrixStack matrixStack, IRenderTypeBuffer buffer, int currenty, ItemStack stack, int x, int lightmapValue) {
+    private void renderSlot(PoseStack matrixStack, MultiBufferSource buffer, int currenty, ItemStack stack, int x, int lightmapValue) {
         matrixStack.pushPose();
         matrixStack.translate(x +8f, currenty +8f, 5);
         matrixStack.scale(16, 16, 16);
 
         ItemRenderer itemRender = Minecraft.getInstance().getItemRenderer();
-        IBakedModel ibakedmodel = itemRender.getModel(stack, Minecraft.getInstance().level, null);
-        itemRender.render(stack, ItemCameraTransforms.TransformType.GUI, false, matrixStack, buffer, lightmapValue, OverlayTexture.NO_OVERLAY, ibakedmodel);
+        BakedModel ibakedmodel = itemRender.getModel(stack, Minecraft.getInstance().level, null, 0);    // @todo 1.18 last parameter?
+        itemRender.render(stack, ItemTransforms.TransformType.GUI, false, matrixStack, buffer, lightmapValue, OverlayTexture.NO_OVERLAY, ibakedmodel);
         matrixStack.popPose();
     }
 
-    private void renderSlotOverlay(MatrixStack matrixStack, IRenderTypeBuffer buffer, FontRenderer fontRenderer, int currenty, ItemStack stack, int amount, int x, int lightmapValue) {
+    private void renderSlotOverlay(PoseStack matrixStack, MultiBufferSource buffer, Font fontRenderer, int currenty, ItemStack stack, int amount, int x, int lightmapValue) {
         if (!stack.isEmpty()) {
             String s1;
             if (amount < 10000) {
@@ -146,13 +145,13 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
             }
             fontRenderer.drawInBatch(s1, x + 19 - 2 - fontRenderer.width(s1), currenty + 6 + 3, 16777215, false, matrixStack.last().pose(), buffer, false, 0, lightmapValue);
 
-            if (stack.getItem().showDurabilityBar(stack)) {
-                double health = stack.getItem().getDurabilityForDisplay(stack);
+            if (stack.getItem().isBarVisible(stack)) {
+                double health = stack.getItem().getBarWidth(stack);
                 int j1 = (int) Math.round(13.0D - health * 13.0D);
                 int k = (int) Math.round(255.0D - health * 255.0D);
                 int l = 255 - k << 16 | k << 8;
                 int i1 = (255 - k) / 4 << 16 | 16128;
-                IVertexBuilder builder = buffer.getBuffer(CustomRenderTypes.QUADS_NOTEXTURE);
+                VertexConsumer builder = buffer.getBuffer(CustomRenderTypes.QUADS_NOTEXTURE);
                 renderQuad(builder, x + 2, currenty + 13, 13, 2, 0, 0.0D, lightmapValue);
                 renderQuad(builder, x + 2, currenty + 13, 12, 1, i1, 0.02D, lightmapValue);
                 renderQuad(builder, x + 2, currenty + 13, j1, 1, l, 0.04D, lightmapValue);
@@ -160,7 +159,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         }
     }
 
-    private static void renderQuad(IVertexBuilder builder, int x, int y, int width, int height, int color, double offset, int lightmapValue) {
+    private static void renderQuad(VertexConsumer builder, int x, int y, int width, int height, int color, double offset, int lightmapValue) {
         builder.vertex(x, y, offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
         builder.vertex(x, (y + height), offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
         builder.vertex((x + width), (y + height), offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
@@ -169,7 +168,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
 
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
+    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
         if (tagCompound != null) {
             for (int i = 0 ; i < stacks.size() ; i++) {
                 if (tagCompound.contains("stack"+i)) {

@@ -1,11 +1,11 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -25,7 +25,7 @@ public interface ICraftingDevice {
     void tick();
 
     /// Setup this device for a crafting operation
-    void setupCraft(@Nonnull World world, @Nonnull ItemStack cardStack);
+    void setupCraft(@Nonnull Level world, @Nonnull ItemStack cardStack);
 
     List<Ingredient> getIngredients();
 
@@ -38,17 +38,17 @@ public interface ICraftingDevice {
      * Insert the ingredients. Returns false if this fails for some reason (in that case nothing will have been inserted).
      * The device will be put in BUSY mode.
      */
-    boolean insertIngredients(World world, List<ItemStack> items);
+    boolean insertIngredients(Level world, List<ItemStack> items);
 
     /// Extract output and put the device back in IDLE mode
     List<ItemStack> extractOutput();
 
     /// Return the recipe type supported by this device
-    IRecipeType<?> getRecipeType();
+    RecipeType<?> getRecipeType();
 
     /// Return the current status
     Status getStatus();
 
-    void read(CompoundNBT tag);
-    void write(CompoundNBT tag);
+    void read(CompoundTag tag);
+    void write(CompoundTag tag);
 }

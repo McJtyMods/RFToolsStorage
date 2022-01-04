@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.blocks;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -12,12 +12,12 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.client.StorageScannerInformationRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.energy.CapabilityEnergy;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -81,12 +81,12 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
             int idx = 0;
 
             CraftingSystem craftingSystem = scanner.getCraftingSystem();
-            World world = scanner.getLevel();
+            Level world = scanner.getLevel();
             for (BlockPos pos : scanner.getCraftingInventories()) {
                 if (idx >= CRAFT_KEYS.length) {
                     break;
                 }
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof CraftingManagerTileEntity) {
                     CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
                     for (CraftingQueue queue : craftingManager.getQueues()) {
@@ -120,7 +120,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     }
 
     @Override
-    public void render(int mode, MatrixStack matrixStack, IRenderTypeBuffer buffer, @Nonnull TypedMap data, Direction orientation, double scale) {
+    public void render(int mode, PoseStack matrixStack, MultiBufferSource buffer, @Nonnull TypedMap data, Direction orientation, double scale) {
         if (mode == MODE_POWER) {
             DefaultPowerInformationRenderer.renderDefault(matrixStack, buffer, data, orientation, scale);
         } else if (mode == MODE_POWER_GRAPHICAL) {

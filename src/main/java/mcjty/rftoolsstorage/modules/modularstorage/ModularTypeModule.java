@@ -1,10 +1,10 @@
 package mcjty.rftoolsstorage.modules.modularstorage;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 
-public enum ModularTypeModule implements IStringSerializable {
+public enum ModularTypeModule implements StringRepresentable {
     TYPE_NONE("none"),
     TYPE_GENERIC("generic"),
     TYPE_ORE("ore");

@@ -2,11 +2,11 @@ package mcjty.rftoolsstorage.modules.scanner.network;
 
 
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
-import net.minecraft.block.Block;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class PacketReturnInventoryInfo {
         return inventories;
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeInt(inventories.size());
         for (InventoryInfo info : inventories) {
             buf.writeBlockPos(info.getPos());
@@ -40,7 +40,7 @@ public class PacketReturnInventoryInfo {
     public PacketReturnInventoryInfo() {
     }
 
-    public PacketReturnInventoryInfo(PacketBuffer buf) {
+    public PacketReturnInventoryInfo(FriendlyByteBuf buf) {
         int size = buf.readInt();
         inventories = new ArrayList<>(size);
         for (int i = 0 ; i < size ; i++) {

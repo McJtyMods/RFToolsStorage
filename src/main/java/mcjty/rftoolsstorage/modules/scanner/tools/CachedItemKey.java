@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.tools;
 
-import net.minecraft.item.Item;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.BlockPos;
 
 public class CachedItemKey {
     private final BlockPos pos;

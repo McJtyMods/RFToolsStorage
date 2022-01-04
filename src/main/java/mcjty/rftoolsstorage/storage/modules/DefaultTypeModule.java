@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.storage.modules;
 import mcjty.rftoolsstorage.storage.sorters.CountItemSorter;
 import mcjty.rftoolsstorage.storage.sorters.ItemSorter;
 import mcjty.rftoolsstorage.storage.sorters.NameItemSorter;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;

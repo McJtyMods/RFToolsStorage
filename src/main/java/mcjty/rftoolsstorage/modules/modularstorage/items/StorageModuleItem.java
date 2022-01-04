@@ -6,15 +6,15 @@ import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.storage.IStorageModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
@@ -25,7 +25,13 @@ import java.util.*;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
+
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 
 public class StorageModuleItem extends Item implements INBTPreservingIngredient, IStorageModuleItem {
 
@@ -46,7 +52,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                     gold(stack -> isRemoteModule()),
                     parameter("info", stack -> !(isRemoteModule()), stack -> Integer.toString(getMax())),
                     parameter("remoteid", stack -> isRemoteModule(), stack -> {
-                        CompoundNBT tag = stack.getTag();
+                        CompoundTag tag = stack.getTag();
                         if (tag != null && tag.contains("id")) {
                             int id = tag.getInt("id");
                             return Integer.toString(id);
@@ -55,7 +61,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                         }
                     }),
                     parameter("uuid", stack -> {
-                        CompoundNBT tag = stack.getTag();
+                        CompoundTag tag = stack.getTag();
                         if (tag != null && tag.hasUUID("uuid")) {
                             return tag.getUUID("uuid").toString();
                         } else {
@@ -63,7 +69,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                         }
                     }),
                     parameter("version", stack -> {
-                        CompoundNBT tag = stack.getTag();
+                        CompoundTag tag = stack.getTag();
                         if (tag != null) {
                             return Integer.toString(tag.getInt("version"));
                         } else {
@@ -111,7 +117,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     private StorageEntry getStorage(ItemStack stack) {
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if (tag == null) {
             return null;
         }
@@ -148,8 +154,8 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     @Override
-    public void onCraftedBy(@Nonnull ItemStack stack, @Nonnull World worldIn, @Nonnull PlayerEntity player) {
-        CompoundNBT tag = stack.getOrCreateTag();
+    public void onCraftedBy(@Nonnull ItemStack stack, @Nonnull Level worldIn, @Nonnull Player player) {
+        CompoundTag tag = stack.getOrCreateTag();
         if (!tag.contains("createdBy")) {
             tag.putString("createdBy", player.getName().getString());   // @todo 1.16 getFormattedText
         }
@@ -160,7 +166,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
         if (!(stack.getItem() instanceof StorageModuleItem)) {
             throw new RuntimeException("This is not supposed to happen! Needs to be a storage item!");
         }
-        CompoundNBT nbt = stack.getOrCreateTag();
+        CompoundTag nbt = stack.getOrCreateTag();
         if (!nbt.hasUUID("uuid")) {
             nbt.putUUID("uuid", UUID.randomUUID());
             nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
@@ -199,17 +205,17 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, @Nonnull Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
-            Logging.message(player, TextFormatting.YELLOW + "Place this module in a storage module tablet to access contents");
-            return new ActionResult<>(ActionResultType.SUCCESS, stack);
+            Logging.message(player, ChatFormatting.YELLOW + "Place this module in a storage module tablet to access contents");
+            return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
         }
-        return new ActionResult<>(ActionResultType.SUCCESS, stack);
+        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable World worldIn, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag flags) {
+    public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flags) {
         super.appendHoverText(itemStack, worldIn, list, flags);
         tooltipBuilder.get().makeTooltip(new ResourceLocation(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
     }

@@ -2,12 +2,12 @@ package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -65,7 +65,7 @@ public class CraftingSystem {
         this.storage = storage;
     }
 
-    public void tick(World world) {
+    public void tick(Level world) {
         CraftingRequest request = queuedRequests.poll();
         if (request != null) {
             startRequest(world, request);
@@ -73,7 +73,7 @@ public class CraftingSystem {
 
         boolean checkSuspendedCrafts[] = { false };
         storage.getCraftingInventories().forEach(pos -> {
-            TileEntity te = world.getBlockEntity(pos);
+            BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof CraftingManagerTileEntity) {
                 CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
                 boolean ready = craftingManager.tick(this);
@@ -106,10 +106,10 @@ public class CraftingSystem {
         CraftingManagerTileEntity craftingManager;
     }
 
-    private void startRequest(World world, CraftingRequest request) {
+    private void startRequest(Level world, CraftingRequest request) {
         BestDevice bestDevice = storage.getCraftingInventories().stream().collect(BestDevice::new,
                 (best, pos) -> {
-                    TileEntity te = world.getBlockEntity(pos);
+                    BlockEntity te = world.getBlockEntity(pos);
                     if (te instanceof CraftingManagerTileEntity) {
                         CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
                         Pair<Double, Integer> pair = craftingManager.getCraftingQuality(request.getIngredient(), request.getAmount());
@@ -153,12 +153,12 @@ public class CraftingSystem {
         }
     }
 
-    private void rollback(World world, List<ItemStack> extractedItems) {
+    private void rollback(Level world, List<ItemStack> extractedItems) {
         for (ItemStack stack : extractedItems) {
             ItemStack left = storage.insertInternal(stack, false);
             if (!left.isEmpty()) {
                 // This could not be inserted. Only thing we can do now is to spawn the item on the ground
-                InventoryHelper.dropItemStack(world, storage.getBlockPos().getX() + .5, storage.getBlockPos().getY() + 1.5, storage.getBlockPos().getZ() + .5,
+                Containers.dropItemStack(world, storage.getBlockPos().getX() + .5, storage.getBlockPos().getY() + 1.5, storage.getBlockPos().getZ() + .5,
                         left);
             }
         }
@@ -178,13 +178,13 @@ public class CraftingSystem {
         queuedRequests.add(request);
     }
 
-    public void read(CompoundNBT tag) {
+    public void read(CompoundTag tag) {
         currentRequestId = tag.getInt("currentRequestId");
         // @todo
     }
 
-    public CompoundNBT write() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag write() {
+        CompoundTag tag = new CompoundTag();
         tag.putInt("currentRequestId", currentRequestId);
         // @todo
         return tag;

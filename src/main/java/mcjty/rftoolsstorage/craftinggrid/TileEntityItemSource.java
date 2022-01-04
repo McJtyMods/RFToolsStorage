@@ -1,8 +1,8 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -16,7 +16,7 @@ public class TileEntityItemSource implements IItemSource {
 
     private List<Pair<IItemHandler, Integer>> inventories = new ArrayList<>();
 
-    public TileEntityItemSource add(TileEntity te, int offset) {
+    public TileEntityItemSource add(BlockEntity te, int offset) {
         te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h ->
                 inventories.add(Pair.of(h, offset)));
         return this;
@@ -30,8 +30,8 @@ public class TileEntityItemSource implements IItemSource {
     private static ItemStack getStackInSlot(Object inv, int slot) {
         if (inv instanceof IItemHandler) {
             return ((IItemHandler) inv).getStackInSlot(slot);
-        } else if (inv instanceof IInventory) {
-            return ((IInventory) inv).getItem(slot);
+        } else if (inv instanceof Container) {
+            return ((Container) inv).getItem(slot);
         }
         return ItemStack.EMPTY;
     }
@@ -43,8 +43,8 @@ public class TileEntityItemSource implements IItemSource {
                 return false;
             }
             return handler.insertItem(slot, stack, false).isEmpty();
-        } else if (inv instanceof IInventory) {
-            IInventory inventory = (IInventory) inv;
+        } else if (inv instanceof Container) {
+            Container inventory = (Container) inv;
             ItemStack oldStack = inventory.getItem(slot);
             if (!oldStack.isEmpty()) {
                 if ((stack.getCount() + oldStack.getCount()) > stack.getMaxStackSize()) {
@@ -63,8 +63,8 @@ public class TileEntityItemSource implements IItemSource {
             IItemHandler handler = (IItemHandler) inv;
             ItemStack leftOver = ItemHandlerHelper.insertItem(handler, stack, false);
             return leftOver.getCount();
-        } else if (inv instanceof IInventory) {
-            IInventory inventory = (IInventory) inv;
+        } else if (inv instanceof Container) {
+            Container inventory = (Container) inv;
             // @todo 1.14
 //            return InventoryHelper.mergeItemStack(inventory, true, stack, 0, inventory.getSizeInventory(), null);
             return 0;
@@ -75,8 +75,8 @@ public class TileEntityItemSource implements IItemSource {
     private static int getSizeInventory(Object inv) {
         if (inv instanceof IItemHandler) {
             return ((IItemHandler) inv).getSlots();
-        } else if (inv instanceof IInventory) {
-            return ((IInventory) inv).getContainerSize();
+        } else if (inv instanceof Container) {
+            return ((Container) inv).getContainerSize();
         }
         return 0;
     }

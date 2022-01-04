@@ -1,8 +1,8 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
 import mcjty.rftoolsstorage.modules.craftingmanager.devices.VanillaCraftingDevice;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;

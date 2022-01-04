@@ -9,17 +9,17 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.ChatFormatting;
 
-public class CommandRestore implements Command<CommandSource> {
+public class CommandRestore implements Command<CommandSourceStack> {
 
     private static final CommandRestore CMD = new CommandRestore();
 
-    public static ArgumentBuilder<CommandSource, ?> register(CommandDispatcher<CommandSource> dispatcher) {
+    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
         return Commands.literal("restore")
                 .requires(cs -> cs.hasPermission(2))
                 .then(Commands.argument("uuid", StringArgumentType.word())
@@ -27,13 +27,13 @@ public class CommandRestore implements Command<CommandSource> {
     }
 
     @Override
-    public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
+    public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String uuidString = context.getArgument("uuid", String.class);
 
         ItemStack stack = context.getSource().getPlayerOrException().getMainHandItem();
         if (!(stack.getItem() instanceof StorageModuleItem)) {
             context.getSource().sendSuccess(
-                    new StringTextComponent("Keep a storage module in your main hand!").withStyle(style -> style.applyFormat(TextFormatting.RED)), true);
+                    new TextComponent("Keep a storage module in your main hand!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
             return 0;
         }
 
@@ -45,7 +45,7 @@ public class CommandRestore implements Command<CommandSource> {
             if (storage.getUuid().toString().startsWith(uuidString)) {
                 if (foundEntry != null) {
                     context.getSource().sendSuccess(
-                            new StringTextComponent("Multiple storage entries match this UUID part!").withStyle(style -> style.applyFormat(TextFormatting.RED)), true);
+                            new TextComponent("Multiple storage entries match this UUID part!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
                     return 0;
                 }
                 foundEntry = storage;
@@ -55,14 +55,14 @@ public class CommandRestore implements Command<CommandSource> {
         if (foundEntry != null) {
             if (foundEntry.getStacks().size() != maxSize) {
                 context.getSource().sendSuccess(
-                        new StringTextComponent("Wrong foundEntry module tier! " + foundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(TextFormatting.RED)), true);
+                        new TextComponent("Wrong foundEntry module tier! " + foundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
             } else {
                 stack.getOrCreateTag().putUUID("uuid", foundEntry.getUuid());
                 context.getSource().getPlayerOrException().inventoryMenu.broadcastChanges();
             }
         } else {
             context.getSource().sendSuccess(
-                    new StringTextComponent("No storage found with UUID " + uuidString).withStyle(style -> style.applyFormat(TextFormatting.RED)), true);
+                    new TextComponent("No storage found with UUID " + uuidString).withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
         }
         return 0;
     }

@@ -4,9 +4,9 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,7 +48,7 @@ public class StorageConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
         mode = Mode.values()[tag.getByte("mode")];
         accessSettings.setBlockInputGui(tag.getBoolean("bigui"));
@@ -59,7 +59,7 @@ public class StorageConnectorSettings extends AbstractConnectorSettings {
         accessSettings.setBlockOutputScreen(tag.getBoolean("boscreen"));
         for (int i = 0 ; i < InventoryAccessSettings.FILTER_SIZE ; i++) {
             if (tag.contains("filter" + i)) {
-                CompoundNBT itemTag = tag.getCompound("filter" + i);
+                CompoundTag itemTag = tag.getCompound("filter" + i);
                 accessSettings.getFilters().set(i, ItemStack.of(itemTag));
             } else {
                 accessSettings.getFilters().set(i, ItemStack.EMPTY);
@@ -72,7 +72,7 @@ public class StorageConnectorSettings extends AbstractConnectorSettings {
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
         super.writeToNBT(tag);
         tag.putByte("mode", (byte) mode.ordinal());
         tag.putBoolean("bigui", accessSettings.isBlockInputGui());
@@ -83,7 +83,7 @@ public class StorageConnectorSettings extends AbstractConnectorSettings {
         tag.putBoolean("boscreen", accessSettings.isBlockOutputScreen());
         for (int i = 0 ; i < InventoryAccessSettings.FILTER_SIZE ; i++) {
             if (!accessSettings.getFilters().get(i).isEmpty()) {
-                CompoundNBT itemTag = new CompoundNBT();
+                CompoundTag itemTag = new CompoundTag();
                 accessSettings.getFilters().get(i).save(itemTag);
                 tag.put("filter" + i, itemTag);
             }

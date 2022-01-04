@@ -3,16 +3,16 @@ package mcjty.rftoolsstorage.modules.craftingmanager.devices;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -25,15 +25,15 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     public static final ResourceLocation DEVICE_VANILLA_CRAFTING = new ResourceLocation(RFToolsStorage.MODID, "vanilla_crafting");
 
-    private CraftingInventory inventory = new CraftingInventory(new Container(null, -1) {
+    private CraftingContainer inventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
         @Override
-        public boolean stillValid(@Nonnull PlayerEntity playerIn) {
+        public boolean stillValid(@Nonnull Player playerIn) {
             return false;
         }
     }, 3, 3);
 
     private ItemStack cardStack = ItemStack.EMPTY;
-    private IRecipe recipe;
+    private Recipe recipe;
     private int ticks = -1;
 
     @Override
@@ -42,7 +42,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     }
 
     @Override
-    public void setupCraft(@Nonnull World world, @Nonnull ItemStack cardStack) {
+    public void setupCraft(@Nonnull Level world, @Nonnull ItemStack cardStack) {
         this.cardStack = cardStack;
         recipe = CraftingCardItem.findRecipe(world, cardStack, getRecipeType());
     }
@@ -64,7 +64,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     }
 
     @Override
-    public boolean insertIngredients(World world, List<ItemStack> items) {
+    public boolean insertIngredients(Level world, List<ItemStack> items) {
         if (recipe == null) {
             return false;
         }
@@ -122,20 +122,20 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     }
 
     @Override
-    public IRecipeType<?> getRecipeType() {
-        return IRecipeType.CRAFTING;
+    public RecipeType<?> getRecipeType() {
+        return RecipeType.CRAFTING;
     }
 
     @Override
-    public void read(CompoundNBT tag) {
+    public void read(CompoundTag tag) {
         cardStack = ItemStack.of(tag.getCompound("cardStack"));
         ticks = tag.getInt("ticks");
     }
 
     @Override
-    public void write(CompoundNBT tag) {
+    public void write(CompoundTag tag) {
         tag.putInt("ticks", ticks);
-        CompoundNBT compoundNBT = new CompoundNBT();
+        CompoundTag compoundNBT = new CompoundTag();
         cardStack.save(compoundNBT);
         tag.put("cardStack", compoundNBT);
     }

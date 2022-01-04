@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.modularstorage.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.BaseSlot;
@@ -28,16 +29,16 @@ import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.storage.modules.DefaultTypeModule;
 import mcjty.rftoolsstorage.storage.modules.TypeModule;
 import mcjty.rftoolsstorage.storage.sorters.ItemSorter;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -82,7 +83,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     private GuiCraftingGrid craftingGrid;
 
-    public GuiModularStorage(ModularStorageTileEntity tileEntity, ModularStorageContainer container, PlayerInventory inventory) {
+    public GuiModularStorage(ModularStorageTileEntity tileEntity, ModularStorageContainer container, Inventory inventory) {
         super(tileEntity, container, inventory, ModularStorageModule.MODULAR_STORAGE.get().getManualEntry());
 
         craftingGrid = new GuiCraftingGrid();
@@ -220,9 +221,9 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             warningLabel.visible(!tileEntity.isLocked());
             itemList.visible(tileEntity.isLocked());
         } else {
-            ItemStack heldItem = minecraft.player.getItemInHand(Hand.MAIN_HAND);
+            ItemStack heldItem = minecraft.player.getItemInHand(InteractionHand.MAIN_HAND);
             if (!heldItem.isEmpty() && heldItem.hasTag()) {
-                CompoundNBT tagCompound = heldItem.getTag();
+                CompoundTag tagCompound = heldItem.getTag();
                 filter.text(ModularStorageConfiguration.clearSearchOnOpen.get() ? "" : tagCompound.getString("filter"));
                 setViewMode(tagCompound.getString("viewMode"));
                 setSortMode(tagCompound.getString("sortMode"));
@@ -513,7 +514,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         if (tileEntity != null) {
             return false;
         }
-        ItemStack heldItem = minecraft.player.getItemInHand(Hand.MAIN_HAND);
+        ItemStack heldItem = minecraft.player.getItemInHand(InteractionHand.MAIN_HAND);
         if (!heldItem.isEmpty() && heldItem.hasTag()) {
             int storageType = heldItem.getTag().getInt("childDamage");
             return storageType == StorageModuleItem.STORAGE_REMOTE;
@@ -598,7 +599,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int i, int i2) {
         updateList();
 
         if (tileEntity != null) {
@@ -615,11 +616,11 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void renderTooltip(@Nonnull MatrixStack matrixStack, int x, int y) {
+    protected void renderTooltip(@Nonnull PoseStack matrixStack, int x, int y) {
         Slot slot = findSlot(x, y);
         if (slot instanceof SlotItemHandler && !(slot instanceof BaseSlot) && !(slot instanceof GhostOutputSlot) && !(slot instanceof GhostSlot)) {
             if (tileEntity.isLocked()) {
-                renderTooltip(matrixStack, new StringTextComponent("Unlock to access these slots").withStyle(TextFormatting.RED), x, y);
+                renderTooltip(matrixStack, new TextComponent("Unlock to access these slots").withStyle(ChatFormatting.RED), x, y);
                 return;
             }
         }
@@ -627,11 +628,11 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void drawStackTooltips(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void drawStackTooltips(PoseStack matrixStack, int mouseX, int mouseY) {
     }
 
     @Override
-    protected void renderLabels(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void renderLabels(@Nonnull PoseStack matrixStack, int mouseX, int mouseY) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
 
@@ -641,7 +642,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         }
 
         if (tileEntity.isLocked()) {
-            minecraft.getTextureManager().bind(guiElements);
+
+            RenderSystem.setShaderTexture(0, guiElements);
 
             int offset = 300;
             blit(matrixStack, 5, imageHeight-79, offset, 96, 96, 16, 16, 256, 256);
@@ -658,7 +660,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
 
     @Override
-    protected void drawWindow(MatrixStack matrixStack) {
+    protected void drawWindow(PoseStack matrixStack) {
         super.drawWindow(matrixStack);
         craftingGrid.draw(matrixStack);
     }

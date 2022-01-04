@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
-import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Ingredient;
 
 public class CraftingRequest {
 

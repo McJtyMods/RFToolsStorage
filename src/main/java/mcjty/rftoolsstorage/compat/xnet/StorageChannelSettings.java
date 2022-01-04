@@ -11,12 +11,12 @@ import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -38,12 +38,12 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
     private int delay = 0;
 
     @Override
-    public void readFromNBT(CompoundNBT tag) {
+    public void readFromNBT(CompoundTag tag) {
 
     }
 
     @Override
-    public void writeToNBT(CompoundNBT tag) {
+    public void writeToNBT(CompoundTag tag) {
 
     }
 
@@ -59,7 +59,7 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
         }
         delay = 10;
 
-        World world = context.getControllerWorld();
+        Level world = context.getControllerWorld();
         for (Pair<SidedConsumer, StorageConnectorSettings> entry : storageControllers) {
             BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
             if (extractorPos != null) {
@@ -69,7 +69,7 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
                     continue;
                 }
 
-                TileEntity te = world.getBlockEntity(pos);
+                BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof StorageScannerTileEntity) {
                     StorageScannerTileEntity scanner = (StorageScannerTileEntity) te;
                     scanner.register(access);
@@ -83,7 +83,7 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
         if (consumerPos != null) {
             Direction side = sidedConsumer.getSide();
             BlockPos pos = consumerPos.relative(side);
-            TileEntity te = context.getControllerWorld().getBlockEntity(pos);
+            BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
             if (te != null) {
                 LazyOptional<IItemHandler> handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
                 if (handler.isPresent()) {

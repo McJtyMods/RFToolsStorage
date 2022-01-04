@@ -1,9 +1,9 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 
 public class CraftingGrid {
 
@@ -51,12 +51,12 @@ public class CraftingGrid {
         }
     }
 
-    public CompoundNBT writeToNBT() {
-        CompoundNBT tagCompound = new CompoundNBT();
+    public CompoundTag writeToNBT() {
+        CompoundTag tagCompound = new CompoundTag();
 
-        ListNBT bufferTagList = new ListNBT();
+        ListTag bufferTagList = new ListTag();
         for (int i = 0 ; i < craftingGridInventory.getSlots() ; i++) {
-            CompoundNBT CompoundNBT = new CompoundNBT();
+            CompoundTag CompoundNBT = new CompoundTag();
             ItemStack stack = craftingGridInventory.getStackInSlot(i);
             if (!stack.isEmpty()) {
                 stack.save(CompoundNBT);
@@ -65,9 +65,9 @@ public class CraftingGrid {
         }
         tagCompound.put("grid", bufferTagList);
 
-        ListNBT recipeTagList = new ListNBT();
+        ListTag recipeTagList = new ListTag();
         for (CraftingRecipe recipe : recipes) {
-            CompoundNBT CompoundNBT = new CompoundNBT();
+            CompoundTag CompoundNBT = new CompoundTag();
             recipe.writeToNBT(CompoundNBT);
             recipeTagList.add(CompoundNBT);
         }
@@ -76,20 +76,20 @@ public class CraftingGrid {
         return tagCompound;
     }
 
-    public void readFromNBT(CompoundNBT tagCompound) {
+    public void readFromNBT(CompoundTag tagCompound) {
         if (tagCompound == null) {
             return;
         }
-        ListNBT bufferTagList = tagCompound.getList("grid", Constants.NBT.TAG_COMPOUND);
+        ListTag bufferTagList = tagCompound.getList("grid", Tag.TAG_COMPOUND);
         for (int i = 0 ; i < craftingGridInventory.getSlots() ; i++) {
-            CompoundNBT CompoundNBT = bufferTagList.getCompound(i);
+            CompoundTag CompoundNBT = bufferTagList.getCompound(i);
             craftingGridInventory.setStackInSlot(i, ItemStack.of(CompoundNBT));
         }
 
-        ListNBT recipeTagList = tagCompound.getList("recipes", Constants.NBT.TAG_COMPOUND);
+        ListTag recipeTagList = tagCompound.getList("recipes", Tag.TAG_COMPOUND);
         for (int i = 0 ; i < recipeTagList.size() ; i++) {
             recipes[i] = new CraftingRecipe();
-            CompoundNBT CompoundNBT = recipeTagList.getCompound(i);
+            CompoundTag CompoundNBT = recipeTagList.getCompound(i);
             recipes[i].readFromNBT(CompoundNBT);
         }
     }

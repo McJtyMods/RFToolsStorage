@@ -8,19 +8,19 @@ import mcjty.rftoolsstorage.modules.modularstorage.client.SlotOffsetCalculator;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.modules.modularstorage.network.PacketStorageInfoToClient;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.IContainerListener;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.network.NetworkDirection;
 
 import javax.annotation.Nonnull;
 
@@ -46,12 +46,12 @@ public class ModularStorageContainer extends GenericContainer {
             .box(ghost(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET, 3, 3)
             .range(ghostOut(), CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT, CraftingGridInventory.GRID_XOFFSET, CraftingGridInventory.GRID_YOFFSET + 58, 1, 18));
 
-    public ModularStorageContainer(int id, BlockPos pos, ModularStorageTileEntity tileEntity, @Nonnull PlayerEntity player) {
+    public ModularStorageContainer(int id, BlockPos pos, ModularStorageTileEntity tileEntity, @Nonnull Player player) {
         super(ModularStorageModule.CONTAINER_MODULAR_STORAGE.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity, player);
     }
 
     @Override
-    public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
+    public void setupInventories(IItemHandler itemHandler, Inventory inventory) {
         ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
         addInventory(CONTAINER_CARDS, modularStorageTileEntity.getCardHandler());        // The three cards
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
@@ -72,7 +72,7 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     @Override
-    public void generateSlots(PlayerEntity player) {
+    public void generateSlots(Player player) {
         boolean onClient = getTe().getLevel().isClientSide();
 
         for (SlotFactory slotFactory : CONTAINER_FACTORY.get().getSlots()) {
@@ -80,7 +80,7 @@ public class ModularStorageContainer extends GenericContainer {
             if (slotFactory.getSlotType() == SlotType.SLOT_GHOST) {
                 slot = new GhostSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
                     @Override
-                    public boolean mayPickup(PlayerEntity player) {
+                    public boolean mayPickup(Player player) {
                         if (!isLocked()) {
                             return false;
                         }
@@ -106,7 +106,7 @@ public class ModularStorageContainer extends GenericContainer {
             } else if (slotFactory.getSlotType() == SlotType.SLOT_GHOSTOUT) {
                 slot = new GhostOutputSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
                     @Override
-                    public boolean mayPickup(PlayerEntity player) {
+                    public boolean mayPickup(Player player) {
                         if (!isLocked()) {
                             return false;
                         }
@@ -160,19 +160,14 @@ public class ModularStorageContainer extends GenericContainer {
         }
     }
 
-    @Override
-    public void setItem(int slotID, @Nonnull ItemStack stack) {
-        super.setItem(slotID, stack);
-    }
-
     @Nonnull
     @Override
-    public ItemStack clicked(int index, int button, @Nonnull ClickType mode, @Nonnull PlayerEntity player) {
+    public void clicked(int index, int button, @Nonnull ClickType mode, @Nonnull Player player) {
         if (index == SLOT_STORAGE_MODULE && !player.getCommandSenderWorld().isClientSide) {
             // @todo 1.14
 //            modularStorageTileEntity.copyToModule();
         }
-        return super.clicked(index, button, mode, player);
+        super.clicked(index, button, mode, player);
     }
 
     @Override
@@ -186,13 +181,13 @@ public class ModularStorageContainer extends GenericContainer {
         String filter = modularStorageTileEntity.getFilter();
         boolean locked = modularStorageTileEntity.isLocked();
 
-        for (IContainerListener listener : this.containerListeners) {
-            if (listener instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) listener;
+        for (ContainerListener listener : this.containerListeners) {
+            if (listener instanceof Player) {
+                Player player = (Player) listener;
                 RFToolsStorageMessages.INSTANCE.sendTo(new PacketStorageInfoToClient(
                         modularStorageTileEntity.getBlockPos(),
                         sortMode, viewMode, groupMode, filter, locked),
-                        ((ServerPlayerEntity)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                        ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             }
         }
     }

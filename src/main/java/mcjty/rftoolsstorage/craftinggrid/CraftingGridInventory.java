@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.lib.varia.ItemStackList;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;

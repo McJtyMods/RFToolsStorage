@@ -3,9 +3,9 @@ package mcjty.rftoolsstorage.storage.network;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -13,11 +13,11 @@ import java.util.function.Supplier;
 public class PacketRequestStorageFromServer {
     private UUID uuid;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(uuid);
     }
 
-    public PacketRequestStorageFromServer(PacketBuffer buf) {
+    public PacketRequestStorageFromServer(FriendlyByteBuf buf) {
         this.uuid = buf.readUUID();
     }
 

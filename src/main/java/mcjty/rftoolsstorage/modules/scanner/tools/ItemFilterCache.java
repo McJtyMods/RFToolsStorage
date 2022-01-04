@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.tools;
 
 import mcjty.lib.varia.ItemStackList;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 

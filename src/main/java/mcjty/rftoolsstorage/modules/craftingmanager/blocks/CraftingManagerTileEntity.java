@@ -13,23 +13,24 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Containers;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.ModelDataManager;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.client.model.data.ModelProperty;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
@@ -59,7 +60,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             .build();
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
             .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getBlockPos(), CraftingManagerTileEntity.this, player))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
@@ -67,8 +68,8 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     private final CraftingQueue[] queues = new CraftingQueue[4];
     private boolean devicesDirty = true;
 
-    public CraftingManagerTileEntity() {
-        super(CraftingManagerModule.TYPE_CRAFTING_MANAGER.get());
+    public CraftingManagerTileEntity(BlockPos pos, BlockState state) {
+        super(CraftingManagerModule.TYPE_CRAFTING_MANAGER.get(), pos, state);
         for (int i = 0; i < 4; i++) {
             queues[i] = new CraftingQueue();
         }
@@ -107,7 +108,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         for (ItemStack stack : output) {
             ItemStack left = storage.insertInternal(stack, false);
             // @todo What should we do here? Currently we just spawn the items in the world
-            InventoryHelper.dropItemStack(level, storage.getBlockPos().getX() + .5, storage.getBlockPos().getY() + 1.5, storage.getBlockPos().getZ() + .5, left);
+            Containers.dropItemStack(level, storage.getBlockPos().getX() + .5, storage.getBlockPos().getY() + 1.5, storage.getBlockPos().getZ() + .5, left);
         }
     }
 
@@ -259,7 +260,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
         ItemStack origMimic0 = items.getStackInSlot(0);
         ItemStack origMimic1 = items.getStackInSlot(1);
         ItemStack origMimic2 = items.getStackInSlot(2);
@@ -271,7 +272,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         ItemStack mimic3 = items.getStackInSlot(3);
         if (!ItemStack.isSame(origMimic0, mimic0) || !ItemStack.isSame(origMimic1, mimic1) || !ItemStack.isSame(origMimic2, mimic2) || !ItemStack.isSame(origMimic3, mimic3)) {
             ModelDataManager.requestModelDataRefresh(this);
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE + Constants.BlockFlags.NOTIFY_NEIGHBORS);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
 
@@ -294,12 +295,12 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 
 
     @Override
-    public void load(CompoundNBT tagCompound) {
+    public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
-        ListNBT deviceList = tagCompound.getList("devices", Constants.NBT.TAG_COMPOUND);
+        ListTag deviceList = tagCompound.getList("devices", Tag.TAG_COMPOUND);
         int i = 0;
-        for (INBT nbt : deviceList) {
-            CompoundNBT deviceNBT = (CompoundNBT) nbt;
+        for (Tag nbt : deviceList) {
+            CompoundTag deviceNBT = (CompoundTag) nbt;
             if (!deviceNBT.isEmpty()) {
                 ResourceLocation deviceId = new ResourceLocation(deviceNBT.getString("deviceId"));
                 Supplier<ICraftingDevice> deviceSupplier = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
@@ -312,11 +313,11 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         super.saveAdditional(tagCompound);
-        ListNBT deviceList = new ListNBT();
+        ListTag deviceList = new ListTag();
         for (CraftingQueue queue : queues) {
-            CompoundNBT deviceNBT = new CompoundNBT();
+            CompoundTag deviceNBT = new CompoundTag();
             if (queue.hasDevice()) {
                 queue.getDevice().write(deviceNBT);
                 deviceNBT.putString("deviceId", queue.getDevice().getID().toString());

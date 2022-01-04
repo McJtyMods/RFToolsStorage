@@ -4,22 +4,21 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.network.NetworkDirection;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -31,16 +30,16 @@ import java.util.Optional;
 public class StorageCraftingTools {
 
     @Nonnull
-    private static int[] tryRecipe(PlayerEntity player, CraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
-        CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
+    private static int[] tryRecipe(Player player, CraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
+        CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
-            public boolean stillValid(@Nonnull PlayerEntity var1) {
+            public boolean stillValid(@Nonnull Player var1) {
                 return false;
             }
         }, 3, 3);
 
-        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
-        List<Ingredient> ingredients = recipe.map(IRecipe::getIngredients).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
+        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        List<Ingredient> ingredients = recipe.map(Recipe::getIngredients).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
 
         int[] missingCount = new int[10];
         for (int i = 0; i < 10; i++) {
@@ -95,11 +94,11 @@ public class StorageCraftingTools {
         return missingCount;
     }
 
-    private static List<ItemStack> testAndConsumeCraftingItems(PlayerEntity player, CraftingRecipe craftingRecipe,
+    private static List<ItemStack> testAndConsumeCraftingItems(Player player, CraftingRecipe craftingRecipe,
                                                                IItemSource itemSource) {
-        CraftingInventory workInventory = new CraftingInventory(new Container(null, -1) {
+        CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
-            public boolean stillValid(@Nonnull PlayerEntity var1) {
+            public boolean stillValid(@Nonnull Player var1) {
                 return false;
             }
         }, 3, 3);
@@ -107,7 +106,7 @@ public class StorageCraftingTools {
         List<Pair<IItemKey, ItemStack>> undo = new ArrayList<>();
         List<ItemStack> result = new ArrayList<>();
 
-        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         return recipe.map(r -> {
             int w = 3;
             int h = 3;
@@ -162,7 +161,7 @@ public class StorageCraftingTools {
         }).orElse(result);
     }
 
-    private static int findMatchingItems(CraftingInventory workInventory,
+    private static int findMatchingItems(CraftingContainer workInventory,
                                          List<Pair<IItemKey, ItemStack>> undo, int i,
                                          @Nonnull Ingredient stack,
                                          int count, IItemSource itemSource) {
@@ -188,7 +187,7 @@ public class StorageCraftingTools {
         return count;
     }
 
-    private static void undo(PlayerEntity player, IItemSource itemSource, List<Pair<IItemKey, ItemStack>> undo) {
+    private static void undo(Player player, IItemSource itemSource, List<Pair<IItemKey, ItemStack>> undo) {
         for (Pair<IItemKey, ItemStack> pair : undo) {
             ItemStack stack = pair.getValue();
             if (!itemSource.insertStack(pair.getKey(), stack)) {
@@ -205,8 +204,8 @@ public class StorageCraftingTools {
         player.containerMenu.broadcastChanges();
     }
 
-    public static void craftItems(PlayerEntity player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+    public static void craftItems(Player player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
+        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
             return;
@@ -236,7 +235,7 @@ public class StorageCraftingTools {
                         return;
                     }
                     for (ItemStack stack : result) {
-                        if (!player.inventory.add(stack)) {
+                        if (!player.getInventory().add(stack)) {
                             player.spawnAtLocation(stack, 1.05f);
                         }
                     }
@@ -247,8 +246,8 @@ public class StorageCraftingTools {
 
 
     @Nonnull
-    public static int[] testCraftItems(PlayerEntity player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<ICraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+    public static int[] testCraftItems(Player player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
+        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
             return new int[0];
@@ -284,22 +283,22 @@ public class StorageCraftingTools {
         }).orElse(new int[0]);
     }
 
-    public static void craftFromGrid(PlayerEntity player, int count, boolean test, BlockPos pos, RegistryKey<World> type) {
+    public static void craftFromGrid(Player player, int count, boolean test, BlockPos pos, ResourceKey<Level> type) {
 //        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);  // @todo 1.14
         int[] testResult = new int[0];
-        TileEntity te = LevelTools.getLevel(player.getCommandSenderWorld(), type).getBlockEntity(pos);
+        BlockEntity te = LevelTools.getLevel(player.getCommandSenderWorld(), type).getBlockEntity(pos);
         if (te instanceof CraftingGridProvider) {
             testResult = ((CraftingGridProvider) te).craft(player, count, test);
         }
         if (testResult.length > 0) {
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketCraftTestResultToClient(testResult), ((ServerPlayerEntity) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorageMessages.INSTANCE.sendTo(new PacketCraftTestResultToClient(testResult), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
-    public static void requestGridSync(PlayerEntity player, BlockPos pos, RegistryKey<World> type) {
-        World world = LevelTools.getLevel(player.getCommandSenderWorld(), type);
+    public static void requestGridSync(Player player, BlockPos pos, ResourceKey<Level> type) {
+        Level world = LevelTools.getLevel(player.getCommandSenderWorld(), type);
         CraftingGridProvider provider = null;
-        TileEntity te = world.getBlockEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof CraftingGridProvider && te instanceof GenericTileEntity) {
             provider = ((CraftingGridProvider) te);
         }
@@ -309,7 +308,7 @@ public class StorageCraftingTools {
         }
 
         if (provider != null) {
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketGridToClient(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), ((ServerPlayerEntity) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorageMessages.INSTANCE.sendTo(new PacketGridToClient(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 }

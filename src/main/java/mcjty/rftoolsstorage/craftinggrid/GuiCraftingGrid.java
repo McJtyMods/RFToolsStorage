@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GenericContainer;
@@ -16,19 +16,17 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -53,14 +51,14 @@ public class GuiCraftingGrid {
     private GenericGuiContainer<?, ?> gui;
     private CraftingGridProvider provider;
     private BlockPos pos;
-    private RegistryKey<World> type;
+    private ResourceKey<Level> type;
 
     public static int[] testResultFromServer = null;
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
     public void initGui(final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?, ?> gui,
-                        BlockPos pos, RegistryKey<World> type, CraftingGridProvider provider,
+                        BlockPos pos, ResourceKey<Level> type, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;
         this.gui = gui;
@@ -144,12 +142,12 @@ public class GuiCraftingGrid {
     private void populateList() {
         recipeList.removeChildren();
         for (int i = 0; i < 6; i++) {
-            CraftingRecipe recipe = provider.getCraftingGrid().getRecipe(i);
+            mcjty.rftoolsstorage.craftinggrid.CraftingRecipe recipe = provider.getCraftingGrid().getRecipe(i);
             addRecipeLine(recipe.getResult());
         }
     }
 
-    public void draw(MatrixStack matrixStack) {
+    public void draw(PoseStack matrixStack) {
         int selected = recipeList.getSelected();
         storeButton.enabled(selected != -1);
         populateList();
@@ -179,27 +177,27 @@ public class GuiCraftingGrid {
             matrixStack.translate(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
 
             if (testResultFromServer[9] > 0) {
-                Container container = gui.getMenu();
+                AbstractContainerMenu container = gui.getMenu();
                 if (container instanceof GenericContainer) {
                     Slot slot = ((GenericContainer) container).getSlotByInventoryAndIndex(CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTOUTPUT);
                     if (slot != null) {
                         GlStateManager._colorMask(true, true, true, false);
                         int xPos = slot.x;
                         int yPos = slot.y;
-                        AbstractGui.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
+                        GuiComponent.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                     }
                 }
             }
             for (int i = 0; i < 9; i++) {
                 if (testResultFromServer[i] > 0) {
-                    Container container = gui.getMenu();
+                    AbstractContainerMenu container = gui.getMenu();
                     if (container instanceof GenericContainer) {
                         Slot slot = ((GenericContainer) container).getSlotByInventoryAndIndex(CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT + i);
                         if (slot != null) {
                             GlStateManager._colorMask(true, true, true, false);
                             int xPos = slot.x;
                             int yPos = slot.y;
-                            AbstractGui.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
+                            GuiComponent.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                         }
                     }
                 }
@@ -209,9 +207,9 @@ public class GuiCraftingGrid {
     }
 
     private void testRecipe() {
-        CraftingInventory inv = new CraftingInventory(new Container(null, -1) {
+        CraftingContainer inv = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
-            public boolean stillValid(@Nonnull PlayerEntity var1) {
+            public boolean stillValid(@Nonnull Player var1) {
                 return false;
             }
         }, 3, 3);
@@ -221,7 +219,7 @@ public class GuiCraftingGrid {
         }
 
         // Compare current contents to avoid unneeded slot update.
-        Optional<ICraftingRecipe> recipe = CraftingRecipe.findRecipe(mc.level, inv);
+        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = CraftingRecipe.findRecipe(mc.level, inv);
         ItemStack newResult = recipe.map(r -> r.assemble(inv)).orElse(ItemStack.EMPTY);
         provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }

@@ -4,15 +4,15 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.SafeClientTools;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,10 @@ import java.util.List;
 public class PacketGridSync {
 
     protected BlockPos pos;
-    protected RegistryKey<World> type;
+    protected ResourceKey<Level> type;
     private List<ItemStack[]> recipes;
 
-    public void convertFromBytes(PacketBuffer buf) {
+    public void convertFromBytes(FriendlyByteBuf buf) {
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
         } else {
@@ -42,7 +42,7 @@ public class PacketGridSync {
         }
     }
 
-    public void convertToBytes(PacketBuffer buf) {
+    public void convertToBytes(FriendlyByteBuf buf) {
         if (pos != null) {
             buf.writeBoolean(true);
             buf.writeBlockPos(pos);
@@ -59,13 +59,13 @@ public class PacketGridSync {
         }
     }
 
-    protected void init(BlockPos pos, RegistryKey<World> type, CraftingGrid grid) {
+    protected void init(BlockPos pos, ResourceKey<Level> type, CraftingGrid grid) {
         this.pos = pos;
         this.type = type;
         recipes = new ArrayList<>();
         for (int i = 0 ; i < 6 ; i++) {
             CraftingRecipe recipe = grid.getRecipe(i);
-            CraftingInventory inventory = recipe.getInventory();
+            CraftingContainer inventory = recipe.getInventory();
             ItemStack[] stacks = new ItemStack[10];
             stacks[0] = recipe.getResult();
             for (int j = 0 ; j < 9 ; j++) {
@@ -75,10 +75,10 @@ public class PacketGridSync {
         }
     }
 
-    protected CraftingGridProvider handleMessage(World world, PlayerEntity player) {
+    protected CraftingGridProvider handleMessage(Level world, Player player) {
         CraftingGridProvider provider = null;
 
-        TileEntity te;
+        BlockEntity te;
         if (pos == null) {
             // We are working from a tablet. Find the tile entity through the open container
             GenericContainer container = getOpenContainer();
@@ -104,7 +104,7 @@ public class PacketGridSync {
     }
 
     private static GenericContainer getOpenContainer() {
-        Container container = SafeClientTools.getClientPlayer().containerMenu;
+        AbstractContainerMenu container = SafeClientTools.getClientPlayer().containerMenu;
         if (container instanceof GenericContainer) {
             return (GenericContainer) container;
         } else {

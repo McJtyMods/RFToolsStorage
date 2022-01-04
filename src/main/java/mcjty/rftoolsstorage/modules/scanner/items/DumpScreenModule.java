@@ -10,14 +10,14 @@ import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 
 import java.util.Objects;
 
@@ -27,17 +27,17 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
     public static final int ROWS = 4;
 
     private ItemStackList stacks = ItemStackList.create(COLS * ROWS);
-    protected RegistryKey<World> dim = World.OVERWORLD;
+    protected ResourceKey<Level> dim = Level.OVERWORLD;
     protected BlockPos coordinate = BlockPosTools.INVALID;
     private boolean matchingTag = false;
 
     @Override
-    public IModuleDataBoolean getData(IScreenDataHelper helper, World worldObj, long millis) {
+    public IModuleDataBoolean getData(IScreenDataHelper helper, Level worldObj, long millis) {
         return null;
     }
 
     @Override
-    public void setupFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
+    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
         if (tagCompound != null) {
             setupCoordinateFromNBT(tagCompound, dim, pos);
             for (int i = 0; i < stacks.size(); i++) {
@@ -48,7 +48,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
         }
     }
 
-    protected void setupCoordinateFromNBT(CompoundNBT tagCompound, RegistryKey<World> dim, BlockPos pos) {
+    protected void setupCoordinateFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
         coordinate = BlockPosTools.INVALID;
         matchingTag = tagCompound.getBoolean("matchingTag");
         if (tagCompound.contains("monitorx")) {
@@ -90,12 +90,12 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
     }
 
     @Override
-    public void mouseClick(World world, int x, int y, boolean clicked, PlayerEntity player) {
+    public void mouseClick(Level world, int x, int y, boolean clicked, Player player) {
         if ((!clicked) || player == null) {
             return;
         }
         if (BlockPosTools.INVALID.equals(coordinate)) {
-            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Module is not linked to storage scanner!"), false);
+            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
             return;
         }
 
@@ -105,10 +105,10 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
         }
         int xoffset = 5;
         if (x >= xoffset) {
-            for (int i = 0; i < player.inventory.getContainerSize(); i++) {
-                if (isShown(player.inventory.getItem(i))) {
-                    ItemStack stack = scannerTileEntity.injectStackFromScreen(player.inventory.getItem(i), player);
-                    player.inventory.setItem(i, stack);
+            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                if (isShown(player.getInventory().getItem(i))) {
+                    ItemStack stack = scannerTileEntity.injectStackFromScreen(player.getInventory().getItem(i), player);
+                    player.getInventory().setItem(i, stack);
                 }
             }
             player.containerMenu.broadcastChanges();

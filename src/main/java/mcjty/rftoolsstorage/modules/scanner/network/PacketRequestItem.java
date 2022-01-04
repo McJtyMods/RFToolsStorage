@@ -3,26 +3,26 @@ package mcjty.rftoolsstorage.modules.scanner.network;
 import mcjty.lib.network.NetworkTools;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class PacketRequestItem {
 
-    private RegistryKey<World> dimensionId;
+    private ResourceKey<Level> dimensionId;
     private BlockPos pos;
     private BlockPos inventoryPos;
     private ItemStack item;
     private int amount;
     private boolean craftable;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeResourceLocation(dimensionId.location());
         buf.writeBlockPos(pos);
         buf.writeBlockPos(inventoryPos);
@@ -34,7 +34,7 @@ public class PacketRequestItem {
     public PacketRequestItem() {
     }
 
-    public PacketRequestItem(PacketBuffer buf) {
+    public PacketRequestItem(FriendlyByteBuf buf) {
         dimensionId = LevelTools.getId(buf.readResourceLocation());
         pos = buf.readBlockPos();
         inventoryPos = buf.readBlockPos();
@@ -43,7 +43,7 @@ public class PacketRequestItem {
         craftable = buf.readBoolean();
     }
 
-    public PacketRequestItem(RegistryKey<World>
+    public PacketRequestItem(ResourceKey<Level>
                                      dimensionId, BlockPos pos, BlockPos inventoryPos, ItemStack item, int amount, boolean craftable) {
         this.dimensionId = dimensionId;
         this.pos = pos;
@@ -56,14 +56,14 @@ public class PacketRequestItem {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            World world = LevelTools.getLevel(ctx.getSender().level, dimensionId);
+            Level world = LevelTools.getLevel(ctx.getSender().level, dimensionId);
             if (world == null) {
                 return;
             }
             if (!LevelTools.isLoaded(world, pos)) {
                 return;
             }
-            TileEntity te = world.getBlockEntity(pos);
+            BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof StorageScannerTileEntity) {
                 StorageScannerTileEntity tileEntity = (StorageScannerTileEntity) te;
                 if (craftable) {

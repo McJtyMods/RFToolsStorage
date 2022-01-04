@@ -12,11 +12,11 @@ import mcjty.rftoolsstorage.modules.scanner.items.DumpModuleItem;
 import mcjty.rftoolsstorage.modules.scanner.items.StorageControlModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -26,9 +26,9 @@ public class StorageScannerModule implements IModule {
 
     public static final RegistryObject<StorageScannerBlock> STORAGE_SCANNER = BLOCKS.register("storage_scanner", StorageScannerBlock::new);
     public static final RegistryObject<Item> STORAGE_SCANNER_ITEM = ITEMS.register("storage_scanner", () -> new BlockItem(STORAGE_SCANNER.get(), Registration.createStandardProperties()));
-    public static final RegistryObject<TileEntityType<?>> TYPE_STORAGE_SCANNER = TILES.register("storage_scanner", () -> TileEntityType.Builder.of(StorageScannerTileEntity::new, STORAGE_SCANNER.get()).build(null));
-    public static final RegistryObject<ContainerType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER = CONTAINERS.register("storage_scanner", GenericContainer::createContainerType);
-    public static final RegistryObject<ContainerType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER_REMOTE = CONTAINERS.register("storage_scanner_remote",
+    public static final RegistryObject<BlockEntityType<?>> TYPE_STORAGE_SCANNER = TILES.register("storage_scanner", () -> BlockEntityType.Builder.of(StorageScannerTileEntity::new, STORAGE_SCANNER.get()).build(null));
+    public static final RegistryObject<MenuType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER = CONTAINERS.register("storage_scanner", GenericContainer::createContainerType);
+    public static final RegistryObject<MenuType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER_REMOTE = CONTAINERS.register("storage_scanner_remote",
             () -> GenericContainer.createRemoteContainerType(StorageScannerTileEntity::new, StorageScannerContainer::createRemote, StorageScannerContainer.SLOTS));
 
     public static final RegistryObject<Item> STORAGECONTROL_MODULE = ITEMS.register("storage_control_module", StorageControlModuleItem::new);

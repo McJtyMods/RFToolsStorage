@@ -1,10 +1,10 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 
-public enum ModularAmountOverlay implements IStringSerializable {
+public enum ModularAmountOverlay implements StringRepresentable {
     AMOUNT_NONE("none"),
     AMOUNT_EMPTY("empty"),
     AMOUNT_G0("g0"),

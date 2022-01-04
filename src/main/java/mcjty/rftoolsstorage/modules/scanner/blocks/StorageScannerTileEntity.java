@@ -33,25 +33,25 @@ import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemCount;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemKey;
 import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
 import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -121,7 +121,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             .build();
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId, player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this, player))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items)
@@ -133,16 +133,16 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     private final CraftingGrid craftingGrid = new CraftingGrid();
 
     // If set this is a dummy tile entity
-    private RegistryKey<World> dummyType = null;
+    private ResourceKey<Level> dummyType = null;
 
-    public StorageScannerTileEntity() {
-        super(StorageScannerModule.TYPE_STORAGE_SCANNER.get());
+    public StorageScannerTileEntity(BlockPos pos, BlockState state) {
+        super(StorageScannerModule.TYPE_STORAGE_SCANNER.get(), pos, state);
         radius = (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) ? 0 : 1;
     }
 
     // Used for a dummy tile entity (tablet usage)
-    public StorageScannerTileEntity(RegistryKey<World> type) {
-        this();
+    public StorageScannerTileEntity(ResourceKey<Level> type) {
+        this(BlockPos.ZERO, null);
         dummyType = type;
     }
 
@@ -169,19 +169,19 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     @Override
     @Nonnull
-    public int[] craft(PlayerEntity player, int n, boolean test) {
+    public int[] craft(Player player, int n, boolean test) {
         CraftingRecipe activeRecipe = craftingGrid.getActiveRecipe();
         return craft(player, n, test, activeRecipe);
     }
 
     @Nonnull
-    public int[] craft(PlayerEntity player, int n, boolean test, CraftingRecipe activeRecipe) {
+    public int[] craft(Player player, int n, boolean test, CraftingRecipe activeRecipe) {
         TileEntityItemSource itemSource = new TileEntityItemSource()
-                .add(new InvWrapper(player.inventory), 0);
+                .add(new InvWrapper(player.getInventory()), 0);
         inventories.stream()
                 .filter(p -> isOutputFromGui(p) && isRoutable(p))
                 .forEachOrdered(p -> {
-                    TileEntity tileEntity = level.getBlockEntity(p);
+                    BlockEntity tileEntity = level.getBlockEntity(p);
                     if (tileEntity instanceof CraftingManagerTileEntity) {
                         // @todo crafting manager
                     } else if (tileEntity != null && !(tileEntity instanceof StorageScannerTileEntity)) {
@@ -249,13 +249,13 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     @Override
-    public ItemStack injectStackFromScreen(ItemStack stack, PlayerEntity player) {
+    public ItemStack injectStackFromScreen(ItemStack stack, Player player) {
         if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
-            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Not enough power to insert items!"), false);
+            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Not enough power to insert items!"), false);
             return stack;
         }
         if (!checkForRoutableInventories()) {
-            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "There are no routable inventories!"), false);
+            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "There are no routable inventories!"), false);
             return stack;
         }
         stack = injectStackInternal(stack, false, this::isInputFromScreen);
@@ -275,7 +275,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     private ItemStack injectStackInternal(ItemStack stack, boolean toSelected, @Nonnull Function<BlockPos, Boolean> testAccess) {
         if (toSelected && lastSelectedInventory != null && lastSelectedInventory.getY() != -1) {
             // Try to insert into the selected inventory
-            TileEntity te = level.getBlockEntity(lastSelectedInventory);
+            BlockEntity te = level.getBlockEntity(lastSelectedInventory);
             if (te != null && !(te instanceof StorageScannerTileEntity)) {
                 if (testAccess.apply(lastSelectedInventory) && getInputMatcher(lastSelectedInventory).test(stack)) {
                     stack = InventoryTools.insertItem(level, lastSelectedInventory, null, stack);
@@ -287,13 +287,13 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             return stack;
         }
         final ItemStack finalStack = stack;
-        Iterator<TileEntity> iterator = inventories.stream()
+        Iterator<BlockEntity> iterator = inventories.stream()
                 .filter(p -> testAccess.apply(p) && !p.equals(getBlockPos()) && isRoutable(p) && LevelTools.isLoaded(level, p) && getInputMatcher(p).test(finalStack))
                 .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
                 .iterator();
         while (!stack.isEmpty() && iterator.hasNext()) {
-            TileEntity te = iterator.next();
+            BlockEntity te = iterator.next();
             stack = InventoryTools.insertItem(level, te.getBlockPos(), null, stack);
         }
         return stack;
@@ -308,12 +308,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
      * @param player
      */
     @Override
-    public void giveToPlayerFromScreen(ItemStack stack, boolean single, PlayerEntity player) {
+    public void giveToPlayerFromScreen(ItemStack stack, boolean single, Player player) {
         if (stack.isEmpty()) {
             return;
         }
         if (getStoredPower() < StorageScannerConfiguration.rfPerRequest.get()) {
-            player.displayClientMessage(new StringTextComponent(TextFormatting.RED + "Not enough power to request items!"), false);
+            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Not enough power to request items!"), false);
             return;
         }
 
@@ -339,7 +339,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         }
     }
 
-    private boolean giveItemToPlayer(PlayerEntity player, int[] cnt, ItemStack received) {
+    private boolean giveItemToPlayer(Player player, int[] cnt, ItemStack received) {
         if (!received.isEmpty() && cnt[0] > 0) {
             cnt[0] -= received.getCount();
             giveToPlayer(received, player);
@@ -348,11 +348,11 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         return false;
     }
 
-    private boolean giveToPlayer(ItemStack stack, PlayerEntity player) {
+    private boolean giveToPlayer(ItemStack stack, Player player) {
         if (stack.isEmpty()) {
             return false;
         }
-        if (!player.inventory.add(stack)) {
+        if (!player.getInventory().add(stack)) {
             player.spawnAtLocation(stack, 1.05f);
         }
         return true;
@@ -399,7 +399,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         if (stack.isEmpty()) {
             return 0;
         }
-        Iterator<TileEntity> iterator = inventories.stream()
+        Iterator<BlockEntity> iterator = inventories.stream()
                 .filter(p -> isValid(p) && ((!starred) || isRoutable(p)) && LevelTools.isLoaded(level, p))
                 .map(level::getBlockEntity)
                 .filter(te -> te != null && !(te instanceof StorageScannerTileEntity) && !(te instanceof CraftingManagerTileEntity))
@@ -407,7 +407,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
         int cnt = 0;
         while (iterator.hasNext()) {
-            TileEntity te = iterator.next();
+            BlockEntity te = iterator.next();
             Integer cachedCount = null;
             if (te instanceof IInventoryTracker) {
                 IInventoryTracker tracker = (IInventoryTracker) te;
@@ -675,7 +675,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         setChanged();
     }
 
-    private boolean canPlayerAccess(PlayerEntity fakePlayer, BlockPos p) {
+    private boolean canPlayerAccess(Player fakePlayer, BlockPos p) {
         if (StorageScannerConfiguration.scannerNoRestrictions.get()) {
             return true;
         }
@@ -703,11 +703,11 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         inventories = new ArrayList<>();
         craftingInventories = new ArrayList<>();
 
-        PlayerEntity fakePlayer = lazyPlayer.get();
+        Player fakePlayer = lazyPlayer.get();
 
         for (BlockPos p : old) {
             if (xnetAccess.containsKey(p) || inRange(p)) {
-                TileEntity te = level.getBlockEntity(p);
+                BlockEntity te = level.getBlockEntity(p);
                 if (te != null && !(te instanceof StorageScannerTileEntity)) {
                     if (canPlayerAccess(fakePlayer, p)) {
                         if (te instanceof CraftingManagerTileEntity) {
@@ -767,7 +767,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     private void inventoryAddNew(Set<BlockPos> oldAdded,
                                  Set<BlockPos> seenPositions, BlockPos p) {
         if (!oldAdded.contains(p)) {
-            TileEntity te = level.getBlockEntity(p);
+            BlockEntity te = level.getBlockEntity(p);
             if (canPlayerAccess(lazyPlayer.get(), p)) {
                 if (te != null && !(te instanceof StorageScannerTileEntity)) {
                     if (te instanceof CraftingManagerTileEntity) {
@@ -798,7 +798,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         if (getStoredPower() < StorageScannerConfiguration.rfPerRequest.get()) {
             return ItemStack.EMPTY;
         }
-        PlayerEntity fakePlayer = lazyPlayer.get();
+        Player fakePlayer = lazyPlayer.get();
         return inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && ((!doRoutable) || isRoutable(p)))
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
@@ -832,7 +832,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
         final ItemStack[] result = {ItemStack.EMPTY};
         final int[] cnt = {match.getMaxStackSize() < amount ? match.getMaxStackSize() : amount};
-        PlayerEntity fakePlayer = lazyPlayer.get();
+        Player fakePlayer = lazyPlayer.get();
         inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && (!doRoutable) || isRoutable(p))
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
@@ -868,7 +868,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         if (!LevelTools.isLoaded(level, p)) {
             return LazyOptional.empty();
         }
-        TileEntity te = level.getBlockEntity(p);
+        BlockEntity te = level.getBlockEntity(p);
         if (te == null || te instanceof StorageScannerTileEntity) {
             return LazyOptional.empty();
         }
@@ -877,7 +877,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     // @todo move to McJtyLib
     @Nonnull
-    private static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable TileEntity te, Direction intSide) {
+    private static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
             return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
         } else {
@@ -907,7 +907,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     public ItemStack insertInternal(ItemStack stack, boolean simulate) {
         final ItemStack[] toInsert = {stack.copy()};
 
-        PlayerEntity fakePlayer = lazyPlayer.get();
+        Player fakePlayer = lazyPlayer.get();
         Iterator<LazyOptional<IItemHandler>> iterator = inventories.stream()
                 .filter(p -> isInputFromAuto(p) && (!p.equals(getBlockPos()) && isRoutable(p) && getInputMatcher(p).test(stack)))
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
@@ -926,7 +926,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     private ItemStack requestStackFromInv(BlockPos invPos, ItemStack requested, Integer[] todo, ItemStack outSlot) {
-        TileEntity tileEntity = level.getBlockEntity(invPos);
+        BlockEntity tileEntity = level.getBlockEntity(invPos);
         if (tileEntity instanceof StorageScannerTileEntity) {
             return outSlot;
         }
@@ -987,7 +987,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             // There are missing items. Check if there are recipes for them
             for (Ingredient ingredient : missing) {
                 if (!getAllInventories().anyMatch(p -> {
-                    TileEntity te = level.getBlockEntity(p);
+                    BlockEntity te = level.getBlockEntity(p);
                     if (te instanceof CraftingManagerTileEntity) {
                         CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
                         if (craftingManager.canCraft(ingredient)) {
@@ -1008,7 +1008,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
 
     // Meant to be used from the gui
-    public void requestCraft(BlockPos invPos, ItemStack requested, int amount, PlayerEntity player) {
+    public void requestCraft(BlockPos invPos, ItemStack requested, int amount, Player player) {
         int rf = StorageScannerConfiguration.rfPerRequest.get();
         if (amount >= 0) {
             rf /= 10;       // Less RF usage for requesting less items
@@ -1024,7 +1024,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     // Meant to be used from the gui
-    public void requestStack(BlockPos invPos, ItemStack requested, int amount, PlayerEntity player) {
+    public void requestStack(BlockPos invPos, ItemStack requested, int amount, Player player) {
         int rf = StorageScannerConfiguration.rfPerRequest.get();
         if (amount >= 0) {
             rf /= 10;       // Less RF usage for requesting less items
@@ -1054,7 +1054,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         }
 
         if (invPos.getY() == -1) {
-            PlayerEntity fakePlayer = lazyPlayer.get();
+            Player fakePlayer = lazyPlayer.get();
             Iterator<BlockPos> iterator = inventories.stream()
                     .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                     .filter(p -> canPlayerAccess(fakePlayer, p))
@@ -1083,7 +1083,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         items.setStackInSlot(StorageScannerContainer.SLOT_OUT, outSlot);
 
         if (StorageScannerConfiguration.requestStraightToInventory.get()) {
-            if (player.inventory.add(outSlot)) {
+            if (player.getInventory().add(outSlot)) {
                 items.setStackInSlot(StorageScannerContainer.SLOT_OUT, ItemStack.EMPTY);
             }
         }
@@ -1095,8 +1095,8 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         }
         if (foundItems.contains(stack.getItem())) {
             for (ItemStack s : stacks) {
-                if (ItemHandlerHelper.canItemStacksStack(s.getStack(), stack)) {
-                    s.getStack().grow(stack.getCount());
+                if (ItemHandlerHelper.canItemStacksStack(s, stack)) {
+                    s.grow(stack.getCount());
                     return;
                 }
             }
@@ -1125,7 +1125,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     private void addItemsFromInventory(BlockPos cpos, Set<Item> foundItems, List<ItemStack> stacks, List<ItemStack> craftable) {
-        TileEntity tileEntity = level.getBlockEntity(cpos);
+        BlockEntity tileEntity = level.getBlockEntity(cpos);
         if (tileEntity instanceof CraftingManagerTileEntity) {
             for (ItemStack stack : ((CraftingManagerTileEntity) tileEntity).getCraftables()) {
                 addItemStack(craftable, foundItems, stack);
@@ -1149,38 +1149,38 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     @Override
-    public void load(CompoundNBT tagCompound) {
+    public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
         craftingSystem.read(tagCompound.getCompound("CS"));
-        ListNBT list = tagCompound.getList("inventories", Constants.NBT.TAG_COMPOUND);
+        ListTag list = tagCompound.getList("inventories", Tag.TAG_COMPOUND);
         inventories.clear();
         craftingInventories = null;
-        for (INBT inbt : list) {
-            CompoundNBT tag = (CompoundNBT) inbt;
+        for (Tag inbt : list) {
+            CompoundTag tag = (CompoundTag) inbt;
             BlockPos c = BlockPosTools.read(tag, "c");
             inventories.add(c);
         }
-        list = tagCompound.getList("routable", Constants.NBT.TAG_COMPOUND);
+        list = tagCompound.getList("routable", Tag.TAG_COMPOUND);
         routable.clear();
-        for (INBT inbt : list) {
-            CompoundNBT tag = (CompoundNBT) inbt;
+        for (Tag inbt : list) {
+            CompoundTag tag = (CompoundTag) inbt;
             BlockPos c = BlockPosTools.read(tag, "c");
             routable.add(c);
         }
-        list = tagCompound.getList("fromxnet", Constants.NBT.TAG_COMPOUND);
+        list = tagCompound.getList("fromxnet", Tag.TAG_COMPOUND);
         inventoriesFromXNet.clear();
-        for (INBT inbt : list) {
-            CompoundNBT tag = (CompoundNBT) inbt;
+        for (Tag inbt : list) {
+            CompoundTag tag = (CompoundTag) inbt;
             BlockPos c = BlockPosTools.read(tag, "c");
             inventoriesFromXNet.add(c);
         }
     }
 
     @Override
-    protected void loadInfo(CompoundNBT tagCompound) {
+    protected void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
         if (tagCompound.contains("Info")) {
-            CompoundNBT infoTag = tagCompound.getCompound("Info");
+            CompoundTag infoTag = tagCompound.getCompound("Info");
             if (infoTag.contains("radius")) {
                 radius = infoTag.getInt("radius");
             }
@@ -1204,33 +1204,33 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         super.saveAdditional(tagCompound);
         tagCompound.put("CS", craftingSystem.write());
-        ListNBT list = new ListNBT();
+        ListTag list = new ListTag();
         for (BlockPos c : inventories) {
-            CompoundNBT tag = BlockPosTools.write(c);
+            CompoundTag tag = BlockPosTools.write(c);
             list.add(tag);
         }
         tagCompound.put("inventories", list);
-        list = new ListNBT();
+        list = new ListTag();
         for (BlockPos c : routable) {
-            CompoundNBT tag = BlockPosTools.write(c);
+            CompoundTag tag = BlockPosTools.write(c);
             list.add(tag);
         }
         tagCompound.put("routable", list);
-        list = new ListNBT();
+        list = new ListTag();
         for (BlockPos c : inventoriesFromXNet) {
-            CompoundNBT tag = BlockPosTools.write(c);
+            CompoundTag tag = BlockPosTools.write(c);
             list.add(tag);
         }
         tagCompound.put("fromxnet", list);
     }
 
     @Override
-    protected void saveInfo(CompoundNBT tagCompound) {
+    protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT infoTag = getOrCreateInfo(tagCompound);
+        CompoundTag infoTag = getOrCreateInfo(tagCompound);
         infoTag.putInt("radius", radius);
         infoTag.putBoolean("exportC", exportToCurrent);
         infoTag.putBoolean("wideview", openWideView);
@@ -1294,7 +1294,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     @Override
-    public RegistryKey<World> getDimension() {
+    public ResourceKey<Level> getDimension() {
         if (dummyType != null) {
             return dummyType;
         }

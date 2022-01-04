@@ -3,26 +3,26 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.level.BlockGetter;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
 
-import net.minecraft.block.AbstractBlock.Properties;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
 import javax.annotation.Nonnull;
 
 public class CraftingManagerBlock extends BaseBlock {
 
-    private static final VoxelShape SHAPE = VoxelShapes.box(.1, .1, .4, 1, 1, 1);
+    private static final VoxelShape SHAPE = Shapes.box(.1, .1, .4, 1, 1, 1);
 
 
     public CraftingManagerBlock() {
@@ -40,7 +40,7 @@ public class CraftingManagerBlock extends BaseBlock {
 
     @Override
     @Nonnull
-    public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull IBlockReader reader, @Nonnull BlockPos pos) {
+    public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull BlockGetter reader, @Nonnull BlockPos pos) {
         return SHAPE;
     }
 
@@ -53,8 +53,8 @@ public class CraftingManagerBlock extends BaseBlock {
     @SuppressWarnings("deprecation")
     @Override
     @Nonnull
-    public BlockRenderType getRenderShape(@Nonnull BlockState state) {
-        return BlockRenderType.MODEL;
+    public RenderShape getRenderShape(@Nonnull BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @SuppressWarnings("deprecation")

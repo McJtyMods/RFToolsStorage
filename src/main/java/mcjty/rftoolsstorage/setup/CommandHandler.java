@@ -7,9 +7,9 @@ import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
 import mcjty.rftoolsstorage.modules.scanner.tools.StorageScannerTools;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public class CommandHandler {
 
@@ -54,7 +54,7 @@ public class CommandHandler {
 
     public static final String CMD_REQUEST_GRID_SYNC = "requestGridSync";
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
-    public static final Key<RegistryKey<World>> PARAM_DIMENSION = new Key<>("dimension", Type.DIMENSION_TYPE);
+    public static final Key<ResourceKey<Level>> PARAM_DIMENSION = new Key<>("dimension", Type.DIMENSION_TYPE);
 
     public static final String CMD_GET_COUNTER_INFO = "getCounterInfo";
 

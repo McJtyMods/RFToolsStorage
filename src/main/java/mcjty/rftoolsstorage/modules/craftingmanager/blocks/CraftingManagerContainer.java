@@ -4,9 +4,9 @@ import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -36,12 +36,12 @@ public class CraftingManagerContainer extends GenericContainer {
             .box(specific(s -> s.getItem() instanceof CraftingCardItem).in().out(), SLOTS_DEVICE_3, 85, 17+66, 8, 1)
             .playerSlots(85, 125));
 
-    public CraftingManagerContainer(int id, BlockPos pos, CraftingManagerTileEntity tileEntity, @Nonnull PlayerEntity player) {
+    public CraftingManagerContainer(int id, BlockPos pos, CraftingManagerTileEntity tileEntity, @Nonnull Player player) {
         super(CraftingManagerModule.CONTAINER_CRAFTING_MANAGER.get(), id, CONTAINER_FACTORY.get(), pos, tileEntity, player);
     }
 
     @Override
-    public void setupInventories(IItemHandler itemHandler, PlayerInventory inventory) {
+    public void setupInventories(IItemHandler itemHandler, Inventory inventory) {
         addInventory(CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         generateSlots(inventory.player);

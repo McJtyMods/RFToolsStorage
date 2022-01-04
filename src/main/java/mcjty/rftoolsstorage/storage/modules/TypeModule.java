@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.storage.modules;
 
 import mcjty.rftoolsstorage.storage.sorters.ItemSorter;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 

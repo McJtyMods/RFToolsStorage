@@ -18,11 +18,13 @@ import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
 import mcjty.rftoolsstorage.storage.StorageInfo;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -46,7 +48,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Cap(type = CapType.ITEMS)
     private final LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, getBlockPos(), this, player))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new))
             .setupSync(this));
@@ -93,8 +95,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private String filter = "";
     private boolean locked = false;
 
-    public ModularStorageTileEntity() {
-        super(ModularStorageModule.TYPE_MODULAR_STORAGE.get());
+    public ModularStorageTileEntity(BlockPos pos, BlockState state) {
+        super(ModularStorageModule.TYPE_MODULAR_STORAGE.get(), pos, state);
     }
 
     @Override
@@ -128,8 +130,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     @Override
     @Nonnull
-    public int[] craft(PlayerEntity player, int n, boolean test) {
-        InventoriesItemSource itemSource = new InventoriesItemSource().add(new InvWrapper(player.inventory), 0);
+    public int[] craft(Player player, int n, boolean test) {
+        InventoriesItemSource itemSource = new InventoriesItemSource().add(new InvWrapper(player.getInventory()), 0);
         globalHandler.ifPresent(h -> itemSource.add(h, 0));
 
         if (test) {
@@ -188,7 +190,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    public void loadClientDataFromNBT(CompoundNBT tagCompound) {
+    public void loadClientDataFromNBT(CompoundTag tagCompound) {
         // @todo 1.14
     }
 
@@ -204,7 +206,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    public void load(CompoundNBT tagCompound) {
+    public void load(CompoundTag tagCompound) {
         super.load(tagCompound);
 
         sortMode = tagCompound.getString("sortMode");
@@ -215,15 +217,15 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    protected void loadCaps(CompoundNBT tagCompound) {
+    protected void loadCaps(CompoundTag tagCompound) {
         // We don't want this
     }
 
     @Override
-    protected void loadInfo(CompoundNBT tagCompound) {
+    protected void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
         if (tagCompound.contains("Info")) {
-            CompoundNBT infoTag = tagCompound.getCompound("Info");
+            CompoundTag infoTag = tagCompound.getCompound("Info");
             cardHandler.deserializeNBT(infoTag.getCompound("Cards"));
 
             if (infoTag.contains("locked")) {
@@ -241,7 +243,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundNBT tagCompound) {
+    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
         super.saveAdditional(tagCompound);
 
         tagCompound.putString("sortMode", sortMode);
@@ -252,14 +254,14 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    protected void saveCaps(CompoundNBT tagCompound) {
+    protected void saveCaps(CompoundTag tagCompound) {
         // We don't want this
     }
 
     @Override
-    protected void saveInfo(CompoundNBT tagCompound) {
+    protected void saveInfo(CompoundTag tagCompound) {
         super.saveInfo(tagCompound);
-        CompoundNBT infoTag = getOrCreateInfo(tagCompound);
+        CompoundTag infoTag = getOrCreateInfo(tagCompound);
         infoTag.put("Cards", cardHandler.serializeNBT());
         infoTag.putBoolean("locked", locked);
     }

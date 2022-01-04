@@ -7,7 +7,7 @@ import mcjty.rftoolsstorage.compat.rftoolsutility.RFToolsSupport;
 import mcjty.rftoolsstorage.compat.xnet.XNetSupport;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.storage.ClientStorageHolder;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;

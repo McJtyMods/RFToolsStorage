@@ -7,20 +7,20 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.ChatFormatting;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class CommandList implements Command<CommandSource> {
+public class CommandList implements Command<CommandSourceStack> {
 
     private static final CommandList CMD = new CommandList();
 
-    public static ArgumentBuilder<CommandSource, ?> register(CommandDispatcher<CommandSource> dispatcher) {
+    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
         return Commands.literal("list")
                 .requires(cs -> cs.hasPermission(2))
                 .executes(CMD);
@@ -28,16 +28,16 @@ public class CommandList implements Command<CommandSource> {
 
 
     @Override
-    public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
+    public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         for (StorageEntry storage : StorageHolder.get(context.getSource().getLevel()).getStorages()) {
             String createdBy = storage.getCreatedBy();
             String uuid = storage.getUuid().toString();
             String createdByColor;
             if (createdBy == null || createdBy.isEmpty()) {
-                createdByColor = String.valueOf(TextFormatting.GRAY);
+                createdByColor = String.valueOf(ChatFormatting.GRAY);
                 createdBy  = "(Unknown creator)";
             } else {
-                createdByColor = String.valueOf(TextFormatting.YELLOW);
+                createdByColor = String.valueOf(ChatFormatting.YELLOW);
                 createdBy = "(" + createdBy + ")";
             }
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
@@ -46,11 +46,11 @@ public class CommandList implements Command<CommandSource> {
             String createTimeF = dateFormat.format(creationTime);
             String updateTimeF = dateFormat.format(updateTime);
 
-            String output = String.format(TextFormatting.GREEN + "%s: %s%s\n" + TextFormatting.WHITE + "Create " +
-                    TextFormatting.YELLOW + "%s" + TextFormatting.WHITE + ", Update " +
-                    TextFormatting.YELLOW + "%s",
+            String output = String.format(ChatFormatting.GREEN + "%s: %s%s\n" + ChatFormatting.WHITE + "Create " +
+                    ChatFormatting.YELLOW + "%s" + ChatFormatting.WHITE + ", Update " +
+                    ChatFormatting.YELLOW + "%s",
                     uuid, createdByColor, createdBy, createTimeF, updateTimeF);
-            context.getSource().sendSuccess(new StringTextComponent(output), false);
+            context.getSource().sendSuccess(new TextComponent(output), false);
 
         }
         return 0;

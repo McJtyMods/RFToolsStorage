@@ -2,9 +2,9 @@ package mcjty.rftoolsstorage.storage.network;
 
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -13,15 +13,15 @@ public class PacketReturnStorageToClient {
     private UUID uuid;
     private StorageEntry entry;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(uuid);
-        CompoundNBT nbt = entry.write();
+        CompoundTag nbt = entry.write();
         buf.writeNbt(nbt);
     }
 
-    public PacketReturnStorageToClient(PacketBuffer buf) {
+    public PacketReturnStorageToClient(FriendlyByteBuf buf) {
         this.uuid = buf.readUUID();
-        CompoundNBT nbt = buf.readNbt();
+        CompoundTag nbt = buf.readNbt();
         entry = new StorageEntry(nbt);
     }
 

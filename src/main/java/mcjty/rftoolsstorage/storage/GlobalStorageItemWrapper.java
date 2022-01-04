@@ -2,8 +2,8 @@ package mcjty.rftoolsstorage.storage;
 
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 

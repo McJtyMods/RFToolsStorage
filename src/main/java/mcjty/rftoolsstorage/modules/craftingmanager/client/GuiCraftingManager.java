@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
@@ -10,8 +10,8 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerContainer;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
@@ -25,7 +25,7 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
     private static final ResourceLocation background = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/craftingmanager.png");
     private static final ResourceLocation guiElements = new ResourceLocation(RFToolsBase.MODID, "textures/gui/guielements.png");
 
-    public GuiCraftingManager(CraftingManagerTileEntity tileEntity, CraftingManagerContainer container, PlayerInventory inventory) {
+    public GuiCraftingManager(CraftingManagerTileEntity tileEntity, CraftingManagerContainer container, Inventory inventory) {
         super(tileEntity, container, inventory, ManualEntry.EMPTY);
 
         imageWidth = WIDTH;
@@ -49,7 +49,7 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
 
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int i, int i2) {
         drawWindow(matrixStack);
     }
 }

@@ -7,18 +7,18 @@ import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContaine
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import java.util.List;
@@ -29,11 +29,11 @@ import java.util.stream.Stream;
 
 public class PacketGetInventoryInfo {
 
-    private RegistryKey<World> id;
+    private ResourceKey<Level> id;
     private BlockPos pos;
     private boolean doscan;
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeResourceLocation(id.location());
         buf.writeBoolean(doscan);
@@ -42,13 +42,13 @@ public class PacketGetInventoryInfo {
     public PacketGetInventoryInfo() {
     }
 
-    public PacketGetInventoryInfo(PacketBuffer buf) {
+    public PacketGetInventoryInfo(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
         id = LevelTools.getId(buf.readResourceLocation());
         doscan = buf.readBoolean();
     }
 
-    public PacketGetInventoryInfo(RegistryKey<World> worldId, BlockPos pos, boolean doscan) {
+    public PacketGetInventoryInfo(ResourceKey<Level> worldId, BlockPos pos, boolean doscan) {
         this.id = worldId;
         this.pos = pos;
         this.doscan = doscan;
@@ -63,13 +63,13 @@ public class PacketGetInventoryInfo {
         ctx.setPacketHandled(true);
     }
 
-    private void sendReplyToClient(List<PacketReturnInventoryInfo.InventoryInfo> reply, ServerPlayerEntity player) {
+    private void sendReplyToClient(List<PacketReturnInventoryInfo.InventoryInfo> reply, ServerPlayer player) {
         PacketReturnInventoryInfo msg = new PacketReturnInventoryInfo(reply);
         RFToolsStorageMessages.INSTANCE.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(PlayerEntity entityPlayerMP) {
-        World world = LevelTools.getLevel(entityPlayerMP.level, id);
+    private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(Player entityPlayerMP) {
+        Level world = LevelTools.getLevel(entityPlayerMP.level, id);
         if (world == null) {
             return Optional.empty();
         }
@@ -78,7 +78,7 @@ public class PacketGetInventoryInfo {
             return Optional.empty();
         }
 
-        TileEntity te = world.getBlockEntity(pos);
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof StorageScannerTileEntity) {
             StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
             Stream<BlockPos> inventories;
@@ -98,7 +98,7 @@ public class PacketGetInventoryInfo {
         return Optional.empty();
     }
 
-    private static PacketReturnInventoryInfo.InventoryInfo toInventoryInfo(World world, BlockPos pos, StorageScannerTileEntity te) {
+    private static PacketReturnInventoryInfo.InventoryInfo toInventoryInfo(Level world, BlockPos pos, StorageScannerTileEntity te) {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         String displayName;
@@ -110,7 +110,7 @@ public class PacketGetInventoryInfo {
             block = null;
         } else {
             displayName = Tools.getReadableName(world, pos);
-            TileEntity storageTe = world.getBlockEntity(pos);
+            BlockEntity storageTe = world.getBlockEntity(pos);
             if (storageTe instanceof ModularStorageTileEntity) {
                 ModularStorageTileEntity storageTileEntity = (ModularStorageTileEntity) storageTe;
                 String finalDisplayName = displayName;

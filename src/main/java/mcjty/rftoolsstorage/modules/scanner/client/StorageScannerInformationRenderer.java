@@ -1,12 +1,12 @@
 package mcjty.rftoolsstorage.modules.scanner.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.client.HudRenderHelper;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.TypedMap;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerInformat
 
 public class StorageScannerInformationRenderer {
 
-    public static void renderCrafting(MatrixStack matrixStack, IRenderTypeBuffer buffer, TypedMap data, Direction orientation, double scale) {
+    public static void renderCrafting(PoseStack matrixStack, MultiBufferSource buffer, TypedMap data, Direction orientation, double scale) {
         List<Pair<ItemStack, String>> log = getLog(data);
         HudRenderHelper.HudPlacement hudPlacement = HudRenderHelper.HudPlacement.HUD_FRONT;
         HudRenderHelper.HudOrientation hudOrientation = HudRenderHelper.HudOrientation.HUD_SOUTH;

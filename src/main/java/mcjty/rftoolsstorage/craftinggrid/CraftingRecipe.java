@@ -1,31 +1,30 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.lib.varia.SafeClientTools;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
 public class CraftingRecipe {
-    private CraftingInventory inv = new CraftingInventory(new Container(null, -1) {
+    private CraftingContainer inv = new CraftingContainer(new AbstractContainerMenu(null, -1) {
         @Override
-        public boolean stillValid(@Nonnull PlayerEntity playerIn) {
+        public boolean stillValid(@Nonnull Player playerIn) {
             return false;
         }
     }, 3, 3);
     private ItemStack result = ItemStack.EMPTY;
 
     private boolean recipePresent = false;
-    private Optional<ICraftingRecipe> recipe = Optional.empty();
+    private Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = Optional.empty();
 
     private boolean keepOne = false;
 
@@ -47,34 +46,34 @@ public class CraftingRecipe {
 
     private CraftMode craftMode = CraftMode.EXT;
 
-    public static Optional<ICraftingRecipe> findRecipe(World world, CraftingInventory inv) {
-        return SafeClientTools.getRecipeManager(world).getRecipeFor(IRecipeType.CRAFTING, inv, world);
+    public static Optional<net.minecraft.world.item.crafting.CraftingRecipe> findRecipe(Level world, CraftingContainer inv) {
+        return SafeClientTools.getRecipeManager(world).getRecipeFor(RecipeType.CRAFTING, inv, world);
     }
 
-    public void readFromNBT(CompoundNBT tagCompound) {
-        ListNBT nbtTagList = tagCompound.getList("Items", Constants.NBT.TAG_COMPOUND);
+    public void readFromNBT(CompoundTag tagCompound) {
+        ListTag nbtTagList = tagCompound.getList("Items", Tag.TAG_COMPOUND);
         for (int i = 0; i < nbtTagList.size(); i++) {
-            CompoundNBT CompoundNBT = nbtTagList.getCompound(i);
+            CompoundTag CompoundNBT = nbtTagList.getCompound(i);
             inv.setItem(i, ItemStack.of(CompoundNBT));
         }
-        CompoundNBT resultCompound = tagCompound.getCompound("Result");
+        CompoundTag resultCompound = tagCompound.getCompound("Result");
         result = ItemStack.of(resultCompound);
         keepOne = tagCompound.getBoolean("Keep");
         craftMode = CraftMode.values()[tagCompound.getByte("Int")];
         recipePresent = false;
     }
 
-    public void writeToNBT(CompoundNBT tagCompound) {
-        ListNBT nbtTagList = new ListNBT();
+    public void writeToNBT(CompoundTag tagCompound) {
+        ListTag nbtTagList = new ListTag();
         for (int i = 0 ; i < 9 ; i++) {
             ItemStack stack = inv.getItem(i);
-            CompoundNBT CompoundNBT = new CompoundNBT();
+            CompoundTag CompoundNBT = new CompoundTag();
             if (!stack.isEmpty()) {
                 stack.save(CompoundNBT);
             }
             nbtTagList.add(CompoundNBT);
         }
-        CompoundNBT resultCompound = new CompoundNBT();
+        CompoundTag resultCompound = new CompoundTag();
         if (!result.isEmpty()) {
             result.save(resultCompound);
         }
@@ -92,7 +91,7 @@ public class CraftingRecipe {
         recipePresent = false;
     }
 
-    public CraftingInventory getInventory() {
+    public CraftingContainer getInventory() {
         return inv;
     }
 
@@ -104,7 +103,7 @@ public class CraftingRecipe {
         return result;
     }
 
-    public Optional<ICraftingRecipe> getCachedRecipe(World world) {
+    public Optional<net.minecraft.world.item.crafting.CraftingRecipe> getCachedRecipe(Level world) {
         if (!recipePresent) {
             recipePresent = true;
             recipe = findRecipe(world, inv);

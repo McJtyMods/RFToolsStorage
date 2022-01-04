@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GhostOutputSlot;
@@ -31,17 +31,17 @@ import mcjty.rftoolsstorage.modules.scanner.network.PacketReturnInventoryInfo;
 import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -95,7 +95,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     // From server: the contents of an inventory (craftables)
     public static List<ItemStack> fromServer_craftable = new ArrayList<>();
 
-    public GuiStorageScanner(StorageScannerTileEntity te, StorageScannerContainer container, PlayerInventory playerInventory) {
+    public GuiStorageScanner(StorageScannerTileEntity te, StorageScannerContainer container, Inventory playerInventory) {
         super(te, container, playerInventory, StorageScannerModule.STORAGE_SCANNER.get().getManualEntry());
 
         craftingGrid = new GuiCraftingGrid();
@@ -112,11 +112,11 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
     public static void register() {
         register(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
-        ScreenManager.IScreenFactory<StorageScannerContainer, GuiStorageScanner> factory = (container, inventory, title) -> {
-            TileEntity te = container.getTe();
+        MenuScreens.ScreenConstructor<StorageScannerContainer, GuiStorageScanner> factory = (container, inventory, title) -> {
+            BlockEntity te = container.getTe();
             return Tools.safeMap(te, (StorageScannerTileEntity tile) -> new GuiStorageScanner(tile, container, inventory), "Invalid tile entity!");
         };
-        ScreenManager.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
+        MenuScreens.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
     }
 
     @Override
@@ -573,11 +573,11 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                     .horizontalAlignment(HorizontalAlignment.ALIGN_LEFT)
                     .desiredWidth(50);
             if (c == null) {
-                label.tooltips(TextFormatting.GREEN + "All routable inventories")
+                label.tooltips(ChatFormatting.GREEN + "All routable inventories")
                         .desiredWidth(74);
             } else {
-                label.tooltips(TextFormatting.GREEN + "Block at: " + TextFormatting.WHITE + BlockPosTools.toString(c.getPos()),
-                        TextFormatting.GREEN + "Name: " + TextFormatting.WHITE + displayName,
+                label.tooltips(ChatFormatting.GREEN + "Block at: " + ChatFormatting.WHITE + BlockPosTools.toString(c.getPos()),
+                        ChatFormatting.GREEN + "Name: " + ChatFormatting.WHITE + displayName,
                         "(doubleclick to highlight)");
             }
             panel.children(label);
@@ -594,7 +594,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void renderBg(@Nonnull MatrixStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int i, int i2) {
         if (!init) {
             return;
         }
@@ -649,7 +649,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void renderLabels(@Nonnull MatrixStack matrixStack, int i1, int i2) {
+    protected void renderLabels(@Nonnull PoseStack matrixStack, int i1, int i2) {
         if (!init) {
             return;
         }
@@ -665,25 +665,24 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void drawStackTooltips(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void drawStackTooltips(PoseStack matrixStack, int mouseX, int mouseY) {
         if (init) {
             super.drawStackTooltips(matrixStack, mouseX, mouseY);
         }
     }
 
     @Override
-    protected List<ITextComponent> addCustomLines(List<ITextComponent> oldList, BlockRender blockRender, ItemStack stack) {
-        if (blockRender.getUserObject() instanceof Boolean) {
-            boolean craftable = (Boolean)(blockRender.getUserObject());
-            List<ITextComponent> newlist = new ArrayList<>();
+    protected List<Component> addCustomLines(List<Component> oldList, BlockRender blockRender, ItemStack stack) {
+        if (blockRender.getUserObject() instanceof Boolean craftable) {
+            List<Component> newlist = new ArrayList<>();
             if (craftable) {
-                newlist.add(new StringTextComponent("Craftable").withStyle(TextFormatting.GOLD));
+                newlist.add(new TextComponent("Craftable").withStyle(ChatFormatting.GOLD));
             }
-            newlist.add(new StringTextComponent("Click: ").withStyle(TextFormatting.GREEN)
-                    .append(new StringTextComponent("full stack").withStyle(TextFormatting.WHITE)));
-            newlist.add(new StringTextComponent("Shift + click: ").withStyle(TextFormatting.GREEN)
-                    .append(new StringTextComponent("single item").withStyle(TextFormatting.WHITE)));
-            newlist.add(new StringTextComponent(""));
+            newlist.add(new TextComponent("Click: ").withStyle(ChatFormatting.GREEN)
+                    .append(new TextComponent("full stack").withStyle(ChatFormatting.WHITE)));
+            newlist.add(new TextComponent("Shift + click: ").withStyle(ChatFormatting.GREEN)
+                    .append(new TextComponent("single item").withStyle(ChatFormatting.WHITE)));
+            newlist.add(new TextComponent(""));
             newlist.addAll(oldList);
             return newlist;
         } else {
@@ -694,7 +693,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static long lastTime = 0;
 
     @Override
-    protected void drawWindow(MatrixStack matrixStack) {
+    protected void drawWindow(PoseStack matrixStack) {
         if (!init) {
             return;
         }

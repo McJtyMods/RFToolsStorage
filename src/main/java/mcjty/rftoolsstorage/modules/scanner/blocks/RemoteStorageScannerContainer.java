@@ -1,14 +1,14 @@
 package mcjty.rftoolsstorage.modules.scanner.blocks;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.core.BlockPos;
 
 import javax.annotation.Nonnull;
 
 public class RemoteStorageScannerContainer extends StorageScannerContainer {
 
-    public RemoteStorageScannerContainer(ContainerType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull PlayerEntity player) {
+    public RemoteStorageScannerContainer(MenuType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull Player player) {
         super(type, id, pos, tileEntity, player);
     }
 
