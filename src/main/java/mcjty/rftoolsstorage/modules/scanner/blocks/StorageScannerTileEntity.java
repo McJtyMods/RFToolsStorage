@@ -141,8 +141,8 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     // Used for a dummy tile entity (tablet usage)
-    public StorageScannerTileEntity(ResourceKey<Level> type) {
-        this(BlockPos.ZERO, null);
+    public StorageScannerTileEntity(ResourceKey<Level> type, BlockPos pos) {
+        this(pos, null);
         dummyType = type;
     }
 
