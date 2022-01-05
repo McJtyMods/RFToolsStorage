@@ -11,7 +11,9 @@
       "conditions": {
         "items": [
           {
-            "item": "rftoolsstorage:storage_module0"
+            "items": [
+              "rftoolsstorage:storage_module0"
+            ]
           }
         ]
       }

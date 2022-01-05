@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed blocks not breaking correctly with iron pickaxe
+
 1.18-3.0.0:
 - First update to 1.18
 
