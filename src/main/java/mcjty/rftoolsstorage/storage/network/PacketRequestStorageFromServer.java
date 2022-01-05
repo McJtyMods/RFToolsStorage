@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PacketRequestStorageFromServer {
-    private UUID uuid;
+    private final UUID uuid;
 
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(uuid);

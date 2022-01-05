@@ -160,7 +160,6 @@ public class ModularStorageContainer extends GenericContainer {
         }
     }
 
-    @Nonnull
     @Override
     public void clicked(int index, int button, @Nonnull ClickType mode, @Nonnull Player player) {
         if (index == SLOT_STORAGE_MODULE && !player.getCommandSenderWorld().isClientSide) {
@@ -181,14 +180,11 @@ public class ModularStorageContainer extends GenericContainer {
         String filter = modularStorageTileEntity.getFilter();
         boolean locked = modularStorageTileEntity.isLocked();
 
-        for (ContainerListener listener : this.containerListeners) {
-            if (listener instanceof Player) {
-                Player player = (Player) listener;
-                RFToolsStorageMessages.INSTANCE.sendTo(new PacketStorageInfoToClient(
-                        modularStorageTileEntity.getBlockPos(),
-                        sortMode, viewMode, groupMode, filter, locked),
-                        ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-            }
+        if (getPlayer() instanceof ServerPlayer player) {
+            RFToolsStorageMessages.INSTANCE.sendTo(new PacketStorageInfoToClient(
+                            modularStorageTileEntity.getBlockPos(),
+                            sortMode, viewMode, groupMode, filter, locked),
+                    player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 

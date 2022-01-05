@@ -10,8 +10,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PacketReturnStorageToClient {
-    private UUID uuid;
-    private StorageEntry entry;
+    private final UUID uuid;
+    private final StorageEntry entry;
 
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(uuid);
@@ -33,7 +33,8 @@ public class PacketReturnStorageToClient {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            RFToolsStorage.setup.clientStorageHolder.registerStorage(uuid, entry);
+            // @todo 1.18, investigate why adding this breaks things
+//            RFToolsStorage.setup.clientStorageHolder.registerStorage(uuid, entry);
         });
         ctx.setPacketHandled(true);
     }
