@@ -122,7 +122,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
-            .containerSupplier(windowId -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this))
+            .containerSupplier((windowId, player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this, player))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items)
             .setupSync(this));

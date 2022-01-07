@@ -60,7 +60,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 
     @Cap(type = CapType.CONTAINER)
     private final LazyOptional<INamedContainerProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
-            .containerSupplier(windowId -> new CraftingManagerContainer(windowId, getBlockPos(), CraftingManagerTileEntity.this))
+            .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getBlockPos(), CraftingManagerTileEntity.this, player))
             .itemHandler(() -> getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> h).orElseThrow(RuntimeException::new)));
 
     // @todo save/load requests in NBT

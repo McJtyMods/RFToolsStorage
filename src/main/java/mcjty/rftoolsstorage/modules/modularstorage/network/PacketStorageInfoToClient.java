@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage.network;
 
-import mcjty.lib.McJtyLib;
+import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -52,7 +52,7 @@ public class PacketStorageInfoToClient {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            TileEntity te = McJtyLib.proxy.getClientWorld().getBlockEntity(pos);
+            TileEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             if (te instanceof ModularStorageTileEntity) {
                 ModularStorageTileEntity storage = (ModularStorageTileEntity) te;
                 storage.syncInventoryFromServer(sortMode, viewMode, groupMode, filter, locked);
