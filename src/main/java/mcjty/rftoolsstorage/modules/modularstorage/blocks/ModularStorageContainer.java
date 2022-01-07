@@ -13,7 +13,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
@@ -78,7 +77,7 @@ public class ModularStorageContainer extends GenericContainer {
         for (SlotFactory slotFactory : CONTAINER_FACTORY.get().getSlots()) {
             Slot slot;
             if (slotFactory.getSlotType() == SlotType.SLOT_GHOST) {
-                slot = new GhostSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
+                slot = new GhostSlot(inventories.get(slotFactory.inventoryName()), slotFactory.index(), slotFactory.x(), slotFactory.y()) {
                     @Override
                     public boolean mayPickup(Player player) {
                         if (!isLocked()) {
@@ -104,7 +103,7 @@ public class ModularStorageContainer extends GenericContainer {
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_GHOSTOUT) {
-                slot = new GhostOutputSlot(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(), slotFactory.getY()) {
+                slot = new GhostOutputSlot(inventories.get(slotFactory.inventoryName()), slotFactory.index(), slotFactory.x(), slotFactory.y()) {
                     @Override
                     public boolean mayPickup(Player player) {
                         if (!isLocked()) {
@@ -130,9 +129,9 @@ public class ModularStorageContainer extends GenericContainer {
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_SPECIFICITEM) {
-                final SlotDefinition slotDefinition = slotFactory.getSlotDefinition();
-                slot = new SlotItemHandler(inventories.get(slotFactory.getInventoryName()), slotFactory.getIndex(), slotFactory.getX(),
-                        getAdjustedY(slotFactory.getY(), onClient)) {
+                final SlotDefinition slotDefinition = slotFactory.slotDefinition();
+                slot = new SlotItemHandler(inventories.get(slotFactory.inventoryName()), slotFactory.index(), slotFactory.x(),
+                        getAdjustedY(slotFactory.y(), onClient)) {
                     @Override
                     public boolean mayPlace(@Nonnull ItemStack stack) {
                         if (isLocked()) {
@@ -142,11 +141,11 @@ public class ModularStorageContainer extends GenericContainer {
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_PLAYERINV || slotFactory.getSlotType() == SlotType.SLOT_PLAYERHOTBAR) {
-                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(),
-                        getAdjustedY(slotFactory.getY(), onClient));
+                slot = new BaseSlot(inventories.get(slotFactory.inventoryName()), te, slotFactory.index(), slotFactory.x(),
+                        getAdjustedY(slotFactory.y(), onClient));
             } else {
-                slot = new BaseSlot(inventories.get(slotFactory.getInventoryName()), te, slotFactory.getIndex(), slotFactory.getX(),
-                        getAdjustedY(slotFactory.getY(), onClient)) {
+                slot = new BaseSlot(inventories.get(slotFactory.inventoryName()), te, slotFactory.index(), slotFactory.x(),
+                        getAdjustedY(slotFactory.y(), onClient)) {
                     @Override
                     public boolean mayPlace(@Nonnull ItemStack stack) {
                         if (!isLocked()) {

@@ -28,8 +28,8 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
             return;
         }
         this.info = info;
-        if (info.getSize() != emptyHandler.size()) {
-            emptyHandler = NonNullList.withSize(info.getSize(), ItemStack.EMPTY);
+        if (info.size() != emptyHandler.size()) {
+            emptyHandler = NonNullList.withSize(info.size(), ItemStack.EMPTY);
         }
         storage = null;
     }
@@ -39,11 +39,11 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
     }
 
     private void createStorage() {
-        if (storage == null && info.getUuid() != null) {
+        if (storage == null && info.uuid() != null) {
             if (remote) {
-                storage = RFToolsStorage.setup.clientStorageHolder.getStorage(info.getUuid(), info.getVersion());
+                storage = RFToolsStorage.setup.clientStorageHolder.getStorage(info.uuid(), info.version());
             } else {
-                storage = StorageHolder.get(LevelTools.getOverworld()).getOrCreateStorageEntry(info.getUuid(), info.getSize(), info.getCreatedBy());
+                storage = StorageHolder.get(LevelTools.getOverworld()).getOrCreateStorageEntry(info.uuid(), info.size(), info.createdBy());
             }
         }
     }
@@ -203,7 +203,7 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         if (info.isEmpty()) {
             return false;
         }
-        if (slot >= info.getSize()) {
+        if (slot >= info.size()) {
             return false;
         }
         return true;

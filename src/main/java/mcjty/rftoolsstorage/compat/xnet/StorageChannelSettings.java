@@ -61,9 +61,9 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
 
         Level world = context.getControllerWorld();
         for (Pair<SidedConsumer, StorageConnectorSettings> entry : storageControllers) {
-            BlockPos extractorPos = context.findConsumerPosition(entry.getKey().getConsumerId());
+            BlockPos extractorPos = context.findConsumerPosition(entry.getKey().consumerId());
             if (extractorPos != null) {
-                Direction side = entry.getKey().getSide();
+                Direction side = entry.getKey().side();
                 BlockPos pos = extractorPos.relative(side);
                 if (!LevelTools.isLoaded(world, pos)) {
                     continue;
@@ -79,9 +79,9 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
     }
 
     private BlockPos getInventory(IControllerContext context, SidedConsumer sidedConsumer) {
-        BlockPos consumerPos = context.findConsumerPosition(sidedConsumer.getConsumerId());
+        BlockPos consumerPos = context.findConsumerPosition(sidedConsumer.consumerId());
         if (consumerPos != null) {
-            Direction side = sidedConsumer.getSide();
+            Direction side = sidedConsumer.side();
             BlockPos pos = consumerPos.relative(side);
             BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
             if (te != null) {

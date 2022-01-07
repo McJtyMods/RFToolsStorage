@@ -62,7 +62,7 @@ public class InventoriesItemSource implements IItemSource {
     @Override
     public ItemStack decrStackSize(IItemKey key, int amount) {
         ItemKey realKey = (ItemKey) key;
-        ItemStack stack = realKey.getInventory().getStackInSlot(realKey.getSlot());
+        ItemStack stack = realKey.inventory().getStackInSlot(realKey.slot());
         ItemStack result = stack.split(amount);
         if (stack.isEmpty()) {
             // @todo 1.14 is this really required?
@@ -74,8 +74,8 @@ public class InventoriesItemSource implements IItemSource {
     @Override
     public boolean insertStack(IItemKey key, ItemStack stack) {
         ItemKey realKey = (ItemKey) key;
-        IItemHandler inventory = realKey.getInventory();
-        ItemStack origStack = inventory.extractItem(realKey.getSlot(), 64, false);
+        IItemHandler inventory = realKey.inventory();
+        ItemStack origStack = inventory.extractItem(realKey.slot(), 64, false);
         if (!origStack.isEmpty()) {
             if (ItemHandlerHelper.canItemStacksStack(origStack, stack)) {
                 if ((stack.getCount() + origStack.getCount()) > stack.getMaxStackSize()) {
@@ -86,59 +86,19 @@ public class InventoriesItemSource implements IItemSource {
                 return false;
             }
         }
-        inventory.insertItem(realKey.getSlot(), stack, false);
+        inventory.insertItem(realKey.slot(), stack, false);
         return true;
     }
 
     @Override
     public int insertStackAnySlot(IItemKey key, ItemStack stack) {
         ItemKey realKey = (ItemKey) key;
-        IItemHandler inventory = realKey.getInventory();
+        IItemHandler inventory = realKey.inventory();
         // @todo 1.14
 //        return InventoryHelper.mergeItemStack(inventory, true, stack, 0, inventory.getSizeInventory(), null);
         return 0;
     }
 
-    private static class ItemKey implements IItemKey {
-        private IItemHandler inventory;
-        private int slot;
-
-        public ItemKey(IItemHandler inventory, int slot) {
-            this.inventory = inventory;
-            this.slot = slot;
-        }
-
-        public IItemHandler getInventory() {
-            return inventory;
-        }
-
-        public int getSlot() {
-            return slot;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            ItemKey itemKey = (ItemKey) o;
-
-            if (slot != itemKey.slot) {
-                return false;
-            }
-            return inventory.equals(itemKey.inventory);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = inventory.hashCode();
-            result = 31 * result + slot;
-            return result;
-        }
+    private record ItemKey(IItemHandler inventory, int slot) implements IItemKey {
     }
 }

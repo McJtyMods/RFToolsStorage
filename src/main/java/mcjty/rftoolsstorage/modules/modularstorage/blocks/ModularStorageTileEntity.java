@@ -359,12 +359,12 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Override
     public int getVersion() {
         // @todo do we still need this?
-        return getStorageInfo().getVersion();
+        return getStorageInfo().version();
     }
 
     public int getMaxSize() {
         StorageInfo info = getStorageInfo();
-        return info.getSize();
+        return info.size();
     }
 
     //    @Override
