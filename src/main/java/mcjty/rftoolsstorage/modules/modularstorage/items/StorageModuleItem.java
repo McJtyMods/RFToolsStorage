@@ -11,7 +11,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
@@ -24,8 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
-
-import net.minecraft.world.item.Item.Properties;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
@@ -46,7 +43,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
 
     private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
             .info(header(),
-                    parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsString),
+                    parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsStringClient),
                     key("message.rftoolsstorage.shiftmessage"))
             .infoShift(header(),
                     gold(stack -> isRemoteModule()),
@@ -76,11 +73,11 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                             return "<unset>";
                         }
                     }),
-                    parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsString))
-            .infoAdvanced(parameter("advanced", this::getAdvancedInfo));
+                    parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsStringClient))
+            .infoAdvanced(parameter("advanced", this::getAdvancedInfoClient));
 
-    private String getContentsString(ItemStack stack) {
-        StorageEntry storage = getStorage(stack);
+    private String getContentsStringClient(ItemStack stack) {
+        StorageEntry storage = getStorageClient(stack);
         if (storage != null) {
             // @todo is this really needed if we only need number of items? Re-evaluate
             NonNullList<ItemStack> stacks = storage.getStacks();
@@ -90,13 +87,13 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                     cnt++;
                 }
             }
-            return Integer.toString(cnt) + "/" + Integer.toString(getMax());
+            return cnt + "/" + getMax();
         }
         return "<unknown>";
     }
 
-    private String getAdvancedInfo(ItemStack stack) {
-        StorageEntry storage = getStorage(stack);
+    private String getAdvancedInfoClient(ItemStack stack) {
+        StorageEntry storage = getStorageClient(stack);
         if (storage != null) {
             String createdBy = storage.getCreatedBy();
             String info = "";
@@ -116,7 +113,8 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
 
     }
 
-    private StorageEntry getStorage(ItemStack stack) {
+    /// Client-side version to get storage
+    private StorageEntry getStorageClient(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag == null) {
             return null;
@@ -160,7 +158,6 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
             tag.putString("createdBy", player.getName().getString());   // @todo 1.16 getFormattedText
         }
     }
-
 
     public static UUID getOrCreateUUID(ItemStack stack) {
         if (!(stack.getItem() instanceof StorageModuleItem)) {
