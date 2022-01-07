@@ -1,3 +1,6 @@
+Upcoming:
+- Updates for McJtyLib and fixes
+
 1.18-3.0.1:
 - Fixed blocks not breaking correctly with iron pickaxe
 
