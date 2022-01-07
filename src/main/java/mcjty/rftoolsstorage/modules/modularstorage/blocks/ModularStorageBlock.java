@@ -37,9 +37,6 @@ public class ModularStorageBlock extends BaseBlock {
         );
     }
 
-
-    private static long lastTime = 0;
-
     @Override
     protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);

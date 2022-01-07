@@ -157,15 +157,9 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
                 Queue<CraftingRequest> requests = queues[finalQueueIndex].getRequests();
                 double baseQuality = Math.max(0.0, 1.0 - (requests.size() / 10.0));   // Amount of requests negatively impacts the quality
                 switch (device.getStatus()) {
-                    case IDLE:
-                        baseQuality += QUALITY_DEVICEIDLE;
-                        break;
-                    case READY:
-                        baseQuality += 0.5;
-                        break;
-                    case BUSY:
-                    default:
-                        break;
+                    case IDLE -> baseQuality += QUALITY_DEVICEIDLE;
+                    case READY -> baseQuality += 0.5;
+                    case BUSY -> { }
                 }
                 double quality = -1;
                 for (int i = getFirstCardIndex(finalQueueIndex); i < getLastCardIndex(finalQueueIndex); i++) {
@@ -212,14 +206,14 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             ItemStack cardStack = items.getStackInSlot(i);
             if (!cardStack.isEmpty()) {
                 ItemStack cardResult = CraftingCardItem.getResult(cardStack);
-                if (request.getIngredient().test(cardResult)) {
+                if (request.ingredient().test(cardResult)) {
                     // Request needed ingredients from the storage scanner
                     queue.getDevice().setupCraft(level, cardStack);
                     return queue.getDevice().getIngredients();
                 }
             }
         }
-        return Collections.<Ingredient>emptyList();
+        return Collections.emptyList();
     }
 
     /**

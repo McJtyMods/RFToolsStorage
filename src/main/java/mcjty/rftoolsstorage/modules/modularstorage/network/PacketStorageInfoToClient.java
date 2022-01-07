@@ -11,12 +11,12 @@ import java.util.function.Supplier;
 
 public class PacketStorageInfoToClient {
 
-    private BlockPos pos;
-    private String viewMode;
-    private String sortMode;
-    private boolean groupMode;
-    private String filter;
-    private boolean locked;
+    private final BlockPos pos;
+    private final String viewMode;
+    private final String sortMode;
+    private final boolean groupMode;
+    private final String filter;
+    private final boolean locked;
 
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
@@ -25,9 +25,6 @@ public class PacketStorageInfoToClient {
         buf.writeBoolean(groupMode);
         buf.writeUtf(filter);
         buf.writeBoolean(locked);
-    }
-
-    public PacketStorageInfoToClient() {
     }
 
     public PacketStorageInfoToClient(FriendlyByteBuf buf) {
@@ -53,8 +50,7 @@ public class PacketStorageInfoToClient {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
             BlockEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
-            if (te instanceof ModularStorageTileEntity) {
-                ModularStorageTileEntity storage = (ModularStorageTileEntity) te;
+            if (te instanceof ModularStorageTileEntity storage) {
                 storage.syncInventoryFromServer(sortMode, viewMode, groupMode, filter, locked);
             }
         });

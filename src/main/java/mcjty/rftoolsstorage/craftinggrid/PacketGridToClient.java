@@ -16,9 +16,6 @@ public class PacketGridToClient extends PacketGridSync {
         convertToBytes(buf);
     }
 
-    public PacketGridToClient() {
-    }
-
     public PacketGridToClient(FriendlyByteBuf buf) {
         convertFromBytes(buf);
     }

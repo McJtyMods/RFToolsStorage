@@ -7,15 +7,12 @@ import java.util.function.Supplier;
 
 public class PacketCraftTestResultToClient {
 
-    private int[] testResult;
+    private final int[] testResult;
 
     public void toBytes(FriendlyByteBuf buf) {
         for (int i = 0; i < 10; i++) {
             buf.writeInt(testResult[i]);
         }
-    }
-
-    public PacketCraftTestResultToClient() {
     }
 
     public PacketCraftTestResultToClient(FriendlyByteBuf buf) {

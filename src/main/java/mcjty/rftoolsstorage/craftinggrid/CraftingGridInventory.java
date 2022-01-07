@@ -16,7 +16,7 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     public static final int GRID_XOFFSET = -GRID_WIDTH - 2 + 7;
     public static final int GRID_YOFFSET = 127;
 
-    private ItemStackList stacks = ItemStackList.create(10);
+    private final ItemStackList stacks = ItemStackList.create(10);
 
     public ItemStack getResult() {
         return stacks.get(SLOT_GHOSTOUTPUT);

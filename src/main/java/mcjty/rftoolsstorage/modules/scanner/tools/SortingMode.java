@@ -19,7 +19,7 @@ public enum SortingMode implements NamedEnum<SortingMode> {
 
     public static SortingMode byDescription(String s) {
         for (SortingMode mode : values()) {
-            if (s.equals(mode.getDescription())) {
+            if (s.equals(mode.description)) {
                 return mode;
             }
         }

@@ -112,7 +112,6 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
                 }
             }
             player.containerMenu.broadcastChanges();
-            return;
         }
     }
 

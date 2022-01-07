@@ -17,7 +17,7 @@ public class InventoryAccessSettings {
     private boolean metaMode = false;
     private boolean nbtMode = false;
     private boolean blacklist = false;
-    private ItemStackList filters = ItemStackList.create(FILTER_SIZE);
+    private final ItemStackList filters = ItemStackList.create(FILTER_SIZE);
 
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;

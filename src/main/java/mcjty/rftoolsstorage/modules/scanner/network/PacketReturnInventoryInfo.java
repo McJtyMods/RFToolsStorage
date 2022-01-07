@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public class PacketReturnInventoryInfo {
 
-    private List<InventoryInfo> inventories;
+    private final List<InventoryInfo> inventories;
 
     public List<InventoryInfo> getInventories() {
         return inventories;
@@ -24,20 +24,17 @@ public class PacketReturnInventoryInfo {
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeInt(inventories.size());
         for (InventoryInfo info : inventories) {
-            buf.writeBlockPos(info.getPos());
-            buf.writeUtf(info.getName());
-            buf.writeBoolean(info.isRoutable());
-            if (info.getBlock() == null) {
+            buf.writeBlockPos(info.pos());
+            buf.writeUtf(info.name());
+            buf.writeBoolean(info.routable());
+            if (info.block() == null) {
                 buf.writeBoolean(false);
             } else {
                 buf.writeBoolean(true);
-                String id = info.getBlock().getRegistryName().toString();
+                String id = info.block().getRegistryName().toString();
                 buf.writeUtf(id);
             }
         }
-    }
-
-    public PacketReturnInventoryInfo() {
     }
 
     public PacketReturnInventoryInfo(FriendlyByteBuf buf) {
@@ -67,33 +64,6 @@ public class PacketReturnInventoryInfo {
         ctx.setPacketHandled(true);
     }
 
-    public static class InventoryInfo {
-        private final BlockPos pos;
-        private final String name;
-        private final boolean routable;
-        private final Block block;
-
-        public InventoryInfo(BlockPos pos, String name, boolean routable, Block block) {
-            this.pos = pos;
-            this.name = name;
-            this.routable = routable;
-            this.block = block;
-        }
-
-        public BlockPos getPos() {
-            return pos;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean isRoutable() {
-            return routable;
-        }
-
-        public Block getBlock() {
-            return block;
-        }
+    public record InventoryInfo(BlockPos pos, String name, boolean routable, Block block) {
     }
 }

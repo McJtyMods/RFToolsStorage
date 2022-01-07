@@ -17,7 +17,7 @@ public class StorageEntry {
     private NonNullList<ItemStack> stacks;
     private final UUID uuid;
     private int version;
-    private long creationTime;
+    private final long creationTime;
     private long updateTime;
     private String createdBy;
 

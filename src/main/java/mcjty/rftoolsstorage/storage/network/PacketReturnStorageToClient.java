@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.storage.network;
 
-import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;

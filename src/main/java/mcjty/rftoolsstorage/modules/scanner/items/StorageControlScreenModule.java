@@ -31,7 +31,7 @@ import java.util.List;
 
 public class StorageControlScreenModule implements IScreenModule<StorageControlScreenModule.ModuleDataStacks>, ITooltipInfo,
         IScreenModuleUpdater {
-    private ItemStackList stacks = ItemStackList.create(9);
+    private final ItemStackList stacks = ItemStackList.create(9);
 
     protected ResourceKey<Level> dim = Level.OVERWORLD;
     protected BlockPos coordinate = BlockPosTools.INVALID;

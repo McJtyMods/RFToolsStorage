@@ -22,7 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
 public class StorageControlClientScreenModule implements IClientScreenModule<StorageControlScreenModule.ModuleDataStacks> {
-    private ItemStackList stacks = ItemStackList.create(9);
+    private final ItemStackList stacks = ItemStackList.create(9);
 
     @Override
     public IClientScreenModule.TransformMode getTransformMode() {

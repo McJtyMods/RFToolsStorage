@@ -7,12 +7,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class CraftingGrid {
 
-    private CraftingGridInventory craftingGridInventory = new CraftingGridInventory();
-    private CraftingRecipe recipes[] = new CraftingRecipe[6];
+    private final CraftingGridInventory craftingGridInventory = new CraftingGridInventory();
+    private final RFCraftingRecipe[] recipes = new RFCraftingRecipe[6];
 
     public CraftingGrid() {
         for (int i = 0 ; i < 6 ; i++) {
-            recipes[i] = new CraftingRecipe();
+            recipes[i] = new RFCraftingRecipe();
         }
     }
 
@@ -20,18 +20,18 @@ public class CraftingGrid {
         return craftingGridInventory;
     }
 
-    public CraftingRecipe getRecipe(int index) {
+    public RFCraftingRecipe getRecipe(int index) {
         return recipes[index];
     }
 
-    public CraftingRecipe getActiveRecipe() {
-        CraftingRecipe recipe = new CraftingRecipe();
+    public RFCraftingRecipe getActiveRecipe() {
+        RFCraftingRecipe recipe = new RFCraftingRecipe();
         recipe.setRecipe(craftingGridInventory.getIngredients(), craftingGridInventory.getResult());
         return recipe;
     }
 
     public void setRecipe(int index, ItemStack[] stacks) {
-        CraftingRecipe recipe = recipes[index];
+        RFCraftingRecipe recipe = recipes[index];
         recipe.setResult(stacks[0]);
         for (int i = 0 ; i < 9 ; i++) {
             recipe.getInventory().setItem(i, stacks[i+1]);
@@ -39,12 +39,12 @@ public class CraftingGrid {
     }
 
     public void storeRecipe(int index) {
-        CraftingRecipe recipe = getRecipe(index);
+        RFCraftingRecipe recipe = getRecipe(index);
         recipe.setRecipe(craftingGridInventory.getIngredients(), craftingGridInventory.getResult());
     }
 
     public void selectRecipe(int index) {
-        CraftingRecipe recipe = getRecipe(index);
+        RFCraftingRecipe recipe = getRecipe(index);
         craftingGridInventory.setStackInSlot(CraftingGridInventory.SLOT_GHOSTOUTPUT, recipe.getResult());
         for (int i = 0 ; i < 9 ; i++) {
             craftingGridInventory.setStackInSlot(i+CraftingGridInventory.SLOT_GHOSTINPUT, recipe.getInventory().getItem(i));
@@ -66,7 +66,7 @@ public class CraftingGrid {
         tagCompound.put("grid", bufferTagList);
 
         ListTag recipeTagList = new ListTag();
-        for (CraftingRecipe recipe : recipes) {
+        for (RFCraftingRecipe recipe : recipes) {
             CompoundTag CompoundNBT = new CompoundTag();
             recipe.writeToNBT(CompoundNBT);
             recipeTagList.add(CompoundNBT);
@@ -88,7 +88,7 @@ public class CraftingGrid {
 
         ListTag recipeTagList = tagCompound.getList("recipes", Tag.TAG_COMPOUND);
         for (int i = 0 ; i < recipeTagList.size() ; i++) {
-            recipes[i] = new CraftingRecipe();
+            recipes[i] = new RFCraftingRecipe();
             CompoundTag CompoundNBT = recipeTagList.getCompound(i);
             recipes[i].readFromNBT(CompoundNBT);
         }

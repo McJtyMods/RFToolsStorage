@@ -44,7 +44,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     public static final Key<String> CRAFT5_ERROR = new Key<>("craft5error", Type.STRING);
     public static final Key<String> CRAFT6_ERROR = new Key<>("craft6error", Type.STRING);
 
-    public static final Pair<Key<ItemStack>,Key<String>> CRAFT_KEYS[] = new Pair[]{
+    public static final Pair<Key<ItemStack>, Key<String>>[] CRAFT_KEYS = new Pair[]{
             Pair.of(CRAFT1, CRAFT1_ERROR),
             Pair.of(CRAFT2, CRAFT2_ERROR),
             Pair.of(CRAFT3, CRAFT3_ERROR),
@@ -87,8 +87,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
                     break;
                 }
                 BlockEntity te = world.getBlockEntity(pos);
-                if (te instanceof CraftingManagerTileEntity) {
-                    CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
+                if (te instanceof CraftingManagerTileEntity craftingManager) {
                     for (CraftingQueue queue : craftingManager.getQueues()) {
                         ICraftingDevice device = queue.getDevice();
                         if (device != null) {
@@ -105,7 +104,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
                 if (idx >= CRAFT_KEYS.length) {
                     break;
                 }
-                ItemStack[] stacks = request.getIngredient().getItems();
+                ItemStack[] stacks = request.ingredient().getItems();
                 if (stacks.length > 0) {
                     add(builder, idx++, stacks[0], "Missing");
                 }

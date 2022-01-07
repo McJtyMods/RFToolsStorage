@@ -22,9 +22,8 @@ public class StorageScannerTools {
         Level world = LevelTools.getLevel(player.level, dim);
         if (LevelTools.isLoaded(world, pos)) {
             BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof StorageScannerTileEntity) {
-                StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
-                Set<BlockPos> inventories = scannerTileEntity.performSearch(text);
+            if (te instanceof StorageScannerTileEntity scanner) {
+                Set<BlockPos> inventories = scanner.performSearch(text);
                 RFToolsStorageMessages.sendToClient(player, ClientCommandHandler.CMD_RETURN_SCANNER_SEARCH,
                         TypedMap.builder()
                                 .put(ClientCommandHandler.PARAM_INVENTORIES, new ArrayList<>(inventories)));
@@ -36,11 +35,10 @@ public class StorageScannerTools {
         Level world = LevelTools.getLevel(player.level, dim);
         if (LevelTools.isLoaded(world, pos)) {
             BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof StorageScannerTileEntity) {
-                StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
+            if (te instanceof StorageScannerTileEntity scanner) {
                 List<ItemStack> stacks = new ArrayList<>();
                 List<ItemStack> craftable = new ArrayList<>();
-                scannerTileEntity.getInventoryForBlock(invpos, stacks, craftable);
+                scanner.getInventoryForBlock(invpos, stacks, craftable);
                 RFToolsStorageMessages.sendToClient(player, ClientCommandHandler.CMD_RETURN_SCANNER_CONTENTS,
                         TypedMap.builder()
                                 .put(ClientCommandHandler.PARAM_STACKS, stacks)

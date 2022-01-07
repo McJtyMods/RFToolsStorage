@@ -15,12 +15,12 @@ import java.util.function.Supplier;
 
 public class PacketRequestItem {
 
-    private ResourceKey<Level> dimensionId;
-    private BlockPos pos;
-    private BlockPos inventoryPos;
-    private ItemStack item;
-    private int amount;
-    private boolean craftable;
+    private final ResourceKey<Level> dimensionId;
+    private final BlockPos pos;
+    private final BlockPos inventoryPos;
+    private final ItemStack item;
+    private final int amount;
+    private final boolean craftable;
 
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeResourceLocation(dimensionId.location());
@@ -29,9 +29,6 @@ public class PacketRequestItem {
         buf.writeInt(amount);
         NetworkTools.writeItemStack(buf, item);
         buf.writeBoolean(craftable);
-    }
-
-    public PacketRequestItem() {
     }
 
     public PacketRequestItem(FriendlyByteBuf buf) {
@@ -64,12 +61,11 @@ public class PacketRequestItem {
                 return;
             }
             BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof StorageScannerTileEntity) {
-                StorageScannerTileEntity tileEntity = (StorageScannerTileEntity) te;
+            if (te instanceof StorageScannerTileEntity scanner) {
                 if (craftable) {
-                    tileEntity.requestCraft(inventoryPos, item, amount, ctx.getSender());
+                    scanner.requestCraft(inventoryPos, item, amount, ctx.getSender());
                 } else {
-                    tileEntity.requestStack(inventoryPos, item, amount, ctx.getSender());
+                    scanner.requestStack(inventoryPos, item, amount, ctx.getSender());
                 }
             }
         });

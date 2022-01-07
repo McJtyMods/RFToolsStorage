@@ -14,7 +14,7 @@ import java.util.List;
 
 public class TileEntityItemSource implements IItemSource {
 
-    private List<Pair<IItemHandler, Integer>> inventories = new ArrayList<>();
+    private final List<Pair<IItemHandler, Integer>> inventories = new ArrayList<>();
 
     public TileEntityItemSource add(BlockEntity te, int offset) {
         te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h ->
@@ -37,14 +37,12 @@ public class TileEntityItemSource implements IItemSource {
     }
 
     private static boolean insertStackInSlot(Object inv, int slot, ItemStack stack) {
-        if (inv instanceof IItemHandler) {
-            IItemHandler handler = (IItemHandler) inv;
+        if (inv instanceof IItemHandler handler) {
             if (!handler.insertItem(slot, stack, true).isEmpty()) {
                 return false;
             }
             return handler.insertItem(slot, stack, false).isEmpty();
-        } else if (inv instanceof Container) {
-            Container inventory = (Container) inv;
+        } else if (inv instanceof Container inventory) {
             ItemStack oldStack = inventory.getItem(slot);
             if (!oldStack.isEmpty()) {
                 if ((stack.getCount() + oldStack.getCount()) > stack.getMaxStackSize()) {
@@ -59,12 +57,10 @@ public class TileEntityItemSource implements IItemSource {
     }
 
     private static int insertStackInAnySlot(Object inv, ItemStack stack) {
-        if (inv instanceof IItemHandler) {
-            IItemHandler handler = (IItemHandler) inv;
+        if (inv instanceof IItemHandler handler) {
             ItemStack leftOver = ItemHandlerHelper.insertItem(handler, stack, false);
             return leftOver.getCount();
-        } else if (inv instanceof Container) {
-            Container inventory = (Container) inv;
+        } else if (inv instanceof Container inventory) {
             // @todo 1.14
 //            return InventoryHelper.mergeItemStack(inventory, true, stack, 0, inventory.getSizeInventory(), null);
             return 0;
@@ -83,7 +79,7 @@ public class TileEntityItemSource implements IItemSource {
 
     @Override
     public Iterable<Pair<IItemKey, ItemStack>> getItems() {
-        return () -> new Iterator<Pair<IItemKey, ItemStack>>() {
+        return () -> new Iterator<>() {
             private int inventoryIndex = 0;
             private int slotIndex = 0;
 
@@ -122,9 +118,9 @@ public class TileEntityItemSource implements IItemSource {
     @Override
     public ItemStack decrStackSize(IItemKey key, int amount) {
         ItemKey realKey = (ItemKey) key;
-        IItemHandler handler = realKey.getInventory();
+        IItemHandler handler = realKey.inventory();
         if (handler != null) {
-            return handler.extractItem(realKey.getSlot(), amount, false);
+            return handler.extractItem(realKey.slot(), amount, false);
         } else {
             return ItemStack.EMPTY;
         }
@@ -133,55 +129,15 @@ public class TileEntityItemSource implements IItemSource {
     @Override
     public boolean insertStack(IItemKey key, ItemStack stack) {
         ItemKey realKey = (ItemKey) key;
-        return insertStackInSlot(realKey.getInventory(), realKey.getSlot(), stack);
+        return insertStackInSlot(realKey.inventory(), realKey.slot(), stack);
     }
 
     @Override
     public int insertStackAnySlot(IItemKey key, ItemStack stack) {
         ItemKey realKey = (ItemKey) key;
-        return insertStackInAnySlot(realKey.getInventory(), stack);
+        return insertStackInAnySlot(realKey.inventory(), stack);
     }
 
-    private static class ItemKey implements IItemKey {
-        private IItemHandler inventory;
-        private int slot;
-
-        public ItemKey(IItemHandler inventory, int slot) {
-            this.inventory = inventory;
-            this.slot = slot;
-        }
-
-        public IItemHandler getInventory() {
-            return inventory;
-        }
-
-        public int getSlot() {
-            return slot;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            ItemKey itemKey = (ItemKey) o;
-
-            if (slot != itemKey.slot) {
-                return false;
-            }
-            return inventory.equals(itemKey.inventory);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = inventory.hashCode();
-            result = 31 * result + slot;
-            return result;
-        }
+    private record ItemKey(IItemHandler inventory, int slot) implements IItemKey {
     }
 }

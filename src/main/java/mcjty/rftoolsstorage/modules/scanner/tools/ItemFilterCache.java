@@ -9,7 +9,7 @@ public class ItemFilterCache {
     private boolean matchDamage = true;
     private boolean blacklistMode = true;
     private boolean nbtMode = false;
-    private ItemStackList stacks;
+    private final ItemStackList stacks;
 
     public ItemFilterCache(boolean matchDamage, boolean blacklistMode, boolean nbtMode, @Nonnull ItemStackList stacks) {
         this.matchDamage = matchDamage;
@@ -27,17 +27,15 @@ public class ItemFilterCache {
     }
 
     private boolean itemMatches(ItemStack stack) {
-        if (stacks != null) {
-            for (ItemStack itemStack : stacks) {
-                if (matchDamage && itemStack.getDamageValue() != stack.getDamageValue()) {    // @todo 1.14, used to be meta. Check!
-                    continue;
-                }
-                if (nbtMode && !ItemStack.tagMatches(itemStack, stack)) {
-                    continue;
-                }
-                if (itemStack.getItem().equals(stack.getItem())) {
-                    return true;
-                }
+        for (ItemStack itemStack : stacks) {
+            if (matchDamage && itemStack.getDamageValue() != stack.getDamageValue()) {    // @todo 1.14, used to be meta. Check!
+                continue;
+            }
+            if (nbtMode && !ItemStack.tagMatches(itemStack, stack)) {
+                continue;
+            }
+            if (itemStack.getItem().equals(stack.getItem())) {
+                return true;
             }
         }
         return false;

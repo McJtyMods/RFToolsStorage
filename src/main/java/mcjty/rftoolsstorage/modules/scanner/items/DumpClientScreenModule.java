@@ -21,8 +21,8 @@ import mcjty.rftoolsbase.api.screens.IClientScreenModule.TransformMode;
 public class DumpClientScreenModule implements IClientScreenModule<IModuleData> {
     private String line = "";
     private int color = 0xffffff;
-    private ItemStack[] stacks = new ItemStack[DumpScreenModule.COLS * DumpScreenModule.ROWS];
-    private ITextRenderHelper buttonCache = new ScreenTextHelper();
+    private final ItemStack[] stacks = new ItemStack[DumpScreenModule.COLS * DumpScreenModule.ROWS];
+    private final ITextRenderHelper buttonCache = new ScreenTextHelper();
 
     @Override
     public TransformMode getTransformMode() {

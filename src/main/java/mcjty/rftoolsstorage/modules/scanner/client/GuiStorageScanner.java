@@ -78,9 +78,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private ScrollableLabel radiusLabel;
     private Label visibleRadiusLabel;
 
-    private GuiCraftingGrid craftingGrid;
-
-    private long prevTime = -1;
+    private final GuiCraftingGrid craftingGrid;
 
     private int listDirty = 0;
     private boolean init = false;
@@ -375,7 +373,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 if (info == null) {
                     return null;
                 } else {
-                    return info.getPos();
+                    return info.pos();
                 }
             }
         }
@@ -440,26 +438,26 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         SortingMode mode = SortingMode.byDescription(sortChoice.getCurrentChoice());
         if (mode != null) {
             switch (mode) {
-                case AMOUNT_ASCENDING:
-                    Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount));
-                    Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount));
-                    break;
-                case AMOUNT_DESCENDING:
-                    Collections.sort(fromServer_inventory, Comparator.comparing(ItemStack::getCount).reversed());
-                    Collections.sort(fromServer_craftable, Comparator.comparing(ItemStack::getCount).reversed());
-                    break;
-                case MOD:
-                    Collections.sort(fromServer_inventory, GuiStorageScanner::compareByMod);
-                    Collections.sort(fromServer_craftable, GuiStorageScanner::compareByMod);
-                    break;
-                case TAG:
-                    Collections.sort(fromServer_inventory, GuiStorageScanner::compareByTag);
-                    Collections.sort(fromServer_craftable, GuiStorageScanner::compareByTag);
-                    break;
-                case NAME:
-                    Collections.sort(fromServer_inventory, Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
-                    Collections.sort(fromServer_craftable, Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
-                    break;
+                case AMOUNT_ASCENDING -> {
+                    fromServer_inventory.sort(Comparator.comparing(ItemStack::getCount));
+                    fromServer_craftable.sort(Comparator.comparing(ItemStack::getCount));
+                }
+                case AMOUNT_DESCENDING -> {
+                    fromServer_inventory.sort(Comparator.comparing(ItemStack::getCount).reversed());
+                    fromServer_craftable.sort(Comparator.comparing(ItemStack::getCount).reversed());
+                }
+                case MOD -> {
+                    fromServer_inventory.sort(GuiStorageScanner::compareByMod);
+                    fromServer_craftable.sort(GuiStorageScanner::compareByMod);
+                }
+                case TAG -> {
+                    fromServer_inventory.sort(GuiStorageScanner::compareByTag);
+                    fromServer_craftable.sort(GuiStorageScanner::compareByTag);
+                }
+                case NAME -> {
+                    fromServer_inventory.sort(Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
+                    fromServer_craftable.sort(Comparator.comparing(itemStack -> itemStack.getHoverName().getString()));
+                }
             }
         }
 
@@ -536,8 +534,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         storageList.removeChildren();
         addStorageLine(null, "All routable", false);
         for (PacketReturnInventoryInfo.InventoryInfo c : fromServer_inventories) {
-            String displayName = c.getName();
-            boolean routable = c.isRoutable();
+            String displayName = c.name();
+            boolean routable = c.routable();
             addStorageLine(c, displayName, routable);
         }
 
@@ -545,7 +543,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         storageList.clearHilightedRows();
         int i = 0;
         for (PacketReturnInventoryInfo.InventoryInfo c : fromServer_inventories) {
-            if (fromServer_foundInventories.contains(c.getPos())) {
+            if (fromServer_foundInventories.contains(c.pos())) {
                 storageList.addHilightedRow(i + 1);
             }
             i++;
@@ -563,7 +561,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 layout.setHorizontalMargin(2);
             }
             panel = new Panel().layout(layout);
-            panel.children(new BlockRender().renderItem(c.getBlock()));
+            panel.children(new BlockRender().renderItem(c.block()));
         }
         if (openViewButton.isPressed()) {
             AbstractWidget<?> label;
@@ -576,14 +574,14 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
                 label.tooltips(ChatFormatting.GREEN + "All routable inventories")
                         .desiredWidth(74);
             } else {
-                label.tooltips(ChatFormatting.GREEN + "Block at: " + ChatFormatting.WHITE + BlockPosTools.toString(c.getPos()),
+                label.tooltips(ChatFormatting.GREEN + "Block at: " + ChatFormatting.WHITE + BlockPosTools.toString(c.pos()),
                         ChatFormatting.GREEN + "Name: " + ChatFormatting.WHITE + displayName,
                         "(doubleclick to highlight)");
             }
             panel.children(label);
             if (c != null) {
                 ImageChoiceLabel choiceLabel = new ImageChoiceLabel()
-                        .event((newChoice) -> changeRoutable(c.getPos())).desiredWidth(13);
+                        .event((newChoice) -> changeRoutable(c.pos())).desiredWidth(13);
                 choiceLabel.choice("No", "Not routable", guielements, 131, 19);
                 choiceLabel.choice("Yes", "Routable", guielements, 115, 19);
                 choiceLabel.setCurrentChoice(routable ? 1 : 0);

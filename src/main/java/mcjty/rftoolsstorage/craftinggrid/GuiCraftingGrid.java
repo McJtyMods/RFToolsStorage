@@ -142,7 +142,7 @@ public class GuiCraftingGrid {
     private void populateList() {
         recipeList.removeChildren();
         for (int i = 0; i < 6; i++) {
-            mcjty.rftoolsstorage.craftinggrid.CraftingRecipe recipe = provider.getCraftingGrid().getRecipe(i);
+            RFCraftingRecipe recipe = provider.getCraftingGrid().getRecipe(i);
             addRecipeLine(recipe.getResult());
         }
     }
@@ -219,7 +219,7 @@ public class GuiCraftingGrid {
         }
 
         // Compare current contents to avoid unneeded slot update.
-        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = CraftingRecipe.findRecipe(mc.level, inv);
+        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = RFCraftingRecipe.findRecipe(mc.level, inv);
         ItemStack newResult = recipe.map(r -> r.assemble(inv)).orElse(ItemStack.EMPTY);
         provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }

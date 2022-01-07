@@ -64,7 +64,7 @@ public class PacketGridSync {
         this.type = type;
         recipes = new ArrayList<>();
         for (int i = 0 ; i < 6 ; i++) {
-            CraftingRecipe recipe = grid.getRecipe(i);
+            RFCraftingRecipe recipe = grid.getRecipe(i);
             CraftingContainer inventory = recipe.getInventory();
             ItemStack[] stacks = new ItemStack[10];
             stacks[0] = recipe.getResult();

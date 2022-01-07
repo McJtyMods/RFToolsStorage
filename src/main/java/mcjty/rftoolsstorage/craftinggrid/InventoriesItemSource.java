@@ -11,7 +11,7 @@ import java.util.List;
 
 public class InventoriesItemSource implements IItemSource {
 
-    private List<Pair<IItemHandler, Integer>> inventories = new ArrayList<>();
+    private final List<Pair<IItemHandler, Integer>> inventories = new ArrayList<>();
 
     public InventoriesItemSource add(IItemHandler inventory, int offset) {
         inventories.add(Pair.of(inventory, offset));
@@ -20,7 +20,7 @@ public class InventoriesItemSource implements IItemSource {
 
     @Override
     public Iterable<Pair<IItemKey, ItemStack>> getItems() {
-        return () -> new Iterator<Pair<IItemKey, ItemStack>>() {
+        return () -> new Iterator<>() {
             private int inventoryIndex = 0;
             private int slotIndex = 0;
 

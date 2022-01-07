@@ -40,7 +40,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     public static final int STORAGE_TIER3 = 2;
     public static final int STORAGE_TIER4 = 3;
     public static final int STORAGE_REMOTE = 6;
-    public static final int MAXSIZE[] = new int[]{100, 200, 300, 500, 0, 0, -1};
+    public static final int[] MAXSIZE = new int[]{100, 200, 300, 500, 0, 0, -1};
 
     private final int tier;
 
@@ -200,7 +200,7 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
 
     @Override
     public Collection<String> getTagsToPreserve() {
-        return Arrays.asList("uuid");
+        return List.of("uuid");
     }
 
     @Nonnull

@@ -29,17 +29,14 @@ import java.util.stream.Stream;
 
 public class PacketGetInventoryInfo {
 
-    private ResourceKey<Level> id;
-    private BlockPos pos;
-    private boolean doscan;
+    private final ResourceKey<Level> id;
+    private final BlockPos pos;
+    private final boolean doscan;
 
     public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeResourceLocation(id.location());
         buf.writeBoolean(doscan);
-    }
-
-    public PacketGetInventoryInfo() {
     }
 
     public PacketGetInventoryInfo(FriendlyByteBuf buf) {
@@ -79,17 +76,16 @@ public class PacketGetInventoryInfo {
         }
 
         BlockEntity te = world.getBlockEntity(pos);
-        if (te instanceof StorageScannerTileEntity) {
-            StorageScannerTileEntity scannerTileEntity = (StorageScannerTileEntity) te;
+        if (te instanceof StorageScannerTileEntity scanner) {
             Stream<BlockPos> inventories;
             if (doscan) {
-                inventories = scannerTileEntity.findInventories();
+                inventories = scanner.findInventories();
             } else {
-                inventories = scannerTileEntity.getAllInventories();
+                inventories = scanner.getAllInventories();
             }
 
             List<PacketReturnInventoryInfo.InventoryInfo> invs = inventories
-                    .map(pos -> toInventoryInfo(world, pos, scannerTileEntity))
+                    .map(pos -> toInventoryInfo(world, pos, scanner))
                     .collect(Collectors.toList());
 
             return Optional.of(invs);
@@ -111,10 +107,9 @@ public class PacketGetInventoryInfo {
         } else {
             displayName = Tools.getReadableName(world, pos);
             BlockEntity storageTe = world.getBlockEntity(pos);
-            if (storageTe instanceof ModularStorageTileEntity) {
-                ModularStorageTileEntity storageTileEntity = (ModularStorageTileEntity) storageTe;
+            if (storageTe instanceof ModularStorageTileEntity storage) {
                 String finalDisplayName = displayName;
-                displayName = storageTileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> {
+                displayName = storage.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> {
                     ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                     if (!storageModule.isEmpty()) {
                         if (storageModule.hasTag() && storageModule.getTag().contains("display")) {

@@ -78,7 +78,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @GuiValue(name = "export")
     private boolean exportToCurrent = false;
     @GuiValue
-    public static final Value<?, Integer> VALUE_RADIUS = Value.<StorageScannerTileEntity, Integer>create("radius", Type.INTEGER, StorageScannerTileEntity::getRadius, StorageScannerTileEntity::setRadius);
+    public static final Value<?, Integer> VALUE_RADIUS = Value.create("radius", Type.INTEGER, StorageScannerTileEntity::getRadius, StorageScannerTileEntity::setRadius);
     @GuiValue
     private SortingMode sortMode = SortingMode.NAME;
 
@@ -170,12 +170,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @Override
     @Nonnull
     public int[] craft(Player player, int n, boolean test) {
-        CraftingRecipe activeRecipe = craftingGrid.getActiveRecipe();
+        RFCraftingRecipe activeRecipe = craftingGrid.getActiveRecipe();
         return craft(player, n, test, activeRecipe);
     }
 
     @Nonnull
-    public int[] craft(Player player, int n, boolean test, CraftingRecipe activeRecipe) {
+    public int[] craft(Player player, int n, boolean test, RFCraftingRecipe activeRecipe) {
         TileEntityItemSource itemSource = new TileEntityItemSource()
                 .add(new InvWrapper(player.getInventory()), 0);
         inventories.stream()
@@ -409,13 +409,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         while (iterator.hasNext()) {
             BlockEntity te = iterator.next();
             Integer cachedCount = null;
-            if (te instanceof IInventoryTracker) {
-                IInventoryTracker tracker = (IInventoryTracker) te;
+            if (te instanceof IInventoryTracker tracker) {
                 CachedItemCount itemCount = cachedCounts.get(new CachedItemKey(te.getBlockPos(), stack.getItem(), 0 /* @todo 1.14 stack.getMetadata()*/));
                 if (itemCount != null) {
-                    Integer oldVersion = itemCount.getVersion();
+                    int oldVersion = itemCount.version();
                     if (oldVersion == tracker.getVersion()) {
-                        cachedCount = itemCount.getCount();
+                        cachedCount = itemCount.count();
                     }
                 }
             }
@@ -425,8 +424,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                 final int[] cc = {0};
                 InventoryTools.getItems(te, s -> isItemEqual(stack, s))
                         .forEach(s -> cc[0] += s.getCount());
-                if (te instanceof IInventoryTracker) {
-                    IInventoryTracker tracker = (IInventoryTracker) te;
+                if (te instanceof IInventoryTracker tracker) {
                     cachedCounts.put(new CachedItemKey(te.getBlockPos(), stack.getItem(), 0 /* @todc 1.14 meta */), new CachedItemCount(tracker.getVersion(), cc[0]));
                 }
                 cnt += cc[0];
@@ -831,7 +829,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         }
 
         final ItemStack[] result = {ItemStack.EMPTY};
-        final int[] cnt = {match.getMaxStackSize() < amount ? match.getMaxStackSize() : amount};
+        final int[] cnt = {Math.min(match.getMaxStackSize(), amount)};
         Player fakePlayer = lazyPlayer.get();
         inventories.stream()
                 .filter(p -> isOutputFromAuto(p) && (!doRoutable) || isRoutable(p))
@@ -986,10 +984,9 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         } else {
             // There are missing items. Check if there are recipes for them
             for (Ingredient ingredient : missing) {
-                if (!getAllInventories().anyMatch(p -> {
+                if (getAllInventories().noneMatch(p -> {
                     BlockEntity te = level.getBlockEntity(p);
-                    if (te instanceof CraftingManagerTileEntity) {
-                        CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
+                    if (te instanceof CraftingManagerTileEntity craftingManager) {
                         if (craftingManager.canCraft(ingredient)) {
                             // The crafting manager can craft this item
                             missingIngredientConsumer.accept(ingredient);
@@ -1308,8 +1305,6 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
      * directly at the storage scanner), the position of a 'watching' tile
      * entity (in case we are a dummy for the storage terminal) or else null
      * in case we're using a handheld item.
-     *
-     * @return
      */
     public BlockPos getCraftingGridContainerPos() {
         return getBlockPos();
@@ -1326,8 +1321,6 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     /**
      * This is used client side only for the GUI.
      * Return the position of the actual storage scanner
-     *
-     * @return
      */
     public BlockPos getStorageScannerPos() {
         return getBlockPos();

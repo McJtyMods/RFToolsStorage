@@ -71,11 +71,10 @@ public class CraftingSystem {
             startRequest(world, request);
         }
 
-        boolean checkSuspendedCrafts[] = { false };
+        boolean[] checkSuspendedCrafts = { false };
         storage.getCraftingInventories().forEach(pos -> {
             BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof CraftingManagerTileEntity) {
-                CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
+            if (te instanceof CraftingManagerTileEntity craftingManager) {
                 boolean ready = craftingManager.tick(this);
                 if (ready) {
                     checkSuspendedCrafts[0] = true;
@@ -85,9 +84,7 @@ public class CraftingSystem {
         if (checkSuspendedCrafts[0]) {
             // One of the crafts is ready so we need to reschedule all suspended crafts
             // @todo optimize this so that only the relevant suspended requests are put back?
-            for (CraftingRequest craftingRequest : suspendedRequests) {
-                queuedRequests.add(craftingRequest);
-            }
+            queuedRequests.addAll(suspendedRequests);
             suspendedRequests.clear();
         }
     }
@@ -110,9 +107,8 @@ public class CraftingSystem {
         BestDevice bestDevice = storage.getCraftingInventories().stream().collect(BestDevice::new,
                 (best, pos) -> {
                     BlockEntity te = world.getBlockEntity(pos);
-                    if (te instanceof CraftingManagerTileEntity) {
-                        CraftingManagerTileEntity craftingManager = (CraftingManagerTileEntity) te;
-                        Pair<Double, Integer> pair = craftingManager.getCraftingQuality(request.getIngredient(), request.getAmount());
+                    if (te instanceof CraftingManagerTileEntity craftingManager) {
+                        var pair = craftingManager.getCraftingQuality(request.ingredient(), request.amount());
                         Double quality = pair.getLeft();
                         if (quality >= 0 && quality > best.quality) {
                             best.quality = quality;
@@ -130,7 +126,7 @@ public class CraftingSystem {
             List<Ingredient> ingredients = bestDevice.craftingManager.getIngredients(bestDevice.queue, request);
             List<ItemStack> extractedItems = storage.requestIngredients(ingredients, ingredient -> {
                 // A craft is possible but some items are missing. This consumer is called for every missing ingredient
-                CraftingRequest newRequest = new CraftingRequest(newRequestId(), ingredient, 1, request.getId());
+                CraftingRequest newRequest = new CraftingRequest(newRequestId(), ingredient, 1, request.id());
                 queuedRequests.add(newRequest);
             }, bestDevice.quality >= CraftingManagerTileEntity.QUALITY_DEVICEIDLE);
             if (extractedItems == null) {

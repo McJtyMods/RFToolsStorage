@@ -6,7 +6,7 @@ import java.util.Queue;
 public class CraftingQueue {
 
     private ICraftingDevice device;
-    private Queue<CraftingRequest> requests = new ArrayDeque<>();
+    private final Queue<CraftingRequest> requests = new ArrayDeque<>();
 
     public ICraftingDevice getDevice() {
         return device;

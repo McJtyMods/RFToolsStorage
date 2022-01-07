@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.varia.SafeClientTools;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -8,14 +7,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-public class CraftingRecipe {
-    private CraftingContainer inv = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+public class RFCraftingRecipe {
+    private final CraftingContainer inv = new CraftingContainer(new AbstractContainerMenu(null, -1) {
         @Override
         public boolean stillValid(@Nonnull Player playerIn) {
             return false;
@@ -24,7 +24,7 @@ public class CraftingRecipe {
     private ItemStack result = ItemStack.EMPTY;
 
     private boolean recipePresent = false;
-    private Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = Optional.empty();
+    private Optional<CraftingRecipe> recipe = Optional.empty();
 
     private boolean keepOne = false;
 
@@ -46,7 +46,7 @@ public class CraftingRecipe {
 
     private CraftMode craftMode = CraftMode.EXT;
 
-    public static Optional<net.minecraft.world.item.crafting.CraftingRecipe> findRecipe(Level world, CraftingContainer inv) {
+    public static Optional<CraftingRecipe> findRecipe(Level world, CraftingContainer inv) {
         return world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, inv, world);
     }
 
@@ -103,7 +103,7 @@ public class CraftingRecipe {
         return result;
     }
 
-    public Optional<net.minecraft.world.item.crafting.CraftingRecipe> getCachedRecipe(Level world) {
+    public Optional<CraftingRecipe> getCachedRecipe(Level world) {
         if (!recipePresent) {
             recipePresent = true;
             recipe = findRecipe(world, inv);

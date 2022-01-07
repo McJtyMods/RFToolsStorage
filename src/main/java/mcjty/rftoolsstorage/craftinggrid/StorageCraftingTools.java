@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
@@ -30,7 +31,7 @@ import java.util.Optional;
 public class StorageCraftingTools {
 
     @Nonnull
-    private static int[] tryRecipe(Player player, CraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
+    private static int[] tryRecipe(Player player, RFCraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
         CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
             public boolean stillValid(@Nonnull Player var1) {
@@ -38,7 +39,7 @@ public class StorageCraftingTools {
             }
         }, 3, 3);
 
-        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         List<Ingredient> ingredients = recipe.map(Recipe::getIngredients).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
 
         int[] missingCount = new int[10];
@@ -94,7 +95,7 @@ public class StorageCraftingTools {
         return missingCount;
     }
 
-    private static List<ItemStack> testAndConsumeCraftingItems(Player player, CraftingRecipe craftingRecipe,
+    private static List<ItemStack> testAndConsumeCraftingItems(Player player, RFCraftingRecipe craftingRecipe,
                                                                IItemSource itemSource) {
         CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
@@ -106,7 +107,7 @@ public class StorageCraftingTools {
         List<Pair<IItemKey, ItemStack>> undo = new ArrayList<>();
         List<ItemStack> result = new ArrayList<>();
 
-        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         return recipe.map(r -> {
             int w = 3;
             int h = 3;
@@ -204,8 +205,8 @@ public class StorageCraftingTools {
         player.containerMenu.broadcastChanges();
     }
 
-    public static void craftItems(Player player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+    public static void craftItems(Player player, int nn, RFCraftingRecipe craftingRecipe, IItemSource itemSource) {
+        Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
             return;
@@ -246,8 +247,8 @@ public class StorageCraftingTools {
 
 
     @Nonnull
-    public static int[] testCraftItems(Player player, int nn, CraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<net.minecraft.world.item.crafting.CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+    public static int[] testCraftItems(Player player, int nn, RFCraftingRecipe craftingRecipe, IItemSource itemSource) {
+        Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
             return new int[0];

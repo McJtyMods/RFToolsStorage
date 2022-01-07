@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class PacketGridToServer extends PacketGridSync {
 
-    private ItemStack[] stacks = new ItemStack[0];
+    private final ItemStack[] stacks;
 
     public void toBytes(FriendlyByteBuf buf) {
         convertToBytes(buf);
@@ -21,9 +21,6 @@ public class PacketGridToServer extends PacketGridSync {
         for (ItemStack stack : stacks) {
             buf.writeItem(stack);
         }
-    }
-
-    public PacketGridToServer() {
     }
 
     public PacketGridToServer(FriendlyByteBuf buf) {

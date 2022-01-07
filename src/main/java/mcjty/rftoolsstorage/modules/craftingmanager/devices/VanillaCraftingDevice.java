@@ -25,7 +25,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     public static final ResourceLocation DEVICE_VANILLA_CRAFTING = new ResourceLocation(RFToolsStorage.MODID, "vanilla_crafting");
 
-    private CraftingContainer inventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+    private final CraftingContainer inventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
         @Override
         public boolean stillValid(@Nonnull Player playerIn) {
             return false;

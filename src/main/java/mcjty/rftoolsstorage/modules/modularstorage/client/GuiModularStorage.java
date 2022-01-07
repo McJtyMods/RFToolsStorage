@@ -81,7 +81,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     private Button compactButton;
     private Label warningLabel;
 
-    private GuiCraftingGrid craftingGrid;
+    private final GuiCraftingGrid craftingGrid;
 
     public GuiModularStorage(ModularStorageTileEntity tileEntity, ModularStorageContainer container, Inventory inventory) {
         super(tileEntity, container, inventory, ModularStorageModule.MODULAR_STORAGE.get().getManualEntry());
@@ -109,7 +109,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     public void init() {
         super.init();
 
-        itemList = list(5, 3, 235, imageHeight - 89).name("items").noSelectionMode(true).userObject(new Integer(-1)).
+        itemList = list(5, 3, 235, imageHeight - 89).name("items").noSelectionMode(true).userObject(-1).
                 leftMargin(0).rowheight(-1);
         Slider slider = slider(241, 3, 11, imageHeight - 89).desiredWidth(11).vertical()
                 .scrollableName("items");
@@ -302,8 +302,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     private Slot findEmptySlot() {
-        for (Object slotObject : menu.slots) {
-            Slot slot = (Slot) slotObject;
+        for (Slot slot : menu.slots) {
             // Skip the first two slots if we are on a modular storage block.
 //            if (tileEntity != null && slot.getSlotIndex() < SLOT_STORAGE) {
             if (tileEntity != null && !(slot instanceof BaseSlot)) {
@@ -323,8 +322,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
             if (widget instanceof BlockRender) {
                 Object userObject = widget.getUserObject();
-                if (userObject instanceof Integer) {
-                    Integer slotIndex = (Integer) userObject;
+                if (userObject instanceof Integer slotIndex) {
                     return slotIndex == slotIn.index;
                 }
             } else {
@@ -341,8 +339,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
         if (widget != null) {
             Object userObject = widget.getUserObject();
-            if (userObject instanceof Integer) {
-                Integer slotIndex = (Integer) userObject;
+            if (userObject instanceof Integer slotIndex) {
                 if (slotIndex != -1) {
                     return menu.getSlot(slotIndex);
                 } else {
@@ -473,7 +470,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         boolean dogroups = groupMode.getCurrentChoiceIndex() == 1;
 
         ItemSorter itemSorter = typeModule.getSorters().get(sort);
-        Collections.sort(items, itemSorter.getComparator());
+        items.sort(itemSorter.getComparator());
 
         Pair<Panel, Integer> currentPos = MutablePair.of(null, 0);
         Pair<ItemStack, Integer> prevItem = null;
