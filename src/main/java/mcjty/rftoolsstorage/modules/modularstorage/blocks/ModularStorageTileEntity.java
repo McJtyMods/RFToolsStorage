@@ -17,13 +17,13 @@ import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
+import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -34,7 +34,6 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Predicate;
 
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_FILTER_MODULE;
@@ -296,6 +295,19 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     public void setLocked(boolean locked) {
         this.locked = locked;
+        // Update the settings on the card
+        if (!level.isClientSide()) {
+            ItemStack card = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
+            if (!card.isEmpty()) {
+                // Helper for client side tooltip
+                card.getOrCreateTag().putInt("infoAmount", getNumStacks());
+                StorageEntry storage = globalWrapper.getStorage();
+                if (storage != null) {
+                    card.getOrCreateTag().putLong("infoCreateTime", storage.getCreationTime());
+                    card.getOrCreateTag().putLong("infoUpdateTime", storage.getUpdateTime());
+                }
+            }
+        }
         setChanged();
     }
 
@@ -344,16 +356,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         if (storageCard.isEmpty()) {
             return StorageInfo.EMPTY;
         }
-        Item item = storageCard.getItem();
-        if (item instanceof StorageModuleItem) {
-            UUID uuid = StorageModuleItem.getOrCreateUUID(storageCard);
-            int version = StorageModuleItem.getVersion(storageCard);
-            int size = StorageModuleItem.getSize(storageCard);
-            String createdBy = StorageModuleItem.getCreatedBy(storageCard);
-            return new StorageInfo(uuid, version, size, createdBy);
-        }
-        return StorageInfo.EMPTY;
-
+        return StorageModuleItem.getStorageInfo(storageCard);
     }
 
     @Override

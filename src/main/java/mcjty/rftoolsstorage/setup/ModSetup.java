@@ -6,7 +6,6 @@ import mcjty.lib.varia.Logging;
 import mcjty.rftoolsstorage.compat.rftoolsutility.RFToolsSupport;
 import mcjty.rftoolsstorage.compat.xnet.XNetSupport;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
-import mcjty.rftoolsstorage.storage.ClientStorageHolder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.InterModComms;
@@ -16,8 +15,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 public class ModSetup extends DefaultModSetup {
 
     public boolean xnet = false;
-
-    public final ClientStorageHolder clientStorageHolder = new ClientStorageHolder();
 
     public ModSetup() {
         createTab("rftoolsstorage", () -> new ItemStack(ModularStorageModule.STORAGE_MODULE0.get()));

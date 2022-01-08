@@ -5,14 +5,18 @@ import mcjty.lib.crafting.INBTPreservingIngredient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.storage.IStorageModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.storage.StorageEntry;
-import net.minecraft.world.item.TooltipFlag;
+import mcjty.rftoolsstorage.storage.StorageInfo;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Lazy;
 
@@ -20,15 +24,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
-
-import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 
 public class StorageModuleItem extends Item implements INBTPreservingIngredient, IStorageModuleItem {
 
@@ -77,25 +78,17 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
             .infoAdvanced(parameter("advanced", this::getAdvancedInfoClient));
 
     private String getContentsStringClient(ItemStack stack) {
-        StorageEntry storage = getStorageClient(stack);
-        if (storage != null) {
-            // @todo is this really needed if we only need number of items? Re-evaluate
-            NonNullList<ItemStack> stacks = storage.getStacks();
-            int cnt = 0;
-            for (ItemStack s : stacks) {
-                if (!s.isEmpty()) {
-                    cnt++;
-                }
-            }
+        if (stack.getTag() != null && stack.getTag().contains("infoAmount")) {
+            int cnt = stack.getTag().getInt("infoAmount");
             return cnt + "/" + getMax();
         }
         return "<unknown>";
     }
 
     private String getAdvancedInfoClient(ItemStack stack) {
-        StorageEntry storage = getStorageClient(stack);
+        StorageInfo storage = getStorageClient(stack);
         if (storage != null) {
-            String createdBy = storage.getCreatedBy();
+            String createdBy = storage.createdBy();
             String info = "";
             if (createdBy != null && !createdBy.isEmpty()) {
                 info += "Created by " + createdBy;
@@ -103,8 +96,8 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                 info += "Unknown creator";
             }
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date creationTime = new Date(storage.getCreationTime());
-            Date updateTime = new Date(storage.getUpdateTime());
+            Date creationTime = new Date(stack.getTag().getLong("infoCreateTime"));
+            Date updateTime = new Date(stack.getTag().getLong("infoUpdateTime"));
             info += ", Creation time " + dateFormat.format(creationTime);
             info += ", Update time " + dateFormat.format(updateTime);
             return info;
@@ -114,17 +107,25 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     /// Client-side version to get storage
-    private StorageEntry getStorageClient(ItemStack stack) {
+    private StorageInfo getStorageClient(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag == null) {
             return null;
         }
-        if (tag.hasUUID("uuid")) {
-            UUID uuid = tag.getUUID("uuid");
-            int version = tag.getInt("version");
-            return RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
+        return getStorageInfo(stack);
+    }
+
+    @Nonnull
+    public static StorageInfo getStorageInfo(ItemStack storageCard) {
+        Item item = storageCard.getItem();
+        if (item instanceof StorageModuleItem) {
+            UUID uuid = StorageModuleItem.getOrCreateUUID(storageCard);
+            int version = StorageModuleItem.getVersion(storageCard);
+            int size = StorageModuleItem.getSize(storageCard);
+            String createdBy = StorageModuleItem.getCreatedBy(storageCard);
+            return new StorageInfo(uuid, version, size, createdBy);
         } else {
-            return null;
+            return StorageInfo.EMPTY;
         }
     }
 

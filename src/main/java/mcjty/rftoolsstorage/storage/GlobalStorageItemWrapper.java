@@ -40,9 +40,7 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
     private void createStorage() {
         if (storage == null && info.uuid() != null) {
-            if (remote) {
-                storage = RFToolsStorage.setup.clientStorageHolder.getStorage(info.uuid(), info.version());
-            } else {
+            if (!remote) {
                 storage = StorageHolder.get(LevelTools.getOverworld()).getOrCreateStorageEntry(info.uuid(), info.size(), info.createdBy());
             }
         }
@@ -56,6 +54,11 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         } else {
             return storage.getStacks();
         }
+    }
+
+    public StorageEntry getStorage() {
+        createStorage();
+        return storage;
     }
 
     @Override
