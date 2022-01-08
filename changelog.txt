@@ -1,4 +1,5 @@
 Upcoming:
+- Updated to latest version of McJtyLib
 - Small fix with sorting mode for the storage scanner
 - Lag reduction when opening the modular storage user interface
 
