@@ -5,13 +5,16 @@ import mcjty.lib.crafting.INBTPreservingIngredient;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.storage.IStorageModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.storage.StorageEntry;
+import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -72,23 +75,15 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
             .infoAdvanced(parameter("advanced", this::getAdvancedInfoClient));
 
     private String getContentsStringClient(ItemStack stack) {
-        StorageEntry storage = getStorageClient(stack);
-        if (storage != null) {
-            // @todo is this really needed if we only need number of items? Re-evaluate
-            NonNullList<ItemStack> stacks = storage.getStacks();
-            int cnt = 0;
-            for (ItemStack s : stacks) {
-                if (!s.isEmpty()) {
-                    cnt++;
-                }
-            }
+        if (stack.getTag() != null && stack.getTag().contains("infoAmount")) {
+            int cnt = stack.getTag().getInt("infoAmount");
             return cnt + "/" + getMax();
         }
         return "<unknown>";
     }
 
     private String getAdvancedInfoClient(ItemStack stack) {
-        StorageEntry storage = getStorageClient(stack);
+        StorageInfo storage = getStorageClient(stack);
         if (storage != null) {
             String createdBy = storage.getCreatedBy();
             String info = "";
@@ -98,8 +93,8 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
                 info += "Unknown creator";
             }
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date creationTime = new Date(storage.getCreationTime());
-            Date updateTime = new Date(storage.getUpdateTime());
+            Date creationTime = new Date(stack.getTag().getLong("infoCreateTime"));
+            Date updateTime = new Date(stack.getTag().getLong("infoUpdateTime"));
             info += ", Creation time " + dateFormat.format(creationTime);
             info += ", Update time " + dateFormat.format(updateTime);
             return info;
@@ -109,17 +104,25 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     /// Client-side version to get storage
-    private StorageEntry getStorageClient(ItemStack stack) {
+    private StorageInfo getStorageClient(ItemStack stack) {
         CompoundNBT tag = stack.getTag();
         if (tag == null) {
             return null;
         }
-        if (tag.hasUUID("uuid")) {
-            UUID uuid = tag.getUUID("uuid");
-            int version = tag.getInt("version");
-            return RFToolsStorage.setup.clientStorageHolder.getStorage(uuid, version);
+        return getStorageInfo(stack);
+    }
+
+    @Nonnull
+    public static StorageInfo getStorageInfo(ItemStack storageCard) {
+        Item item = storageCard.getItem();
+        if (item instanceof StorageModuleItem) {
+            UUID uuid = StorageModuleItem.getOrCreateUUID(storageCard);
+            int version = StorageModuleItem.getVersion(storageCard);
+            int size = StorageModuleItem.getSize(storageCard);
+            String createdBy = StorageModuleItem.getCreatedBy(storageCard);
+            return new StorageInfo(uuid, version, size, createdBy);
         } else {
-            return null;
+            return StorageInfo.EMPTY;
         }
     }
 

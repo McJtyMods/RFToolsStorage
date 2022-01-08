@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.storage;
 
 import mcjty.lib.varia.LevelTools;
-import mcjty.rftoolsstorage.RFToolsStorage;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -40,9 +39,7 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
     private void createStorage() {
         if (storage == null && info.getUuid() != null) {
-            if (remote) {
-                storage = RFToolsStorage.setup.clientStorageHolder.getStorage(info.getUuid(), info.getVersion());
-            } else {
+            if (!remote) {
                 storage = StorageHolder.get(LevelTools.getOverworld()).getOrCreateStorageEntry(info.getUuid(), info.getSize(), info.getCreatedBy());
             }
         }
@@ -56,6 +53,11 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         } else {
             return storage.getStacks();
         }
+    }
+
+    public StorageEntry getStorage() {
+        createStorage();
+        return storage;
     }
 
     @Override
