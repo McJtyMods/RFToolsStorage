@@ -1,3 +1,6 @@
+Upcoming:
+- Huge lag reduction when opening the modular storage user interface
+
 1.18-3.0.2:
 - Updates for McJtyLib and fixes
 
