@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a problem with items not getting restored when breaking and placing blocks
+
 1.18-3.0.3:
 - Huge lag reduction when opening the modular storage user interface
 
