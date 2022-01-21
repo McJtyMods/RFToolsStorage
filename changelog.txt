@@ -1,4 +1,4 @@
-Upcoming:
+1.16-2.0.17:
 - Fixed a serious duping bug in combination with the crafter
 
 1.16-2.0.16:
