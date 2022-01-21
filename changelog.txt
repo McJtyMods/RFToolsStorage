@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a serious duping bug in combination with the crafter
+
 1.18-3.0.4:
 - Fixed a problem with items not getting restored when breaking and placing blocks
 
