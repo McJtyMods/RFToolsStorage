@@ -170,15 +170,19 @@ public class StorageCraftingTools {
             ItemStack input = pair.getValue();
             if (!input.isEmpty()) {
                 if (stack.test(input)) {
-                    workInventory.setItem(i, input.copy());
                     int ss = count;
                     if (input.getCount() - ss < 0) {
                         ss = input.getCount();
                     }
-                    count -= ss;
                     IItemKey key = pair.getKey();
                     ItemStack actuallyExtracted = itemSource.decrStackSize(key, ss);
-                    undo.add(Pair.of(key, actuallyExtracted));
+                    if (actuallyExtracted.isEmpty()) {
+                        // Failed
+                    } else {
+                        workInventory.setItem(i, input.copy());
+                        count -= ss;
+                        undo.add(Pair.of(key, actuallyExtracted));
+                    }
                 }
             }
             if (count == 0) {
