@@ -1,3 +1,6 @@
+Upcoming:
+- Apparently NEI sometimes gives wrong slot numbers to it's crafting recipe api. Added protection for that
+
 1.18-3.0.5:
 - Fixed a serious duping bug in combination with the crafter
 

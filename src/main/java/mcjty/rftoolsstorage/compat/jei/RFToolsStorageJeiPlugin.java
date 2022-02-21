@@ -22,9 +22,11 @@ public class RFToolsStorageJeiPlugin implements IModPlugin {
         ItemStackList items = ItemStackList.create(10);
         for (Map.Entry<Integer, ? extends IGuiIngredient<ItemStack>> entry : guiIngredients.entrySet()) {
             int recipeSlot = entry.getKey();
-            List<ItemStack> allIngredients = entry.getValue().getAllIngredients();
-            if (!allIngredients.isEmpty()) {
-                items.set(recipeSlot, allIngredients.get(0));
+            if (recipeSlot < 10) {
+                List<ItemStack> allIngredients = entry.getValue().getAllIngredients();
+                if (!allIngredients.isEmpty()) {
+                    items.set(recipeSlot, allIngredients.get(0));
+                }
             }
         }
 
