@@ -1,4 +1,4 @@
-Upcoming:
+1.16-2.0.18:
 - Fixed a bug in modular storage crafting where it would fail if the number of desired items matched exactly
 
 1.16-2.0.17:
