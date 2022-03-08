@@ -20,6 +20,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class DumpScreenModule implements IScreenModule<IModuleData> {
 
@@ -74,7 +75,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
                 return true;
             }
             if (matchingTag) {
-                if (ItemStackTools.hasCommonTag(s.getItem().getTags())) {
+                if (ItemStackTools.hasCommonTag(s.getItem().builtInRegistryHolder().tags().collect(Collectors.toSet()))) {
                     return true;
                 }
             }

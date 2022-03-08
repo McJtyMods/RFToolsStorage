@@ -34,12 +34,15 @@ import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -48,6 +51,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity.*;
@@ -391,23 +395,27 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
     @Nonnull
     private static ResourceLocation findLargestTag(ItemStack stack) {
-        Set<ResourceLocation> tags = stack.getItem().getTags();
+        Set<TagKey<Item>> tags = stack.getItem().builtInRegistryHolder().tags().collect(Collectors.toSet());
         if (tags.isEmpty()) {
             return stack.getItem().getRegistryName();
         }
         if (tags.size() == 1) {
-            return tags.iterator().next();
+            return tags.iterator().next().location();
         }
         int s = -1;
-        ResourceLocation largestTag = null;
-        for (ResourceLocation tag : tags) {
-            int size = ItemTags.getAllTags().getTag(tag).getValues().size();
+        TagKey<Item> largestTag = null;
+        for (TagKey<Item> tag : tags) {
+            int size = 0;
+            for (Holder<Item> holder : Registry.ITEM.getTagOrEmpty(tag)) {
+                size++;
+            }
             if (size > s) {
                 s = size;
                 largestTag = tag;
+                break;
             }
         }
-        return largestTag;
+        return largestTag.location();
     }
 
     private static int compareByTag(ItemStack s1, ItemStack s2) {
