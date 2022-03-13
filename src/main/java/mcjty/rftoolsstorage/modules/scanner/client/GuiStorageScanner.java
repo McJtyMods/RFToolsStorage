@@ -14,10 +14,7 @@ import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.lib.typed.TypedMap;
-import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.Logging;
-import mcjty.lib.varia.SafeClientTools;
-import mcjty.lib.varia.Tools;
+import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.GuiCraftingGrid;
@@ -35,7 +32,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -51,7 +47,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity.*;
@@ -395,7 +390,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
     @Nonnull
     private static ResourceLocation findLargestTag(ItemStack stack) {
-        Set<TagKey<Item>> tags = stack.getItem().builtInRegistryHolder().tags().collect(Collectors.toSet());
+        Collection<TagKey<Item>> tags = TagTools.getTags(stack.getItem());
         if (tags.isEmpty()) {
             return stack.getItem().getRegistryName();
         }
@@ -406,7 +401,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         TagKey<Item> largestTag = null;
         for (TagKey<Item> tag : tags) {
             int size = 0;
-            for (Holder<Item> holder : Registry.ITEM.getTagOrEmpty(tag)) {
+            for (Holder<Item> holder : TagTools.getItemsForTag(tag)) {
                 size++;
             }
             if (size > s) {

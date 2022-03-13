@@ -1,26 +1,22 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
-import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.ItemStackList;
-import mcjty.lib.varia.ItemStackTools;
-import mcjty.lib.varia.LevelTools;
+import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolsbase.api.screens.data.IModuleDataBoolean;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class DumpScreenModule implements IScreenModule<IModuleData> {
 
@@ -75,7 +71,8 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
                 return true;
             }
             if (matchingTag) {
-                if (ItemStackTools.hasCommonTag(s.getItem().builtInRegistryHolder().tags().collect(Collectors.toSet()))) {
+                // @todo more optimal?
+                if (ItemStackTools.hasCommonTag(TagTools.getTags(s.getItem()))) {
                     return true;
                 }
             }
