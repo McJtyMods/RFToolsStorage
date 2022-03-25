@@ -1,3 +1,6 @@
+Upcoming:
+- Port to 1.18.2
+
 1.18-3.0.6:
 - Apparently NEI sometimes gives wrong slot numbers to it's crafting recipe api. Added protection for that
 - Fixed a bug in modular storage crafting where it would fail if the number of desired items matched exactly
