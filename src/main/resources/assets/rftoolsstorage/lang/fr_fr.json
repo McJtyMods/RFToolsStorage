@@ -1,0 +1,54 @@
+{
+    "item.rftoolsstorage.storage_module0": "Module de stockage de niveau 1",
+    "item.rftoolsstorage.storage_module1": "Module de stockage de niveau 2",
+    "item.rftoolsstorage.storage_module2": "Module de stockage de niveau 3",
+    "item.rftoolsstorage.storage_module3": "Module de stockage de niveau 4",
+    "item.rftoolsstorage.storage_module6": "Module de stockage à distance",
+    "item.rftoolsstorage.storage_module_tablet": "Tablette de stockage",
+    "item.rftoolsstorage.filter_module": "Module de filtrage",
+    "item.rftoolsstorage.oredict_module": "Module de dictionnaire de type de minerai",
+    "item.rftoolsstorage.generic_module": "Module de type générique",
+    "item.rftoolsstorage.tablet_scanner": "Tablette (scanner)",
+    "item.rftoolsstorage.storage_control_module": "Module d'écran de contrôle de stockage",
+    "item.rftoolsstorage.dump_module": "Module d'écran de vidage",
+
+    "block.rftoolsstorage.modular_storage": "Stockage modulaire",
+    "block.rftoolsstorage.remote_storage": "Stockage à distance",
+    "block.rftoolsstorage.storage_scanner": "Analyseur de stockage",
+
+    "_comment": "Creative Tabs",
+    "itemGroup.rftoolsstorage": "Stockage RFTools",
+
+    "_comment": "Messages",
+    "message.rftoolsstorage.shiftmessage": "<Appuyez sur Maj>",
+
+    "message.rftoolsstorage.crafting_manager.header": "WIP ! Gestionnaire d'artisanat WIP !",
+    "message.rftoolsstorage.crafting_manager.gold": "Ce n'est pas encore fonctionnel",
+
+    "message.rftoolsstorage.tablet_scanner.header": "Tablette pouvant être utilisée pour référencer des interfaces graphiques et des informations à distance",
+    "message.rftoolsstorage.tablet_scanner.gold": "La tablette contient un lien vers le scanner de stockage : clic droit pour l'interface graphique du scanner, clic droit accroupi pour l'interface graphique de la tablette",
+
+    "message.rftoolsstorage.storage_scanner.header": "Cette machine scannera tous les inventaires à proximité et les affichera dans une liste. Vous pouvez ensuite rechercher et accéder aux objets de ces inventaires",
+    "message.rftoolsstorage.storage_scanner.gold": "Bonus d'infusion : consommation d'énergie réduite",
+
+    "message.rftoolsstorage.storage_control_module.header": "Ce module d'écran vous permet de surveiller 9 objets différents grâce à un scanner de stockage. Ce module peut également être associé à une tablette pour accéder à distance à un système piloté par un scanner de stockage",
+    "message.rftoolsstorage.storage_control_module.gold": "Effectuez un clic droit accroupi sur un analyseur de stockage pour définir la cible de ce module de stockage",
+    "message.rftoolsstorage.storage_control_module.uses": "Consommation d'énergie : ",
+    "message.rftoolsstorage.storage_control_module.info": "Analyseur de stockage : ",
+
+    "message.rftoolsstorage.dump_module.header": "Un module pour un écran qui vous permet de vider beaucoup d'éléments dans un scanner de stockage lié",
+    "message.rftoolsstorage.dump_module.gold": "Effectuez un clic droit accroupi sur un analyseur de stockage pour définir la cible de ce module de vidage",
+    "message.rftoolsstorage.dump_module.uses": "Consommation d'énergie : ",
+    "message.rftoolsstorage.dump_module.info": "Analyseur de stockage : ",
+
+    "message.rftoolsstorage.storage_module.header": "Ce module de stockage est destiné au bloc de stockage modulaire",
+    "message.rftoolsstorage.storage_module.gold": "Ce module prend en charge un inventaire à distance. Lier à un autre module de stockage dans le bloc de stockage distant",
+    "message.rftoolsstorage.storage_module.info": "Piles prises en charge : ",
+    "message.rftoolsstorage.storage_module.remoteid": "ID à distance : ",
+    "message.rftoolsstorage.storage_module.uuid": "UUID : ",
+    "message.rftoolsstorage.storage_module.version": "Version : ",
+    "message.rftoolsstorage.storage_module.items": "Contenu : ",
+    "message.rftoolsstorage.storage_module.advanced": "Avancée : ",
+
+    "message.rftoolsstorage.modular_storage.header": "Ce système de stockage modulaire peut stocker un grand nombre d'objets et permet une recherche et un filtrage faciles. Vous devez d'abord insérer un objet de module de stockage avant de pouvoir l'utiliser"
+}
