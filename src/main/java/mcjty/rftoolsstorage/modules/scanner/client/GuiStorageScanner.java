@@ -333,8 +333,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         }
         PacketReturnInventoryInfo.InventoryInfo c = fromServer_inventories.get(index - 1);
         if (c != null) {
-            // @todo 1.14
-//            RFTools.instance.clientInfo.hilightBlock(c.getPos(), System.currentTimeMillis() + 1000 * StorageScannerConfiguration.hilightTime.get());
+
+            RFToolsBase.instance.clientInfo.hilightBlock(c.getPos(), System.currentTimeMillis() + 1000 * StorageScannerConfiguration.hilightTime.get());
             Logging.message(minecraft.player, "The inventory is now highlighted");
             minecraft.player.closeContainer();
         }
