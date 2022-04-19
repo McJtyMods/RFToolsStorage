@@ -14,6 +14,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.INameable;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -111,18 +112,11 @@ public class PacketGetInventoryInfo {
         } else {
             displayName = Tools.getReadableName(world, pos);
             TileEntity storageTe = world.getBlockEntity(pos);
-            if (storageTe instanceof ModularStorageTileEntity) {
-                ModularStorageTileEntity storageTileEntity = (ModularStorageTileEntity) storageTe;
-                String finalDisplayName = displayName;
-                displayName = storageTileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> {
-                    ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
-                    if (!storageModule.isEmpty()) {
-                        if (storageModule.hasTag() && storageModule.getTag().contains("display")) {
-                            return storageModule.getHoverName().getString() /* was getFormattedText() */;
-                        }
-                    }
-                    return finalDisplayName;
-                }).orElse(displayName);
+            
+            if(storageTe instanceof INameable)
+            {
+                INameable namedBlock = (INameable)storageTe;
+                displayName = namedBlock.getDisplayName().getString();
             }
         }
         return new PacketReturnInventoryInfo.InventoryInfo(pos, displayName, te.isRoutable(pos), block);
