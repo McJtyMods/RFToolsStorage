@@ -28,7 +28,9 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         }
         this.info = info;
         if (info.getSize() != emptyHandler.size()) {
-            emptyHandler = NonNullList.withSize(info.getSize(), ItemStack.EMPTY);
+            if (info.getSize() > 0) {
+                emptyHandler = NonNullList.withSize(info.getSize(), ItemStack.EMPTY);
+            }
         }
         storage = null;
     }
