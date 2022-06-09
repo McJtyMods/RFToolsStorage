@@ -93,7 +93,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
             return;
         }
         if (BlockPosTools.INVALID.equals(coordinate)) {
-            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
+            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
             return;
         }
 

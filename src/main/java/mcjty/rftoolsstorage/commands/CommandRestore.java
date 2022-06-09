@@ -6,14 +6,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.ChatFormatting;
 
 public class CommandRestore implements Command<CommandSourceStack> {
 
@@ -33,7 +33,7 @@ public class CommandRestore implements Command<CommandSourceStack> {
         ItemStack stack = context.getSource().getPlayerOrException().getMainHandItem();
         if (!(stack.getItem() instanceof StorageModuleItem)) {
             context.getSource().sendSuccess(
-                    new TextComponent("Keep a storage module in your main hand!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
+                    ComponentFactory.literal("Keep a storage module in your main hand!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
             return 0;
         }
 
@@ -45,7 +45,7 @@ public class CommandRestore implements Command<CommandSourceStack> {
             if (storage.getUuid().toString().startsWith(uuidString)) {
                 if (foundEntry != null) {
                     context.getSource().sendSuccess(
-                            new TextComponent("Multiple storage entries match this UUID part!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
+                            ComponentFactory.literal("Multiple storage entries match this UUID part!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
                     return 0;
                 }
                 foundEntry = storage;
@@ -55,14 +55,14 @@ public class CommandRestore implements Command<CommandSourceStack> {
         if (foundEntry != null) {
             if (foundEntry.getStacks().size() != maxSize) {
                 context.getSource().sendSuccess(
-                        new TextComponent("Wrong foundEntry module tier! " + foundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
+                        ComponentFactory.literal("Wrong foundEntry module tier! " + foundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
             } else {
                 stack.getOrCreateTag().putUUID("uuid", foundEntry.getUuid());
                 context.getSource().getPlayerOrException().inventoryMenu.broadcastChanges();
             }
         } else {
             context.getSource().sendSuccess(
-                    new TextComponent("No storage found with UUID " + uuidString).withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
+                    ComponentFactory.literal("No storage found with UUID " + uuidString).withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
         }
         return 0;
     }

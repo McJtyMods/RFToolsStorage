@@ -251,11 +251,11 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @Override
     public ItemStack injectStackFromScreen(ItemStack stack, Player player) {
         if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
-            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Not enough power to insert items!"), false);
+            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Not enough power to insert items!"), false);
             return stack;
         }
         if (!checkForRoutableInventories()) {
-            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "There are no routable inventories!"), false);
+            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "There are no routable inventories!"), false);
             return stack;
         }
         stack = injectStackInternal(stack, false, this::isInputFromScreen);
@@ -313,7 +313,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             return;
         }
         if (getStoredPower() < StorageScannerConfiguration.rfPerRequest.get()) {
-            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Not enough power to request items!"), false);
+            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Not enough power to request items!"), false);
             return;
         }
 

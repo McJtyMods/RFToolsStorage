@@ -5,12 +5,12 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.ChatFormatting;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -50,7 +50,7 @@ public class CommandList implements Command<CommandSourceStack> {
                     ChatFormatting.YELLOW + "%s" + ChatFormatting.WHITE + ", Update " +
                     ChatFormatting.YELLOW + "%s",
                     uuid, createdByColor, createdBy, createTimeF, updateTimeF);
-            context.getSource().sendSuccess(new TextComponent(output), false);
+            context.getSource().sendSuccess(ComponentFactory.literal(output), false);
 
         }
         return 0;

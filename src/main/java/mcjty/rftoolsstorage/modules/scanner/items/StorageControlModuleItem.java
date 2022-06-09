@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.modules.scanner.items;
 
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.crafting.INBTPreservingIngredient;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.lib.varia.Tools;
@@ -16,7 +17,6 @@ import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -51,7 +51,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
             @Nonnull
             @Override
             public Component getDisplayName() {
-                return new TextComponent("Remote Storage Scanner");
+                return ComponentFactory.literal("Remote Storage Scanner");
             }
 
             @Nonnull

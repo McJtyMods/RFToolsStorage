@@ -14,6 +14,7 @@ import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
 import mcjty.lib.typed.TypedMap;
+import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.RFToolsBase;
 import mcjty.rftoolsstorage.RFToolsStorage;
@@ -33,7 +34,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
@@ -47,7 +47,6 @@ import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -617,7 +616,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
         Slot slot = findSlot(x, y);
         if (slot instanceof SlotItemHandler && !(slot instanceof BaseSlot) && !(slot instanceof GhostOutputSlot) && !(slot instanceof GhostSlot)) {
             if (tileEntity.isLocked()) {
-                renderTooltip(matrixStack, new TextComponent("Unlock to access these slots").withStyle(ChatFormatting.RED), x, y);
+                renderTooltip(matrixStack, ComponentFactory.literal("Unlock to access these slots").withStyle(ChatFormatting.RED), x, y);
                 return;
             }
         }

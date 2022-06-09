@@ -677,13 +677,13 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (blockRender.getUserObject() instanceof Boolean craftable) {
             List<Component> newlist = new ArrayList<>();
             if (craftable) {
-                newlist.add(new TextComponent("Craftable").withStyle(ChatFormatting.GOLD));
+                newlist.add(ComponentFactory.literal("Craftable").withStyle(ChatFormatting.GOLD));
             }
-            newlist.add(new TextComponent("Click: ").withStyle(ChatFormatting.GREEN)
-                    .append(new TextComponent("full stack").withStyle(ChatFormatting.WHITE)));
-            newlist.add(new TextComponent("Shift + click: ").withStyle(ChatFormatting.GREEN)
-                    .append(new TextComponent("single item").withStyle(ChatFormatting.WHITE)));
-            newlist.add(new TextComponent(""));
+            newlist.add(ComponentFactory.literal("Click: ").withStyle(ChatFormatting.GREEN)
+                    .append(ComponentFactory.literal("full stack").withStyle(ChatFormatting.WHITE)));
+            newlist.add(ComponentFactory.literal("Shift + click: ").withStyle(ChatFormatting.GREEN)
+                    .append(ComponentFactory.literal("single item").withStyle(ChatFormatting.WHITE)));
+            newlist.add(ComponentFactory.literal(""));
             newlist.addAll(oldList);
             return newlist;
         } else {

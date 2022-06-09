@@ -1,10 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import io.netty.buffer.ByteBuf;
-import mcjty.lib.varia.BlockPosTools;
-import mcjty.lib.varia.ItemStackList;
-import mcjty.lib.varia.SoundTools;
-import mcjty.lib.varia.LevelTools;
+import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.screens.IScreenModuleUpdater;
@@ -13,18 +10,17 @@ import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.ChatFormatting;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -219,7 +215,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
             return;
         }
         if (BlockPosTools.INVALID.equals(coordinate)) {
-            player.displayClientMessage(new TextComponent(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
+            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
             return;
         }
         IStorageScanner scannerTileEntity = getStorageScanner(player.level, dim, coordinate);
