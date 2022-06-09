@@ -33,7 +33,6 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
@@ -392,7 +391,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static ResourceLocation findLargestTag(ItemStack stack) {
         Collection<TagKey<Item>> tags = TagTools.getTags(stack.getItem());
         if (tags.isEmpty()) {
-            return stack.getItem().getRegistryName();
+            return Tools.getId(stack);
         }
         if (tags.size() == 1) {
             return tags.iterator().next().location();
@@ -424,7 +423,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     private static int compareByMod(ItemStack s1, ItemStack s2) {
-        int rc = s1.getItem().getRegistryName().getNamespace().compareTo(s2.getItem().getRegistryName().getNamespace());
+        int rc = Tools.getId(s1).getNamespace().compareTo(Tools.getId(s2).getNamespace());
         if (rc == 0) {
             return s1.getHoverName().getString() /* was getFormattedText() */.compareTo(s2.getHoverName().getString());
         }

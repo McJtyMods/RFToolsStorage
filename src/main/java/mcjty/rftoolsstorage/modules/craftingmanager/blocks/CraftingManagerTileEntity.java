@@ -241,7 +241,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         for (int i = 0; i < 4; i++) {
 // @todo THIS IS WRONG! Should not remove devices that are already present because they may be doing something!
             ItemStack deviceStack = items.getStackInSlot(i);
-            ResourceLocation id = deviceStack.getItem().getRegistryName();
+            ResourceLocation id = deviceTools.getId(stack);
             ResourceLocation deviceId = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceForBlock(id);
             if (deviceId != null) {
                 Supplier<ICraftingDevice> device = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);

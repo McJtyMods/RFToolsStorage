@@ -1,11 +1,12 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
 
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -31,7 +32,7 @@ public class PacketReturnInventoryInfo {
                 buf.writeBoolean(false);
             } else {
                 buf.writeBoolean(true);
-                String id = info.block().getRegistryName().toString();
+                String id = Tools.getId(info.block()).toString();
                 buf.writeUtf(id);
             }
         }
