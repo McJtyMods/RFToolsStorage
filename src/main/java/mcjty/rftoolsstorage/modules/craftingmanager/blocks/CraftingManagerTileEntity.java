@@ -6,6 +6,7 @@ import mcjty.lib.container.GenericItemHandler;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
+import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingQueue;
@@ -240,8 +241,8 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     private void updateDevices() {
         for (int i = 0; i < 4; i++) {
 // @todo THIS IS WRONG! Should not remove devices that are already present because they may be doing something!
-            ItemStack deviceStack = items.getStackInSlot(i);
-            ResourceLocation id = deviceTools.getId(stack);
+            ItemStack stack = items.getStackInSlot(i);
+            ResourceLocation id = Tools.getId(stack);
             ResourceLocation deviceId = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceForBlock(id);
             if (deviceId != null) {
                 Supplier<ICraftingDevice> device = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
