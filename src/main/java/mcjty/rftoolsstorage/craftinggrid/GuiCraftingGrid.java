@@ -212,6 +212,11 @@ public class GuiCraftingGrid {
             public boolean stillValid(@Nonnull Player var1) {
                 return false;
             }
+
+            @Override
+            public ItemStack quickMoveStack(Player player, int pos) {
+                return ItemStack.EMPTY;
+            }
         }, 3, 3);
 
         for (int i = 0; i < 9; i++) {

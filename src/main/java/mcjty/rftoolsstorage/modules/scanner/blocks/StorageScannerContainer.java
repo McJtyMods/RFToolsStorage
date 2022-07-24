@@ -44,7 +44,7 @@ public class StorageScannerContainer extends GenericContainer {
         }
     }
 
-    protected StorageScannerContainer(MenuType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull Player player) {
+    protected StorageScannerContainer(MenuType<? extends StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull Player player) {
         super(type, id, CONTAINER_FACTORY.get(), pos, tileEntity, player);
     }
 
@@ -52,7 +52,7 @@ public class StorageScannerContainer extends GenericContainer {
         return new StorageScannerContainer(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), id, pos, tileEntity, player);
     }
 
-    public static StorageScannerContainer createRemote(int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull Player player) {
+    public static RemoteStorageScannerContainer createRemote(int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull Player player) {
         return new RemoteStorageScannerContainer(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), id, pos, tileEntity, player);
     }
 

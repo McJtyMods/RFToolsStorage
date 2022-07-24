@@ -1,22 +1,19 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mcjty.lib.client.RenderHelper;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.ClientRegistry;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
@@ -54,8 +51,8 @@ public class CraftingManagerRenderer implements BlockEntityRenderer<CraftingMana
         });
     }
 
-    public static void register() {
-        BlockEntityRenderers.register(CraftingManagerModule.TYPE_CRAFTING_MANAGER.get(), CraftingManagerRenderer::new);
+    public static void register(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(CraftingManagerModule.TYPE_CRAFTING_MANAGER.get(), CraftingManagerRenderer::new);
     }
 
 }

@@ -37,6 +37,11 @@ public class StorageCraftingTools {
             public boolean stillValid(@Nonnull Player var1) {
                 return false;
             }
+
+            @Override
+            public ItemStack quickMoveStack(Player player, int slot) {
+                return ItemStack.EMPTY;
+            }
         }, 3, 3);
 
         Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
@@ -101,6 +106,11 @@ public class StorageCraftingTools {
             @Override
             public boolean stillValid(@Nonnull Player var1) {
                 return false;
+            }
+
+            @Override
+            public ItemStack quickMoveStack(Player player, int slot) {
+                return ItemStack.EMPTY;
             }
         }, 3, 3);
 

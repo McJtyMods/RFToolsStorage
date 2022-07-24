@@ -28,9 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.ModelDataManager;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -266,7 +264,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         ItemStack mimic2 = items.getStackInSlot(2);
         ItemStack mimic3 = items.getStackInSlot(3);
         if (!ItemStack.isSame(origMimic0, mimic0) || !ItemStack.isSame(origMimic1, mimic1) || !ItemStack.isSame(origMimic2, mimic2) || !ItemStack.isSame(origMimic3, mimic3)) {
-            ModelDataManager.requestModelDataRefresh(this);
+            requestModelDataUpdate();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
@@ -274,17 +272,17 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 
     @Nonnull
     @Override
-    public IModelData getModelData() {
+    public ModelData getModelData() {
         BlockState mimic0 = items.getStackInSlot(0).isEmpty() ? null : ((BlockItem) items.getStackInSlot(0).getItem()).getBlock().defaultBlockState();
         BlockState mimic1 = items.getStackInSlot(1).isEmpty() ? null : ((BlockItem) items.getStackInSlot(1).getItem()).getBlock().defaultBlockState();
         BlockState mimic2 = items.getStackInSlot(2).isEmpty() ? null : ((BlockItem) items.getStackInSlot(2).getItem()).getBlock().defaultBlockState();
         BlockState mimic3 = items.getStackInSlot(3).isEmpty() ? null : ((BlockItem) items.getStackInSlot(3).getItem()).getBlock().defaultBlockState();
 
-        return new ModelDataMap.Builder()
-                .withInitial(MIMIC[0], mimic0)
-                .withInitial(MIMIC[1], mimic1)
-                .withInitial(MIMIC[2], mimic2)
-                .withInitial(MIMIC[3], mimic3)
+        return ModelData.builder()
+                .with(MIMIC[0], mimic0)
+                .with(MIMIC[1], mimic1)
+                .with(MIMIC[2], mimic2)
+                .with(MIMIC[3], mimic3)
                 .build();
     }
 

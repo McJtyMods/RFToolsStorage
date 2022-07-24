@@ -3,6 +3,7 @@ package mcjty.rftoolsstorage.modules.scanner;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
+import mcjty.rftoolsstorage.modules.scanner.blocks.RemoteStorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerBlock;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
@@ -28,7 +29,7 @@ public class StorageScannerModule implements IModule {
     public static final RegistryObject<Item> STORAGE_SCANNER_ITEM = ITEMS.register("storage_scanner", () -> new BlockItem(STORAGE_SCANNER.get(), Registration.createStandardProperties()));
     public static final RegistryObject<BlockEntityType<?>> TYPE_STORAGE_SCANNER = TILES.register("storage_scanner", () -> BlockEntityType.Builder.of(StorageScannerTileEntity::new, STORAGE_SCANNER.get()).build(null));
     public static final RegistryObject<MenuType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER = CONTAINERS.register("storage_scanner", GenericContainer::createContainerType);
-    public static final RegistryObject<MenuType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER_REMOTE = CONTAINERS.register("storage_scanner_remote",
+    public static final RegistryObject<MenuType<RemoteStorageScannerContainer>> CONTAINER_STORAGE_SCANNER_REMOTE = CONTAINERS.register("storage_scanner_remote",
             () -> GenericContainer.createRemoteContainerType(StorageScannerTileEntity::new, StorageScannerContainer::createRemote, StorageScannerContainer.SLOTS));
 
     public static final RegistryObject<Item> STORAGECONTROL_MODULE = ITEMS.register("storage_control_module", StorageControlModuleItem::new);

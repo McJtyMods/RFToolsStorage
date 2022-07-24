@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 
 public class RemoteStorageScannerContainer extends StorageScannerContainer {
 
-    public RemoteStorageScannerContainer(MenuType<StorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull Player player) {
+    public RemoteStorageScannerContainer(MenuType<RemoteStorageScannerContainer> type, int id, BlockPos pos, StorageScannerTileEntity tileEntity, @Nonnull Player player) {
         super(type, id, pos, tileEntity, player);
     }
 

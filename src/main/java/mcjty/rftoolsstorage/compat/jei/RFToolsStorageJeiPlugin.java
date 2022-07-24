@@ -5,33 +5,35 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.gui.ingredient.IGuiIngredient;
+import mezz.jei.api.gui.ingredient.IRecipeSlotView;
+import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @JeiPlugin
 public class RFToolsStorageJeiPlugin implements IModPlugin {
 
-    public static void transferRecipe(Map<Integer, ? extends IGuiIngredient<ItemStack>> guiIngredients, BlockPos pos) {
+    public static void transferRecipe(List<IRecipeSlotView> slotViews, BlockPos pos) {
         ItemStackList items = ItemStackList.create(10);
-        for (Map.Entry<Integer, ? extends IGuiIngredient<ItemStack>> entry : guiIngredients.entrySet()) {
-            int recipeSlot = entry.getKey();
-            if (recipeSlot < 10) {
-                List<ItemStack> allIngredients = entry.getValue().getAllIngredients();
-                if (!allIngredients.isEmpty()) {
-                    items.set(recipeSlot, allIngredients.get(0));
-                }
+        for (int i = 0 ; i < 10 ; i++) {
+            items.set(i, ItemStack.EMPTY);
+        }
+        for (int i = 0 ; i < slotViews.size() ; i++) {
+            List<ITypedIngredient<?>> allIngredients = slotViews.get(i).getAllIngredients().collect(Collectors.toList());
+            if (!allIngredients.isEmpty()) {
+                ItemStack stack = (ItemStack) allIngredients.get(0).getIngredient();    // @todo 1.19 is this correct?
+                items.set(i, stack);
             }
         }
-
         RFToolsStorageMessages.INSTANCE.sendToServer(new PacketSendRecipe(items, pos));
     }
+
 
     @Nonnull
     @Override
