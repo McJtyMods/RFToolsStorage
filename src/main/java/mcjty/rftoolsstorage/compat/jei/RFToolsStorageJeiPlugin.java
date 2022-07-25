@@ -5,6 +5,7 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
@@ -27,7 +28,7 @@ public class RFToolsStorageJeiPlugin implements IModPlugin {
         for (int i = 0 ; i < slotViews.size() ; i++) {
             List<ITypedIngredient<?>> allIngredients = slotViews.get(i).getAllIngredients().collect(Collectors.toList());
             if (!allIngredients.isEmpty()) {
-                ItemStack stack = (ItemStack) allIngredients.get(0).getIngredient();    // @todo 1.19 is this correct?
+                ItemStack stack = allIngredients.get(0).getIngredient(VanillaTypes.ITEM_STACK).get();
                 items.set(i, stack);
             }
         }
