@@ -1,24 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "rCr",
-    "qFq",
-    "rqr"
-  ],
   "key": {
-    "q": {
-      "item": "minecraft:quartz"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    },
     "C": {
       "tag": "forge:chests"
     },
     "F": {
       "item": "rftoolsbase:machine_frame"
+    },
+    "q": {
+      "item": "minecraft:quartz"
+    },
+    "r": {
+      "item": "minecraft:redstone"
     }
   },
+  "pattern": [
+    "rCr",
+    "qFq",
+    "rqr"
+  ],
   "result": {
     "item": "rftoolsstorage:modular_storage"
   }

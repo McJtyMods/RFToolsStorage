@@ -9,15 +9,15 @@ import mcjty.rftoolsstorage.modules.craftingmanager.client.ClientSetup;
 import mcjty.rftoolsstorage.modules.craftingmanager.client.GuiCraftingManager;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingDeviceRegistry;
 import mcjty.rftoolsstorage.setup.Registration;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.rftoolsstorage.setup.Registration.*;
 
@@ -44,8 +44,6 @@ public class CraftingManagerModule implements IModule {
         event.enqueueWork(() -> {
             GuiCraftingManager.register();
         });
-
-        ClientSetup.initClient();
     }
 
     @Override

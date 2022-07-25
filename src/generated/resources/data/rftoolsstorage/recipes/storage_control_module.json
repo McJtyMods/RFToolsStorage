@@ -1,21 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": {
+      "item": "minecraft:crafting_table"
+    },
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
   "pattern": [
     " X ",
     "rir",
     " X "
   ],
-  "key": {
-    "X": {
-      "item": "minecraft:crafting_table"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    },
-    "i": {
-      "tag": "forge:ingots/iron"
-    }
-  },
   "result": {
     "item": "rftoolsstorage:storage_control_module"
   }

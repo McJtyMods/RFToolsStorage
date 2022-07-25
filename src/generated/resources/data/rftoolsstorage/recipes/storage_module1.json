@@ -1,27 +1,27 @@
 {
   "type": "mcjtylib:copy_nbt",
-  "pattern": [
-    " C ",
-    "gXg",
-    "qrq"
-  ],
   "key": {
-    "g": {
-      "item": "minecraft:gold_ingot"
+    "C": {
+      "tag": "forge:chests"
     },
     "X": {
       "item": "rftoolsstorage:storage_module0"
+    },
+    "g": {
+      "item": "minecraft:gold_ingot"
     },
     "q": {
       "item": "minecraft:quartz"
     },
     "r": {
       "item": "minecraft:redstone"
-    },
-    "C": {
-      "tag": "forge:chests"
     }
   },
+  "pattern": [
+    " C ",
+    "gXg",
+    "qrq"
+  ],
   "result": {
     "item": "rftoolsstorage:storage_module1"
   }

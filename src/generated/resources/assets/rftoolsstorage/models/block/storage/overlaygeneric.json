@@ -1,9 +1,12 @@
 {
-  "textures": {
-    "overlay": "rftoolsstorage:block/overlaygeneric"
-  },
   "elements": [
     {
+      "faces": {
+        "north": {
+          "cullface": "north",
+          "texture": "#overlay"
+        }
+      },
       "from": [
         0,
         0,
@@ -13,13 +16,10 @@
         16,
         16,
         16
-      ],
-      "faces": {
-        "north": {
-          "texture": "#overlay",
-          "cullface": "north"
-        }
-      }
+      ]
     }
-  ]
+  ],
+  "textures": {
+    "overlay": "rftoolsstorage:block/overlaygeneric"
+  }
 }

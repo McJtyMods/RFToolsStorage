@@ -31,7 +31,8 @@ public class BlockStates extends BaseBlockStateProvider {
     private void generateModularStorage() {
         BlockModelBuilder main = models().getBuilder("block/storage/modular_storage")
                 .parent(models().getExistingFile(new ResourceLocation(RFToolsBase.MODID, "block/rftoolsblock")))
-                .texture("front", modLoc("block/machinemodularstorage"));
+                .texture("front", modLoc("block/machinemodularstorage"))
+                .renderType("cutout");
 
         BlockModelBuilder overlayNone = models().getBuilder("block/storage/overlaynone")
                 .element().from(0, 0, 0).to(16, 16, 16).face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlay").end().end()
@@ -118,7 +119,8 @@ public class BlockStates extends BaseBlockStateProvider {
         model
                 .texture("top", modLoc("block/machinecraftingmanager_top"))
                 .texture("side", modLoc("block/machinecraftingmanager"))
-                .texture("bottom", new ResourceLocation(RFToolsBase.MODID, "block/base/machinebottom"));
+                .texture("bottom", new ResourceLocation(RFToolsBase.MODID, "block/base/machinebottom"))
+                .renderType("cutout");
 
         MultiPartBlockStateBuilder bld = getMultipartBuilder(CraftingManagerModule.CRAFTING_MANAGER.get());
         bld.part().modelFile(model).addModel();

@@ -6,7 +6,6 @@ import mcjty.lib.modules.IModule;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageBlock;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
-import mcjty.rftoolsstorage.modules.modularstorage.client.ClientSetup;
 import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
@@ -15,9 +14,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.RegistryObject;
 
 import static mcjty.rftoolsstorage.setup.Registration.*;
 
@@ -44,8 +43,6 @@ public class ModularStorageModule implements IModule {
         event.enqueueWork(() -> {
             GuiModularStorage.register();
         });
-
-        ClientSetup.initClient();
     }
 
     @Override

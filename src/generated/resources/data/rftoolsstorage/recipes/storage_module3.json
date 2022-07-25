@@ -1,19 +1,8 @@
 {
   "type": "mcjtylib:copy_nbt",
-  "pattern": [
-    "tCt",
-    "gXg",
-    "QRQ"
-  ],
   "key": {
-    "g": {
-      "item": "minecraft:diamond_block"
-    },
-    "t": {
-      "item": "rftoolsbase:infused_diamond"
-    },
-    "X": {
-      "item": "rftoolsstorage:storage_module2"
+    "C": {
+      "tag": "forge:chests"
     },
     "Q": {
       "item": "minecraft:quartz_block"
@@ -21,10 +10,21 @@
     "R": {
       "item": "minecraft:redstone_block"
     },
-    "C": {
-      "tag": "forge:chests"
+    "X": {
+      "item": "rftoolsstorage:storage_module2"
+    },
+    "g": {
+      "item": "minecraft:diamond_block"
+    },
+    "t": {
+      "item": "rftoolsbase:infused_diamond"
     }
   },
+  "pattern": [
+    "tCt",
+    "gXg",
+    "QRQ"
+  ],
   "result": {
     "item": "rftoolsstorage:storage_module3"
   }

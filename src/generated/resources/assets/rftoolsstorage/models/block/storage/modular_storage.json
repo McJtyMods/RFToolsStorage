@@ -1,5 +1,6 @@
 {
   "parent": "rftoolsbase:block/rftoolsblock",
+  "render_type": "minecraft:cutout",
   "textures": {
     "front": "rftoolsstorage:block/machinemodularstorage"
   }
