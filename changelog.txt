@@ -1,3 +1,6 @@
+1.19-4.0.0:
+- Port to 1.19
+
 1.18-3.0.8:
 - Fixed a problem on servers where removing a storage module from the modular storage caused the client to disconnect if that storage module had more then 128 items in it
 
