@@ -1,3 +1,6 @@
+1.19-4.0.1:
+- Fixed a problem with the crafting grid in the storage scanner and modular storage. If some items were missing it wasn't showing it correctly
+
 1.19-4.0.0:
 - Port to 1.19
 

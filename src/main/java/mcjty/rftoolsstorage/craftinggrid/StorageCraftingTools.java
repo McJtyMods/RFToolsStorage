@@ -27,11 +27,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StorageCraftingTools {
 
     @Nonnull
-    private static int[] tryRecipe(Player player, RFCraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
+    /// Try a recipe and return what's potentially missing
+    private static List<Pair<ItemStack, Integer>> tryRecipe(Player player, RFCraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
         CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
             public boolean stillValid(@Nonnull Player var1) {
@@ -47,22 +49,22 @@ public class StorageCraftingTools {
         Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         List<Ingredient> ingredients = recipe.map(Recipe::getIngredients).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
 
-        int[] missingCount = new int[10];
-        for (int i = 0; i < 10; i++) {
-            missingCount[i] = 0;
-            if (i < 9) {
-                if (i < ingredients.size()) {
-                    Ingredient ingredient = ingredients.get(i);
-                    ItemStack[] stacks = ingredient.getItems();
-                    if (stacks.length > 0) {
-                        ItemStack stack = stacks[0];
-                        if (!stack.isEmpty()) {
-                            missingCount[i] = stack.getCount() * n;
-                        }
+        List<Pair<ItemStack, Integer>> missing = new ArrayList<>(9);
+        for (int i = 0 ; i < 9 ; i++) {
+            missing.add(Pair.of(ItemStack.EMPTY, 0));
+        }
+        for (int i = 0; i < 9; i++) {
+            if (i < ingredients.size()) {
+                Ingredient ingredient = ingredients.get(i);
+                ItemStack[] stacks = ingredient.getItems();
+                if (stacks.length > 0) {
+                    ItemStack stack = stacks[0];
+                    if (!stack.isEmpty()) {
+                        missing.set(i, Pair.of(stack, stack.getCount() * n));
                     }
                 }
-                workInventory.setItem(i, ItemStack.EMPTY);
             }
+            workInventory.setItem(i, ItemStack.EMPTY);
         }
 
         for (Pair<IItemKey, ItemStack> pair : itemSource.getItems()) {
@@ -70,13 +72,13 @@ public class StorageCraftingTools {
             int size = input.getCount();
             if (!input.isEmpty()) {
                 for (int i = 0; i < ingredients.size(); i++) {
-                    if (missingCount[i] > 0) {
+                    if (missing.get(i).getRight() > 0) {
                         if (ingredients.get(i).test(input)) {
-                            if (size > missingCount[i]) {
-                                size -= missingCount[i];
-                                missingCount[i] = 0;
+                            if (size > missing.get(i).getRight()) {
+                                size -= missing.get(i).getRight();
+                                missing.set(i, Pair.of(ItemStack.EMPTY, 0));
                             } else {
-                                missingCount[i] -= size;
+                                missing.set(i, Pair.of(missing.get(i).getLeft(), missing.get(i).getRight() - size));
                                 size = 0;
                             }
                             workInventory.setItem(i, input.copy());
@@ -85,19 +87,7 @@ public class StorageCraftingTools {
                 }
             }
         }
-
-        missingCount[9] = recipe.map(r -> r.matches(workInventory, player.getCommandSenderWorld()) ? 0 : 1).orElse(0);
-
-        if (missingCount[9] == 0) {
-            for (int i = 0; i < 9; i++) {
-                if (missingCount[i] > 0) {
-                    missingCount[9] = 1;
-                    break;
-                }
-            }
-        }
-
-        return missingCount;
+        return missing.stream().filter(p -> p.getRight() > 0).collect(Collectors.toList());
     }
 
     private static List<ItemStack> testAndConsumeCraftingItems(Player player, RFCraftingRecipe craftingRecipe,
@@ -262,11 +252,14 @@ public class StorageCraftingTools {
 
 
     @Nonnull
-    public static int[] testCraftItems(Player player, int nn, RFCraftingRecipe craftingRecipe, IItemSource itemSource) {
+    /**
+     * Return a list of missing items together with how many are missing
+     */
+    public static List<Pair<ItemStack, Integer>> testCraftItems(Player player, int nn, RFCraftingRecipe craftingRecipe, IItemSource itemSource) {
         Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
-            return new int[0];
+            return Collections.emptyList();
         }
 
         final int[] n = {nn};
@@ -286,27 +279,21 @@ public class StorageCraftingTools {
                     n[0]--;
                 }
 
-                int[] result = tryRecipe(player, craftingRecipe, n[0], itemSource);
-                for (int i = 0; i < 10; i++) {
-                    if (result[i] > 0) {
-                        return result;
-                    }
-                }
-                return result;
+                return tryRecipe(player, craftingRecipe, n[0], itemSource);
             } else {
-                return new int[0];
+                return Collections.<Pair<ItemStack, Integer>>emptyList();
             }
-        }).orElse(new int[0]);
+        }).orElse(Collections.emptyList());
     }
 
     public static void craftFromGrid(Player player, int count, boolean test, BlockPos pos, ResourceKey<Level> type) {
 //        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);  // @todo 1.14
-        int[] testResult = new int[0];
+        List<Pair<ItemStack, Integer>> testResult = Collections.emptyList();
         BlockEntity te = LevelTools.getLevel(player.getCommandSenderWorld(), type).getBlockEntity(pos);
-        if (te instanceof CraftingGridProvider) {
-            testResult = ((CraftingGridProvider) te).craft(player, count, test);
+        if (te instanceof CraftingGridProvider provider) {
+            testResult = provider.craft(player, count, test);
         }
-        if (testResult.length > 0) {
+        if (!testResult.isEmpty()) {
             RFToolsStorageMessages.INSTANCE.sendTo(new PacketCraftTestResultToClient(testResult), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
@@ -318,10 +305,7 @@ public class StorageCraftingTools {
         if (te instanceof CraftingGridProvider && te instanceof GenericTileEntity) {
             provider = ((CraftingGridProvider) te);
         }
-        boolean dummy = false;
-        if (te instanceof StorageScannerTileEntity) {
-            dummy = ((StorageScannerTileEntity) te).isDummy();
-        }
+        boolean dummy = te instanceof StorageScannerTileEntity scanner ? scanner.isDummy() : false;
 
         if (provider != null) {
             RFToolsStorageMessages.INSTANCE.sendTo(new PacketGridToClient(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
