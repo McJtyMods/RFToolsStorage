@@ -31,8 +31,10 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -129,7 +131,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     @Override
     @Nonnull
-    public int[] craft(Player player, int n, boolean test) {
+    public List<Pair<ItemStack, Integer>> craft(Player player, int n, boolean test) {
         InventoriesItemSource itemSource = new InventoriesItemSource().add(new InvWrapper(player.getInventory()), 0);
         globalHandler.ifPresent(h -> itemSource.add(h, 0));
 
@@ -139,7 +141,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
             StorageCraftingTools.craftItems(player, n, craftingGrid.getActiveRecipe(), itemSource);
             // @todo 1.14
 //            updateStackCount();
-            return new int[0];
+            return Collections.emptyList();
         }
     }
 
@@ -296,7 +298,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     public void setLocked(boolean locked) {
         this.locked = locked;
         // Update the settings on the card
-        if (!level.isClientSide()) {
+        if (!level.isClientSide) {
             ItemStack card = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
             if (!card.isEmpty()) {
                 // Helper for client side tooltip

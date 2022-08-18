@@ -58,6 +58,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -169,13 +170,13 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     @Override
     @Nonnull
-    public int[] craft(Player player, int n, boolean test) {
+    public List<Pair<ItemStack, Integer>> craft(Player player, int n, boolean test) {
         RFCraftingRecipe activeRecipe = craftingGrid.getActiveRecipe();
         return craft(player, n, test, activeRecipe);
     }
 
     @Nonnull
-    public int[] craft(Player player, int n, boolean test, RFCraftingRecipe activeRecipe) {
+    public List<Pair<ItemStack, Integer>> craft(Player player, int n, boolean test, RFCraftingRecipe activeRecipe) {
         TileEntityItemSource itemSource = new TileEntityItemSource()
                 .add(new InvWrapper(player.getInventory()), 0);
         inventories.stream()
@@ -193,7 +194,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             return StorageCraftingTools.testCraftItems(player, n, activeRecipe, itemSource);
         } else {
             StorageCraftingTools.craftItems(player, n, activeRecipe, itemSource);
-            return new int[0];
+            return Collections.emptyList();
         }
     }
 
