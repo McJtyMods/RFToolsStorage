@@ -1,4 +1,4 @@
-Upcoming:
+1.19-4.0.2:
 - Compact works again (modular storage)
 
 1.19-4.0.1:
