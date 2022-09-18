@@ -7,8 +7,8 @@ import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.StorageCraftingTools;
 import mcjty.rftoolsstorage.modules.scanner.tools.StorageScannerTools;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 public class CommandHandler {
@@ -69,7 +69,6 @@ public class CommandHandler {
         });
 
         McJtyLib.registerCommand(RFToolsStorage.MODID, CMD_COMPACT, (player, arguments) -> {
-            // @todo 1.14
 //            StorageTools.compact(player);
             return true;
         });

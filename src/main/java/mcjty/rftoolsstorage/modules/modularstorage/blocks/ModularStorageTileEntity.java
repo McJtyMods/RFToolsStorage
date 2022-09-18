@@ -26,14 +26,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.*;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -337,19 +335,18 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     public static final Command<?> CMD_COMPACT = Command.<ModularStorageTileEntity>create("compact", (te, player, params) -> te.compact());
 
     private void compact() {
-        // @todo 1.14
-//        if (isRemote()) {
-//            RemoteStorageTileEntity storageTileEntity = getRemoteStorage(remoteId);
-//            if (storageTileEntity == null) {
-//                return;
-//            }
-//            storageTileEntity.compact(remoteId);
-//        } else {
-//            InventoryHelper.compactStacks(inventoryHelper, ModularStorageContainer.SLOT_STORAGE, maxSize);
-//        }
-//
-//        updateStackCount();
-//        setChanged();
+        List<ItemStack> stacks = new ArrayList<>();
+        for (int i = 0 ; i < globalWrapper.getSlots() ; i++) {
+            ItemStack stack = globalWrapper.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+                stacks.add(stack);
+                globalWrapper.setStackInSlot(i, ItemStack.EMPTY);
+            }
+        }
+        for (ItemStack stack : stacks) {
+            ItemHandlerHelper.insertItem(globalWrapper, stack, false);
+        }
+        setChanged();
     }
 
     @Nonnull
