@@ -1,4 +1,4 @@
-Upcoming:
+1.18-3.0.12:
 - Fixed a problem with modular storage where the compact button would erase the entire contents of the storage if you pressed it while the card was unlocked. Fixed by letting it not do anything in that case
 
 1.18-3.0.11:
