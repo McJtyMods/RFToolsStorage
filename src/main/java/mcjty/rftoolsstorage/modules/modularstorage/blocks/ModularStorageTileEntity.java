@@ -335,6 +335,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     public static final Command<?> CMD_COMPACT = Command.<ModularStorageTileEntity>create("compact", (te, player, params) -> te.compact());
 
     private void compact() {
+        if (!locked) {
+            return;
+        }
         List<ItemStack> stacks = new ArrayList<>();
         for (int i = 0 ; i < globalWrapper.getSlots() ; i++) {
             ItemStack stack = globalWrapper.getStackInSlot(i);
