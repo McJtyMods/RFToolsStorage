@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 public class DumpModuleItem extends GenericModuleItem {
 
     public DumpModuleItem() {
-        super(new Properties().defaultDurability(1).tab(RFToolsStorage.setup.getTab()));
+        super(RFToolsStorage.setup.defaultProperties().defaultDurability(1));
     }
 
     @Override

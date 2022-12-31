@@ -82,7 +82,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
     }
 
     public StorageControlModuleItem() {
-        super(new Properties().stacksTo(1).defaultDurability(1).tab(RFToolsStorage.setup.getTab()));
+        super(RFToolsStorage.setup.defaultProperties().stacksTo(1).defaultDurability(1));
     }
 
     @Nonnull

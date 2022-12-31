@@ -141,10 +141,9 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     public StorageModuleItem(int tier) {
-        super(new Properties()
+        super(RFToolsStorage.setup.defaultProperties()
                 .stacksTo(1)
-                .durability(0)
-                .tab(RFToolsStorage.setup.getTab()));
+                .durability(0));
         this.tier = tier;
     }
 

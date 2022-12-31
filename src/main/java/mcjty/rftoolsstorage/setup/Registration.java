@@ -2,12 +2,12 @@ package mcjty.rftoolsstorage.setup;
 
 
 import mcjty.rftoolsstorage.RFToolsStorage;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -33,6 +33,6 @@ public class Registration {
     }
 
     public static Item.Properties createStandardProperties() {
-        return new Item.Properties().tab(RFToolsStorage.setup.getTab());
+        return RFToolsStorage.setup.defaultProperties();
     }
 }
