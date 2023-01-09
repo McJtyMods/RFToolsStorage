@@ -46,7 +46,7 @@
           "name": "rftoolsstorage:modular_storage"
         }
       ],
-      "name": "storage",
+      "name": "modular_storage",
       "rolls": 1.0
     }
   ]

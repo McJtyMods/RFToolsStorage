@@ -1,6 +1,8 @@
 package mcjty.rftoolsstorage.modules.craftingmanager;
 
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.datagen.DataGen;
+import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerBlock;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerContainer;
@@ -48,5 +50,14 @@ public class CraftingManagerModule implements IModule {
 
     @Override
     public void initConfig() {
+    }
+
+    @Override
+    public void initDatagen(DataGen dataGen) {
+        dataGen.add(
+                Dob.blockBuilder(CRAFTING_MANAGER)
+                        .ironPickaxeTags()
+                        .blockState(DataGenHelper::createCraftingManager)
+        );
     }
 }

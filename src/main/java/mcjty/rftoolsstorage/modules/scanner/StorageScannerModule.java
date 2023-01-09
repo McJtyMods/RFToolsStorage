@@ -1,8 +1,11 @@
 package mcjty.rftoolsstorage.modules.scanner;
 
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.datagen.DataGen;
+import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
+import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.rftoolsstorage.modules.scanner.blocks.RemoteStorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerBlock;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
@@ -13,14 +16,18 @@ import mcjty.rftoolsstorage.modules.scanner.items.DumpModuleItem;
 import mcjty.rftoolsstorage.modules.scanner.items.StorageControlModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.rftoolsstorage.setup.Registration.*;
 
 public class StorageScannerModule implements IModule {
@@ -53,5 +60,30 @@ public class StorageScannerModule implements IModule {
     @Override
     public void initConfig() {
         StorageScannerConfiguration.init(Config.SERVER_BUILDER, Config.CLIENT_BUILDER);
+    }
+
+    @Override
+    public void initDatagen(DataGen dataGen) {
+        dataGen.add(
+                Dob.blockBuilder(STORAGE_SCANNER)
+                        .ironPickaxeTags()
+                        .standardLoot(TYPE_STORAGE_SCANNER)
+                        .shaped(builder -> builder
+                                        .define('g', Items.GOLD_INGOT)
+                                        .define('F', VariousModule.MACHINE_FRAME.get())
+                                        .unlockedBy("frame", has(VariousModule.MACHINE_FRAME.get())),
+                                "ToT", "gFg", "ToT"),
+                Dob.itemBuilder(STORAGECONTROL_MODULE)
+                        .shaped(builder -> builder
+                                        .define('X', Items.CRAFTING_TABLE)
+                                        .unlockedBy("ingot", has(Items.IRON_INGOT)),
+                                " X ", "rir", " X "),
+                Dob.itemBuilder(DUMP_MODULE)
+                        .shaped(builder -> builder
+                                        .define('X', ItemTags.WOODEN_BUTTONS)
+                                        .unlockedBy("ingot", has(Items.IRON_INGOT)),
+                                " X ", "rir", " X "),
+                Dob.itemBuilder(TABLET_SCANNER)
+        );
     }
 }

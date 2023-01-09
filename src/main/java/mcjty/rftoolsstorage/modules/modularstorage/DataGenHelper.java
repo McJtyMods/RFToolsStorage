@@ -1,70 +1,53 @@
-package mcjty.rftoolsstorage.datagen;
+package mcjty.rftoolsstorage.modules.modularstorage;
 
 import mcjty.lib.datagen.BaseBlockStateProvider;
 import mcjty.rftoolsbase.RFToolsBase;
-import mcjty.rftoolsstorage.RFToolsStorage;
-import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
-import mcjty.rftoolsstorage.modules.modularstorage.ModularTypeModule;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularAmountOverlay;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageBlock;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
-import net.minecraftforge.client.model.generators.MultiPartBlockStateBuilder;
-import net.minecraftforge.common.data.ExistingFileHelper;
 
-public class BlockStates extends BaseBlockStateProvider {
+public class DataGenHelper {
 
-    public BlockStates(DataGenerator gen, ExistingFileHelper exFileHelper) {
-        super(gen, RFToolsStorage.MODID, exFileHelper);
-    }
-
-    @Override
-    protected void registerStatesAndModels() {
-        generateModularStorage();
-        createCraftingManager();
-    }
-
-    private void generateModularStorage() {
-        BlockModelBuilder main = models().getBuilder("block/storage/modular_storage")
-                .parent(models().getExistingFile(new ResourceLocation(RFToolsBase.MODID, "block/rftoolsblock")))
-                .texture("front", modLoc("block/machinemodularstorage"))
+    public static void generateModularStorage(BaseBlockStateProvider provider) {
+        BlockModelBuilder main = provider.models().getBuilder("block/storage/modular_storage")
+                .parent(provider.models().getExistingFile(new ResourceLocation(RFToolsBase.MODID, "block/rftoolsblock")))
+                .texture("front", provider.modLoc("block/machinemodularstorage"))
                 .renderType("cutout");
 
-        BlockModelBuilder overlayNone = models().getBuilder("block/storage/overlaynone")
+        BlockModelBuilder overlayNone = provider.models().getBuilder("block/storage/overlaynone")
                 .element().from(0, 0, 0).to(16, 16, 16).face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlay").end().end()
-                .texture("overlay", modLoc("block/overlaynone"));
-        BlockModelBuilder overlayOre = models().getBuilder("block/storage/overlayore")
+                .texture("overlay", provider.modLoc("block/overlaynone"));
+        BlockModelBuilder overlayOre = provider.models().getBuilder("block/storage/overlayore")
                 .element().from(0, 0, 0).to(16, 16, 16).face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlay").end().end()
-                .texture("overlay", modLoc("block/overlayore"));
-        BlockModelBuilder overlayGeneric = models().getBuilder("block/storage/overlaygeneric")
+                .texture("overlay", provider.modLoc("block/overlayore"));
+        BlockModelBuilder overlayGeneric = provider.models().getBuilder("block/storage/overlaygeneric")
                 .element().from(0, 0, 0).to(16, 16, 16).face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlay").end().end()
-                .texture("overlay", modLoc("block/overlaygeneric"));
+                .texture("overlay", provider.modLoc("block/overlaygeneric"));
 
         BlockModelBuilder overlayAmount[] = new BlockModelBuilder[8];
         BlockModelBuilder overlayAmountR[] = new BlockModelBuilder[8];
         for (int i = 0; i < 8; i++) {
-            overlayAmount[i] = models().getBuilder("block/storage/overlayamount" + i)
+            overlayAmount[i] = provider.models().getBuilder("block/storage/overlayamount" + i)
                     .element().from(12, 5, -0.2f).to(13, 13, 16)
                     .face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlaya").uvs(14 - i * 2, 0, 15 - i * 2, 8).end()
                     .end()
-                    .texture("overlaya", modLoc("block/overlayamount"));
-            overlayAmountR[i] = models().getBuilder("block/storage/overlayamount_remote" + i)
+                    .texture("overlaya", provider.modLoc("block/overlayamount"));
+            overlayAmountR[i] = provider.models().getBuilder("block/storage/overlayamount_remote" + i)
                     .element().from(12, 5, -0.2f).to(13, 13, 16)
                     .face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlaya").uvs(14 - i * 2, 0, 15 - i * 2, 8).end()
                     .end()
-                    .texture("overlaya", modLoc("block/overlayamountremote"));
+                    .texture("overlaya", provider.modLoc("block/overlayamountremote"));
         }
-        BlockModelBuilder overlayEmpty = models().getBuilder("block/storage/overlayamount_empty")
+        BlockModelBuilder overlayEmpty = provider.models().getBuilder("block/storage/overlayamount_empty")
                 .element().from(12, 5, -0.2f).to(13, 13, 16)
                 .face(Direction.NORTH).cullface(Direction.NORTH).texture("#overlaya").uvs(0, 0, 1, 8).end()
                 .end()
-                .texture("overlaya", modLoc("block/overlayamount"));
+                .texture("overlaya", provider.modLoc("block/overlayamount"));
 
-        getMultipartBuilder(ModularStorageModule.MODULAR_STORAGE.get())
+        provider.getMultipartBuilder(ModularStorageModule.MODULAR_STORAGE.get())
                 .part().modelFile(main).addModel().condition(BlockStateProperties.FACING, Direction.NORTH).end()
                 .part().modelFile(main).rotationY(180).addModel().condition(BlockStateProperties.FACING, Direction.SOUTH).end()
                 .part().modelFile(main).rotationY(270).addModel().condition(BlockStateProperties.FACING, Direction.WEST).end()
@@ -96,34 +79,5 @@ public class BlockStates extends BaseBlockStateProvider {
         ;
     }
 
-    private void createCraftingManager() {
-        BlockModelBuilder model = models().getBuilder("block/crafting_manager");
-        model.element().from(0f, 0f, 0f).to(16f, 16f, 16f).allFaces((direction, faceBuilder) -> {
-            if (direction == Direction.UP) {
-                faceBuilder.texture("#top");
-            } else if (direction == Direction.DOWN) {
-                faceBuilder.texture("#bottom");
-            } else {
-                faceBuilder.texture("#side");
-            }
-        }).end();
-
-        model.element().from(0f, 3f, 0f).to(16f, 3f, 16f).face(Direction.UP).texture("#bottom").end();
-        model.element().from(0f, 16f, 0f).to(16f, 16f, 16f).face(Direction.DOWN).texture("#top").end();
-
-        model.element().from(0f, 0, 16f).to(16f, 16f, 16f).face(Direction.NORTH).texture("#side").end();
-        model.element().from(0f, 0, 0f).to(16f, 16f, 0f).face(Direction.SOUTH).texture("#side").end();
-        model.element().from(16f, 0, 0f).to(16f, 16f, 16f).face(Direction.WEST).texture("#side").end();
-        model.element().from(0f, 0, 0f).to(0f, 16f, 16f).face(Direction.EAST).texture("#side").end();
-
-        model
-                .texture("top", modLoc("block/machinecraftingmanager_top"))
-                .texture("side", modLoc("block/machinecraftingmanager"))
-                .texture("bottom", new ResourceLocation(RFToolsBase.MODID, "block/base/machinebottom"))
-                .renderType("cutout");
-
-        MultiPartBlockStateBuilder bld = getMultipartBuilder(CraftingManagerModule.CRAFTING_MANAGER.get());
-        bld.part().modelFile(model).addModel();
-    }
 
 }
