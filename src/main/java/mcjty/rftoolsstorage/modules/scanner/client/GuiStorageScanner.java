@@ -202,7 +202,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         window.event("scan", (source, params) -> RFToolsStorageMessages.INSTANCE.sendToServer(
                 new PacketGetInventoryInfo(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), true)));
 
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        ClientTools.enableKeyboardRepeat();
 
         fromServer_foundInventories.clear();
         fromServer_inventory.clear();

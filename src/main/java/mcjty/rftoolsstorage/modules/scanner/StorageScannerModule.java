@@ -28,21 +28,22 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import static mcjty.lib.datagen.DataGen.has;
+import static mcjty.rftoolsstorage.RFToolsStorage.tab;
 import static mcjty.rftoolsstorage.setup.Registration.*;
 
 public class StorageScannerModule implements IModule {
 
     public static final RegistryObject<StorageScannerBlock> STORAGE_SCANNER = BLOCKS.register("storage_scanner", StorageScannerBlock::new);
-    public static final RegistryObject<Item> STORAGE_SCANNER_ITEM = ITEMS.register("storage_scanner", () -> new BlockItem(STORAGE_SCANNER.get(), Registration.createStandardProperties()));
+    public static final RegistryObject<Item> STORAGE_SCANNER_ITEM = ITEMS.register("storage_scanner", tab(() -> new BlockItem(STORAGE_SCANNER.get(), Registration.createStandardProperties())));
     public static final RegistryObject<BlockEntityType<?>> TYPE_STORAGE_SCANNER = TILES.register("storage_scanner", () -> BlockEntityType.Builder.of(StorageScannerTileEntity::new, STORAGE_SCANNER.get()).build(null));
     public static final RegistryObject<MenuType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER = CONTAINERS.register("storage_scanner", GenericContainer::createContainerType);
     public static final RegistryObject<MenuType<RemoteStorageScannerContainer>> CONTAINER_STORAGE_SCANNER_REMOTE = CONTAINERS.register("storage_scanner_remote",
             () -> GenericContainer.createRemoteContainerType(StorageScannerTileEntity::new, StorageScannerContainer::createRemote, StorageScannerContainer.SLOTS));
 
-    public static final RegistryObject<Item> STORAGECONTROL_MODULE = ITEMS.register("storage_control_module", StorageControlModuleItem::new);
-    public static final RegistryObject<Item> DUMP_MODULE = ITEMS.register("dump_module", DumpModuleItem::new);
+    public static final RegistryObject<Item> STORAGECONTROL_MODULE = ITEMS.register("storage_control_module", tab(StorageControlModuleItem::new));
+    public static final RegistryObject<Item> DUMP_MODULE = ITEMS.register("dump_module", tab(DumpModuleItem::new));
 
-    public static final RegistryObject<TabletItem> TABLET_SCANNER = ITEMS.register("tablet_scanner", TabletItem::new);
+    public static final RegistryObject<TabletItem> TABLET_SCANNER = ITEMS.register("tablet_scanner", tab(TabletItem::new));
 
     @Override
     public void init(FMLCommonSetupEvent event) {
