@@ -11,14 +11,14 @@ import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class StorageControlClientScreenModule implements IClientScreenModule<StorageControlScreenModule.ModuleDataStacks> {
@@ -108,9 +108,9 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         }
 
         boolean insertStackActive = renderInfo.hitx >= 0 && renderInfo.hitx < 60 && renderInfo.hity > 98 && renderInfo.hity <= 120;
-        fontRenderer.drawInBatch("Insert Stack", 20, y - 20, insertStackActive ? 0xffffff : 0x666666, false, matrixStack.last().pose(), buffer, false, 0, renderInfo.getLightmapValue());
+        RenderHelper.renderText(fontRenderer, "Insert Stack", 20, y - 20, insertStackActive ? 0xffffff : 0x666666, matrixStack, buffer, renderInfo.getLightmapValue());
         boolean insertAllActive = renderInfo.hitx >= 60 && renderInfo.hitx <= 120 && renderInfo.hity > 98 && renderInfo.hity <= 120;
-        fontRenderer.drawInBatch("Insert All", 120, y - 20, insertAllActive ? 0xffffff : 0x666666, false, matrixStack.last().pose(), buffer, false, 0, renderInfo.getLightmapValue());
+        RenderHelper.renderText(fontRenderer, "Insert All", 120, y - 20, insertAllActive ? 0xffffff : 0x666666, matrixStack, buffer, renderInfo.getLightmapValue());
 
         matrixStack.popPose();
     }
@@ -137,13 +137,13 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
             if (amount < 10000) {
                 s1 = String.valueOf(amount);
             } else if (amount < 1000000) {
-                s1 = String.valueOf(amount / 1000) + "k";
+                s1 = amount / 1000 + "k";
             } else if (amount < 1000000000) {
-                s1 = String.valueOf(amount / 1000000) + "m";
+                s1 = amount / 1000000 + "m";
             } else {
-                s1 = String.valueOf(amount / 1000000000) + "g";
+                s1 = amount / 1000000000 + "g";
             }
-            fontRenderer.drawInBatch(s1, x + 19 - 2 - fontRenderer.width(s1), currenty + 6 + 3, 16777215, false, matrixStack.last().pose(), buffer, false, 0, lightmapValue);
+            RenderHelper.renderText(fontRenderer, s1, x + 19 - 2 - fontRenderer.width(s1), currenty + 6 + 3, 16777215, matrixStack, buffer, lightmapValue);
 
             if (stack.getItem().isBarVisible(stack)) {
                 double health = stack.getItem().getBarWidth(stack);
