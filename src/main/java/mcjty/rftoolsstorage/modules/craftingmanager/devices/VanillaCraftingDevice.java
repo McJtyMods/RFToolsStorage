@@ -90,16 +90,16 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     }
 
     @Override
-    public ItemStack getCraftingItem() {
-        return recipe.assemble(inventory);
+    public ItemStack getCraftingItem(Level level) {
+        return recipe.assemble(inventory, level.registryAccess());
     }
 
     @Override
-    public List<ItemStack> extractOutput() {
+    public List<ItemStack> extractOutput(Level level) {
         if (getStatus() == Status.READY) {
             List<ItemStack> result = new ArrayList<>();
             ticks = -1;
-            ItemStack rc = recipe.assemble(inventory);
+            ItemStack rc = recipe.assemble(inventory, level.registryAccess());
             if (!rc.isEmpty()) {
                 result.add(rc);
             }

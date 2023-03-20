@@ -18,6 +18,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -127,7 +128,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
 
         ItemRenderer itemRender = Minecraft.getInstance().getItemRenderer();
         BakedModel ibakedmodel = itemRender.getModel(stack, Minecraft.getInstance().level, null, 0);    // @todo 1.18 last parameter?
-        itemRender.render(stack, ItemTransforms.TransformType.GUI, false, matrixStack, buffer, lightmapValue, OverlayTexture.NO_OVERLAY, ibakedmodel);
+        itemRender.render(stack, ItemDisplayContext.GUI, false, matrixStack, buffer, lightmapValue, OverlayTexture.NO_OVERLAY, ibakedmodel);
         matrixStack.popPose();
     }
 

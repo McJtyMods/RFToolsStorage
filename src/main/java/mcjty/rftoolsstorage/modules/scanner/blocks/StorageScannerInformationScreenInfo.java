@@ -92,7 +92,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
                         ICraftingDevice device = queue.getDevice();
                         if (device != null) {
                             if (device.getStatus() == ICraftingDevice.Status.BUSY) {
-                                add(builder, idx++, device.getCraftingItem(), null);
+                                add(builder, idx++, device.getCraftingItem(world), null);
                             }
                         }
                     }

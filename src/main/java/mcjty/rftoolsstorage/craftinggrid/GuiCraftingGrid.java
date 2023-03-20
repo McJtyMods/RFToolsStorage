@@ -154,7 +154,7 @@ public class GuiCraftingGrid {
         int selected = recipeList.getSelected();
         storeButton.enabled(selected != -1);
         populateList();
-        testRecipe();
+        testRecipe(mc.level);
 
         int x = GuiTools.getRelativeX(gui);
         int y = GuiTools.getRelativeY(gui);
@@ -198,7 +198,7 @@ public class GuiCraftingGrid {
         }
     }
 
-    private void testRecipe() {
+    private void testRecipe(Level level) {
         CraftingContainer inv = new CraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
             public boolean stillValid(@Nonnull Player var1) {
@@ -217,7 +217,7 @@ public class GuiCraftingGrid {
 
         // Compare current contents to avoid unneeded slot update.
         Optional<CraftingRecipe> recipe = RFCraftingRecipe.findRecipe(mc.level, inv);
-        ItemStack newResult = recipe.map(r -> r.assemble(inv)).orElse(ItemStack.EMPTY);
+        ItemStack newResult = recipe.map(r -> r.assemble(inv, level.registryAccess())).orElse(ItemStack.EMPTY);
         provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }
 

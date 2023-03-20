@@ -32,7 +32,7 @@ public interface ICraftingDevice {
     /**
      * Return the main item that this device will craft
      */
-    ItemStack getCraftingItem();
+    ItemStack getCraftingItem(Level level);
 
     /**
      * Insert the ingredients. Returns false if this fails for some reason (in that case nothing will have been inserted).
@@ -41,7 +41,7 @@ public interface ICraftingDevice {
     boolean insertIngredients(Level world, List<ItemStack> items);
 
     /// Extract output and put the device back in IDLE mode
-    List<ItemStack> extractOutput();
+    List<ItemStack> extractOutput(Level level);
 
     /// Return the recipe type supported by this device
     RecipeType<?> getRecipeType();

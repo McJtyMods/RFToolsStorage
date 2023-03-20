@@ -102,7 +102,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     private void sendResultsBack(int queueIndex, CraftingSystem system) {
-        List<ItemStack> output = getDevice(queueIndex).map(ICraftingDevice::extractOutput).orElse(Collections.emptyList());
+        List<ItemStack> output = getDevice(queueIndex).map(device -> device.extractOutput(level)).orElse(Collections.emptyList());
         StorageScannerTileEntity storage = system.getStorage();
         for (ItemStack stack : output) {
             ItemStack left = storage.insertInternal(stack, false);
