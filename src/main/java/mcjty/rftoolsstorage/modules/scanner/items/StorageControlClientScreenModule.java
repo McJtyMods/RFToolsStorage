@@ -8,17 +8,12 @@ import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
 import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -126,9 +121,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         matrixStack.translate(x +8f, currenty +8f, 5);
         matrixStack.scale(16, 16, 16);
 
-        ItemRenderer itemRender = Minecraft.getInstance().getItemRenderer();
-        BakedModel ibakedmodel = itemRender.getModel(stack, Minecraft.getInstance().level, null, 0);    // @todo 1.18 last parameter?
-        itemRender.render(stack, ItemDisplayContext.GUI, false, matrixStack, buffer, lightmapValue, OverlayTexture.NO_OVERLAY, ibakedmodel);
+        RenderHelper.renderItemGui(matrixStack, buffer, stack, lightmapValue, OverlayTexture.NO_OVERLAY);
         matrixStack.popPose();
     }
 

@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.devices;
 
+import mcjty.lib.crafting.BaseRecipe;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
@@ -91,7 +92,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     @Override
     public ItemStack getCraftingItem(Level level) {
-        return recipe.assemble(inventory, level.registryAccess());
+        return BaseRecipe.assemble(recipe, inventory, level.registryAccess());
     }
 
     @Override
@@ -99,7 +100,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
         if (getStatus() == Status.READY) {
             List<ItemStack> result = new ArrayList<>();
             ticks = -1;
-            ItemStack rc = recipe.assemble(inventory, level.registryAccess());
+            ItemStack rc = BaseRecipe.assemble(recipe, inventory, level.registryAccess());
             if (!rc.isEmpty()) {
                 result.add(rc);
             }

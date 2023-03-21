@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GenericContainer;
+import mcjty.lib.crafting.BaseRecipe;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
@@ -217,7 +218,7 @@ public class GuiCraftingGrid {
 
         // Compare current contents to avoid unneeded slot update.
         Optional<CraftingRecipe> recipe = RFCraftingRecipe.findRecipe(mc.level, inv);
-        ItemStack newResult = recipe.map(r -> r.assemble(inv, level.registryAccess())).orElse(ItemStack.EMPTY);
+        ItemStack newResult = recipe.map(r -> BaseRecipe.assemble(r, inv, level.registryAccess())).orElse(ItemStack.EMPTY);
         provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }
 
