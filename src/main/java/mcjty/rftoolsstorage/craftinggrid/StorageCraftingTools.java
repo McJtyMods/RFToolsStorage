@@ -146,7 +146,7 @@ public class StorageCraftingTools {
                 undo(player, itemSource, undo);
                 return result;
             }
-            ItemStack stack = BaseRecipe.assemble(r, workInventory, player.getLevel().registryAccess());
+            ItemStack stack = BaseRecipe.assemble(r, workInventory, player.getLevel());
             if (!stack.isEmpty()) {
                 result.add(stack);
                 List<ItemStack> remaining = r.getRemainingItems(workInventory);
@@ -221,7 +221,7 @@ public class StorageCraftingTools {
         final int[] n = {nn};
         recipe.ifPresent(r -> {
 
-            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level.registryAccess());
+            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level);
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {
                     n[0] = recipeResult.getMaxStackSize();
@@ -265,7 +265,7 @@ public class StorageCraftingTools {
 
         final int[] n = {nn};
         return recipe.map(r -> {
-            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level.registryAccess());
+            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level);
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {
                     n[0] = recipeResult.getMaxStackSize();

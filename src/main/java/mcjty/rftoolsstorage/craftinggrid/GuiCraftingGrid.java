@@ -218,7 +218,7 @@ public class GuiCraftingGrid {
 
         // Compare current contents to avoid unneeded slot update.
         Optional<CraftingRecipe> recipe = RFCraftingRecipe.findRecipe(mc.level, inv);
-        ItemStack newResult = recipe.map(r -> BaseRecipe.assemble(r, inv, level.registryAccess())).orElse(ItemStack.EMPTY);
+        ItemStack newResult = recipe.map(r -> BaseRecipe.assemble(r, inv, level)).orElse(ItemStack.EMPTY);
         provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }
 
