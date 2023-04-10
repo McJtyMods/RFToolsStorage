@@ -51,8 +51,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -715,7 +715,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                                 oldAdded.add(p);
                             }
                         } else {
-                            te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
+                            te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
                                 if (seenPositions.add(p)) {
                                     inventories.add(p);
                                     oldAdded.add(p);
@@ -774,7 +774,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                             craftingInventories.add(p);
                         }
                     } else if (!inventories.contains(p)) {
-                        te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> {
+                        te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
                             if (seenPositions.add(p)) {
                                 inventories.add(p);
                             }
@@ -877,7 +877,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @Nonnull
     private static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, intSide);
+            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide);
         } else {
             return LazyOptional.empty();
         }

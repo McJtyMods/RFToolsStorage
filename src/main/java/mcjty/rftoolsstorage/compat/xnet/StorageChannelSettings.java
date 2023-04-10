@@ -11,14 +11,14 @@ import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -85,7 +85,7 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
             BlockPos pos = consumerPos.relative(side);
             BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
             if (te != null) {
-                LazyOptional<IItemHandler> handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                LazyOptional<IItemHandler> handler = te.getCapability(ForgeCapabilities.ITEM_HANDLER);
                 if (handler.isPresent()) {
                     return pos;
                 }

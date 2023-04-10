@@ -7,19 +7,19 @@ import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContaine
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 import java.util.List;
 import java.util.Optional;
@@ -109,7 +109,7 @@ public class PacketGetInventoryInfo {
             BlockEntity storageTe = world.getBlockEntity(pos);
             if (storageTe instanceof ModularStorageTileEntity storage) {
                 String finalDisplayName = displayName;
-                displayName = storage.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(h -> {
+                displayName = storage.getCapability(ForgeCapabilities.ITEM_HANDLER).map(h -> {
                     ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                     if (!storageModule.isEmpty()) {
                         if (storageModule.hasTag() && storageModule.getTag().contains("display")) {

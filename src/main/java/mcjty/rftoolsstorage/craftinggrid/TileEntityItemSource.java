@@ -3,7 +3,7 @@ package mcjty.rftoolsstorage.craftinggrid;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -17,7 +17,7 @@ public class TileEntityItemSource implements IItemSource {
     private final List<Pair<IItemHandler, Integer>> inventories = new ArrayList<>();
 
     public TileEntityItemSource add(BlockEntity te, int offset) {
-        te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h ->
+        te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h ->
                 inventories.add(Pair.of(h, offset)));
         return this;
     }

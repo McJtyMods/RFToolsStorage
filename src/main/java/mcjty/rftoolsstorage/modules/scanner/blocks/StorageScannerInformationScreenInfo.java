@@ -13,12 +13,12 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.client.StorageScannerInformationRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -72,7 +72,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     @Override
     public TypedMap getInfo(int mode) {
         if (mode == MODE_POWER || mode == MODE_POWER_GRAPHICAL) {
-            return scanner.getCapability(CapabilityEnergy.ENERGY).map(h -> TypedMap.builder()
+            return scanner.getCapability(ForgeCapabilities.ENERGY).map(h -> TypedMap.builder()
                     .put(ENERGY, (long) h.getEnergyStored())
                     .put(MAXENERGY, (long) h.getMaxEnergyStored())
                     .build()).orElse(TypedMap.EMPTY);
