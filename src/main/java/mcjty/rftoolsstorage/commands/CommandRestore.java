@@ -32,7 +32,7 @@ public class CommandRestore implements Command<CommandSourceStack> {
 
         ItemStack stack = context.getSource().getPlayerOrException().getMainHandItem();
         if (!(stack.getItem() instanceof StorageModuleItem)) {
-            context.getSource().sendSuccess(
+            context.getSource().sendSuccess(() ->
                     ComponentFactory.literal("Keep a storage module in your main hand!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
             return 0;
         }
@@ -44,7 +44,7 @@ public class CommandRestore implements Command<CommandSourceStack> {
         for (StorageEntry storage : holder.getStorages()) {
             if (storage.getUuid().toString().startsWith(uuidString)) {
                 if (foundEntry != null) {
-                    context.getSource().sendSuccess(
+                    context.getSource().sendSuccess(() ->
                             ComponentFactory.literal("Multiple storage entries match this UUID part!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
                     return 0;
                 }
@@ -54,14 +54,15 @@ public class CommandRestore implements Command<CommandSourceStack> {
 
         if (foundEntry != null) {
             if (foundEntry.getStacks().size() != maxSize) {
-                context.getSource().sendSuccess(
-                        ComponentFactory.literal("Wrong foundEntry module tier! " + foundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
+                StorageEntry finalFoundEntry = foundEntry;
+                context.getSource().sendSuccess(() ->
+                        ComponentFactory.literal("Wrong foundEntry module tier! " + finalFoundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
             } else {
                 stack.getOrCreateTag().putUUID("uuid", foundEntry.getUuid());
                 context.getSource().getPlayerOrException().inventoryMenu.broadcastChanges();
             }
         } else {
-            context.getSource().sendSuccess(
+            context.getSource().sendSuccess(() ->
                     ComponentFactory.literal("No storage found with UUID " + uuidString).withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
         }
         return 0;

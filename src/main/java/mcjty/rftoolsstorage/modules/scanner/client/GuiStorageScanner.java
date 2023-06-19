@@ -29,6 +29,7 @@ import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -594,7 +595,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float v, int i, int i2) {
         if (!init) {
             return;
         }
@@ -645,11 +646,11 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             exportToStarred.setCurrentChoice(tileEntity.exportToCurrentReceived ? 0 : 1);
         }
 
-        drawWindow(matrixStack);
+        drawWindow(graphics);
     }
 
     @Override
-    protected void renderLabels(@Nonnull PoseStack matrixStack, int i1, int i2) {
+    protected void renderLabels(@Nonnull GuiGraphics graphics, int i1, int i2) {
         if (!init) {
             return;
         }
@@ -658,16 +659,16 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         List<String> tooltips = craftingGrid.getWindow().getTooltips();
         if (tooltips != null) {
-            drawHoveringText(matrixStack, tooltips, window.getTooltipItems(), x - leftPos, y - topPos, minecraft.font);
+            drawHoveringText(graphics, tooltips, window.getTooltipItems(), x - leftPos, y - topPos, minecraft.font);
         }
 
-        super.renderLabels(matrixStack, i1, i2);
+        super.renderLabels(graphics, i1, i2);
     }
 
     @Override
-    protected void drawStackTooltips(PoseStack matrixStack, int mouseX, int mouseY) {
+    protected void drawStackTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
         if (init) {
-            super.drawStackTooltips(matrixStack, mouseX, mouseY);
+            super.drawStackTooltips(graphics, mouseX, mouseY);
         }
     }
 
@@ -693,7 +694,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static long lastTime = 0;
 
     @Override
-    protected void drawWindow(PoseStack matrixStack) {
+    protected void drawWindow(GuiGraphics matrixStack) {
         if (!init) {
             return;
         }

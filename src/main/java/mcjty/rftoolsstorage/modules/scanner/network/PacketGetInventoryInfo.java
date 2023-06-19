@@ -65,8 +65,8 @@ public class PacketGetInventoryInfo {
         RFToolsStorageMessages.INSTANCE.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(Player entityPlayerMP) {
-        Level world = LevelTools.getLevel(entityPlayerMP.level, id);
+    private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(Player player) {
+        Level world = LevelTools.getLevel(player.level(), id);
         if (world == null) {
             return Optional.empty();
         }

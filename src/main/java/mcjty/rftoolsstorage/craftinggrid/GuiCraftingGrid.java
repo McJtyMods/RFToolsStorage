@@ -17,7 +17,7 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.Level;
@@ -151,7 +152,7 @@ public class GuiCraftingGrid {
         }
     }
 
-    public void draw(PoseStack matrixStack) {
+    public void draw(GuiGraphics graphics) {
         int selected = recipeList.getSelected();
         storeButton.enabled(selected != -1);
         populateList();
@@ -174,9 +175,10 @@ public class GuiCraftingGrid {
             lastTestTimer = 0;
         }
 
-        craftWindow.draw(matrixStack);
+        craftWindow.draw(graphics);
 
         if (testResultFromServer != null && !testResultFromServer.isEmpty()) {
+            PoseStack matrixStack = graphics.pose();
             matrixStack.pushPose();
             matrixStack.translate(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
             for (Pair<ItemStack, Integer> pair : testResultFromServer) {
@@ -189,7 +191,7 @@ public class GuiCraftingGrid {
                                 GlStateManager._colorMask(true, true, true, false);
                                 int xPos = slot.x;
                                 int yPos = slot.y;
-                                GuiComponent.fill(matrixStack, xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
+                                graphics.fill(xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
                             }
                         }
                     }
@@ -200,7 +202,7 @@ public class GuiCraftingGrid {
     }
 
     private void testRecipe(Level level) {
-        CraftingContainer inv = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+        CraftingContainer inv = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
             public boolean stillValid(@Nonnull Player var1) {
                 return false;

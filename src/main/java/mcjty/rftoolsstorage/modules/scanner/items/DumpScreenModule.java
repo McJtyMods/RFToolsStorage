@@ -83,7 +83,7 @@ public class DumpScreenModule implements IScreenModule<IModuleData> {
         if (other.isEmpty()) {
             return false;
         }
-        return thisItem.sameItem(other);
+        return ItemStack.isSameItem(thisItem, other);
     }
 
     @Override

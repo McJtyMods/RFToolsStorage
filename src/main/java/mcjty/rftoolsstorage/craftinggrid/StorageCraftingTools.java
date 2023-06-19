@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -35,7 +36,7 @@ public class StorageCraftingTools {
     @Nonnull
     /// Try a recipe and return what's potentially missing
     private static List<Pair<ItemStack, Integer>> tryRecipe(Player player, RFCraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
-        CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+        CraftingContainer workInventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
             public boolean stillValid(@Nonnull Player var1) {
                 return false;
@@ -93,7 +94,7 @@ public class StorageCraftingTools {
 
     private static List<ItemStack> testAndConsumeCraftingItems(Player player, RFCraftingRecipe craftingRecipe,
                                                                IItemSource itemSource) {
-        CraftingContainer workInventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+        CraftingContainer workInventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
             @Override
             public boolean stillValid(@Nonnull Player var1) {
                 return false;
@@ -146,7 +147,7 @@ public class StorageCraftingTools {
                 undo(player, itemSource, undo);
                 return result;
             }
-            ItemStack stack = BaseRecipe.assemble(r, workInventory, player.getLevel());
+            ItemStack stack = BaseRecipe.assemble(r, workInventory, player.level());
             if (!stack.isEmpty()) {
                 result.add(stack);
                 List<ItemStack> remaining = r.getRemainingItems(workInventory);
@@ -221,7 +222,7 @@ public class StorageCraftingTools {
         final int[] n = {nn};
         recipe.ifPresent(r -> {
 
-            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level);
+            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level());
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {
                     n[0] = recipeResult.getMaxStackSize();
@@ -265,7 +266,7 @@ public class StorageCraftingTools {
 
         final int[] n = {nn};
         return recipe.map(r -> {
-            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level);
+            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level());
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {
                     n[0] = recipeResult.getMaxStackSize();

@@ -9,6 +9,7 @@ import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
 import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
@@ -31,16 +32,18 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
     }
 
     @Override
-    public void render(PoseStack matrixStack, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, StorageControlScreenModule.ModuleDataStacks screenData, ModuleRenderInfo renderInfo) {
+    public void render(GuiGraphics graphics, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, StorageControlScreenModule.ModuleDataStacks screenData, ModuleRenderInfo renderInfo) {
         if (screenData == null) {
             return;
         }
 
+        PoseStack poseStack = graphics.pose();
+
         if (renderInfo.hitx >= 0) {
-            matrixStack.pushPose();
-            matrixStack.translate(-0.5F, 0.5F, 0.07F);
+            poseStack.pushPose();
+            poseStack.translate(-0.5F, 0.5F, 0.07F);
             float f3 = 0.0105F;
-            matrixStack.scale(f3 * renderInfo.factor, -f3 * renderInfo.factor, f3);
+            poseStack.scale(f3 * renderInfo.factor, -f3 * renderInfo.factor, f3);
 
             int y = currenty;
             int i = 0;
@@ -51,7 +54,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
                         int x = xx * 40;
                         boolean hilighted = renderInfo.hitx >= x+8 && renderInfo.hitx <= x + 38 && renderInfo.hity >= y-7 && renderInfo.hity <= y + 22;
                         if (hilighted) {
-                            RenderHelper.drawFlatButtonBox(matrixStack, buffer, (int) (5 + xx * 30.5f), 10 + yy * 24 - 4, (int) (29 + xx * 30.5f), 10 + yy * 24 + 20, 0xffffffff, 0xff333333, 0xffffffff,
+                            RenderHelper.drawFlatButtonBox(graphics, buffer, (int) (5 + xx * 30.5f), 10 + yy * 24 - 4, (int) (29 + xx * 30.5f), 10 + yy * 24 + 20, 0xffffffff, 0xff333333, 0xffffffff,
                                     renderInfo.getLightmapValue());
                         }
                     }
@@ -59,14 +62,14 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
                 }
                 y += 35;
             }
-            matrixStack.popPose();
+            poseStack.popPose();
         }
 
-        matrixStack.pushPose();
+        poseStack.pushPose();
         float f3 = 0.0105F;
-        matrixStack.translate(-0.5F, 0.5F, 0.06F);
+        poseStack.translate(-0.5F, 0.5F, 0.06F);
         float factor = renderInfo.factor;
-        matrixStack.scale(f3 * factor, f3 * factor, 0.0001f);
+        poseStack.scale(f3 * factor, f3 * factor, 0.0001f);
 
         int y = currenty;
         int i = 0;
@@ -75,19 +78,19 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
             for (int xx = 0 ; xx < 3 ; xx++) {
                 if (!stacks.get(i).isEmpty()) {
                     int x = 7 + xx * 30;
-                    renderSlot(matrixStack, buffer, -16-y, stacks.get(i), x, renderInfo.getLightmapValue());
+                    renderSlot(poseStack, buffer, -16-y, stacks.get(i), x, renderInfo.getLightmapValue());
                 }
                 i++;
             }
             y += 24;
         }
 
-        matrixStack.popPose();
+        poseStack.popPose();
 
-        matrixStack.pushPose();
-        matrixStack.translate(-0.5F, 0.5F, 0.08F);
+        poseStack.pushPose();
+        poseStack.translate(-0.5F, 0.5F, 0.08F);
         f3 = 0.0050F;
-        matrixStack.scale(f3 * factor, -f3 * factor, 0.0001f);
+        poseStack.scale(f3 * factor, -f3 * factor, 0.0001f);
 
         y = currenty + 30;
         i = 0;
@@ -95,7 +98,7 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         for (int yy = 0 ; yy < 3 ; yy++) {
             for (int xx = 0 ; xx < 3 ; xx++) {
                 if (!stacks.get(i).isEmpty()) {
-                    renderSlotOverlay(matrixStack, buffer, fontRenderer, y, stacks.get(i), screenData.getAmount(i), 32 + xx * 64,
+                    renderSlotOverlay(poseStack, buffer, fontRenderer, y, stacks.get(i), screenData.getAmount(i), 32 + xx * 64,
                             renderInfo.getLightmapValue());
                 }
                 i++;
@@ -104,11 +107,11 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         }
 
         boolean insertStackActive = renderInfo.hitx >= 0 && renderInfo.hitx < 60 && renderInfo.hity > 98 && renderInfo.hity <= 120;
-        RenderHelper.renderText(fontRenderer, "Insert Stack", 20, y - 20, insertStackActive ? 0xffffff : 0x666666, matrixStack, buffer, renderInfo.getLightmapValue());
+        RenderHelper.renderText(fontRenderer, "Insert Stack", 20, y - 20, insertStackActive ? 0xffffff : 0x666666, poseStack, buffer, renderInfo.getLightmapValue());
         boolean insertAllActive = renderInfo.hitx >= 60 && renderInfo.hitx <= 120 && renderInfo.hity > 98 && renderInfo.hity <= 120;
-        RenderHelper.renderText(fontRenderer, "Insert All", 120, y - 20, insertAllActive ? 0xffffff : 0x666666, matrixStack, buffer, renderInfo.getLightmapValue());
+        RenderHelper.renderText(fontRenderer, "Insert All", 120, y - 20, insertAllActive ? 0xffffff : 0x666666, poseStack, buffer, renderInfo.getLightmapValue());
 
-        matrixStack.popPose();
+        poseStack.popPose();
     }
 
     @Override

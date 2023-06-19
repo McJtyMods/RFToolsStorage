@@ -31,7 +31,7 @@ public class ItemFilterCache {
             if (matchDamage && itemStack.getDamageValue() != stack.getDamageValue()) {    // @todo 1.14, used to be meta. Check!
                 continue;
             }
-            if (nbtMode && !ItemStack.tagMatches(itemStack, stack)) {
+            if (nbtMode && !ItemStack.isSameItemSameTags(itemStack, stack)) {
                 continue;
             }
             if (itemStack.getItem().equals(stack.getItem())) {

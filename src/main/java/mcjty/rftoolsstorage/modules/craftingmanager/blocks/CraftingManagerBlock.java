@@ -3,22 +3,18 @@ package mcjty.rftoolsstorage.modules.craftingmanager.blocks;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RotationType;
 import mcjty.lib.builder.BlockBuilder;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
-
-import static mcjty.lib.builder.TooltipBuilder.*;
-
-
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
+
+import static mcjty.lib.builder.TooltipBuilder.*;
 
 public class CraftingManagerBlock extends BaseBlock {
 
@@ -27,7 +23,7 @@ public class CraftingManagerBlock extends BaseBlock {
 
     public CraftingManagerBlock() {
         super(new BlockBuilder()
-                .properties(Properties.of(Material.GLASS)
+                .properties(Properties.of()
                         .strength(2.0f)
                         .sound(SoundType.GLASS)
                         .isRedstoneConductor((state, world, pos) -> false)

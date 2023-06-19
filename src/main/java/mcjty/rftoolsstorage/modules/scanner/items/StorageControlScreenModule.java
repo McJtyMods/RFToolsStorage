@@ -188,7 +188,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         if (other.isEmpty()) {
             return false;
         }
-        return thisItem.sameItem(other);
+        return ItemStack.isSameItem(thisItem, other);
     }
 
 
@@ -218,7 +218,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
             player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
             return;
         }
-        IStorageScanner scannerTileEntity = getStorageScanner(player.level, dim, coordinate);
+        IStorageScanner scannerTileEntity = getStorageScanner(player.level(), dim, coordinate);
         if (scannerTileEntity == null) {
             return;
         }

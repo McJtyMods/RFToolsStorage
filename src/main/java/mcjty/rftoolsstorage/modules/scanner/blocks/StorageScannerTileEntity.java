@@ -441,7 +441,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         if (other.isEmpty()) {
             return false;
         }
-        return thisItem.sameItem(other);
+        return ItemStack.isSameItem(thisItem, other);
     }
 
 

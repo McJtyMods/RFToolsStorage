@@ -32,6 +32,7 @@ import mcjty.rftoolsstorage.storage.modules.TypeModule;
 import mcjty.rftoolsstorage.storage.sorters.ItemSorter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -595,7 +596,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack matrixStack, float v, int i, int i2) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float v, int i, int i2) {
         updateList();
 
         if (tileEntity != null) {
@@ -608,45 +609,43 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             }
         }
 
-        drawWindow(matrixStack);
+        drawWindow(graphics);
     }
 
     @Override
-    protected void renderTooltip(@Nonnull PoseStack matrixStack, int x, int y) {
+    protected void renderTooltip(@Nonnull GuiGraphics graphics, int x, int y) {
         Slot slot = findSlot(x, y);
         if (slot instanceof SlotItemHandler && !(slot instanceof BaseSlot) && !(slot instanceof GhostOutputSlot) && !(slot instanceof GhostSlot)) {
             if (tileEntity.isLocked()) {
-                renderTooltip(matrixStack, ComponentFactory.literal("Unlock to access these slots").withStyle(ChatFormatting.RED), x, y);
+                graphics.renderTooltip(minecraft.font, ComponentFactory.literal("Unlock to access these slots").withStyle(ChatFormatting.RED), x, y);
                 return;
             }
         }
-        super.renderTooltip(matrixStack, x, y);
+        super.renderTooltip(graphics, x, y);
     }
 
     @Override
-    protected void drawStackTooltips(PoseStack matrixStack, int mouseX, int mouseY) {
+    protected void drawStackTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
     }
 
     @Override
-    protected void renderLabels(@Nonnull PoseStack matrixStack, int mouseX, int mouseY) {
+    protected void renderLabels(@Nonnull GuiGraphics graphics, int mouseX, int mouseY) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
 
         List<String> tooltips = craftingGrid.getWindow().getTooltips();
         if (tooltips != null) {
-            drawHoveringText(matrixStack, tooltips, window.getTooltipItems(), x - leftPos, y - topPos, minecraft.font);
+            drawHoveringText(graphics, tooltips, window.getTooltipItems(), x - leftPos, y - topPos, minecraft.font);
         }
 
         if (tileEntity.isLocked()) {
 
-            RenderSystem.setShaderTexture(0, guiElements);
-
             int offset = 300;
-            blit(matrixStack, 5, imageHeight-79, offset, 96, 96, 16, 16, 256, 256);
-            blit(matrixStack, 5, imageHeight-61, offset, 96, 96, 16, 16, 256, 256);
+            graphics.blit(guiElements, 5, imageHeight-79, offset, 96, 96, 16, 16, 256, 256);
+            graphics.blit(guiElements, 5, imageHeight-61, offset, 96, 96, 16, 16, 256, 256);
         }
 
-        super.renderLabels(matrixStack, mouseX, mouseY);
+        super.renderLabels(graphics, mouseX, mouseY);
 
         warningLabel.visible(!tileEntity.isLocked());
         itemList.visible(tileEntity.isLocked());
@@ -656,8 +655,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
 
     @Override
-    protected void drawWindow(PoseStack matrixStack) {
-        super.drawWindow(matrixStack);
-        craftingGrid.draw(matrixStack);
+    protected void drawWindow(GuiGraphics graphics) {
+        super.drawWindow(graphics);
+        craftingGrid.draw(graphics);
     }
 }

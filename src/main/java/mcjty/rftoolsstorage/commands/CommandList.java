@@ -50,7 +50,7 @@ public class CommandList implements Command<CommandSourceStack> {
                     ChatFormatting.YELLOW + "%s" + ChatFormatting.WHITE + ", Update " +
                     ChatFormatting.YELLOW + "%s",
                     uuid, createdByColor, createdBy, createTimeF, updateTimeF);
-            context.getSource().sendSuccess(ComponentFactory.literal(output), false);
+            context.getSource().sendSuccess(() -> ComponentFactory.literal(output), false);
 
         }
         return 0;

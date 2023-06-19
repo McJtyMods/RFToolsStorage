@@ -7,6 +7,7 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -26,7 +27,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     public static final ResourceLocation DEVICE_VANILLA_CRAFTING = new ResourceLocation(RFToolsStorage.MODID, "vanilla_crafting");
 
-    private final CraftingContainer inventory = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+    private final CraftingContainer inventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
         @Override
         public boolean stillValid(@Nonnull Player playerIn) {
             return false;

@@ -53,7 +53,7 @@ public class PacketRequestItem {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            Level world = LevelTools.getLevel(ctx.getSender().level, dimensionId);
+            Level world = LevelTools.getLevel(ctx.getSender().level(), dimensionId);
             if (world == null) {
                 return;
             }

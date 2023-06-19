@@ -263,7 +263,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         ItemStack mimic1 = items.getStackInSlot(1);
         ItemStack mimic2 = items.getStackInSlot(2);
         ItemStack mimic3 = items.getStackInSlot(3);
-        if (!ItemStack.isSame(origMimic0, mimic0) || !ItemStack.isSame(origMimic1, mimic1) || !ItemStack.isSame(origMimic2, mimic2) || !ItemStack.isSame(origMimic3, mimic3)) {
+        if (!ItemStack.isSameItem(origMimic0, mimic0) || !ItemStack.isSameItem(origMimic1, mimic1) || !ItemStack.isSameItem(origMimic2, mimic2) || !ItemStack.isSameItem(origMimic3, mimic3)) {
             requestModelDataUpdate();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
