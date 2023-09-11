@@ -1,7 +1,7 @@
 {
   "name": "Storage Modules",
   "icon": "rftoolsstorage:storage_module0",
-  "category": "rftoolsstorage:category_rftoolsstorage_modularstorage",
+  "category": "rftoolsbase:category_rftoolsstorage_modularstorage",
   "sortnum": 20,
   "pages": [
     {

@@ -1,7 +1,7 @@
 {
   "name": "Storage Scanner",
   "icon": "rftoolsstorage:storage_scanner",
-  "category": "rftoolsstorage:category_rftoolsstorage_scanner",
+  "category": "rftoolsbase:category_rftoolsstorage_scanner",
   "sortnum": 10,
   "pages": [
     {
