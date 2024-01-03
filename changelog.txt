@@ -1,4 +1,4 @@
-Upcoming:
+1.20-5.0.2:
 - Possibly fixed a compatibility problem with the tablet and storage scanner
 
 1.20-5.0.1:
