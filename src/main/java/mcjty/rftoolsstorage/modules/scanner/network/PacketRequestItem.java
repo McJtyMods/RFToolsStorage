@@ -1,28 +1,25 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
+import mcjty.lib.network.CustomPacketPayload;
 import mcjty.lib.network.NetworkTools;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.varia.LevelTools;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.function.Supplier;
+public record PacketRequestItem(ResourceKey<Level> dimensionId, BlockPos pos, BlockPos inventoryPos, ItemStack item, Integer amount, Boolean craftable) implements CustomPacketPayload {
 
-public class PacketRequestItem {
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "requestitem");
 
-    private final ResourceKey<Level> dimensionId;
-    private final BlockPos pos;
-    private final BlockPos inventoryPos;
-    private final ItemStack item;
-    private final int amount;
-    private final boolean craftable;
-
-    public void toBytes(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeResourceLocation(dimensionId.location());
         buf.writeBlockPos(pos);
         buf.writeBlockPos(inventoryPos);
@@ -31,44 +28,39 @@ public class PacketRequestItem {
         buf.writeBoolean(craftable);
     }
 
-    public PacketRequestItem(FriendlyByteBuf buf) {
-        dimensionId = LevelTools.getId(buf.readResourceLocation());
-        pos = buf.readBlockPos();
-        inventoryPos = buf.readBlockPos();
-        amount = buf.readInt();
-        item = NetworkTools.readItemStack(buf);
-        craftable = buf.readBoolean();
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 
-    public PacketRequestItem(ResourceKey<Level>
+    public static PacketRequestItem create(FriendlyByteBuf buf) {
+        return new PacketRequestItem(LevelTools.getId(buf.readResourceLocation()), buf.readBlockPos(), buf.readBlockPos(), NetworkTools.readItemStack(buf), buf.readInt(), buf.readBoolean());
+    }
+
+    public static PacketRequestItem create(ResourceKey<Level>
                                      dimensionId, BlockPos pos, BlockPos inventoryPos, ItemStack item, int amount, boolean craftable) {
-        this.dimensionId = dimensionId;
-        this.pos = pos;
-        this.inventoryPos = inventoryPos;
-        this.item = item;
-        this.amount = amount;
-        this.craftable = craftable;
+        return new PacketRequestItem(dimensionId, pos, inventoryPos, item, amount, craftable);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
-            Level world = LevelTools.getLevel(ctx.getSender().level(), dimensionId);
-            if (world == null) {
-                return;
-            }
-            if (!LevelTools.isLoaded(world, pos)) {
-                return;
-            }
-            BlockEntity te = world.getBlockEntity(pos);
-            if (te instanceof StorageScannerTileEntity scanner) {
-                if (craftable) {
-                    scanner.requestCraft(inventoryPos, item, amount, ctx.getSender());
-                } else {
-                    scanner.requestStack(inventoryPos, item, amount, ctx.getSender());
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
+            ctx.player().ifPresent(player -> {
+                Level world = LevelTools.getLevel(player.level(), dimensionId);
+                if (world == null) {
+                    return;
                 }
-            }
+                if (!LevelTools.isLoaded(world, pos)) {
+                    return;
+                }
+                BlockEntity te = world.getBlockEntity(pos);
+                if (te instanceof StorageScannerTileEntity scanner) {
+                    if (craftable) {
+                        scanner.requestCraft(inventoryPos, item, amount, player);
+                    } else {
+                        scanner.requestStack(inventoryPos, item, amount, player);
+                    }
+                }
+            });
         });
-        ctx.setPacketHandled(true);
     }
 }

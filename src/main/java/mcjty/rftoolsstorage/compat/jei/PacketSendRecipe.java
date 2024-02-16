@@ -1,25 +1,30 @@
 package mcjty.rftoolsstorage.compat.jei;
 
+import mcjty.lib.network.CustomPacketPayload;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 
-public class PacketSendRecipe {
-    private ItemStackList stacks;
-    private BlockPos pos;
+public record PacketSendRecipe(ItemStackList stacks, BlockPos pos) implements CustomPacketPayload {
 
-    public void toBytes(FriendlyByteBuf buf) {
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "sendrecipe");
+
+    public static PacketSendRecipe create(ItemStackList items, BlockPos pos) {
+        return new PacketSendRecipe(items, pos);
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeInt(stacks.size());
         for (ItemStack stack : stacks) {
             buf.writeItem(stack);
@@ -32,42 +37,40 @@ public class PacketSendRecipe {
         }
     }
 
-    public PacketSendRecipe() {
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 
-    public PacketSendRecipe(FriendlyByteBuf buf) {
+    public static PacketSendRecipe create(FriendlyByteBuf buf) {
         int l = buf.readInt();
-        stacks = ItemStackList.create(l);
+        ItemStackList stacks = ItemStackList.create(l);
         for (int i = 0 ; i < l ; i++) {
             stacks.set(i, buf.readItem());
         }
+        BlockPos pos;
         if (buf.readBoolean()) {
             pos = buf.readBlockPos();
         } else {
             pos = null;
         }
+        return new PacketSendRecipe(stacks, pos);
     }
 
-    public PacketSendRecipe(ItemStackList stacks, BlockPos pos) {
-        this.stacks = stacks;
-        this.pos = pos;
-    }
-
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
-            ServerPlayer player = ctx.getSender();
-            Level world = player.getCommandSenderWorld();
-            if (pos == null) {
-                // Handle tablet version
-                ItemStack mainhand = player.getMainHandItem();
-                if (!mainhand.isEmpty() && mainhand.getItem() instanceof TabletItem) {
-                    if (player.containerMenu instanceof StorageScannerContainer) {
-                        StorageScannerContainer container = (StorageScannerContainer) player.containerMenu;
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
+            ctx.player().ifPresent(player -> {
+                Level world = player.getCommandSenderWorld();
+                if (pos == null) {
+                    // Handle tablet version
+                    ItemStack mainhand = player.getMainHandItem();
+                    if (!mainhand.isEmpty() && mainhand.getItem() instanceof TabletItem) {
+                        if (player.containerMenu instanceof StorageScannerContainer) {
+                            StorageScannerContainer container = (StorageScannerContainer) player.containerMenu;
 //                        container
 //                        tabletContainer
-                        // @todo
-                    }
+                            // @todo
+                        }
 //                        ModularStorageItemContainer storageItemContainer = (ModularStorageItemContainer) player.openContainer;
 //                        storageItemContainer.getJEIRecipeAcceptor().setGridContents(stacks);
 //                    } else if (player.openContainer instanceof RemoteStorageItemContainer) {
@@ -77,15 +80,15 @@ public class PacketSendRecipe {
 //                        StorageScannerContainer storageItemContainer = (StorageScannerContainer) player.openContainer;
 //                        storageItemContainer.getStorageScannerTileEntity().setGridContents(stacks);
 //                    }
+                    }
+                } else {
+                    BlockEntity te = world.getBlockEntity(pos);
+                    if (te instanceof JEIRecipeAcceptor) {
+                        JEIRecipeAcceptor acceptor = (JEIRecipeAcceptor) te;
+                        acceptor.setGridContents(stacks);
+                    }
                 }
-            } else {
-                BlockEntity te = world.getBlockEntity(pos);
-                if (te instanceof JEIRecipeAcceptor) {
-                    JEIRecipeAcceptor acceptor = (JEIRecipeAcceptor) te;
-                    acceptor.setGridContents(stacks);
-                }
-            }
+            });
         });
-        ctx.setPacketHandled(true);
     }
 }

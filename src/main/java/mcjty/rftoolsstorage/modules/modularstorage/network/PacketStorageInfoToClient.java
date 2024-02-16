@@ -1,24 +1,21 @@
 package mcjty.rftoolsstorage.modules.modularstorage.network;
 
+import mcjty.lib.network.CustomPacketPayload;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.varia.SafeClientTools;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.function.Supplier;
+public record PacketStorageInfoToClient(BlockPos pos, String sortMode, String viewMode, Boolean groupMode, String filter, Boolean locked) implements CustomPacketPayload {
 
-public class PacketStorageInfoToClient {
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "storageinfotoclient");
 
-    private final BlockPos pos;
-    private final String viewMode;
-    private final String sortMode;
-    private final boolean groupMode;
-    private final String filter;
-    private final boolean locked;
-
-    public void toBytes(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         buf.writeUtf(viewMode);
         buf.writeUtf(sortMode);
@@ -27,33 +24,26 @@ public class PacketStorageInfoToClient {
         buf.writeBoolean(locked);
     }
 
-    public PacketStorageInfoToClient(FriendlyByteBuf buf) {
-        pos = buf.readBlockPos();
-        viewMode = buf.readUtf(32767);
-        sortMode = buf.readUtf(32767);
-        groupMode = buf.readBoolean();
-        filter = buf.readUtf(32767);
-        locked = buf.readBoolean();
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 
-    public PacketStorageInfoToClient(BlockPos pos,
+    public static PacketStorageInfoToClient create(FriendlyByteBuf buf) {
+        return new PacketStorageInfoToClient(buf.readBlockPos(), buf.readUtf(32767), buf.readUtf(32767), buf.readBoolean(), buf.readUtf(32767), buf.readBoolean());
+    }
+
+    public static PacketStorageInfoToClient create(BlockPos pos,
                                      String sortMode, String viewMode, boolean groupMode, String filter, boolean locked) {
-        this.sortMode = sortMode;
-        this.viewMode = viewMode;
-        this.groupMode = groupMode;
-        this.filter = filter;
-        this.pos = pos;
-        this.locked = locked;
+        return new PacketStorageInfoToClient(pos, sortMode, viewMode, groupMode, filter, locked);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             BlockEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             if (te instanceof ModularStorageTileEntity storage) {
                 storage.syncInventoryFromServer(sortMode, viewMode, groupMode, filter, locked);
             }
         });
-        ctx.setPacketHandled(true);
     }
 }

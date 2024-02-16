@@ -200,8 +200,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         window.event("down", (source, params) -> moveDown());
         window.event("bottom", (source, params) -> moveBottom());
         window.event("remove", (source, params) -> removeFromList());
-        window.event("scan", (source, params) -> RFToolsStorageMessages.INSTANCE.sendToServer(
-                new PacketGetInventoryInfo(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), true)));
+        window.event("scan", (source, params) -> RFToolsStorageMessages.sendToServer(
+                PacketGetInventoryInfo.create(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), true)));
 
         ClientTools.enableKeyboardRepeat();
 
@@ -382,7 +382,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private void requestListsIfNeeded() {
         listDirty--;
         if (listDirty <= 0) {
-            RFToolsStorageMessages.INSTANCE.sendToServer(new PacketGetInventoryInfo(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), false));
+            RFToolsStorageMessages.sendToServer(PacketGetInventoryInfo.create(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), false));
             getInventoryOnServer();
             listDirty = 20;
         }
@@ -523,7 +523,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (selectedContainerPos == null) {
             return;
         }
-        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestItem(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), selectedContainerPos, stack, amount, craftable));
+        RFToolsStorageMessages.sendToServer(PacketRequestItem.create(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), selectedContainerPos, stack, amount, craftable));
         getInventoryOnServer();
     }
 
@@ -639,7 +639,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         } else {
             if (System.currentTimeMillis() - lastTime > 300) {
                 lastTime = System.currentTimeMillis();
-                RFToolsStorageMessages.INSTANCE.sendToServer(new PacketRequestDataFromServer(tileEntity.getDimension(),
+                RFToolsStorageMessages.INSTANCE.sendToServer(PacketRequestDataFromServer.create(tileEntity.getDimension(),
                         tileEntity.getBlockPos(), StorageScannerTileEntity.CMD_SCANNER_INFO, TypedMap.EMPTY, tileEntity.isDummy()));
             }
             energyBar.value(tileEntity.rfReceived);

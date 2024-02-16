@@ -1,6 +1,9 @@
 package mcjty.rftoolsstorage.setup;
 
-import mcjty.lib.network.*;
+import mcjty.lib.network.PacketHandler;
+import mcjty.lib.network.PacketRequestDataFromServer;
+import mcjty.lib.network.PacketSendClientCommand;
+import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.typed.TypedMap;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.compat.jei.PacketSendRecipe;
@@ -20,6 +23,8 @@ import net.minecraftforge.network.simple.SimpleChannel;
 
 import javax.annotation.Nonnull;
 
+import static mcjty.lib.network.PlayPayloadContext.wrap;
+
 public class RFToolsStorageMessages {
     public static SimpleChannel INSTANCE;
 
@@ -34,18 +39,18 @@ public class RFToolsStorageMessages {
         INSTANCE = net;
 
         // Server side
-        net.registerMessage(id(), PacketGridToClient.class, PacketGridToClient::toBytes, PacketGridToClient::new, PacketGridToClient::handle);
-        net.registerMessage(id(), PacketSendRecipe.class, PacketSendRecipe::toBytes, PacketSendRecipe::new, PacketSendRecipe::handle);
-        net.registerMessage(id(), PacketCraftTestResultToClient.class, PacketCraftTestResultToClient::toBytes, PacketCraftTestResultToClient::new, PacketCraftTestResultToClient::handle);
-        net.registerMessage(id(), PacketGetInventoryInfo.class, PacketGetInventoryInfo::toBytes, PacketGetInventoryInfo::new, PacketGetInventoryInfo::handle);
-        net.registerMessage(id(), PacketRequestItem.class, PacketRequestItem::toBytes, PacketRequestItem::new, PacketRequestItem::handle);
+        net.registerMessage(id(), PacketGridToClient.class, PacketGridToClient::write, PacketGridToClient::create, wrap(PacketGridToClient::handle));
+        net.registerMessage(id(), PacketSendRecipe.class, PacketSendRecipe::write, PacketSendRecipe::create, wrap(PacketSendRecipe::handle));
+        net.registerMessage(id(), PacketCraftTestResultToClient.class, PacketCraftTestResultToClient::write, PacketCraftTestResultToClient::create, wrap(PacketCraftTestResultToClient::handle));
+        net.registerMessage(id(), PacketGetInventoryInfo.class, PacketGetInventoryInfo::write, PacketGetInventoryInfo::create, wrap(PacketGetInventoryInfo::handle));
+        net.registerMessage(id(), PacketRequestItem.class, PacketRequestItem::write, PacketRequestItem::create, wrap(PacketRequestItem::handle));
 
         // Client side
-        net.registerMessage(id(), PacketStorageInfoToClient.class, PacketStorageInfoToClient::toBytes, PacketStorageInfoToClient::new, PacketStorageInfoToClient::handle);
-        net.registerMessage(id(), PacketGridToServer.class, PacketGridToServer::toBytes, PacketGridToServer::new, PacketGridToServer::handle);
-        net.registerMessage(id(), PacketReturnInventoryInfo.class, PacketReturnInventoryInfo::toBytes, PacketReturnInventoryInfo::new, PacketReturnInventoryInfo::handle);
+        net.registerMessage(id(), PacketStorageInfoToClient.class, PacketStorageInfoToClient::write, PacketStorageInfoToClient::create, wrap(PacketStorageInfoToClient::handle));
+        net.registerMessage(id(), PacketGridToServer.class, PacketGridToServer::write, PacketGridToServer::create, wrap(PacketGridToServer::handle));
+        net.registerMessage(id(), PacketReturnInventoryInfo.class, PacketReturnInventoryInfo::write, PacketReturnInventoryInfo::create, wrap(PacketReturnInventoryInfo::handle));
 
-        net.registerMessage(id(), PacketRequestDataFromServer.class, PacketRequestDataFromServer::toBytes, PacketRequestDataFromServer::new, new ChannelBoundHandler<>(net, PacketRequestDataFromServer::handle));
+        PacketRequestDataFromServer.register(net, id());
 
         PacketHandler.registerStandardMessages(id(), net);
     }
@@ -69,5 +74,13 @@ public class RFToolsStorageMessages {
 
     public static void sendToClient(Player player, String command) {
         INSTANCE.sendTo(new PacketSendClientCommand(RFToolsStorage.MODID, command, TypedMap.EMPTY), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    public static <T> void sendToPlayer(T packet, Player player) {
+        INSTANCE.sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    public static <T> void sendToServer(T packet) {
+        INSTANCE.sendToServer(packet);
     }
 }

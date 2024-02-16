@@ -1,28 +1,30 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
 
+import mcjty.lib.network.CustomPacketPayload;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.varia.Tools;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class PacketReturnInventoryInfo {
+public record PacketReturnInventoryInfo(List<InventoryInfo> inventories) implements CustomPacketPayload {
 
-    private final List<InventoryInfo> inventories;
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "return_inventory_info");
 
     public List<InventoryInfo> getInventories() {
         return inventories;
     }
 
-    public void toBytes(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeInt(inventories.size());
         for (InventoryInfo info : inventories) {
             buf.writeBlockPos(info.pos());
@@ -38,9 +40,14 @@ public class PacketReturnInventoryInfo {
         }
     }
 
-    public PacketReturnInventoryInfo(FriendlyByteBuf buf) {
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    public static PacketReturnInventoryInfo create(FriendlyByteBuf buf) {
         int size = buf.readInt();
-        inventories = new ArrayList<>(size);
+        List<InventoryInfo> inventories = new ArrayList<>(size);
         for (int i = 0 ; i < size ; i++) {
             BlockPos pos = buf.readBlockPos();
             String name = buf.readUtf(32767);
@@ -51,18 +58,13 @@ public class PacketReturnInventoryInfo {
             }
             inventories.add(new InventoryInfo(pos, name, routable, block));
         }
+        return new PacketReturnInventoryInfo(inventories);
     }
 
-    public PacketReturnInventoryInfo(List<InventoryInfo> inventories) {
-        this.inventories = inventories;
-    }
-
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             GuiStorageScanner.fromServer_inventories = getInventories();
         });
-        ctx.setPacketHandled(true);
     }
 
     public record InventoryInfo(BlockPos pos, String name, boolean routable, Block block) {

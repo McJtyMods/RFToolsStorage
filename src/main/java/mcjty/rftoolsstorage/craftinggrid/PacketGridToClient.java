@@ -1,36 +1,47 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import mcjty.lib.network.CustomPacketPayload;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.varia.SafeClientTools;
-import net.minecraft.world.entity.player.Player;
+import mcjty.rftoolsstorage.RFToolsStorage;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
+public record PacketGridToClient(PacketGridSync sync) implements CustomPacketPayload {
 
-public class PacketGridToClient extends PacketGridSync {
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "gridtoclient");
 
-    public void toBytes(FriendlyByteBuf buf) {
-        convertToBytes(buf);
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        sync.convertToBytes(buf);
     }
 
-    public PacketGridToClient(FriendlyByteBuf buf) {
-        convertFromBytes(buf);
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 
-    public PacketGridToClient(BlockPos pos, ResourceKey<Level> type, CraftingGrid grid) {
-        init(pos, type, grid);
+    public static PacketGridToClient create(FriendlyByteBuf buf) {
+        PacketGridSync sync = new PacketGridSync();
+        sync.convertFromBytes(buf);
+        return new PacketGridToClient(sync);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    public static PacketGridToClient create(BlockPos pos, ResourceKey<Level> type, CraftingGrid grid) {
+        PacketGridSync sync = new PacketGridSync();
+        sync.init(pos, type, grid);
+        return new PacketGridToClient(sync);
+    }
+
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             Level world = SafeClientTools.getClientWorld();
             Player player = SafeClientTools.getClientPlayer();
-            handleMessage(world, player);
+            sync.handleMessage(world, player);
         });
-        ctx.setPacketHandled(true);
     }
 }

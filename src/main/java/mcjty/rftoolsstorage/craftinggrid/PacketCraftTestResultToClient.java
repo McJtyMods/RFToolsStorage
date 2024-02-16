@@ -1,20 +1,26 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import mcjty.lib.network.CustomPacketPayload;
+import mcjty.lib.network.PlayPayloadContext;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class PacketCraftTestResultToClient {
+public record PacketCraftTestResultToClient(List<Pair<ItemStack, Integer>> testResult) implements CustomPacketPayload {
 
-    private final List<Pair<ItemStack, Integer>> testResult;
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "crafttestresult");
 
-    public void toBytes(FriendlyByteBuf buf) {
+    public static PacketCraftTestResultToClient create(List<Pair<ItemStack, Integer>> testResult) {
+        return new PacketCraftTestResultToClient(testResult);
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeInt(testResult.size());
         for (Pair<ItemStack, Integer> pair : testResult) {
             buf.writeItemStack(pair.getLeft(), false);
@@ -22,24 +28,24 @@ public class PacketCraftTestResultToClient {
         }
     }
 
-    public PacketCraftTestResultToClient(FriendlyByteBuf buf) {
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    public static PacketCraftTestResultToClient create(FriendlyByteBuf buf) {
         int size = buf.readInt();
-        testResult = new ArrayList<>(size);
+        List<Pair<ItemStack, Integer>> testResult = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             testResult.add(Pair.of(buf.readItem(), buf.readInt()));
         }
+        return new PacketCraftTestResultToClient(testResult);
     }
 
-    public PacketCraftTestResultToClient(List<Pair<ItemStack, Integer>> testResult) {
-        this.testResult = testResult;
-    }
-
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
             GuiCraftingGrid.testResultFromServer = testResult;
         });
-        ctx.setPacketHandled(true);
     }
 
 }

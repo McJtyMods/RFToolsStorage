@@ -296,7 +296,7 @@ public class StorageCraftingTools {
             testResult = provider.craft(player, count, test);
         }
         if (!testResult.isEmpty()) {
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketCraftTestResultToClient(testResult), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorageMessages.sendToPlayer(PacketCraftTestResultToClient.create(testResult), player);
         }
     }
 
@@ -310,7 +310,7 @@ public class StorageCraftingTools {
         boolean dummy = te instanceof StorageScannerTileEntity scanner ? scanner.isDummy() : false;
 
         if (provider != null) {
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketGridToClient(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorageMessages.INSTANCE.sendTo(PacketGridToClient.create(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 }

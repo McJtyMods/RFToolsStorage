@@ -1,8 +1,11 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
 
+import mcjty.lib.network.CustomPacketPayload;
+import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.varia.Tools;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
@@ -10,6 +13,7 @@ import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,45 +23,43 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PacketGetInventoryInfo {
+public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, boolean doscan) implements CustomPacketPayload {
 
-    private final ResourceKey<Level> id;
-    private final BlockPos pos;
-    private final boolean doscan;
+    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "getinventoryinfo");
 
-    public void toBytes(FriendlyByteBuf buf) {
+    public static PacketGetInventoryInfo create(ResourceKey<Level> dimension, BlockPos storageScannerPos, boolean b) {
+        return new PacketGetInventoryInfo(dimension, storageScannerPos, b);
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
-        buf.writeResourceLocation(id.location());
+        buf.writeResourceLocation(levelId.location());
         buf.writeBoolean(doscan);
     }
 
-    public PacketGetInventoryInfo(FriendlyByteBuf buf) {
-        pos = buf.readBlockPos();
-        id = LevelTools.getId(buf.readResourceLocation());
-        doscan = buf.readBoolean();
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 
-    public PacketGetInventoryInfo(ResourceKey<Level> worldId, BlockPos pos, boolean doscan) {
-        this.id = worldId;
-        this.pos = pos;
-        this.doscan = doscan;
+    public static PacketGetInventoryInfo create(FriendlyByteBuf buf) {
+        return new PacketGetInventoryInfo(LevelTools.getId(buf.readResourceLocation()), buf.readBlockPos(), buf.readBoolean());
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(() -> {
-            onMessageServer(ctx.getSender())
-                    .ifPresent(p -> sendReplyToClient(p, ctx.getSender()));
+
+    public void handle(PlayPayloadContext ctx) {
+        ctx.workHandler().submitAsync(() -> {
+            ctx.player().ifPresent(player -> {
+                onMessageServer(player).ifPresent(p -> sendReplyToClient(p, (ServerPlayer) player));
+            });
         });
-        ctx.setPacketHandled(true);
     }
 
     private void sendReplyToClient(List<PacketReturnInventoryInfo.InventoryInfo> reply, ServerPlayer player) {
@@ -66,7 +68,7 @@ public class PacketGetInventoryInfo {
     }
 
     private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(Player player) {
-        Level world = LevelTools.getLevel(player.level(), id);
+        Level world = LevelTools.getLevel(player.level(), levelId);
         if (world == null) {
             return Optional.empty();
         }

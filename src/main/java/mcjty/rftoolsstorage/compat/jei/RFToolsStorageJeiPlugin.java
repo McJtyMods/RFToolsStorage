@@ -32,7 +32,7 @@ public class RFToolsStorageJeiPlugin implements IModPlugin {
                 items.set(i, stack);
             }
         }
-        RFToolsStorageMessages.INSTANCE.sendToServer(new PacketSendRecipe(items, pos));
+        RFToolsStorageMessages.sendToServer(PacketSendRecipe.create(items, pos));
     }
 
 

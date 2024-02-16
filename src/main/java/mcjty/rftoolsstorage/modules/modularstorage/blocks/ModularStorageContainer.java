@@ -180,10 +180,9 @@ public class ModularStorageContainer extends GenericContainer {
         boolean locked = modularStorageTileEntity.isLocked();
 
         if (getPlayer() instanceof ServerPlayer player) {
-            RFToolsStorageMessages.INSTANCE.sendTo(new PacketStorageInfoToClient(
+            RFToolsStorageMessages.sendToPlayer(PacketStorageInfoToClient.create(
                             modularStorageTileEntity.getBlockPos(),
-                            sortMode, viewMode, groupMode, filter, locked),
-                    player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                            sortMode, viewMode, groupMode, filter, locked), player);
         }
     }
 
