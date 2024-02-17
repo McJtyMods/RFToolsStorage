@@ -10,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,7 @@ public record PacketReturnInventoryInfo(List<InventoryInfo> inventories) impleme
             boolean routable = buf.readBoolean();
             Block block = null;
             if (buf.readBoolean()) {
-                block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(buf.readUtf(32767)));
+                block = Tools.getBlock(new ResourceLocation(buf.readUtf(32767)));
             }
             inventories.add(new InventoryInfo(pos, name, routable, block));
         }
