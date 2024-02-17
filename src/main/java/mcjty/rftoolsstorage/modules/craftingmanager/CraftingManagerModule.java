@@ -18,10 +18,10 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
@@ -37,8 +37,8 @@ public class CraftingManagerModule implements IModule {
 
     public static final CraftingDeviceRegistry CRAFTING_DEVICE_REGISTRY = new CraftingDeviceRegistry();
 
-    public CraftingManagerModule() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::modelInit);
+    public CraftingManagerModule(IEventBus bus, Dist dist) {
+        bus.addListener(ClientSetup::modelInit);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CraftingManagerModule implements IModule {
     }
 
     @Override
-    public void initConfig() {
+    public void initConfig(IEventBus bus) {
     }
 
     @Override

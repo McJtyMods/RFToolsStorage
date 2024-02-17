@@ -12,7 +12,6 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -35,10 +34,10 @@ public class RFToolsStorage {
         Dist dist = FMLEnvironment.dist;
 
         instance = this;
-        setupModules();
+        setupModules(bus, dist);
 
-        Config.register(modules);
-        Registration.register();
+        Config.register(bus, modules);
+        Registration.register(bus);
 
         bus.addListener(setup::init);
         bus.addListener(modules::init);
@@ -59,8 +58,8 @@ public class RFToolsStorage {
         datagen.generate();
     }
 
-    private void setupModules() {
-        modules.register(new CraftingManagerModule());
+    private void setupModules(IEventBus bus, Dist dist) {
+        modules.register(new CraftingManagerModule(bus, dist));
         modules.register(new ModularStorageModule());
         modules.register(new StorageScannerModule());
     }

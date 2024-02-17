@@ -4,6 +4,7 @@ package mcjty.rftoolsstorage.setup;
 import mcjty.lib.modules.Modules;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 
@@ -28,8 +29,8 @@ public class Config {
     public static ForgeConfigSpec.IntValue NETHER_ORE_MINY;
     public static ForgeConfigSpec.IntValue NETHER_ORE_MAXY;
 
-    public static void register(Modules modules) {
-        modules.initConfig();
+    public static void register(IEventBus bus, Modules modules) {
+        modules.initConfig(bus);
 
         SERVER_CONFIG = SERVER_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
