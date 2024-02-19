@@ -29,7 +29,6 @@ import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.simple.SimpleChannel;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -62,7 +61,7 @@ public class GuiCraftingGrid {
     private int lastTestAmount = -2;
     private int lastTestTimer = 0;
 
-    public void initGui(final SimpleChannel network, final Minecraft mc, GenericGuiContainer<?, ?> gui,
+    public void initGui(final Minecraft mc, GenericGuiContainer<?, ?> gui,
                         BlockPos pos, ResourceKey<Level> type, CraftingGridProvider provider,
                         int guiLeft, int guiTop, int xSize, int ySize) {
         this.mc = mc;
@@ -131,7 +130,7 @@ public class GuiCraftingGrid {
             return;
         }
         provider.storeRecipe(selected);
-        RFToolsStorageMessages.INSTANCE.sendToServer(PacketGridToServer.create(pos, type, provider.getCraftingGrid()));
+        RFToolsStorageMessages.sendToServer(PacketGridToServer.create(pos, type, provider.getCraftingGrid()));
     }
 
     private void selectRecipe() {
@@ -141,7 +140,7 @@ public class GuiCraftingGrid {
         }
 
         provider.getCraftingGrid().selectRecipe(selected);
-        RFToolsStorageMessages.INSTANCE.sendToServer(PacketGridToServer.create(pos, type, provider.getCraftingGrid()));
+        RFToolsStorageMessages.sendToServer(PacketGridToServer.create(pos, type, provider.getCraftingGrid()));
     }
 
     private void populateList() {

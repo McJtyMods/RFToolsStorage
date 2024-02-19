@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.network.NetworkDirection;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,10 +36,14 @@ public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, b
         return new PacketGetInventoryInfo(dimension, storageScannerPos, b);
     }
 
+    public static PacketGetInventoryInfo create(FriendlyByteBuf buf) {
+        return new PacketGetInventoryInfo(LevelTools.getId(buf.readResourceLocation()), buf.readBlockPos(), buf.readBoolean());
+    }
+
     @Override
     public void write(FriendlyByteBuf buf) {
-        buf.writeBlockPos(pos);
         buf.writeResourceLocation(levelId.location());
+        buf.writeBlockPos(pos);
         buf.writeBoolean(doscan);
     }
 
@@ -48,11 +51,6 @@ public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, b
     public ResourceLocation id() {
         return ID;
     }
-
-    public static PacketGetInventoryInfo create(FriendlyByteBuf buf) {
-        return new PacketGetInventoryInfo(LevelTools.getId(buf.readResourceLocation()), buf.readBlockPos(), buf.readBoolean());
-    }
-
 
     public void handle(PlayPayloadContext ctx) {
         ctx.workHandler().submitAsync(() -> {
@@ -64,7 +62,7 @@ public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, b
 
     private void sendReplyToClient(List<PacketReturnInventoryInfo.InventoryInfo> reply, ServerPlayer player) {
         PacketReturnInventoryInfo msg = new PacketReturnInventoryInfo(reply);
-        RFToolsStorageMessages.INSTANCE.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        RFToolsStorageMessages.sendToPlayer(msg, player);
     }
 
     private Optional<List<PacketReturnInventoryInfo.InventoryInfo>> onMessageServer(Player player) {

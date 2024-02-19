@@ -23,8 +23,8 @@ public record PacketRequestItem(ResourceKey<Level> dimensionId, BlockPos pos, Bl
         buf.writeResourceLocation(dimensionId.location());
         buf.writeBlockPos(pos);
         buf.writeBlockPos(inventoryPos);
-        buf.writeInt(amount);
         NetworkTools.writeItemStack(buf, item);
+        buf.writeInt(amount);
         buf.writeBoolean(craftable);
     }
 

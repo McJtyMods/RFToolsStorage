@@ -1,7 +1,5 @@
 package mcjty.rftoolsstorage.modules.modularstorage.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.BaseSlot;
@@ -26,7 +24,6 @@ import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContaine
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.setup.CommandHandler;
-import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.storage.modules.DefaultTypeModule;
 import mcjty.rftoolsstorage.storage.modules.TypeModule;
 import mcjty.rftoolsstorage.storage.sorters.ItemSorter;
@@ -167,8 +164,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             throw new RuntimeException("Should not happen!");
         }
 
-        craftingGrid.initGui(RFToolsStorageMessages.INSTANCE, minecraft, this, pos, tileEntity.getDimension(), provider, leftPos, topPos, imageWidth, imageHeight);
-        sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder()
+        craftingGrid.initGui(minecraft, this, pos, tileEntity.getDimension(), provider, leftPos, topPos, imageWidth, imageHeight);
+        sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_GRID_SYNC, TypedMap.builder()
                 .put(CommandHandler.PARAM_POS, pos)
                 .put(CommandHandler.PARAM_DIMENSION, tileEntity.getDimension())
                 .build());
@@ -258,17 +255,17 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     private void cycleStorage() {
         if (tileEntity != null) {
-            window.sendServerCommand(RFToolsStorageMessages.INSTANCE, CMD_CYCLE, TypedMap.EMPTY);
+            window.sendServerCommand(CMD_CYCLE, TypedMap.EMPTY);
         } else {
-            sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_CYCLE_STORAGE);
+            sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_CYCLE_STORAGE);
         }
     }
 
     private void compact() {
         if (tileEntity != null) {
-            window.sendServerCommand(RFToolsStorageMessages.INSTANCE, CMD_COMPACT, TypedMap.EMPTY);
+            window.sendServerCommand(CMD_COMPACT, TypedMap.EMPTY);
         } else {
-            sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_COMPACT);
+            sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_COMPACT);
         }
     }
 
@@ -281,7 +278,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             tileEntity.setLocked(lockButton.isPressed());
             warningLabel.visible(!tileEntity.isLocked());
             itemList.visible(tileEntity.isLocked());
-            sendServerCommandTyped(RFToolsStorageMessages.INSTANCE, CMD_SETTINGS,
+            sendServerCommandTyped(CMD_SETTINGS,
                     TypedMap.builder()
                             .put(PARAM_SORTMODE, sortMode.getCurrentChoice())
                             .put(PARAM_VIEWMODE, viewMode.getCurrentChoice())
@@ -386,9 +383,9 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             Slot slot = findSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
                 if (tileEntity != null) {
-                    window.sendServerCommand(RFToolsStorageMessages.INSTANCE, CMD_CLEARGRID, TypedMap.EMPTY);
+                    window.sendServerCommand(CMD_CLEARGRID, TypedMap.EMPTY);
                 } else {
-                    sendServerCommand(RFToolsStorageMessages.INSTANCE, RFToolsStorage.MODID, CommandHandler.CMD_CLEAR_GRID);
+                    sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_CLEAR_GRID);
                 }
             }
         }

@@ -8,7 +8,6 @@ import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -21,7 +20,6 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.NetworkDirection;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -310,7 +308,7 @@ public class StorageCraftingTools {
         boolean dummy = te instanceof StorageScannerTileEntity scanner ? scanner.isDummy() : false;
 
         if (provider != null) {
-            RFToolsStorageMessages.INSTANCE.sendTo(PacketGridToClient.create(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            RFToolsStorageMessages.sendToPlayer(PacketGridToClient.create(dummy ? null : pos, ((GenericTileEntity) te).getDimension(), provider.getCraftingGrid()), player);
         }
     }
 }

@@ -1,7 +1,6 @@
 package mcjty.rftoolsstorage.setup;
 
-import mcjty.lib.network.PacketHandler;
-import mcjty.lib.network.PacketRequestDataFromServer;
+import mcjty.lib.McJtyLib;
 import mcjty.lib.network.PacketSendClientCommand;
 import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.typed.TypedMap;
@@ -26,7 +25,7 @@ import javax.annotation.Nonnull;
 import static mcjty.lib.network.PlayPayloadContext.wrap;
 
 public class RFToolsStorageMessages {
-    public static SimpleChannel INSTANCE;
+    private static SimpleChannel INSTANCE;
 
     public static void registerMessages(String name) {
         SimpleChannel net = NetworkRegistry.ChannelBuilder
@@ -49,10 +48,6 @@ public class RFToolsStorageMessages {
         net.registerMessage(id(), PacketStorageInfoToClient.class, PacketStorageInfoToClient::write, PacketStorageInfoToClient::create, wrap(PacketStorageInfoToClient::handle));
         net.registerMessage(id(), PacketGridToServer.class, PacketGridToServer::write, PacketGridToServer::create, wrap(PacketGridToServer::handle));
         net.registerMessage(id(), PacketReturnInventoryInfo.class, PacketReturnInventoryInfo::write, PacketReturnInventoryInfo::create, wrap(PacketReturnInventoryInfo::handle));
-
-        PacketRequestDataFromServer.register(net, id());
-
-        PacketHandler.registerStandardMessages(id(), net);
     }
 
     private static int packetId = 0;
@@ -60,20 +55,13 @@ public class RFToolsStorageMessages {
         return packetId++;
     }
 
+    // @todo move to McJtyLib
     public static void sendToServer(String command, @Nonnull TypedMap.Builder argumentBuilder) {
-        INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsStorage.MODID, command, argumentBuilder.build()));
-    }
-
-    public static void sendToServer(String command) {
-        INSTANCE.sendToServer(new PacketSendServerCommand(RFToolsStorage.MODID, command, TypedMap.EMPTY));
+        McJtyLib.sendToServer(new PacketSendServerCommand(RFToolsStorage.MODID, command, argumentBuilder.build()));
     }
 
     public static void sendToClient(Player player, String command, @Nonnull TypedMap.Builder argumentBuilder) {
-        INSTANCE.sendTo(new PacketSendClientCommand(RFToolsStorage.MODID, command, argumentBuilder.build()), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-    }
-
-    public static void sendToClient(Player player, String command) {
-        INSTANCE.sendTo(new PacketSendClientCommand(RFToolsStorage.MODID, command, TypedMap.EMPTY), ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        McJtyLib.sendToPlayer(new PacketSendClientCommand(RFToolsStorage.MODID, command, argumentBuilder.build()), player);
     }
 
     public static <T> void sendToPlayer(T packet, Player player) {
