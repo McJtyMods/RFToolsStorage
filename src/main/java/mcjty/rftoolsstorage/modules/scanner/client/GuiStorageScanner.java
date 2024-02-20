@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.modules.scanner.client;
 
-import mcjty.lib.McJtyLib;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GhostOutputSlot;
@@ -12,6 +11,7 @@ import mcjty.lib.gui.events.DefaultSelectionEvent;
 import mcjty.lib.gui.layout.HorizontalAlignment;
 import mcjty.lib.gui.layout.HorizontalLayout;
 import mcjty.lib.gui.widgets.*;
+import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketRequestDataFromServer;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.*;
@@ -639,7 +639,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         } else {
             if (System.currentTimeMillis() - lastTime > 300) {
                 lastTime = System.currentTimeMillis();
-                McJtyLib.sendToServer(PacketRequestDataFromServer.create(tileEntity.getDimension(),
+                Networking.sendToServer(PacketRequestDataFromServer.create(tileEntity.getDimension(),
                         tileEntity.getBlockPos(), StorageScannerTileEntity.CMD_SCANNER_INFO, TypedMap.EMPTY, tileEntity.isDummy()));
             }
             energyBar.value(tileEntity.rfReceived);

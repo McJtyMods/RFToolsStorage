@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.setup;
 
-import mcjty.lib.McJtyLib;
+import mcjty.lib.network.IPayloadRegistrar;
+import mcjty.lib.network.Networking;
 import mcjty.lib.network.PacketSendClientCommand;
 import mcjty.lib.network.PacketSendServerCommand;
 import mcjty.lib.typed.TypedMap;
@@ -13,62 +14,47 @@ import mcjty.rftoolsstorage.modules.modularstorage.network.PacketStorageInfoToCl
 import mcjty.rftoolsstorage.modules.scanner.network.PacketGetInventoryInfo;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketRequestItem;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketReturnInventoryInfo;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
 
 import javax.annotation.Nonnull;
 
-import static mcjty.lib.network.PlayPayloadContext.wrap;
-
 public class RFToolsStorageMessages {
-    private static SimpleChannel INSTANCE;
 
-    public static void registerMessages(String name) {
-        SimpleChannel net = NetworkRegistry.ChannelBuilder
-                .named(new ResourceLocation(RFToolsStorage.MODID, name))
-                .networkProtocolVersion(() -> "1.0")
-                .clientAcceptedVersions(s -> true)
-                .serverAcceptedVersions(s -> true)
-                .simpleChannel();
+    private static IPayloadRegistrar registrar;
 
-        INSTANCE = net;
+    public static void registerMessages() {
+        registrar = Networking.registrar(RFToolsStorage.MODID)
+                .versioned("1.0")
+                .optional();
 
         // Server side
-        net.registerMessage(id(), PacketGridToClient.class, PacketGridToClient::write, PacketGridToClient::create, wrap(PacketGridToClient::handle));
-        net.registerMessage(id(), PacketSendRecipe.class, PacketSendRecipe::write, PacketSendRecipe::create, wrap(PacketSendRecipe::handle));
-        net.registerMessage(id(), PacketCraftTestResultToClient.class, PacketCraftTestResultToClient::write, PacketCraftTestResultToClient::create, wrap(PacketCraftTestResultToClient::handle));
-        net.registerMessage(id(), PacketGetInventoryInfo.class, PacketGetInventoryInfo::write, PacketGetInventoryInfo::create, wrap(PacketGetInventoryInfo::handle));
-        net.registerMessage(id(), PacketRequestItem.class, PacketRequestItem::write, PacketRequestItem::create, wrap(PacketRequestItem::handle));
+        registrar.play(PacketGridToClient.class, PacketGridToClient::create, handler -> handler.server(PacketGridToClient::handle));
+        registrar.play(PacketSendRecipe.class, PacketSendRecipe::create, handler -> handler.server(PacketSendRecipe::handle));
+        registrar.play(PacketCraftTestResultToClient.class, PacketCraftTestResultToClient::create, handler -> handler.server(PacketCraftTestResultToClient::handle));
+        registrar.play(PacketGetInventoryInfo.class, PacketGetInventoryInfo::create, handler -> handler.server(PacketGetInventoryInfo::handle));
+        registrar.play(PacketRequestItem.class, PacketRequestItem::create, handler -> handler.server(PacketRequestItem::handle));
 
         // Client side
-        net.registerMessage(id(), PacketStorageInfoToClient.class, PacketStorageInfoToClient::write, PacketStorageInfoToClient::create, wrap(PacketStorageInfoToClient::handle));
-        net.registerMessage(id(), PacketGridToServer.class, PacketGridToServer::write, PacketGridToServer::create, wrap(PacketGridToServer::handle));
-        net.registerMessage(id(), PacketReturnInventoryInfo.class, PacketReturnInventoryInfo::write, PacketReturnInventoryInfo::create, wrap(PacketReturnInventoryInfo::handle));
+        registrar.play(PacketStorageInfoToClient.class, PacketStorageInfoToClient::create, handler -> handler.client(PacketStorageInfoToClient::handle));
+        registrar.play(PacketGridToServer.class, PacketGridToServer::create, handler -> handler.client(PacketGridToServer::handle));
+        registrar.play(PacketReturnInventoryInfo.class, PacketReturnInventoryInfo::create, handler -> handler.client(PacketReturnInventoryInfo::handle));
     }
 
-    private static int packetId = 0;
-    private static int id() {
-        return packetId++;
-    }
-
-    // @todo move to McJtyLib
     public static void sendToServer(String command, @Nonnull TypedMap.Builder argumentBuilder) {
-        McJtyLib.sendToServer(new PacketSendServerCommand(RFToolsStorage.MODID, command, argumentBuilder.build()));
+        Networking.sendToServer(new PacketSendServerCommand(RFToolsStorage.MODID, command, argumentBuilder.build()));
     }
 
     public static void sendToClient(Player player, String command, @Nonnull TypedMap.Builder argumentBuilder) {
-        McJtyLib.sendToPlayer(new PacketSendClientCommand(RFToolsStorage.MODID, command, argumentBuilder.build()), player);
+        Networking.sendToPlayer(new PacketSendClientCommand(RFToolsStorage.MODID, command, argumentBuilder.build()), player);
     }
 
     public static <T> void sendToPlayer(T packet, Player player) {
-        INSTANCE.sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        registrar.getChannel().sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     public static <T> void sendToServer(T packet) {
-        INSTANCE.sendToServer(packet);
+        registrar.getChannel().sendToServer(packet);
     }
 }

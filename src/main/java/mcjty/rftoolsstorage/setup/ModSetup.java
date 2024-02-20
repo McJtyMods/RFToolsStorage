@@ -21,7 +21,7 @@ public class ModSetup extends DefaultModSetup {
         e.enqueueWork(() -> {
             CommandHandler.registerCommands();
         });
-        RFToolsStorageMessages.registerMessages("rftoolsstorage");
+        RFToolsStorageMessages.registerMessages();
     }
 
     @Override
