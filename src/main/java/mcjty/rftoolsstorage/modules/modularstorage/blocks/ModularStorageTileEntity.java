@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -51,7 +52,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Cap(type = CapType.ITEMS)
     private final LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
+    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, getBlockPos(), this, player))
             .itemHandler(() -> getCapability(ForgeCapabilities.ITEM_HANDLER).map(h -> h).orElseThrow(RuntimeException::new))
             .setupSync(this));

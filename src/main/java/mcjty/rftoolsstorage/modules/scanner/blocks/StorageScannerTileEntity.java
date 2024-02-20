@@ -52,6 +52,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -121,7 +122,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             .build();
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
+    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
             .containerSupplier((windowId, player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this, player))
             .energyHandler(() -> energyStorage)
             .itemHandler(() -> items)

@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.Lazy;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -59,7 +59,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             .build();
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
+    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
             .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getBlockPos(), CraftingManagerTileEntity.this, player))
             .itemHandler(() -> getCapability(ForgeCapabilities.ITEM_HANDLER).map(h -> h).orElseThrow(RuntimeException::new)));
 
