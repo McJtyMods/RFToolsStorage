@@ -129,7 +129,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             .setupSync(this));
 
     @Cap(type = CapType.INFUSABLE)
-    private final LazyOptional<IInfusable> infusableHandler = LazyOptional.of(() -> new DefaultInfusable(StorageScannerTileEntity.this));
+    private final IInfusable infusableHandler = new DefaultInfusable(StorageScannerTileEntity.this);
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
 
