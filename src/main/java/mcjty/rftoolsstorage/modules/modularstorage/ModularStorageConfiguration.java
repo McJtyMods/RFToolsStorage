@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

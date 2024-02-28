@@ -7,7 +7,7 @@ import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraftforge.client.model.generators.BlockModelBuilder;
+import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 
 public class DataGenHelper {
 

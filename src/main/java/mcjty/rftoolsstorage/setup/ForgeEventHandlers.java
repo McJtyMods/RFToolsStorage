@@ -1,8 +1,8 @@
 package mcjty.rftoolsstorage.setup;
 
 import mcjty.rftoolsstorage.commands.ModCommands;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.eventbus.api.SubscribeEvent;
 
 public class ForgeEventHandlers {
 

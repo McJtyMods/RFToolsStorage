@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ForgeConfigSpec;
 
 public class StorageScannerConfiguration {
     public static final String CATEGORY_STORAGE_SCANNER = "storagescanner";
