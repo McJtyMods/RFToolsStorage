@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.gui.Window;
@@ -51,6 +50,6 @@ public class GuiCraftingManager extends GenericGuiContainer<CraftingManagerTileE
 
     @Override
     protected void renderBg(@Nonnull GuiGraphics graphics, float v, int i, int i2) {
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
     }
 }

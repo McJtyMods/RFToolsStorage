@@ -606,7 +606,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             }
         }
 
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
     }
 
     @Override
@@ -652,8 +652,8 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
 
     @Override
-    protected void drawWindow(GuiGraphics graphics) {
-        super.drawWindow(graphics);
+    protected void drawWindow(GuiGraphics graphics, float partialTicks, int x, int y) {
+        super.drawWindow(graphics, partialTicks, x, y);
         craftingGrid.draw(graphics);
     }
 }

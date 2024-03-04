@@ -646,7 +646,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             exportToStarred.setCurrentChoice(tileEntity.exportToCurrentReceived ? 0 : 1);
         }
 
-        drawWindow(graphics);
+        drawWindow(graphics, xxx, xxx, yyy);
     }
 
     @Override
@@ -694,11 +694,11 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static long lastTime = 0;
 
     @Override
-    protected void drawWindow(GuiGraphics matrixStack) {
+    protected void drawWindow(GuiGraphics matrixStack, float partialTicks, int x, int y) {
         if (!init) {
             return;
         }
-        super.drawWindow(matrixStack);
+        super.drawWindow(matrixStack, partialTicks, x, y);
         craftingGrid.draw(matrixStack);
     }
 

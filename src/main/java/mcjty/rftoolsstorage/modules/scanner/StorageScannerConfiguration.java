@@ -1,26 +1,26 @@
 package mcjty.rftoolsstorage.modules.scanner;
 
-import net.neoforged.neoforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class StorageScannerConfiguration {
     public static final String CATEGORY_STORAGE_SCANNER = "storagescanner";
-    public static ForgeConfigSpec.IntValue MAXENERGY;
-    public static ForgeConfigSpec.IntValue RECEIVEPERTICK;
-    public static ForgeConfigSpec.IntValue rfPerRequest;
-    public static ForgeConfigSpec.IntValue rfPerInsert;
-    public static ForgeConfigSpec.IntValue hilightTime;
+    public static ModConfigSpec.IntValue MAXENERGY;
+    public static ModConfigSpec.IntValue RECEIVEPERTICK;
+    public static ModConfigSpec.IntValue rfPerRequest;
+    public static ModConfigSpec.IntValue rfPerInsert;
+    public static ModConfigSpec.IntValue hilightTime;
 
-    public static ForgeConfigSpec.BooleanValue hilightStarredOnGuiOpen;
-    public static ForgeConfigSpec.BooleanValue requestStraightToInventory;
+    public static ModConfigSpec.BooleanValue hilightStarredOnGuiOpen;
+    public static ModConfigSpec.BooleanValue requestStraightToInventory;
 
-    public static ForgeConfigSpec.BooleanValue scannerNoRestrictions;
+    public static ModConfigSpec.BooleanValue scannerNoRestrictions;
 
-    public static ForgeConfigSpec.IntValue STORAGE_CONTROL_RFPERTICK; //6;
-    public static ForgeConfigSpec.IntValue DUMP_RFPERTICK; //0;
+    public static ModConfigSpec.IntValue STORAGE_CONTROL_RFPERTICK; //6;
+    public static ModConfigSpec.IntValue DUMP_RFPERTICK; //0;
 
-    public static ForgeConfigSpec.BooleanValue xnetRequired;
+    public static ModConfigSpec.BooleanValue xnetRequired;
 
-    public static void init(ForgeConfigSpec.Builder SERVER_BUILDER, ForgeConfigSpec.Builder CLIENT_BUILDER) {
+    public static void init(ModConfigSpec.Builder SERVER_BUILDER, ModConfigSpec.Builder CLIENT_BUILDER) {
         SERVER_BUILDER.comment("Settings for the storage scanner machine").push(CATEGORY_STORAGE_SCANNER);
         CLIENT_BUILDER.comment("Settings for the storage scanner machine").push(CATEGORY_STORAGE_SCANNER);
 
