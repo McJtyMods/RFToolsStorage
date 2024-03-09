@@ -6,8 +6,8 @@ import mcjty.lib.varia.Logging;
 import mcjty.rftoolsstorage.compat.rftoolsutility.RFToolsSupport;
 import mcjty.rftoolsstorage.compat.xnet.XNetSupport;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.fml.InterModComms;
-import net.neoforged.neoforge.fml.ModList;
+import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 public class ModSetup extends DefaultModSetup {
