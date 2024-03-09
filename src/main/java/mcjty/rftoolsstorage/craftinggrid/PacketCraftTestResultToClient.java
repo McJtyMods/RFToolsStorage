@@ -1,7 +1,5 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import mcjty.lib.network.CustomPacketPayload;
-import mcjty.lib.network.PlayPayloadContext;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

@@ -1,8 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
 
-import mcjty.lib.network.CustomPacketPayload;
-import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsstorage.RFToolsStorage;

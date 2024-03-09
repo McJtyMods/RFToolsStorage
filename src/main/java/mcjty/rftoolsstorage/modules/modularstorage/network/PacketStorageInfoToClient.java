@@ -1,7 +1,5 @@
 package mcjty.rftoolsstorage.modules.modularstorage.network;
 
-import mcjty.lib.network.CustomPacketPayload;
-import mcjty.lib.network.PlayPayloadContext;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
