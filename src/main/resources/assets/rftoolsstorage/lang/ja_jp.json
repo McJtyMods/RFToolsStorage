@@ -1,0 +1,54 @@
+{
+    "item.rftoolsstorage.storage_module0": "ティア1 ストレージモジュール",
+    "item.rftoolsstorage.storage_module1": "ティア2 ストレージモジュール",
+    "item.rftoolsstorage.storage_module2": "ティア3 ストレージモジュール",
+    "item.rftoolsstorage.storage_module3": "ティア4 ストレージモジュール",
+    "item.rftoolsstorage.storage_module6": "リモートストレージモジュール(使用しないでください)",
+    "item.rftoolsstorage.storage_module_tablet": "ストレージタブレット",
+    "item.rftoolsstorage.filter_module": "フィルターモジュール",
+    "item.rftoolsstorage.oredict_module": "鉱石辞書タイプモジュール",
+    "item.rftoolsstorage.generic_module": "ジェネリックタイプモジュール",
+    "item.rftoolsstorage.tablet_scanner": "タブレット(スキャナー)",
+    "item.rftoolsstorage.storage_control_module": "ストレージ制御画面モジュール",
+    "item.rftoolsstorage.dump_module": "ダンプスクリーンモジュール",
+
+    "block.rftoolsstorage.modular_storage": "モジュラーストレージ",
+    "block.rftoolsstorage.remote_storage": "リモートストレージ",
+    "block.rftoolsstorage.storage_scanner": "ストレージスキャナー",
+
+    "_comment": "Creative Tabs",
+    "itemGroup.rftoolsstorage": "RFTools Storage",
+
+    "_comment": "Messages",
+    "message.rftoolsstorage.shiftmessage": "<Shiftを押す>",
+
+    "message.rftoolsstorage.crafting_manager.header": "開発中！クラフトマネージャー開発中！",
+    "message.rftoolsstorage.crafting_manager.gold": "これはまだ機能していません",
+
+    "message.rftoolsstorage.tablet_scanner.header": "リモートGUIと情報を参照するために使用できるタブレットです",
+    "message.rftoolsstorage.tablet_scanner.gold": "ストレージスキャナーとのリンクを含んだタブレット:右クリックでスキャナーGUI、スニーク右クリックでタブレットGUIを開きます",
+
+    "message.rftoolsstorage.storage_scanner.header": "このマシンは、近くのすべてのインベントリをスキャンし、リストに表示します。その後、それらの在庫からアイテムを検索してアクセスできます",
+    "message.rftoolsstorage.storage_scanner.gold": "注入ボーナス:消費電力の削減",
+
+    "message.rftoolsstorage.storage_control_module.header": "この画面モジュールを使用すると、ストレージスキャナーを介して9つの異なるアイテムを監視できます。このモジュールは、ストレージスキャナー制御システムへのリモートアクセスのためにタブレットと組み合わせることもできます",
+    "message.rftoolsstorage.storage_control_module.gold": "ストレージスキャナーをスニーク右クリックして、このストレージモジュールのターゲットを設定します",
+    "message.rftoolsstorage.storage_control_module.uses": "電力使用量: ",
+    "message.rftoolsstorage.storage_control_module.info": "ストレージスキャナー: ",
+
+    "message.rftoolsstorage.dump_module.header": "リンクされたストレージスキャナーに大量のアイテムをダンプできる画面用のモジュールです。",
+    "message.rftoolsstorage.dump_module.gold": "ストレージスキャナーをスニーク右クリックして、このダンプモジュールのターゲットを設定します",
+    "message.rftoolsstorage.dump_module.uses": "電力使用量: ",
+    "message.rftoolsstorage.dump_module.info": "ストレージスキャナー: ",
+
+    "message.rftoolsstorage.storage_module.header": "このストレージモジュールは、モジュラーストレージブロック用です",
+    "message.rftoolsstorage.storage_module.gold": "このモジュールは、リモートインベントリをサポートします。リモートストレージブロック内の別のストレージモジュールへのリンク",
+    "message.rftoolsstorage.storage_module.info": "サポートスタック: ",
+    "message.rftoolsstorage.storage_module.remoteid": "リモートID: ",
+    "message.rftoolsstorage.storage_module.uuid": "UUID: ",
+    "message.rftoolsstorage.storage_module.version": "バージョン: ",
+    "message.rftoolsstorage.storage_module.items": "内容: ",
+    "message.rftoolsstorage.storage_module.advanced": "発展: ",
+
+    "message.rftoolsstorage.modular_storage.header": "このモジュール式ストレージシステムは、多くのアイテムを保存でき、検索とフィルタリングを容易にします。ストレージモジュール項目を使用する前に、まず挿入する必要があります"
+}
