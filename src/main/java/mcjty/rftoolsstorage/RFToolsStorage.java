@@ -2,19 +2,29 @@ package mcjty.rftoolsstorage;
 
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.modules.Modules;
+import mcjty.rftoolsbase.api.infoscreen.CapabilityInformationScreenInfo;
+import mcjty.rftoolsbase.api.infoscreen.IInformationScreenInfo;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
+import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.ModSetup;
 import mcjty.rftoolsstorage.setup.Registration;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.api.distmarker.Dist;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.fml.common.Mod;
-import net.neoforged.neoforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.neoforged.neoforge.fml.loading.FMLEnvironment;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -29,10 +39,7 @@ public class RFToolsStorage {
 
     public static RFToolsStorage instance;
 
-    public RFToolsStorage() {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        Dist dist = FMLEnvironment.dist;
-
+    public RFToolsStorage(ModContainer mod, IEventBus bus, Dist dist) {
         instance = this;
         setupModules(bus, dist);
 
@@ -42,6 +49,7 @@ public class RFToolsStorage {
         bus.addListener(setup::init);
         bus.addListener(modules::init);
         bus.addListener(this::onDataGen);
+        bus.addListener(this::onRegisterCapabilities);
 
         if (dist.isClient()) {
             bus.addListener(modules::initClient);
@@ -54,7 +62,7 @@ public class RFToolsStorage {
 
     private void onDataGen(GatherDataEvent event) {
         DataGen datagen = new DataGen(MODID, event);
-        modules.datagen(datagen);
+        modules.datagen(datagen, event.getLookupProvider());
         datagen.generate();
     }
 
@@ -62,5 +70,14 @@ public class RFToolsStorage {
         modules.register(new CraftingManagerModule(bus, dist));
         modules.register(new ModularStorageModule());
         modules.register(new StorageScannerModule());
+    }
+
+    private void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlock(CapabilityInformationScreenInfo.INFORMATION_SCREEN_INFO_CAPABILITY, (level, pos, state, be, direction) -> {
+            if (be instanceof StorageScannerTileEntity te) {
+                return te.getInfoScreenInfo();
+            }
+            return null;
+        }, StorageScannerModule.STORAGE_SCANNER.get());
     }
 }

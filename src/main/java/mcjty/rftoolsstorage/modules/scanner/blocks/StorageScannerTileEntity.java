@@ -19,7 +19,6 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
-import mcjty.rftoolsbase.api.infoscreen.CapabilityInformationScreenInfo;
 import mcjty.rftoolsbase.api.infoscreen.IInformationScreenInfo;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
@@ -36,6 +35,7 @@ import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -50,10 +50,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.common.util.LazyOptional;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
@@ -111,25 +109,28 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @GuiValue
     private boolean openWideView = true;
 
-    private final LazyOptional<IInformationScreenInfo> infoScreenInfo = LazyOptional.of(this::createScreenInfo);
+    private final Lazy<IInformationScreenInfo> infoScreenInfo = Lazy.of(this::createScreenInfo);
 
-    @Cap(type = CapType.ENERGY)
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, StorageScannerConfiguration.MAXENERGY.get(), StorageScannerConfiguration.RECEIVEPERTICK.get());
+    @Cap(type = CapType.ENERGY)
+    private static final Function<StorageScannerTileEntity, GenericEnergyStorage> ENERGY_CAP = tile -> tile.energyStorage;
 
-    @Cap(type = CapType.ITEMS)
     private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY)
             .insertable(slot(StorageScannerContainer.SLOT_IN_AUTO))
             .build();
+    @Cap(type = CapType.ITEMS)
+    private static final java.util.function.Function<StorageScannerTileEntity, GenericItemHandler> ITEM_CAP = tile -> tile.items;
 
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
-            .containerSupplier((windowId, player) -> StorageScannerContainer.create(windowId, getBlockPos(), StorageScannerTileEntity.this, player))
-            .energyHandler(() -> energyStorage)
-            .itemHandler(() -> items)
-            .setupSync(this));
+    private static final Function<StorageScannerTileEntity, MenuProvider> screenHandler = be -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
+            .containerSupplier((windowId, player) -> StorageScannerContainer.create(windowId, be.getBlockPos(), be, player))
+            .energyHandler(() -> be.energyStorage)
+            .itemHandler(() -> be.items)
+            .setupSync(be);
 
+    private final DefaultInfusable infusable = new DefaultInfusable(StorageScannerTileEntity.this);
     @Cap(type = CapType.INFUSABLE)
-    private final IInfusable infusableHandler = new DefaultInfusable(StorageScannerTileEntity.this);
+    private static final java.util.function.Function<StorageScannerTileEntity, IInfusable> INFUSABLE_CAP = tile -> tile.infusable;
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
 
@@ -324,15 +325,15 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                 .filter(this::isOutputFromScreen)
                 .map(this::getItemHandlerAt)
                 .forEachOrdered(handler -> {
-                    handler.ifPresent(h -> {
-                        for (int i = 0; i < h.getSlots(); i++) {
-                            ItemStack itemStack = h.getStackInSlot(i);
+                    if (handler != null) {
+                        for (int i = 0; i < handler.getSlots(); i++) {
+                            ItemStack itemStack = handler.getStackInSlot(i);
                             if (isItemEqual(stack, itemStack)) {
-                                ItemStack received = h.extractItem(i, cnt[0], false);
+                                ItemStack received = handler.extractItem(i, cnt[0], false);
                                 giveItemToPlayer(player, cnt, received);
                             }
                         }
-                    });
+                    };
                 });
         if (orig != cnt[0]) {
             consumeEnergy(StorageScannerConfiguration.rfPerRequest.get());
@@ -716,12 +717,13 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                                 oldAdded.add(p);
                             }
                         } else {
-                            te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
+                            IItemHandler h = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), null);
+                            if (h != null) {
                                 if (seenPositions.add(p)) {
                                     inventories.add(p);
                                     oldAdded.add(p);
                                 }
-                            });
+                            }
                         }
                     }
                 }
@@ -775,11 +777,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                             craftingInventories.add(p);
                         }
                     } else if (!inventories.contains(p)) {
-                        te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
+                        IItemHandler h = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, p, null);
+                        if (h != null) {
                             if (seenPositions.add(p)) {
                                 inventories.add(p);
                             }
-                        });
+                        };
                     }
                 }
             }
@@ -803,18 +806,20 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                 .filter(p -> canPlayerAccess(fakePlayer, p))
                 .map(this::getItemHandlerAt)
-                .map(handler -> handler.map(h -> {
-                    for (int i = 0; i < h.getSlots(); i++) {
-                        ItemStack itemStack = h.getStackInSlot(i);
-                        if (matcher.test(itemStack)) {
-                            ItemStack received = h.extractItem(i, amount, simulate);
-                            if (!received.isEmpty()) {
-                                return received.copy();
+                .map(h -> {
+                    if (h != null) {
+                        for (int i = 0; i < h.getSlots(); i++) {
+                            ItemStack itemStack = h.getStackInSlot(i);
+                            if (matcher.test(itemStack)) {
+                                ItemStack received = h.extractItem(i, amount, simulate);
+                                if (!received.isEmpty()) {
+                                    return received.copy();
+                                }
                             }
                         }
                     }
                     return DUMMY;
-                }).orElse(DUMMY))
+                })
                 .filter(s -> s != DUMMY)
                 .findFirst()
                 .orElse(ItemStack.EMPTY);
@@ -837,8 +842,8 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                 .filter(p -> canPlayerAccess(fakePlayer, p))
                 .map(this::getItemHandlerAt)
-                .allMatch(handler -> {
-                    handler.ifPresent(h -> {
+                .allMatch(h -> {
+                    if (h != null) {
                         for (int i = 0; i < h.getSlots(); i++) {
                             ItemStack itemStack = h.getStackInSlot(i);
                             if (isItemEqual(match, itemStack)) {
@@ -853,7 +858,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                                 }
                             }
                         }
-                    });
+                    };
                     return cnt[0] > 0;
                 });
         if (!result[0].isEmpty()) {
@@ -862,25 +867,25 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         return result[0];
     }
 
-    @Nonnull
-    private LazyOptional<IItemHandler> getItemHandlerAt(BlockPos p) {
+    @Nullable
+    private IItemHandler getItemHandlerAt(BlockPos p) {
         if (!LevelTools.isLoaded(level, p)) {
-            return LazyOptional.empty();
+            return null;
         }
         BlockEntity te = level.getBlockEntity(p);
         if (te == null || te instanceof StorageScannerTileEntity) {
-            return LazyOptional.empty();
+            return null;
         }
         return getItemHandlerAt(te, null);
     }
 
     // @todo move to McJtyLib
-    @Nonnull
-    private static LazyOptional<IItemHandler> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
+    @Nullable
+    private static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getCapability(ForgeCapabilities.ITEM_HANDLER, intSide);
+            return te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), intSide);
         } else {
-            return LazyOptional.empty();
+            return null;
         }
     }
 
@@ -907,19 +912,19 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         final ItemStack[] toInsert = {stack.copy()};
 
         Player fakePlayer = lazyPlayer.get();
-        Iterator<LazyOptional<IItemHandler>> iterator = inventories.stream()
+        Iterator<IItemHandler> iterator = inventories.stream()
                 .filter(p -> isInputFromAuto(p) && (!p.equals(getBlockPos()) && isRoutable(p) && getInputMatcher(p).test(stack)))
                 .filter(p -> !(level.getBlockEntity(p) instanceof CraftingManagerTileEntity))
                 .filter(p -> canPlayerAccess(fakePlayer, p))
                 .map(this::getItemHandlerAt)
-                .filter(LazyOptional::isPresent)
+                .filter(Objects::nonNull)
                 .iterator();
 
         while (!toInsert[0].isEmpty() && iterator.hasNext()) {
-            LazyOptional<IItemHandler> handler = iterator.next();
-            handler.ifPresent(h -> {
-                toInsert[0] = ItemHandlerHelper.insertItem(h, toInsert[0], simulate);
-            });
+            IItemHandler handler = iterator.next();
+            if (handler != null) {
+                toInsert[0] = ItemHandlerHelper.insertItem(handler, toInsert[0], simulate);
+            };
         }
         return toInsert[0];
     }
@@ -934,7 +939,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
         for (int i = 0; i < size; i++) {
             ItemStack stack = ItemStackTools.getStack(tileEntity, i);
-            if (ItemHandlerHelper.canItemStacksStack(requested, stack)) {
+            if (ItemStack.isSameItemSameComponents(requested, stack)) {
                 ItemStack extracted = ItemStackTools.extractItem(tileEntity, i, todo[0]);
                 todo[0] -= extracted.getCount();
                 if (outSlot.isEmpty()) {
@@ -1042,7 +1047,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         ItemStack outSlot = items.getStackInSlot(StorageScannerContainer.SLOT_OUT);
         if (!outSlot.isEmpty()) {
             // Check if the items are the same and there is room
-            if (!ItemHandlerHelper.canItemStacksStack(outSlot, requested)) {
+            if (!ItemStack.isSameItemSameComponents(outSlot, requested)) {
                 return;
             }
             if (outSlot.getCount() >= requested.getMaxStackSize()) {
@@ -1093,7 +1098,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         }
         if (foundItems.contains(stack.getItem())) {
             for (ItemStack s : stacks) {
-                if (ItemHandlerHelper.canItemStacksStack(s, stack)) {
+                if (ItemStack.isSameItemSameComponents(s, stack)) {
                     s.grow(stack.getCount());
                     return;
                 }
@@ -1129,11 +1134,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                 addItemStack(craftable, foundItems, stack);
             }
         } else {
-            getItemHandlerAt(tileEntity, null).ifPresent(h -> {
+            IItemHandler h = getItemHandlerAt(tileEntity, null);
+            if (h != null) {
                 for (int i = 0; i < h.getSlots(); i++) {
                     addItemStack(stacks, foundItems, h.getStackInSlot(i));
                 }
-            });
+            }
         }
     }
 
@@ -1147,8 +1153,8 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    protected void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
         craftingSystem.read(tagCompound.getCompound("CS"));
         ListTag list = tagCompound.getList("inventories", Tag.TAG_COMPOUND);
         inventories.clear();
@@ -1174,36 +1180,37 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         }
     }
 
-    @Override
-    protected void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        if (tagCompound.contains("Info")) {
-            CompoundTag infoTag = tagCompound.getCompound("Info");
-            if (infoTag.contains("radius")) {
-                radius = infoTag.getInt("radius");
-            }
-            if (infoTag.contains("exportC")) {
-                exportToCurrent = infoTag.getBoolean("exportC");
-            }
-            if (infoTag.contains("wideview")) {
-                openWideView = infoTag.getBoolean("wideview");
-            }
-            if (infoTag.contains("grid")) {
-                craftingGrid.readFromNBT(infoTag.getCompound("grid"));
-            }
-            if (infoTag.contains("sortMode")) {
-                int m = infoTag.getInt("sortMode");
-                sortMode = SortingMode.values()[m];
-            }
-        } else {
-            openWideView = true;
-            sortMode = SortingMode.NAME;
-        }
-    }
+    // @todo 1.21 data
+//    @Override
+//    protected void loadInfo(CompoundTag tagCompound) {
+//        super.loadInfo(tagCompound);
+//        if (tagCompound.contains("Info")) {
+//            CompoundTag infoTag = tagCompound.getCompound("Info");
+//            if (infoTag.contains("radius")) {
+//                radius = infoTag.getInt("radius");
+//            }
+//            if (infoTag.contains("exportC")) {
+//                exportToCurrent = infoTag.getBoolean("exportC");
+//            }
+//            if (infoTag.contains("wideview")) {
+//                openWideView = infoTag.getBoolean("wideview");
+//            }
+//            if (infoTag.contains("grid")) {
+//                craftingGrid.readFromNBT(infoTag.getCompound("grid"));
+//            }
+//            if (infoTag.contains("sortMode")) {
+//                int m = infoTag.getInt("sortMode");
+//                sortMode = SortingMode.values()[m];
+//            }
+//        } else {
+//            openWideView = true;
+//            sortMode = SortingMode.NAME;
+//        }
+//    }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
-        super.saveAdditional(tagCompound);
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
         tagCompound.put("CS", craftingSystem.write());
         ListTag list = new ListTag();
         for (BlockPos c : inventories) {
@@ -1225,16 +1232,17 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         tagCompound.put("fromxnet", list);
     }
 
-    @Override
-    protected void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag infoTag = getOrCreateInfo(tagCompound);
-        infoTag.putInt("radius", radius);
-        infoTag.putBoolean("exportC", exportToCurrent);
-        infoTag.putBoolean("wideview", openWideView);
-        infoTag.put("grid", craftingGrid.writeToNBT());
-        infoTag.putInt("sortMode", sortMode.ordinal());
-    }
+    // @todo 1.21 data
+//    @Override
+//    protected void saveInfo(CompoundTag tagCompound) {
+//        super.saveInfo(tagCompound);
+//        CompoundTag infoTag = getOrCreateInfo(tagCompound);
+//        infoTag.putInt("radius", radius);
+//        infoTag.putBoolean("exportC", exportToCurrent);
+//        infoTag.putBoolean("wideview", openWideView);
+//        infoTag.put("grid", craftingGrid.writeToNBT());
+//        infoTag.putInt("sortMode", sortMode.ordinal());
+//    }
 
 
     @ServerCommand
@@ -1331,18 +1339,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         return craftingSystem;
     }
 
+    public IInformationScreenInfo getInfoScreenInfo() {
+        return infoScreenInfo.get();
+    }
+
     @Nonnull
     private IInformationScreenInfo createScreenInfo() {
         return new StorageScannerInformationScreenInfo(this);
     }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction facing) {
-        if (cap == CapabilityInformationScreenInfo.INFORMATION_SCREEN_INFO_CAPABILITY) {
-            return infoScreenInfo.cast();
-        }
-        return super.getCapability(cap, facing);
-    }
-
 }

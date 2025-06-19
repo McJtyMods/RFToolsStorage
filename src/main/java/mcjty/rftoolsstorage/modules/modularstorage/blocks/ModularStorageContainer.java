@@ -19,7 +19,6 @@ import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import net.neoforged.neoforge.network.NetworkDirection;
 
 import javax.annotation.Nonnull;
 
@@ -51,7 +50,7 @@ public class ModularStorageContainer extends GenericContainer {
 
     @Override
     public void setupInventories(IItemHandler itemHandler, Inventory inventory) {
-        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
+        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) be;
         addInventory(CONTAINER_CARDS, modularStorageTileEntity.getCardHandler());        // The three cards
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
@@ -67,12 +66,12 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     private boolean isLocked() {
-        return ((ModularStorageTileEntity)te).isLocked();
+        return ((ModularStorageTileEntity)be).isLocked();
     }
 
     @Override
     public void generateSlots(Player player) {
-        boolean onClient = getTe().getLevel().isClientSide();
+        boolean onClient = getBe().getLevel().isClientSide();
 
         for (SlotFactory slotFactory : CONTAINER_FACTORY.get().getSlots()) {
             Slot slot;
@@ -141,10 +140,10 @@ public class ModularStorageContainer extends GenericContainer {
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_PLAYERINV || slotFactory.getSlotType() == SlotType.SLOT_PLAYERHOTBAR) {
-                slot = new BaseSlot(inventories.get(slotFactory.inventoryName()), te, slotFactory.index(), slotFactory.x(),
+                slot = new BaseSlot(inventories.get(slotFactory.inventoryName()), be, slotFactory.index(), slotFactory.x(),
                         getAdjustedY(slotFactory.y(), onClient));
             } else {
-                slot = new BaseSlot(inventories.get(slotFactory.inventoryName()), te, slotFactory.index(), slotFactory.x(),
+                slot = new BaseSlot(inventories.get(slotFactory.inventoryName()), be, slotFactory.index(), slotFactory.x(),
                         getAdjustedY(slotFactory.y(), onClient)) {
                     @Override
                     public boolean mayPlace(@Nonnull ItemStack stack) {
@@ -172,7 +171,7 @@ public class ModularStorageContainer extends GenericContainer {
     public void broadcastChanges() {
         super.broadcastChanges();
 
-        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) te;
+        ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) be;
         String sortMode = modularStorageTileEntity.getSortMode();
         String viewMode = modularStorageTileEntity.getViewMode();
         boolean groupMode = modularStorageTileEntity.isGroupMode();

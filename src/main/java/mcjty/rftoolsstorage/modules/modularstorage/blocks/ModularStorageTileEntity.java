@@ -25,9 +25,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.common.util.LazyOptional;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
@@ -39,6 +36,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_FILTER_MODULE;
@@ -49,13 +47,15 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     private final Cached<Predicate<ItemStack>> filterCache = Cached.of(this::createFilterCache);
 
+    private final IItemHandlerModifiable items = createGlobalHandler();
     @Cap(type = CapType.ITEMS)
-    private final LazyOptional<IItemHandler> globalHandler = LazyOptional.of(this::createGlobalHandler);
+    private static final Function<ModularStorageTileEntity, IItemHandlerModifiable> ITEM_CAP = tile -> tile.items;
+
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
-            .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, getBlockPos(), this, player))
-            .itemHandler(() -> getCapability(ForgeCapabilities.ITEM_HANDLER).map(h -> h).orElseThrow(RuntimeException::new))
-            .setupSync(this));
+    private static final Function<ModularStorageTileEntity, MenuProvider> screenHandler = be -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
+            .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, be.getBlockPos(), be, player))
+            .itemHandler(() -> be.items)
+            .setupSync(be);
 
     private GlobalStorageItemWrapper globalWrapper;
     private final ItemStackHandler cardHandler = new ItemStackHandler(3) {

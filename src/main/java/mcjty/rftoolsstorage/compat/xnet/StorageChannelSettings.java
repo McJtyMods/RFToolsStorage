@@ -2,6 +2,7 @@ package mcjty.rftoolsstorage.compat.xnet;
 
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -17,8 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -30,12 +30,17 @@ import java.util.Map;
 
 public class StorageChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/guielements.png");
 
     private List<Pair<SidedConsumer, StorageConnectorSettings>> storageControllers = null;
     private Map<BlockPos, InventoryAccessSettings> access = null;
 
     private int delay = 0;
+
+    @Override
+    public IChannelType getType() {
+        return XNetSupport.storageChannelType;
+    }
 
     @Override
     public void readFromNBT(CompoundTag tag) {
@@ -85,8 +90,8 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
             BlockPos pos = consumerPos.relative(side);
             BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
             if (te != null) {
-                LazyOptional<IItemHandler> handler = te.getCapability(ForgeCapabilities.ITEM_HANDLER);
-                if (handler.isPresent()) {
+                IItemHandler handler = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), null);
+                if (handler != null) {
                     return pos;
                 }
             }

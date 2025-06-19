@@ -9,13 +9,15 @@ import java.util.function.Function;
 public class XNetSupport {
 
     public static IXNet xnet;
+    public static StorageChannelType storageChannelType;
 
     public static class GetXNet implements Function<IXNet, Void> {
         @Nullable
         @Override
         public Void apply(IXNet input) {
             xnet = input;
-            xnet.registerChannelType(new StorageChannelType());
+            storageChannelType = new StorageChannelType();
+            xnet.registerChannelType(storageChannelType);
             return null;
         }
     }
