@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[2,)"
 license="MIT License https://github.com/McJtyMods/RFToolsStorage/blob/1.16/LICENCE"
 issueTrackerURL="http://github.com/McJtyMods/RFToolsStorage/issues"
 displayURL="http://github.com/McJtyMods/RFToolsStorage/"
@@ -20,20 +20,20 @@ description='''
 Everything related to storage
 '''
 [[dependencies.rftoolsstorage]]
-    modId="forge"
-    mandatory=true
-    versionRange="[47,)"
+    modId="neoforge"
+    type="required"
+    versionRange="[21.0,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.rftoolsstorage]]
     modId="mcjtylib"
     mandatory=true
-    versionRange="[1.20-8.0.0,)"
+    versionRange="[1.21-9.0.6,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.rftoolsstorage]]
     modId="rftoolsbase"
     mandatory=true
-    versionRange="[1.20-5.0.0,)"
+    versionRange="[1.21-6.0.6,)"
     ordering="AFTER"
     side="BOTH"
