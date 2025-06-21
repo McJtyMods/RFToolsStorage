@@ -3,64 +3,55 @@ package mcjty.rftoolsstorage.craftinggrid;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record PacketGridToServer(PacketGridSync sync, ItemStack[] stacks) implements CustomPacketPayload {
+import java.util.ArrayList;
+import java.util.List;
 
-    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "gridtoserver");
+public record PacketGridToServer(PacketGridSync sync, List<ItemStack> stacks) implements CustomPacketPayload {
+
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "gridtoserver");
+    public static final CustomPacketPayload.Type<PacketGridToServer> TYPE = new CustomPacketPayload.Type<>(ID);
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketGridToServer> CODEC = StreamCodec.composite(
+            PacketGridSync.STREAM_CODEC, PacketGridToServer::sync,
+            ItemStack.OPTIONAL_LIST_STREAM_CODEC, PacketGridToServer::stacks,
+            PacketGridToServer::new);
 
     @Override
-    public void write(FriendlyByteBuf buf) {
-        sync.convertToBytes(buf);
-        buf.writeInt(stacks.length);
-        for (ItemStack stack : stacks) {
-            buf.writeItem(stack);
-        }
-    }
-
-    @Override
-    public ResourceLocation id() {
-        return ID;
-    }
-
-    public static PacketGridToServer create(FriendlyByteBuf buf) {
-        PacketGridSync sync = new PacketGridSync();
-        sync.convertFromBytes(buf);
-        int len = buf.readInt();
-        ItemStack[] stacks = new ItemStack[len];
-        for (int i = 0 ; i < len ; i++) {
-            stacks[i] = buf.readItem();
-        }
-        return new PacketGridToServer(sync, stacks);
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
     public static PacketGridToServer create(BlockPos pos, ResourceKey<Level> type, CraftingGrid grid) {
-        PacketGridSync sync = new PacketGridSync();
-        sync.init(pos, type, grid);
-        ItemStack[] stacks = new ItemStack[10];
+        PacketGridSync sync = new PacketGridSync(pos, type, grid);
+        List<ItemStack> stacks = new ArrayList<>();
         for (int i = 0 ; i < 10 ; i++) {
-            stacks[i] = grid.getCraftingGridInventory().getStackInSlot(i);
+            stacks.add(grid.getCraftingGridInventory().getStackInSlot(i));
         }
         return new PacketGridToServer(sync, stacks);
     }
 
-    public void handle(PlayPayloadContext ctx) {
-        ctx.workHandler().submitAsync(() -> {
-            ctx.player().ifPresent(player -> {
-                Level world = player.getCommandSenderWorld();
-                CraftingGridProvider provider = sync.handleMessage(LevelTools.getLevel(world, sync.type), player);
-                if (provider != null) {
-                    CraftingGridInventory inventory = provider.getCraftingGrid().getCraftingGridInventory();
-                    for (int i = 0; i < 10; i++) {
-                        inventory.setStackInSlot(i, stacks[i]);
-                    }
-                    provider.markInventoryDirty();
+    public void handle(IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            Player player = ctx.player();
+            Level world = player.getCommandSenderWorld();
+            CraftingGridProvider provider = sync.handleMessage(LevelTools.getLevel(world, sync.type()), player);
+            if (provider != null) {
+                CraftingGridInventory inventory = provider.getCraftingGrid().getCraftingGridInventory();
+                for (int i = 0; i < 10; i++) {
+                    inventory.setStackInSlot(i, stacks.get(i));
                 }
-            });
+                provider.markInventoryDirty();
+            }
         });
     }
 }
