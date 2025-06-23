@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mcjty.lib.container.GenericItemHandler;
 import mcjty.rftoolsstorage.modules.craftingmanager.CraftingManagerModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import net.minecraft.client.Minecraft;
@@ -13,7 +14,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
 
 import javax.annotation.Nonnull;
 
@@ -24,30 +24,28 @@ public class CraftingManagerRenderer implements BlockEntityRenderer<CraftingMana
 
     @Override
     public void render(CraftingManagerTileEntity te, float v, @Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource buffer, int combinedLight, int combinedOverlay) {
-
-        te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
-            matrixStack.pushPose();
+        GenericItemHandler h = te.getItems();
+        matrixStack.pushPose();
 
 //            BlockPos pos = te.getPos();
 //            GlStateManager.translatef(-pos.getX(), -pos.getY(), -pos.getZ());
-            ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-            BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
 
-            for (int i = 0 ; i < 4 ; i++) {
-                ItemStack stack = h.getStackInSlot(i);
-                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
-                    matrixStack.pushPose();
-                    matrixStack.scale(.3f, .3f, .3f);
-                    matrixStack.translate(((i & 1) == 0) ? .45f : 1.8f, 0.93f, ((i & 2) == 0) ? .45f : 1.8f);
-                    BlockState state = ((BlockItem) stack.getItem()).getBlock().defaultBlockState();
-                    // @todo 1.18
+        for (int i = 0; i < 4; i++) {
+            ItemStack stack = h.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
+                matrixStack.pushPose();
+                matrixStack.scale(.3f, .3f, .3f);
+                matrixStack.translate(((i & 1) == 0) ? .45f : 1.8f, 0.93f, ((i & 2) == 0) ? .45f : 1.8f);
+                BlockState state = ((BlockItem) stack.getItem()).getBlock().defaultBlockState();
+                // @todo 1.18
 //                    blockRenderer.renderBatched(state, te.getBlockPos(), te.getLevel(), matrixStack, buffer, RenderHelper.MAX_BRIGHTNESS, combinedOverlay, EmptyModelData.INSTANCE);
-                    matrixStack.popPose();
-                }
+                matrixStack.popPose();
             }
+        }
 
-            matrixStack.popPose();
-        });
+        matrixStack.popPose();
     }
 
     public static void register(EntityRenderersEvent.RegisterRenderers event) {

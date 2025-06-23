@@ -30,13 +30,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
-import net.neoforged.neoforge.common.util.Lazy;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class CraftingManagerTileEntity extends GenericTileEntity {
@@ -48,7 +47,6 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             new ModelProperty<>()
     };
 
-    @Cap(type = CapType.ITEMS)
     private final GenericItemHandler items = GenericItemHandler.create(this, CraftingManagerContainer.CONTAINER_FACTORY)
             .onUpdate((slot, stack) -> {
                 if (slot < 4) {
@@ -57,11 +55,14 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
                 }
             })
             .build();
+    @Cap(type = CapType.ITEMS_AUTOMATION)
+    private static final Function<CraftingManagerTileEntity, GenericItemHandler> ITEM_CAP = be -> be.items;
+
 
     @Cap(type = CapType.CONTAINER)
-    private final Lazy<MenuProvider> screenHandler = Lazy.of(() -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
-            .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, getBlockPos(), CraftingManagerTileEntity.this, player))
-            .itemHandler(() -> getCapability(ForgeCapabilities.ITEM_HANDLER).map(h -> h).orElseThrow(RuntimeException::new)));
+    private static final Function<CraftingManagerTileEntity, MenuProvider> screenHandler = be -> new DefaultContainerProvider<CraftingManagerContainer>("Crafting Manager")
+            .containerSupplier((windowId, player) -> new CraftingManagerContainer(windowId, be.getBlockPos(), be, player))
+            .itemHandler(() -> be.items);
 
     // @todo save/load requests in NBT
     private final CraftingQueue[] queues = new CraftingQueue[4];
@@ -79,6 +80,10 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
             updateDevices();
         }
         return Optional.ofNullable(queues[queueIndex].getDevice());
+    }
+
+    public GenericItemHandler getItems() {
+        return items;
     }
 
     /**
@@ -319,5 +324,4 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         }
         tagCompound.put("devices", deviceList);
     }
-
 }

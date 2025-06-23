@@ -13,15 +13,18 @@ import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
 
@@ -60,11 +63,11 @@ public class ModularStorageModule implements IModule {
     }
 
     @Override
-    public void initDatagen(DataGen dataGen) {
+    public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(MODULAR_STORAGE)
                         .ironPickaxeTags()
-                        .standardLoot(TYPE_MODULAR_STORAGE)
+                        .standardLoot() // @todo 1.21 data
                         .blockState(DataGenHelper::generateModularStorage)
                         .shaped(builder -> builder
                                         .define('q', Items.QUARTZ)
@@ -80,7 +83,7 @@ public class ModularStorageModule implements IModule {
                                         .unlockedBy("redstone", has(Items.REDSTONE)),
                                 " C ", "gig", "qrq"),
                 Dob.itemBuilder(STORAGE_MODULE1)
-                        .shapedNBT(builder -> builder
+                        .shapedComponentPreserve(builder -> builder
                                         .define('q', Items.QUARTZ)
                                         .define('C', Tags.Items.CHESTS)
                                         .define('g', Items.GOLD_INGOT)
@@ -88,7 +91,7 @@ public class ModularStorageModule implements IModule {
                                         .unlockedBy("storage", has(STORAGE_MODULE0.get())),
                                 " C ", "gXg", "qrq"),
                 Dob.itemBuilder(STORAGE_MODULE2)
-                        .shapedNBT(builder -> builder
+                        .shapedComponentPreserve(builder -> builder
                                         .define('C', Tags.Items.CHESTS)
                                         .define('g', Items.GOLD_BLOCK)
                                         .define('X', STORAGE_MODULE1.get())
@@ -96,7 +99,7 @@ public class ModularStorageModule implements IModule {
                                         .unlockedBy("storage", has(STORAGE_MODULE1.get())),
                                 " C ", "gXg", "QRQ"),
                 Dob.itemBuilder(STORAGE_MODULE3)
-                        .shapedNBT(builder -> builder
+                        .shapedComponentPreserve(builder -> builder
                                         .define('C', Tags.Items.CHESTS)
                                         .define('Q', Items.QUARTZ_BLOCK)
                                         .define('g', Items.DIAMOND_BLOCK)

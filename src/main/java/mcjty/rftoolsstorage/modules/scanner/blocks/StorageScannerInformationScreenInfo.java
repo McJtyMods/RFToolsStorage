@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.blocks;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mcjty.lib.tileentity.GenericEnergyStorage;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
@@ -18,7 +19,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -72,10 +72,11 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     @Override
     public TypedMap getInfo(int mode) {
         if (mode == MODE_POWER || mode == MODE_POWER_GRAPHICAL) {
-            return scanner.getCapability(ForgeCapabilities.ENERGY).map(h -> TypedMap.builder()
-                    .put(ENERGY, (long) h.getEnergyStored())
-                    .put(MAXENERGY, (long) h.getMaxEnergyStored())
-                    .build()).orElse(TypedMap.EMPTY);
+            GenericEnergyStorage storage = scanner.getEnergyStorage();
+            return TypedMap.builder()
+                    .put(ENERGY, (long) storage.getEnergyStored())
+                    .put(MAXENERGY, (long) storage.getMaxEnergyStored())
+                    .build();
         } else {
             TypedMap.Builder builder = TypedMap.builder();
             int idx = 0;

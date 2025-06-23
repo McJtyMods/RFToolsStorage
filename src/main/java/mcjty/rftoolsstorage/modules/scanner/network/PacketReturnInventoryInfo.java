@@ -6,6 +6,9 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
@@ -14,7 +17,8 @@ import java.util.List;
 
 public record PacketReturnInventoryInfo(List<InventoryInfo> inventories) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "return_inventory_info");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "return_inventory_info");
+    public static final CustomPacketPayload.Type<PacketReturnInventoryInfo> TYPE = new Type<>(ID);
 
     public List<InventoryInfo> getInventories() {
         return inventories;
@@ -65,5 +69,12 @@ public record PacketReturnInventoryInfo(List<InventoryInfo> inventories) impleme
     }
 
     public record InventoryInfo(BlockPos pos, String name, boolean routable, Block block) {
+        public static final StreamCodec<FriendlyByteBuf, InventoryInfo> STREAM_CODEC = StreamCodec.composite(
+                BlockPos.STREAM_CODEC, InventoryInfo::pos,
+                ByteBufCodecs.STRING_UTF8, InventoryInfo::name,
+                ByteBufCodecs.BOOL, InventoryInfo::routable,
+                Block.STREAM_CODEC.optional(), InventoryInfo::block,
+                InventoryInfo::new
+        );
     }
 }

@@ -1,12 +1,13 @@
 package mcjty.rftoolsstorage.modules.modularstorage.items;
 
 import mcjty.lib.builder.TooltipBuilder;
-import mcjty.lib.crafting.INBTPreservingIngredient;
+import mcjty.lib.crafting.IComponentsToPreserve;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.storage.IStorageModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +32,7 @@ import java.util.UUID;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
-public class StorageModuleItem extends Item implements INBTPreservingIngredient, IStorageModuleItem {
+public class StorageModuleItem extends Item implements IComponentsToPreserve, IStorageModuleItem {
 
     public static final int STORAGE_TIER1 = 0;
     public static final int STORAGE_TIER2 = 1;
@@ -196,8 +197,8 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     }
 
     @Override
-    public Collection<String> getTagsToPreserve() {
-        return List.of("uuid");
+    public Collection<DataComponentType<?>> getComponentsToPreserve() {
+        return List.of();   // @todo 1.21 data (preserve uuid)
     }
 
     @Nonnull

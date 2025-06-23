@@ -119,7 +119,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             .insertable(slot(StorageScannerContainer.SLOT_IN_AUTO))
             .build();
     @Cap(type = CapType.ITEMS)
-    private static final java.util.function.Function<StorageScannerTileEntity, GenericItemHandler> ITEM_CAP = tile -> tile.items;
+    private static final Function<StorageScannerTileEntity, GenericItemHandler> ITEM_CAP = tile -> tile.items;
 
     @Cap(type = CapType.CONTAINER)
     private static final Function<StorageScannerTileEntity, MenuProvider> screenHandler = be -> new DefaultContainerProvider<StorageScannerContainer>("Storage Scanner")
@@ -130,7 +130,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     private final DefaultInfusable infusable = new DefaultInfusable(StorageScannerTileEntity.this);
     @Cap(type = CapType.INFUSABLE)
-    private static final java.util.function.Function<StorageScannerTileEntity, IInfusable> INFUSABLE_CAP = tile -> tile.infusable;
+    private static final Function<StorageScannerTileEntity, IInfusable> INFUSABLE_CAP = tile -> tile.infusable;
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
 
@@ -205,6 +205,11 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             craftingGrid.getCraftingGridInventory().setStackInSlot(i, stacks.get(i));
         }
         setChanged();
+    }
+
+    @Nonnull
+    public GenericEnergyStorage getEnergyStorage() {
+        return energyStorage;
     }
 
     private long getStoredPower() {
