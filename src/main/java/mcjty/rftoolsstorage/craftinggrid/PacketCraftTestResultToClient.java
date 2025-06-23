@@ -1,47 +1,41 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
 import mcjty.rftoolsstorage.RFToolsStorage;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record PacketCraftTestResultToClient(List<Pair<ItemStack, Integer>> testResult) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "crafttestresult");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "crafttestresult");
+    public static final CustomPacketPayload.Type<PacketCraftTestResultToClient> TYPE = new CustomPacketPayload.Type<>(ID);
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, Pair<ItemStack, Integer>> PAIR_CODEC = StreamCodec.composite(
+            ItemStack.STREAM_CODEC, Pair::getLeft, ByteBufCodecs.INT, Pair::getRight, Pair::of);
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketCraftTestResultToClient> STREAM_CODEC = StreamCodec.composite(
+            PAIR_CODEC.apply(ByteBufCodecs.list()), PacketCraftTestResultToClient::testResult,
+            PacketCraftTestResultToClient::new
+    );
 
     public static PacketCraftTestResultToClient create(List<Pair<ItemStack, Integer>> testResult) {
         return new PacketCraftTestResultToClient(testResult);
     }
 
     @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeInt(testResult.size());
-        for (Pair<ItemStack, Integer> pair : testResult) {
-            buf.writeItemStack(pair.getLeft(), false);
-            buf.writeInt(pair.getRight());
-        }
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public ResourceLocation id() {
-        return ID;
-    }
-
-    public static PacketCraftTestResultToClient create(FriendlyByteBuf buf) {
-        int size = buf.readInt();
-        List<Pair<ItemStack, Integer>> testResult = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            testResult.add(Pair.of(buf.readItem(), buf.readInt()));
-        }
-        return new PacketCraftTestResultToClient(testResult);
-    }
-
-    public void handle(PlayPayloadContext ctx) {
-        ctx.workHandler().submitAsync(() -> {
+    public void handle(IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
             GuiCraftingGrid.testResultFromServer = testResult;
         });
     }
