@@ -1,12 +1,15 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
+import com.mojang.serialization.Codec;
 import mcjty.lib.client.GuiTools;
-import mcjty.lib.crafting.INBTPreservingIngredient;
+import mcjty.lib.crafting.IComponentsToPreserve;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.lib.varia.Tools;
+import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
+import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
@@ -16,7 +19,10 @@ import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -30,13 +36,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
-public class StorageControlModuleItem extends GenericModuleItem implements INBTPreservingIngredient, ITabletSupport {
+public class StorageControlModuleItem extends GenericModuleItem implements IComponentsToPreserve, ITabletSupport {
 
     @Override
     public Item getInstalledTablet() {
@@ -57,11 +63,14 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
             @Nonnull
             @Override
             public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
-                StorageScannerContainer container = StorageScannerContainer.createRemote(id, pos, (StorageScannerTileEntity) te, player);
-                te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
-                    container.setupInventories(h, inventory);
-                });
-                return container;
+                if (te instanceof StorageScannerTileEntity scanner) {
+                    StorageScannerContainer container = StorageScannerContainer.createRemote(id, pos, scanner, player);
+                    container.setupInventories(scanner.getItems(), inventory);
+                    return container;
+                } else {
+                    Logging.logError("Cannot open remote storage scanner GUI at " + pos + " because the tile entity is not a StorageScannerTileEntity!");
+                    return null;
+                }
             }
         });
     }
@@ -82,7 +91,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
     }
 
     public StorageControlModuleItem() {
-        super(RFToolsStorage.setup.defaultProperties().stacksTo(1).defaultDurability(1));
+        super(RFToolsStorage.setup.defaultProperties().stacksTo(1).durability(1));
     }
 
     @Nonnull
@@ -114,6 +123,31 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
     }
 
     @Override
+    public @Nullable Codec<? extends IScreenModule<?, ?>> codec() {
+        return null;
+    }
+
+    @Override
+    public @Nullable StreamCodec<RegistryFriendlyByteBuf, ? extends IScreenModule<?, ?>> streamCodec() {
+        return null;
+    }
+
+    @Override
+    public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
+        return null;
+    }
+
+    @Override
+    public IScreenModule<?, ?> createServerScreenModule() {
+        return new StorageControlScreenModule();
+    }
+
+    @Override
+    public IClientScreenModule<?> createClientScreenModule() {
+        return new StorageControlClientScreenModule();
+    }
+
+    @Override
     public Class<StorageControlScreenModule> getServerScreenModule() {
         return StorageControlScreenModule.class;
     }
@@ -138,9 +172,9 @@ public class StorageControlModuleItem extends GenericModuleItem implements INBTP
                 .block("monitor").nl();
     }
 
-    // @todo 1.14 implement!
     @Override
-    public Collection<String> getTagsToPreserve() {
-        return Collections.emptyList();
+    public Collection<DataComponentType<?>> getComponentsToPreserve() {
+        // @todo 1.21 implement
+        return List.of();
     }
 }

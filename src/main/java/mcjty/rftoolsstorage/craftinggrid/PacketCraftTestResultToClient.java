@@ -20,7 +20,7 @@ public record PacketCraftTestResultToClient(List<Pair<ItemStack, Integer>> testR
     private static final StreamCodec<RegistryFriendlyByteBuf, Pair<ItemStack, Integer>> PAIR_CODEC = StreamCodec.composite(
             ItemStack.STREAM_CODEC, Pair::getLeft, ByteBufCodecs.INT, Pair::getRight, Pair::of);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, PacketCraftTestResultToClient> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketCraftTestResultToClient> CODEC = StreamCodec.composite(
             PAIR_CODEC.apply(ByteBufCodecs.list()), PacketCraftTestResultToClient::testResult,
             PacketCraftTestResultToClient::new
     );

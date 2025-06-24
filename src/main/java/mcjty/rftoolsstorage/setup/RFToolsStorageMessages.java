@@ -13,32 +13,33 @@ import mcjty.rftoolsstorage.modules.modularstorage.network.PacketStorageInfoToCl
 import mcjty.rftoolsstorage.modules.scanner.network.PacketGetInventoryInfo;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketRequestItem;
 import mcjty.rftoolsstorage.modules.scanner.network.PacketReturnInventoryInfo;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.NetworkDirection;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import javax.annotation.Nonnull;
 
 public class RFToolsStorageMessages {
 
-    private static IPayloadRegistrar registrar;
-
-    public static void registerMessages() {
-        registrar = Networking.registrar(RFToolsStorage.MODID)
+    public static void registerMessages(RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar(RFToolsStorage.MODID)
                 .versioned("1.0")
                 .optional();
 
         // Server side
-        registrar.play(PacketGridToClient.class, PacketGridToClient::create, handler -> handler.server(PacketGridToClient::handle));
-        registrar.play(PacketSendRecipe.class, PacketSendRecipe::create, handler -> handler.server(PacketSendRecipe::handle));
-        registrar.play(PacketCraftTestResultToClient.class, PacketCraftTestResultToClient::create, handler -> handler.server(PacketCraftTestResultToClient::handle));
-        registrar.play(PacketGetInventoryInfo.class, PacketGetInventoryInfo::create, handler -> handler.server(PacketGetInventoryInfo::handle));
-        registrar.play(PacketRequestItem.class, PacketRequestItem::create, handler -> handler.server(PacketRequestItem::handle));
+        registrar.playToServer(PacketGridToClient.TYPE, PacketGridToClient.CODEC, PacketGridToClient::handle);
+        registrar.playToServer(PacketSendRecipe.TYPE, PacketSendRecipe.CODEC, PacketSendRecipe::handle);
+        registrar.playToServer(PacketCraftTestResultToClient.TYPE, PacketCraftTestResultToClient.CODEC, PacketCraftTestResultToClient::handle);
+        registrar.playToServer(PacketGetInventoryInfo.TYPE, PacketGetInventoryInfo.CODEC, PacketGetInventoryInfo::handle);
+        registrar.playToServer(PacketRequestItem.TYPE, PacketRequestItem.CODEC, PacketRequestItem::handle);
 
         // Client side
-        registrar.play(PacketStorageInfoToClient.class, PacketStorageInfoToClient::create, handler -> handler.client(PacketStorageInfoToClient::handle));
-        registrar.play(PacketGridToServer.class, PacketGridToServer::create, handler -> handler.client(PacketGridToServer::handle));
-        registrar.play(PacketReturnInventoryInfo.class, PacketReturnInventoryInfo::create, handler -> handler.client(PacketReturnInventoryInfo::handle));
+        registrar.playToClient(PacketStorageInfoToClient.TYPE, PacketStorageInfoToClient.CODEC, PacketStorageInfoToClient::handle);
+        registrar.playToClient(PacketGridToServer.TYPE, PacketGridToServer.CODEC, PacketGridToServer::handle);
+        registrar.playToClient(PacketReturnInventoryInfo.TYPE, PacketReturnInventoryInfo.CODEC, PacketReturnInventoryInfo::handle);
     }
 
     public static void sendToServer(String command, @Nonnull TypedMap.Builder argumentBuilder) {
@@ -49,11 +50,11 @@ public class RFToolsStorageMessages {
         Networking.sendToPlayer(new PacketSendClientCommand(RFToolsStorage.MODID, command, argumentBuilder.build()), player);
     }
 
-    public static <T> void sendToPlayer(T packet, Player player) {
-        registrar.getChannel().sendTo(packet, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    public static <T extends CustomPacketPayload> void sendToPlayer(T packet, Player player) {
+        PacketDistributor.sendToPlayer((ServerPlayer)player, packet);
     }
 
-    public static <T> void sendToServer(T packet) {
-        registrar.getChannel().sendToServer(packet);
+    public static <T extends CustomPacketPayload> void sendToServer(T packet) {
+        PacketDistributor.sendToServer(packet);
     }
 }

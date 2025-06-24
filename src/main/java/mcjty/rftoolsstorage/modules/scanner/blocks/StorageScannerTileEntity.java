@@ -159,6 +159,10 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         setChanged();
     }
 
+    public GenericItemHandler getItems() {
+        return items;
+    }
+
     @Override
     public CraftingGrid getCraftingGrid() {
         return craftingGrid;

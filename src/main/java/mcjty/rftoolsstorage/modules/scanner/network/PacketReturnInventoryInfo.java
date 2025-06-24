@@ -11,59 +11,33 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public record PacketReturnInventoryInfo(List<InventoryInfo> inventories) implements CustomPacketPayload {
 
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "return_inventory_info");
     public static final CustomPacketPayload.Type<PacketReturnInventoryInfo> TYPE = new Type<>(ID);
 
+    public static final StreamCodec<FriendlyByteBuf, PacketReturnInventoryInfo> CODEC = StreamCodec.composite(
+            InventoryInfo.STREAM_CODEC.apply(ByteBufCodecs.list()), PacketReturnInventoryInfo::inventories,
+            PacketReturnInventoryInfo::new
+    );
+
     public List<InventoryInfo> getInventories() {
         return inventories;
     }
 
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeInt(inventories.size());
-        for (InventoryInfo info : inventories) {
-            buf.writeBlockPos(info.pos());
-            buf.writeUtf(info.name());
-            buf.writeBoolean(info.routable());
-            if (info.block() == null) {
-                buf.writeBoolean(false);
-            } else {
-                buf.writeBoolean(true);
-                String id = Tools.getId(info.block()).toString();
-                buf.writeUtf(id);
-            }
-        }
-    }
 
     @Override
-    public ResourceLocation id() {
-        return ID;
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public static PacketReturnInventoryInfo create(FriendlyByteBuf buf) {
-        int size = buf.readInt();
-        List<InventoryInfo> inventories = new ArrayList<>(size);
-        for (int i = 0 ; i < size ; i++) {
-            BlockPos pos = buf.readBlockPos();
-            String name = buf.readUtf(32767);
-            boolean routable = buf.readBoolean();
-            Block block = null;
-            if (buf.readBoolean()) {
-                block = Tools.getBlock(new ResourceLocation(buf.readUtf(32767)));
-            }
-            inventories.add(new InventoryInfo(pos, name, routable, block));
-        }
-        return new PacketReturnInventoryInfo(inventories);
-    }
-
-    public void handle(PlayPayloadContext ctx) {
-        ctx.workHandler().submitAsync(() -> {
+    public void handle(IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
             GuiStorageScanner.fromServer_inventories = getInventories();
         });
     }
@@ -73,8 +47,13 @@ public record PacketReturnInventoryInfo(List<InventoryInfo> inventories) impleme
                 BlockPos.STREAM_CODEC, InventoryInfo::pos,
                 ByteBufCodecs.STRING_UTF8, InventoryInfo::name,
                 ByteBufCodecs.BOOL, InventoryInfo::routable,
-                Block.STREAM_CODEC.optional(), InventoryInfo::block,
-                InventoryInfo::new
+                ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), s -> s.block == null ? Optional.empty() : Optional.of(Tools.getId(s.block)),
+                (pos, name, routable, blockId) -> new InventoryInfo(
+                        pos,
+                        name,
+                        routable,
+                        blockId.map(Tools::getBlock).orElse(null)
+                )
         );
     }
 }

@@ -10,6 +10,7 @@ import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.ModSetup;
+import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import mcjty.rftoolsstorage.setup.Registration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -43,13 +44,14 @@ public class RFToolsStorage {
         instance = this;
         setupModules(bus, dist);
 
-        Config.register(bus, modules);
+        Config.register(mod, bus, modules);
         Registration.register(bus);
 
         bus.addListener(setup::init);
         bus.addListener(modules::init);
         bus.addListener(this::onDataGen);
         bus.addListener(this::onRegisterCapabilities);
+        bus.addListener(RFToolsStorageMessages::registerMessages);
 
         if (dist.isClient()) {
             bus.addListener(modules::initClient);

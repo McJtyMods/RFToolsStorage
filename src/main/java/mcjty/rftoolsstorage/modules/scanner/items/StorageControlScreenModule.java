@@ -12,8 +12,10 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -25,14 +27,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.Collections;
 import java.util.List;
 
-public class StorageControlScreenModule implements IScreenModule<StorageControlScreenModule.ModuleDataStacks>, ITooltipInfo,
+public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dirty, List<ItemStack> stacks) implements IScreenModule<StorageControlScreenModule.ModuleDataStacks>, ITooltipInfo,
         IScreenModuleUpdater {
-    private final ItemStackList stacks = ItemStackList.create(9);
-
-    protected ResourceKey<Level> dim = Level.OVERWORLD;
-    protected BlockPos coordinate = BlockPosTools.INVALID;
-    private boolean starred = false;
-    private int dirty = -1;
+//    private final ItemStackList stacks = ItemStackList.create(9);
+//
+//    protected ResourceKey<Level> dim = Level.OVERWORLD;
+//    protected BlockPos coordinate = BlockPosTools.INVALID;
+//    private boolean starred = false;
+//    private int dirty = -1;
 
     // @todo 1.15 to replace the oredict from the past we might need a way to set a tag here
 
@@ -64,7 +66,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
         }
 
         @Override
-        public void writeToBuf(FriendlyByteBuf buf) {
+        public void writeToBuf(RegistryFriendlyByteBuf buf) {
             buf.writeInt(amounts.length);
             for (int i : amounts) {
                 buf.writeInt(i);
@@ -75,7 +77,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
 
     @Override
     public ModuleDataStacks getData(IScreenDataHelper helper, Level worldObj, long millis) {
-        IStorageScanner scannerTileEntity = getStorageScanner(worldObj, dim, coordinate);
+        IStorageScanner scannerTileEntity = getStorageScanner(worldObj, pos.dimension(), pos.pos());
         if (scannerTileEntity == null) {
             return null;
         }
@@ -109,19 +111,8 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
     }
 
     @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        if (tagCompound != null) {
-            setupCoordinateFromNBT(tagCompound, dim, pos);
-            for (int i = 0; i < stacks.size(); i++) {
-                if (tagCompound.contains("stack" + i)) {
-                    stacks.set(i, ItemStack.of(tagCompound.getCompound("stack" + i)));
-                }
-            }
-        }
-        IStorageScanner te = getStorageScanner(LevelTools.getOverworld(), dim, coordinate);
-        if (te != null) {
-            te.clearCachedCounts();
-        }
+    public StorageControlScreenModule validate(Level world, BlockPos pos, boolean isPlus) {
+        return this;
     }
 
     private int getHighlightedStack(int hitx, int hity) {
@@ -143,7 +134,7 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
 
     @Override
     public List<String> getInfo(Level world, int x, int y) {
-        IStorageScanner te = getStorageScanner(world, dim, coordinate);
+        IStorageScanner te = getStorageScanner(world, pos.dimension(), pos.pos());
         if (te != null) {
             int i = getHighlightedStack(x, y);
             if (i != -1 && !stacks.get(i).isEmpty()) {
@@ -151,19 +142,6 @@ public class StorageControlScreenModule implements IScreenModule<StorageControlS
             }
         }
         return Collections.emptyList();
-    }
-
-    protected void setupCoordinateFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        coordinate = BlockPosTools.INVALID;
-        starred = tagCompound.getBoolean("starred");
-        if (tagCompound.contains("monitorx")) {
-            this.dim = LevelTools.getId(tagCompound.getString("monitordim"));
-            BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
-            int dx = Math.abs(c.getX() - pos.getX());
-            int dy = Math.abs(c.getY() - pos.getY());
-            int dz = Math.abs(c.getZ() - pos.getZ());
-            coordinate = c;
-        }
     }
 
     @Override
