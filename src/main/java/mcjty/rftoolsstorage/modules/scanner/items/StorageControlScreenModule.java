@@ -1,5 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
@@ -16,6 +18,8 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -27,7 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.Collections;
 import java.util.List;
 
-public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dirty, List<ItemStack> stacks) implements IScreenModule<StorageControlScreenModule.ModuleDataStacks>, ITooltipInfo,
+public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dirty, List<ItemStack> stacks) implements IScreenModule<StorageControlScreenModule, StorageControlScreenModule.ModuleDataStacks>, ITooltipInfo,
         IScreenModuleUpdater {
 //    private final ItemStackList stacks = ItemStackList.create(9);
 //
@@ -37,6 +41,22 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
 //    private int dirty = -1;
 
     // @todo 1.15 to replace the oredict from the past we might need a way to set a tag here
+
+    public static final StorageControlScreenModule DEFAULT = new StorageControlScreenModule(GlobalPos.of(Level.OVERWORLD, BlockPosTools.INVALID), false, -1, Collections.nCopies(9, ItemStack.EMPTY));
+
+    public static final Codec<StorageControlScreenModule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            GlobalPos.CODEC.fieldOf("pos").forGetter(StorageControlScreenModule::pos),
+            Codec.BOOL.fieldOf("starred").forGetter(StorageControlScreenModule::starred),
+            Codec.INT.fieldOf("dirty").forGetter(StorageControlScreenModule::dirty),
+            ItemStack.CODEC.listOf().fieldOf("stacks").forGetter(StorageControlScreenModule::stacks)
+    ).apply(instance, StorageControlScreenModule::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, StorageControlScreenModule> STREAM_CODEC = StreamCodec.composite(
+            GlobalPos.STREAM_CODEC, StorageControlScreenModule::pos,
+            ByteBufCodecs.BOOL, StorageControlScreenModule::starred,
+            ByteBufCodecs.INT, StorageControlScreenModule::dirty,
+            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), StorageControlScreenModule::stacks,
+            StorageControlScreenModule::new);
 
     public static class ModuleDataStacks implements IModuleData {
 

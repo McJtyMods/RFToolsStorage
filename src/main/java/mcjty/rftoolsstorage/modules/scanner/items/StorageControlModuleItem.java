@@ -124,37 +124,28 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
 
     @Override
     public @Nullable Codec<? extends IScreenModule<?, ?>> codec() {
-        return null;
+        return StorageControlScreenModule.CODEC;
     }
 
     @Override
     public @Nullable StreamCodec<RegistryFriendlyByteBuf, ? extends IScreenModule<?, ?>> streamCodec() {
-        return null;
+        return StorageControlScreenModule.STREAM_CODEC;
     }
 
     @Override
     public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
+        // @todo 1.21 implement
         return null;
     }
 
     @Override
     public IScreenModule<?, ?> createServerScreenModule() {
-        return new StorageControlScreenModule();
+        return StorageControlScreenModule.DEFAULT;
     }
 
     @Override
     public IClientScreenModule<?> createClientScreenModule() {
         return new StorageControlClientScreenModule();
-    }
-
-    @Override
-    public Class<StorageControlScreenModule> getServerScreenModule() {
-        return StorageControlScreenModule.class;
-    }
-
-    @Override
-    public Class<StorageControlClientScreenModule> getClientScreenModule() {
-        return StorageControlClientScreenModule.class;
     }
 
     @Override
