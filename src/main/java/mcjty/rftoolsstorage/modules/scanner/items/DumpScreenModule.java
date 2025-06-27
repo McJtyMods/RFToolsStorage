@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.screens.IScreenDataHelper;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -11,11 +12,9 @@ import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -24,20 +23,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public record DumpScreenModule(GlobalPos pos, List<ItemStack> stacks, boolean matchingTag) implements IScreenModule<DumpScreenModule, IModuleData> {
+public record DumpScreenModule(GlobalPos pos, boolean active, List<ItemStack> stacks, boolean matchingTag) implements IScreenModule<DumpScreenModule, IModuleData> {
 
     public static final int COLS = 7;
     public static final int ROWS = 4;
 
-    public static final DumpScreenModule DEFAULT = new DumpScreenModule(GlobalPos.of(Level.OVERWORLD, BlockPosTools.INVALID),  Collections.nCopies(COLS * ROWS, ItemStack.EMPTY), false);
+    public static final DumpScreenModule DEFAULT = new DumpScreenModule(GlobalPos.of(Level.OVERWORLD, BlockPosTools.INVALID),  false, Collections.nCopies(COLS * ROWS, ItemStack.EMPTY), false);
 
-    public static final Codec<DumpScreenModule> CODEC = Codec.record(DumpScreenModule::new,
+    public static final Codec<DumpScreenModule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             GlobalPos.CODEC.fieldOf("pos").forGetter(DumpScreenModule::pos),
+            Codec.BOOL.fieldOf("active").forGetter(DumpScreenModule::active),
             ItemStack.CODEC.listOf().fieldOf("stacks").forGetter(DumpScreenModule::stacks),
-            Codec.BOOL.fieldOf("matchingTag").forGetter(DumpScreenModule::matchingTag));
+            Codec.BOOL.fieldOf("matchingTag").forGetter(DumpScreenModule::matchingTag)
+    ).apply(instance, DumpScreenModule::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, DumpScreenModule> STREAM_CODEC = StreamCodec.composite(
             GlobalPos.STREAM_CODEC, DumpScreenModule::pos,
+            ByteBufCodecs.BOOL, DumpScreenModule::active,
             ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), DumpScreenModule::stacks,
             ByteBufCodecs.BOOL, DumpScreenModule::matchingTag,
             DumpScreenModule::new);
@@ -47,34 +49,30 @@ public record DumpScreenModule(GlobalPos pos, List<ItemStack> stacks, boolean ma
         return null;
     }
 
-    @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        if (tagCompound != null) {
-            setupCoordinateFromNBT(tagCompound, dim, pos);
-            for (int i = 0; i < stacks.size(); i++) {
-                if (tagCompound.contains("stack" + i)) {
-                    stacks.set(i, ItemStack.of(tagCompound.getCompound("stack" + i)));
-                }
-            }
-        }
+    public DumpScreenModule withActive(boolean active) {
+        return new DumpScreenModule(pos, active, stacks, matchingTag);
     }
 
-    protected void setupCoordinateFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        coordinate = BlockPosTools.INVALID;
-        matchingTag = tagCompound.getBoolean("matchingTag");
-        if (tagCompound.contains("monitorx")) {
-            this.dim = LevelTools.getId(tagCompound.getString("monitordim"));
-            if (Objects.equals(dim, this.dim)) {
-                BlockPos c = new BlockPos(tagCompound.getInt("monitorx"), tagCompound.getInt("monitory"), tagCompound.getInt("monitorz"));
-                int dx = Math.abs(c.getX() - pos.getX());
-                int dy = Math.abs(c.getY() - pos.getY());
-                int dz = Math.abs(c.getZ() - pos.getZ());
+    @Override
+    public DumpScreenModule validate(Level world, BlockPos p, boolean isPlus) {
+        if (isPlus) {
+            return withActive(true);
+        }
+        // To check if this is active we need to check that the coordinate in this module is correct,
+        // the dimension is equal and the coordinate is not too far from the given position (max 64 blocks)
+        if (LevelTools.isLoaded(world, pos.pos())) {
+            if (Objects.equals(pos.dimension(), world.dimension())) {
+                int dx = Math.abs(pos.pos().getX() - p.getX());
+                int dy = Math.abs(pos.pos().getY() - p.getY());
+                int dz = Math.abs(pos.pos().getZ() - p.getZ());
                 if (dx <= 64 && dy <= 64 && dz <= 64) {
-                    coordinate = c;
+                    return withActive(true);
                 }
             }
         }
+        return withActive(false);
     }
+
 
     private boolean isShown(ItemStack stack) {
         if (stack.isEmpty()) {
@@ -106,12 +104,12 @@ public record DumpScreenModule(GlobalPos pos, List<ItemStack> stacks, boolean ma
         if ((!clicked) || player == null) {
             return;
         }
-        if (BlockPosTools.INVALID.equals(coordinate)) {
+        if (BlockPosTools.INVALID.equals(pos.pos())) {
             player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
             return;
         }
 
-        IStorageScanner scannerTileEntity = StorageControlScreenModule.getStorageScanner(world, dim, coordinate);
+        IStorageScanner scannerTileEntity = StorageControlScreenModule.getStorageScanner(world, pos.dimension(), pos.pos());
         if (scannerTileEntity == null) {
             return;
         }

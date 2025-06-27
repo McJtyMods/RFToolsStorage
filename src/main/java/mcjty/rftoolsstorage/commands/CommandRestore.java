@@ -58,7 +58,8 @@ public class CommandRestore implements Command<CommandSourceStack> {
                 context.getSource().sendSuccess(() ->
                         ComponentFactory.literal("Wrong foundEntry module tier! " + finalFoundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
             } else {
-                stack.getOrCreateTag().putUUID("uuid", foundEntry.getUuid());
+                // @todo 1.21 data
+//                stack.getOrCreateTag().putUUID("uuid", foundEntry.getUuid());
                 context.getSource().getPlayerOrException().inventoryMenu.broadcastChanges();
             }
         } else {

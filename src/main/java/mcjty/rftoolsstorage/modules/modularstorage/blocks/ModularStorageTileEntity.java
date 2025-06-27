@@ -1,8 +1,10 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
+import mcjty.lib.api.container.ItemInventory;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
+import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -15,11 +17,14 @@ import mcjty.rftoolsbase.api.storage.IModularStorage;
 import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
+import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -97,10 +102,13 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private String viewMode = "";
     private boolean groupMode = false;
     private String filter = "";
-    private boolean locked = false;
 
     public ModularStorageTileEntity(BlockPos pos, BlockState state) {
         super(ModularStorageModule.TYPE_MODULAR_STORAGE.get(), pos, state);
+    }
+
+    public IItemHandlerModifiable getItems() {
+        return items;
     }
 
     @Override
@@ -193,10 +201,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 //        return (numStacks+6) * 7 / maxSize;
     }
 
-    @Override
-    public void loadClientDataFromNBT(CompoundTag tagCompound) {
-        // @todo 1.14
-    }
 
     /**
      * Called from the container (detectAndSendChanges) and executed on the client.
@@ -206,12 +210,13 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         this.viewMode = viewMode;
         this.groupMode = groupMode;
         this.filter = filter;
-        this.locked = locked;
+        ModularStorageData data = getData(ModularStorageModule.MODULAR_STORAGE_DATA);
+        setData(ModularStorageModule.MODULAR_STORAGE_DATA, data.withLocked(locked));
     }
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
 
         sortMode = tagCompound.getString("sortMode");
         viewMode = tagCompound.getString("viewMode");
@@ -221,34 +226,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    protected void loadCaps(CompoundTag tagCompound) {
-        // We don't want this
-    }
-
-    @Override
-    protected void loadInfo(CompoundTag tagCompound) {
-        super.loadInfo(tagCompound);
-        if (tagCompound.contains("Info")) {
-            CompoundTag infoTag = tagCompound.getCompound("Info");
-            cardHandler.deserializeNBT(infoTag.getCompound("Cards"));
-
-            if (infoTag.contains("locked")) {
-                locked = infoTag.getBoolean("locked");
-            } else {
-                // Old storage. Set a reasonable default based on the presence of a card in the slot
-                if (cardHandler.getStackInSlot(SLOT_STORAGE_MODULE).isEmpty()) {
-                    // No storage card, initialize locked to false
-                    locked = false;
-                } else {
-                    locked = true;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
-        super.saveAdditional(tagCompound);
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
 
         tagCompound.putString("sortMode", sortMode);
         tagCompound.putString("viewMode", viewMode);
@@ -258,16 +237,31 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    protected void saveCaps(CompoundTag tagCompound) {
-        // We don't want this
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        var data = input.get(ModularStorageModule.ITEM_MODULAR_STORAGE_DATA);
+        if (data != null) {
+            setData(ModularStorageModule.MODULAR_STORAGE_DATA, data);
+        }
+        var items = input.get(Registration.ITEM_INVENTORY);
+        if (items != null) {
+            for (int i = 0; i < items.items().size(); i++) {
+                ItemStack stack = items.items().get(i);
+                cardHandler.setStackInSlot(i, stack);
+            }
+        }
     }
 
     @Override
-    protected void saveInfo(CompoundTag tagCompound) {
-        super.saveInfo(tagCompound);
-        CompoundTag infoTag = getOrCreateInfo(tagCompound);
-        infoTag.put("Cards", cardHandler.serializeNBT());
-        infoTag.putBoolean("locked", locked);
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(ModularStorageModule.ITEM_MODULAR_STORAGE_DATA, getData(ModularStorageModule.MODULAR_STORAGE_DATA));
+        List<ItemStack> stacks = new ArrayList<>();
+        for (int i = 0; i < cardHandler.getSlots(); i++) {
+            ItemStack stack = cardHandler.getStackInSlot(i);
+            stacks.add(stack);
+        }
+        builder.set(Registration.ITEM_INVENTORY, new ItemInventory(stacks));
     }
 
     public static final Key<String> PARAM_FILTER = new Key<>("filter", Type.STRING);
@@ -299,7 +293,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     public void setLocked(boolean locked) {
-        this.locked = locked;
+        ModularStorageData data = getData(ModularStorageModule.MODULAR_STORAGE_DATA);
+        setData(ModularStorageModule.MODULAR_STORAGE_DATA, data.withLocked(locked));
         // Update the settings on the card
         if (!level.isClientSide) {
             ItemStack card = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
@@ -317,7 +312,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     public boolean isLocked() {
-        return locked;
+        ModularStorageData data = getData(ModularStorageModule.MODULAR_STORAGE_DATA);
+        return data.locked();
     }
 
     @ServerCommand

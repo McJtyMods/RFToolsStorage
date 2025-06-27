@@ -10,10 +10,12 @@ import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageBlock;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
+import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -22,8 +24,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
@@ -44,6 +48,16 @@ public class ModularStorageModule implements IModule {
     public static final DeferredItem<StorageModuleItem> STORAGE_MODULE2 = ITEMS.register("storage_module2", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER3)));
     public static final DeferredItem<StorageModuleItem> STORAGE_MODULE3 = ITEMS.register("storage_module3", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER4)));
     public static final DeferredItem<StorageModuleItem> STORAGE_MODULE6 = ITEMS.register("storage_module6", () -> new StorageModuleItem(StorageModuleItem.STORAGE_REMOTE));   // @todo no tab yet
+
+    public static final Supplier<AttachmentType<ModularStorageData>> MODULAR_STORAGE_DATA = ATTACHMENT_TYPES.register(
+            "modular_storage_data", () -> AttachmentType.builder(() -> new ModularStorageData(false))
+                    .serialize(ModularStorageData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ModularStorageData>> ITEM_MODULAR_STORAGE_DATA = COMPONENTS.registerComponentType(
+            "modular_storage_data",
+            builder -> builder
+                    .persistent(ModularStorageData.CODEC)
+                    .networkSynchronized(ModularStorageData.STREAM_CODEC));
 
     @Override
     public void init(FMLCommonSetupEvent event) {

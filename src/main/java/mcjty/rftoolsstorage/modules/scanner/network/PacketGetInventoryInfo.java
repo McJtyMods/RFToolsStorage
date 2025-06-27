@@ -9,7 +9,11 @@ import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEnti
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +23,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,33 +33,28 @@ import java.util.stream.Stream;
 
 public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, boolean doscan) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = new ResourceLocation(RFToolsStorage.MODID, "getinventoryinfo");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "getinventoryinfo");
+    public static final Type<PacketGetInventoryInfo> TYPE = new Type<>(ID);
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketGetInventoryInfo> STREAM_CODEC = StreamCodec.composite(
+            ResourceKey.streamCodec(Registries.DIMENSION), PacketGetInventoryInfo::levelId,
+            BlockPos.STREAM_CODEC, PacketGetInventoryInfo::pos,
+            ByteBufCodecs.BOOL, PacketGetInventoryInfo::doscan,
+            PacketGetInventoryInfo::new);
 
     public static PacketGetInventoryInfo create(ResourceKey<Level> dimension, BlockPos storageScannerPos, boolean b) {
         return new PacketGetInventoryInfo(dimension, storageScannerPos, b);
     }
 
-    public static PacketGetInventoryInfo create(FriendlyByteBuf buf) {
-        return new PacketGetInventoryInfo(LevelTools.getId(buf.readResourceLocation()), buf.readBlockPos(), buf.readBoolean());
-    }
-
     @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeResourceLocation(levelId.location());
-        buf.writeBlockPos(pos);
-        buf.writeBoolean(doscan);
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public ResourceLocation id() {
-        return ID;
-    }
-
-    public void handle(PlayPayloadContext ctx) {
-        ctx.workHandler().submitAsync(() -> {
-            ctx.player().ifPresent(player -> {
-                onMessageServer(player).ifPresent(p -> sendReplyToClient(p, (ServerPlayer) player));
-            });
+    public void handle(IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            Player player = ctx.player();
+            onMessageServer(player).ifPresent(p -> sendReplyToClient(p, (ServerPlayer) player));
         });
     }
 
@@ -107,15 +107,15 @@ public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, b
             BlockEntity storageTe = world.getBlockEntity(pos);
             if (storageTe instanceof ModularStorageTileEntity storage) {
                 String finalDisplayName = displayName;
-                displayName = storage.getCapability(ForgeCapabilities.ITEM_HANDLER).map(h -> {
-                    ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
-                    if (!storageModule.isEmpty()) {
-                        if (storageModule.hasTag() && storageModule.getTag().contains("display")) {
-                            return storageModule.getHoverName().getString() /* was getFormattedText() */;
-                        }
-                    }
-                    return finalDisplayName;
-                }).orElse(displayName);
+                IItemHandlerModifiable h = storage.getItems();
+                ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
+                if (!storageModule.isEmpty()) {
+                    // @todo 1.21 check
+                    displayName = storageModule.getDisplayName().getString();
+//                    if (storageModule.hasTag() && storageModule.getTag().contains("display")) {
+//                        displayName = storageModule.getHoverName().getString() /* was getFormattedText() */;
+//                    }
+                }
             }
         }
         return new PacketReturnInventoryInfo.InventoryInfo(pos, displayName, te.isRoutable(pos), block);
