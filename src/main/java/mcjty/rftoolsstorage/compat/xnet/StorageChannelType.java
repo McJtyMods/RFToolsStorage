@@ -9,6 +9,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,7 +34,8 @@ public class StorageChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (te.getCapability(ForgeCapabilities.ITEM_HANDLER, side).isPresent()) {
+        IItemHandler h = world.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+        if (h != null && h.getSlots() > 0) {
             return true;
         }
         if (te instanceof Container) {

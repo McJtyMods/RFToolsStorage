@@ -20,7 +20,6 @@ import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
-import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -80,7 +79,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         @Nonnull
         @Override
         public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-            if (locked) {
+            if (isLocked()) {
                 return stack;
             }
             return super.insertItem(slot, stack, simulate);
@@ -89,7 +88,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         @Nonnull
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (locked) {
+            if (isLocked()) {
                 return ItemStack.EMPTY;
             }
             return super.extractItem(slot, amount, simulate);
@@ -144,7 +143,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Nonnull
     public List<Pair<ItemStack, Integer>> craft(Player player, int n, boolean test) {
         InventoriesItemSource itemSource = new InventoriesItemSource().add(new InvWrapper(player.getInventory()), 0);
-        globalHandler.ifPresent(h -> itemSource.add(h, 0));
+        itemSource.add(items, 0);
 
         if (test) {
             return StorageCraftingTools.testCraftItems(player, n, craftingGrid.getActiveRecipe(), itemSource);
@@ -299,13 +298,14 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         if (!level.isClientSide) {
             ItemStack card = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
             if (!card.isEmpty()) {
-                // Helper for client side tooltip
-                card.getOrCreateTag().putInt("infoAmount", getNumStacks());
-                StorageEntry storage = globalWrapper.getStorage();
-                if (storage != null) {
-                    card.getOrCreateTag().putLong("infoCreateTime", storage.getCreationTime());
-                    card.getOrCreateTag().putLong("infoUpdateTime", storage.getUpdateTime());
-                }
+                // @todo 1.21 data
+//                // Helper for client side tooltip
+//                card.getOrCreateTag().putInt("infoAmount", getNumStacks());
+//                StorageEntry storage = globalWrapper.getStorage();
+//                if (storage != null) {
+//                    card.getOrCreateTag().putLong("infoCreateTime", storage.getCreationTime());
+//                    card.getOrCreateTag().putLong("infoUpdateTime", storage.getUpdateTime());
+//                }
             }
         }
         setChanged();
@@ -336,7 +336,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     public static final Command<?> CMD_COMPACT = Command.<ModularStorageTileEntity>create("compact", (te, player, params) -> te.compact());
 
     private void compact() {
-        if (!locked) {
+        if (!isLocked()) {
             return;
         }
         List<ItemStack> stacks = new ArrayList<>();
@@ -413,7 +413,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                 @Nonnull
                 @Override
                 public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-                    if (!locked) {
+                    if (!isLocked()) {
                         return stack;
                     }
                     return super.insertItem(slot, stack, simulate);
@@ -422,7 +422,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                 @Nonnull
                 @Override
                 public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                    if (!locked) {
+                    if (!isLocked()) {
                         return ItemStack.EMPTY;
                     }
                     return super.extractItem(slot, amount, simulate);
@@ -432,7 +432,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                 globalWrapper.setListener((version, slot) -> {
                     ItemStack storageSlot = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
                     if (storageSlot.getItem() instanceof StorageModuleItem) {
-                        storageSlot.getOrCreateTag().putInt("version", version);
+                        // @todo 1.21 data
+//                        storageSlot.getOrCreateTag().putInt("version", version);
                     }
                     markDirtyQuick();
                 });

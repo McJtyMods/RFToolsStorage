@@ -1,11 +1,9 @@
 package mcjty.rftoolsstorage.storage;
 
 import mcjty.lib.varia.LevelTools;
-import mcjty.rftoolsstorage.RFToolsStorage;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -136,7 +134,7 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         int limit = getStackLimit(slot, stack);
 
         if (!existing.isEmpty()) {
-            if (!ItemHandlerHelper.canItemStacksStack(stack, existing)) {
+            if (!ItemStack.isSameItemSameComponents(stack, existing)) {
                 return stack;
             }
 
@@ -151,14 +149,14 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
         if (!simulate) {
             if (existing.isEmpty()) {
-                stacks.set(slot, reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack);
+                stacks.set(slot, reachedLimit ? stack.copyWithCount(limit) : stack);
             } else {
                 existing.grow(reachedLimit ? limit : stack.getCount());
             }
             onContentsChanged(slot);
         }
 
-        return reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - limit) : ItemStack.EMPTY;
+        return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;
     }
 
     @Nonnull
@@ -190,11 +188,11 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
             return existing;
         } else {
             if (!simulate) {
-                stacks.set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
+                stacks.set(slot, existing.copyWithCount(existing.getCount() - toExtract));
                 onContentsChanged(slot);
             }
 
-            return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
+            return existing.copyWithCount(toExtract);
         }
     }
 

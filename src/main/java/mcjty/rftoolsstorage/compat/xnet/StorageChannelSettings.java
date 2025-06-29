@@ -1,5 +1,7 @@
 package mcjty.rftoolsstorage.compat.xnet;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -36,6 +38,10 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
     private Map<BlockPos, InventoryAccessSettings> access = null;
 
     private int delay = 0;
+
+    public static final MapCodec<StorageChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            //DefaultChannelSettings.CODEC.fields().forGetter(s -> s)
+        ).apply(instance, StorageChannelSettings::new));
 
     @Override
     public IChannelType getType() {

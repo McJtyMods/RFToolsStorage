@@ -77,7 +77,7 @@ public class InventoriesItemSource implements IItemSource {
         IItemHandler inventory = realKey.inventory();
         ItemStack origStack = inventory.extractItem(realKey.slot(), 64, false);
         if (!origStack.isEmpty()) {
-            if (ItemHandlerHelper.canItemStacksStack(origStack, stack)) {
+            if (ItemStack.isSameItemSameComponents(origStack, stack)) {
                 if ((stack.getCount() + origStack.getCount()) > stack.getMaxStackSize()) {
                     return false;
                 }

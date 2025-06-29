@@ -30,7 +30,8 @@ public class StorageEntry {
             int slot = itemTags.getInt("Slot");
 
             if (slot >= 0 && slot < stacks.size()) {
-                stacks.set(slot, ItemStack.of(itemTags));
+                // @todo 1.21 data
+//                stacks.set(slot, ItemStack.of(itemTags));
             }
         }
 
@@ -91,7 +92,8 @@ public class StorageEntry {
             if (!stacks.get(i).isEmpty()) {
                 CompoundTag itemTag = new CompoundTag();
                 itemTag.putInt("Slot", i);
-                stacks.get(i).save(itemTag);
+                // @todo 1.21 data
+//                stacks.get(i).save(itemTag);
                 nbtTagList.add(itemTag);
             }
         }

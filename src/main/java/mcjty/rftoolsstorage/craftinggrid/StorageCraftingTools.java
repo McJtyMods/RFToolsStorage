@@ -43,8 +43,8 @@ public class StorageCraftingTools {
             }
         }, 3, 3);
 
-        Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
-        List<Ingredient> ingredients = recipe.map(Recipe::getIngredients).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
+        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        List<Ingredient> ingredients = recipe.map(r -> r.value().getIngredients()).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
 
         List<Pair<ItemStack, Integer>> missing = new ArrayList<>(9);
         for (int i = 0 ; i < 9 ; i++) {
@@ -104,8 +104,9 @@ public class StorageCraftingTools {
         List<Pair<IItemKey, ItemStack>> undo = new ArrayList<>();
         List<ItemStack> result = new ArrayList<>();
 
-        Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
-        return recipe.map(r -> {
+        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        return recipe.map(rh -> {
+            CraftingRecipe r = rh.value();
             int w = 3;
             int h = 3;
             if (r instanceof ShapedRecipe) {
@@ -213,14 +214,15 @@ public class StorageCraftingTools {
     }
 
     public static void craftItems(Player player, int nn, RFCraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
             return;
         }
 
         final int[] n = {nn};
-        recipe.ifPresent(r -> {
+        recipe.ifPresent(rh -> {
+            CraftingRecipe r = rh.value();
 
             ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level());
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
@@ -258,14 +260,15 @@ public class StorageCraftingTools {
      * Return a list of missing items together with how many are missing
      */
     public static List<Pair<ItemStack, Integer>> testCraftItems(Player player, int nn, RFCraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<CraftingRecipe> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
         if (!recipe.isPresent()) {
             // @todo give error?
             return Collections.emptyList();
         }
 
         final int[] n = {nn};
-        return recipe.map(r -> {
+        return recipe.map(rh -> {
+            CraftingRecipe r = rh.value();
             ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level());
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {

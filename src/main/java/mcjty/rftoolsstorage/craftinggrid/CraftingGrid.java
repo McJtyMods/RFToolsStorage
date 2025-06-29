@@ -34,7 +34,7 @@ public class CraftingGrid {
         RFCraftingRecipe recipe = recipes[index];
         recipe.setResult(stacks[0]);
         for (int i = 0 ; i < 9 ; i++) {
-            recipe.getInventory().setItem(i, stacks[i+1]);
+            recipe.getInventory().set(i, stacks[i+1]);
         }
     }
 
@@ -47,31 +47,32 @@ public class CraftingGrid {
         RFCraftingRecipe recipe = getRecipe(index);
         craftingGridInventory.setStackInSlot(CraftingGridInventory.SLOT_GHOSTOUTPUT, recipe.getResult());
         for (int i = 0 ; i < 9 ; i++) {
-            craftingGridInventory.setStackInSlot(i+CraftingGridInventory.SLOT_GHOSTINPUT, recipe.getInventory().getItem(i));
+            craftingGridInventory.setStackInSlot(i+CraftingGridInventory.SLOT_GHOSTINPUT, recipe.getInventory().get(i));
         }
     }
 
     public CompoundTag writeToNBT() {
         CompoundTag tagCompound = new CompoundTag();
 
-        ListTag bufferTagList = new ListTag();
-        for (int i = 0 ; i < craftingGridInventory.getSlots() ; i++) {
-            CompoundTag CompoundNBT = new CompoundTag();
-            ItemStack stack = craftingGridInventory.getStackInSlot(i);
-            if (!stack.isEmpty()) {
-                stack.save(CompoundNBT);
-            }
-            bufferTagList.add(CompoundNBT);
-        }
-        tagCompound.put("grid", bufferTagList);
-
-        ListTag recipeTagList = new ListTag();
-        for (RFCraftingRecipe recipe : recipes) {
-            CompoundTag CompoundNBT = new CompoundTag();
-            recipe.writeToNBT(CompoundNBT);
-            recipeTagList.add(CompoundNBT);
-        }
-        tagCompound.put("recipes", recipeTagList);
+        // @todo 1.21 data
+//        ListTag bufferTagList = new ListTag();
+//        for (int i = 0 ; i < craftingGridInventory.getSlots() ; i++) {
+//            CompoundTag CompoundNBT = new CompoundTag();
+//            ItemStack stack = craftingGridInventory.getStackInSlot(i);
+//            if (!stack.isEmpty()) {
+//                stack.save(CompoundNBT);
+//            }
+//            bufferTagList.add(CompoundNBT);
+//        }
+//        tagCompound.put("grid", bufferTagList);
+//
+//        ListTag recipeTagList = new ListTag();
+//        for (RFCraftingRecipe recipe : recipes) {
+//            CompoundTag CompoundNBT = new CompoundTag();
+//            recipe.writeToNBT(CompoundNBT);
+//            recipeTagList.add(CompoundNBT);
+//        }
+//        tagCompound.put("recipes", recipeTagList);
 
         return tagCompound;
     }
@@ -83,7 +84,8 @@ public class CraftingGrid {
         ListTag bufferTagList = tagCompound.getList("grid", Tag.TAG_COMPOUND);
         for (int i = 0 ; i < craftingGridInventory.getSlots() ; i++) {
             CompoundTag CompoundNBT = bufferTagList.getCompound(i);
-            craftingGridInventory.setStackInSlot(i, ItemStack.of(CompoundNBT));
+            // @todo 1.21 data
+//            craftingGridInventory.setStackInSlot(i, ItemStack.of(CompoundNBT));
         }
 
         ListTag recipeTagList = tagCompound.getList("recipes", Tag.TAG_COMPOUND);

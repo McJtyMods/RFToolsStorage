@@ -21,17 +21,16 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +40,7 @@ import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageC
 
 public class GuiCraftingGrid {
 
-    private static final ResourceLocation GUI = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/craftinggrid.png");
+    private static final ResourceLocation GUI = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/craftinggrid.png");
 
     private Window craftWindow;
     private Button craft1Button;
@@ -186,7 +185,7 @@ public class GuiCraftingGrid {
                     if (pair.getRight() > 0) {
                         for (int i = 0; i < 9; i++) {
                             Slot slot = ((GenericContainer) container).getSlotByInventoryAndIndex(CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT + i);
-                            if (slot != null && ItemStack.isSameItemSameTags(slot.getItem(), pair.getLeft())) {
+                            if (slot != null && ItemStack.isSameItemSameComponents(slot.getItem(), pair.getLeft())) {
                                 GlStateManager._colorMask(true, true, true, false);
                                 int xPos = slot.x;
                                 int yPos = slot.y;
@@ -201,25 +200,27 @@ public class GuiCraftingGrid {
     }
 
     private void testRecipe(Level level) {
-        CraftingContainer inv = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-            @Override
-            public boolean stillValid(@Nonnull Player var1) {
-                return false;
-            }
+//        CraftingContainer inv = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
+//            @Override
+//            public boolean stillValid(@Nonnull Player var1) {
+//                return false;
+//            }
+//
+//            @Override
+//            public ItemStack quickMoveStack(Player player, int pos) {
+//                return ItemStack.EMPTY;
+//            }
+//        }, 3, 3);
 
-            @Override
-            public ItemStack quickMoveStack(Player player, int pos) {
-                return ItemStack.EMPTY;
-            }
-        }, 3, 3);
-
+        List<ItemStack> stacks = new ArrayList<>(9);
         for (int i = 0; i < 9; i++) {
-            inv.setItem(i, provider.getCraftingGrid().getCraftingGridInventory().getStackInSlot(i + 1));
+            stacks.set(i, provider.getCraftingGrid().getCraftingGridInventory().getStackInSlot(i + 1));
         }
 
         // Compare current contents to avoid unneeded slot update.
-        Optional<CraftingRecipe> recipe = RFCraftingRecipe.findRecipe(mc.level, inv);
-        ItemStack newResult = recipe.map(r -> BaseRecipe.assemble(r, inv, level)).orElse(ItemStack.EMPTY);
+        CraftingInput inv = CraftingInput.ofPositioned(3, 3, stacks).input();
+        Optional<RecipeHolder<CraftingRecipe>> recipe = RFCraftingRecipe.findRecipe(mc.level, inv);
+        ItemStack newResult = recipe.map(r -> BaseRecipe.assemble(r.value(), inv, level)).orElse(ItemStack.EMPTY);
         provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
     }
 

@@ -50,11 +50,11 @@ public record PacketGridSync(
         List<Recipe> recipes = new ArrayList<>();
         for (int i = 0 ; i < 6 ; i++) {
             RFCraftingRecipe recipe = grid.getRecipe(i);
-            CraftingContainer inventory = recipe.getInventory();
+            List<ItemStack> inventory = recipe.getInventory();
             List<ItemStack> stacks = new ArrayList<>();
             stacks.add(recipe.getResult());
             for (int j = 0 ; j < 9 ; j++) {
-                stacks.add(inventory.getItem(j));
+                stacks.add(inventory.get(j));
             }
             recipes.add(new Recipe(stacks));
         }
