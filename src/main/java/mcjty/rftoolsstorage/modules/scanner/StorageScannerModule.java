@@ -16,6 +16,7 @@ import mcjty.rftoolsstorage.modules.scanner.items.DumpModuleItem;
 import mcjty.rftoolsstorage.modules.scanner.items.StorageControlModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -75,11 +76,11 @@ public class StorageScannerModule implements IModule {
     }
 
     @Override
-    public void initDatagen(DataGen dataGen) {
+    public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(STORAGE_SCANNER)
                         .ironPickaxeTags()
-                        .standardLoot(TYPE_STORAGE_SCANNER)
+                        .standardLoot() // @todo 1.21
                         .shaped(builder -> builder
                                         .define('g', Items.GOLD_INGOT)
                                         .define('F', VariousModule.MACHINE_FRAME.get())

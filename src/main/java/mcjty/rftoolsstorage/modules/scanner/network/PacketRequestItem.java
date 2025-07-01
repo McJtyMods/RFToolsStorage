@@ -22,7 +22,7 @@ public record PacketRequestItem(ResourceKey<Level> dimensionId, BlockPos pos, Bl
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "requestitem");
     public static final Type<PacketRequestItem> TYPE = new Type<>(ID);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, PacketRequestItem> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketRequestItem> CODEC = StreamCodec.composite(
             ResourceKey.streamCodec(Registries.DIMENSION), PacketRequestItem::dimensionId,
             BlockPos.STREAM_CODEC, PacketRequestItem::pos,
             BlockPos.STREAM_CODEC, PacketRequestItem::inventoryPos,

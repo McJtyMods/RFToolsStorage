@@ -1,14 +1,20 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
+import com.mojang.serialization.Codec;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.lib.varia.Tools;
+import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
+import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -16,13 +22,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 public class DumpModuleItem extends GenericModuleItem {
 
     public DumpModuleItem() {
-        super(RFToolsStorage.setup.defaultProperties().defaultDurability(1));
+        super(RFToolsStorage.setup.defaultProperties().durability(1));
     }
 
     @Override
@@ -46,14 +53,31 @@ public class DumpModuleItem extends GenericModuleItem {
 //        return 1;
 //    }
 
+
     @Override
-    public Class<DumpScreenModule> getServerScreenModule() {
-        return DumpScreenModule.class;
+    public @Nullable Codec<? extends IScreenModule<?, ?>> codec() {
+        return DumpScreenModule.CODEC;
     }
 
     @Override
-    public Class<DumpClientScreenModule> getClientScreenModule() {
-        return DumpClientScreenModule.class;
+    public @Nullable StreamCodec<RegistryFriendlyByteBuf, ? extends IScreenModule<?, ?>> streamCodec() {
+        return DumpScreenModule.STREAM_CODEC;
+    }
+
+    @Override
+    public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
+        // @todo 1.21 data
+        return null;
+    }
+
+    @Override
+    public IScreenModule<?, ?> createServerScreenModule() {
+        return DumpScreenModule.DEFAULT;
+    }
+
+    @Override
+    public IClientScreenModule<?> createClientScreenModule() {
+        return new DumpClientScreenModule();
     }
 
     @Override
@@ -66,14 +90,16 @@ public class DumpModuleItem extends GenericModuleItem {
         int index = 0;
         for (int y = 0 ; y < DumpScreenModule.ROWS ; y++) {
             for (int x = 0 ; x < DumpScreenModule.COLS ; x++) {
-                guiBuilder.ghostStack("stack" + index);
+                // @todo 1.21 data
+//                guiBuilder.ghostStack("stack" + index);
                 index++;
             }
             guiBuilder.nl();
         }
-        guiBuilder
-                .label("Label:").text("text", "Label text").color("color", "Label color").nl()
-                .toggle("matchingTag", "Matching Tag", "If enabled use common tags", "to match items");
+        // @todo 1.21 data
+//        guiBuilder
+//                .label("Label:").text("text", "Label text").color("color", "Label color").nl()
+//                .toggle("matchingTag", "Matching Tag", "If enabled use common tags", "to match items");
     }
 
     @Nonnull

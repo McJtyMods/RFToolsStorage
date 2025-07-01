@@ -22,13 +22,18 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
     private final ItemStackList stacks = ItemStackList.create(9);
 
     @Override
-    public IClientScreenModule.TransformMode getTransformMode() {
+    public TransformMode getTransformMode(ItemStack moduleItem) {
         return TransformMode.ITEM;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(ItemStack moduleItem) {
         return 114;
+    }
+
+    @Override
+    public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {
+
     }
 
     @Override
@@ -114,11 +119,6 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         poseStack.popPose();
     }
 
-    @Override
-    public void mouseClick(Level world, int x, int y, boolean clicked) {
-
-    }
-
     private void renderSlot(PoseStack matrixStack, MultiBufferSource buffer, int currenty, ItemStack stack, int x, int lightmapValue) {
         matrixStack.pushPose();
         matrixStack.translate(x +8f, currenty +8f, 5);
@@ -149,31 +149,32 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
                 int l = 255 - k << 16 | k << 8;
                 int i1 = (255 - k) / 4 << 16 | 16128;
                 VertexConsumer builder = buffer.getBuffer(CustomRenderTypes.QUADS_NOTEXTURE);
-                renderQuad(builder, x + 2, currenty + 13, 13, 2, 0, 0.0D, lightmapValue);
-                renderQuad(builder, x + 2, currenty + 13, 12, 1, i1, 0.02D, lightmapValue);
-                renderQuad(builder, x + 2, currenty + 13, j1, 1, l, 0.04D, lightmapValue);
+                renderQuad(builder, x + 2, currenty + 13, 13, 2, 0, 0.0f, lightmapValue);
+                renderQuad(builder, x + 2, currenty + 13, 12, 1, i1, 0.02f, lightmapValue);
+                renderQuad(builder, x + 2, currenty + 13, j1, 1, l, 0.04f, lightmapValue);
             }
         }
     }
 
-    private static void renderQuad(VertexConsumer builder, int x, int y, int width, int height, int color, double offset, int lightmapValue) {
-        builder.vertex(x, y, offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
-        builder.vertex(x, (y + height), offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
-        builder.vertex((x + width), (y + height), offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
-        builder.vertex((x + width), y, offset).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(lightmapValue).endVertex();
+    private static void renderQuad(VertexConsumer builder, int x, int y, int width, int height, int color, float offset, int lightmapValue) {
+        builder.addVertex(x, y, offset).setColor(1.0f, 1.0f, 1.0f, 1.0f).setLight(lightmapValue);
+        builder.addVertex(x, (y + height), offset).setColor(1.0f, 1.0f, 1.0f, 1.0f).setLight(lightmapValue);
+        builder.addVertex((x + width), (y + height), offset).setColor(1.0f, 1.0f, 1.0f, 1.0f).setLight(lightmapValue);
+        builder.addVertex((x + width), y, offset).setColor(1.0f, 1.0f, 1.0f, 1.0f).setLight(lightmapValue);
     }
 
 
-    @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        if (tagCompound != null) {
-            for (int i = 0 ; i < stacks.size() ; i++) {
-                if (tagCompound.contains("stack"+i)) {
-                    stacks.set(i, ItemStack.of(tagCompound.getCompound("stack" + i)));
-                }
-            }
-        }
-    }
+//                    // @todo 1.21 data
+//    @Override
+//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
+//        if (tagCompound != null) {
+//            for (int i = 0 ; i < stacks.size() ; i++) {
+//                if (tagCompound.contains("stack"+i)) {
+//                    stacks.set(i, ItemStack.of(tagCompound.getCompound("stack" + i)));
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public boolean needsServerData() {

@@ -192,18 +192,19 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
 
     @Override
     public CompoundTag update(CompoundTag tagCompound, Level world, Player player) {
-        if (dirty >= 0) {
-            CompoundTag newCompound = tagCompound.copy();
-            CompoundTag tc = new CompoundTag();
-            stacks.get(dirty).save(tc);
-            newCompound.put("stack" + dirty, tc);
-            if (player != null) {
-                SoundTools.playSound(player.getCommandSenderWorld(), SoundEvents.EXPERIENCE_ORB_PICKUP,
-                        player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(), 1.0f, 1.0f);
-            }
-            dirty = -1;
-            return newCompound;
-        }
+        // @todo 1.21 data
+//        if (dirty >= 0) {
+//            CompoundTag newCompound = tagCompound.copy();
+//            CompoundTag tc = new CompoundTag();
+//            stacks.get(dirty).save(tc);
+//            newCompound.put("stack" + dirty, tc);
+//            if (player != null) {
+//                SoundTools.playSound(player.getCommandSenderWorld(), SoundEvents.EXPERIENCE_ORB_PICKUP,
+//                        player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(), 1.0f, 1.0f);
+//            }
+//            dirty = -1;
+//            return newCompound;
+//        }
         return null;
     }
 
@@ -212,11 +213,11 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
         if ((!clicked) || player == null) {
             return;
         }
-        if (BlockPosTools.INVALID.equals(coordinate)) {
+        if (BlockPosTools.INVALID.equals(pos.pos())) {
             player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
             return;
         }
-        IStorageScanner scannerTileEntity = getStorageScanner(player.level(), dim, coordinate);
+        IStorageScanner scannerTileEntity = getStorageScanner(player.level(), pos.dimension(), pos.pos());
         if (scannerTileEntity == null) {
             return;
         }
@@ -251,7 +252,8 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
                         ItemStack stack = heldItem.copy();
                         stack.setCount(1);
                         stacks.set(i, stack);
-                        dirty = i;
+                        // @todo 1.21 data
+//                        dirty = i;
                     }
                 } else {
                     scannerTileEntity.giveToPlayerFromScreen(stacks.get(i), player.isShiftKeyDown(), player);

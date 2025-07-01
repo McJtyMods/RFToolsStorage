@@ -23,12 +23,12 @@ public class DumpClientScreenModule implements IClientScreenModule<IModuleData> 
     private final ITextRenderHelper buttonCache = new ScreenTextHelper();
 
     @Override
-    public TransformMode getTransformMode() {
+    public TransformMode getTransformMode(ItemStack moduleItem) {
         return TransformMode.TEXT;
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(ItemStack moduleItem) {
         return 14;
     }
 
@@ -46,26 +46,27 @@ public class DumpClientScreenModule implements IClientScreenModule<IModuleData> 
     }
 
     @Override
-    public void mouseClick(Level world, int x, int y, boolean clicked) {
+    public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {
     }
 
 
-    @Override
-    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-        if (tagCompound != null) {
-            line = tagCompound.getString("text");
-            if (tagCompound.contains("color")) {
-                color = tagCompound.getInt("color");
-            } else {
-                color = 0xffffff;
-            }
-            for (int i = 0 ; i < stacks.length ; i++) {
-                if (tagCompound.contains("stack"+i)) {
-                    stacks[i] = ItemStack.of(tagCompound.getCompound("stack" + i));
-                }
-            }
-        }
-    }
+    // @todo 1.21 data
+//    @Override
+//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
+//        if (tagCompound != null) {
+//            line = tagCompound.getString("text");
+//            if (tagCompound.contains("color")) {
+//                color = tagCompound.getInt("color");
+//            } else {
+//                color = 0xffffff;
+//            }
+//            for (int i = 0 ; i < stacks.length ; i++) {
+//                if (tagCompound.contains("stack"+i)) {
+//                    stacks[i] = ItemStack.of(tagCompound.getCompound("stack" + i));
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public boolean needsServerData() {

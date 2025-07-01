@@ -155,12 +155,13 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
 
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        guiBuilder
-                .ghostStack("stack0").ghostStack("stack1").ghostStack("stack2").nl()
-                .ghostStack("stack3").ghostStack("stack4").ghostStack("stack5").nl()
-                .ghostStack("stack6").ghostStack("stack7").ghostStack("stack8").nl()
-                .toggle("starred", "Starred", "If enabled only count items", "in 'starred' inventories", "(mark inventories in storage scanner)")
-                .block("monitor").nl();
+        // @todo 1.21 data
+//        guiBuilder
+//                .ghostStack("stack0").ghostStack("stack1").ghostStack("stack2").nl()
+//                .ghostStack("stack3").ghostStack("stack4").ghostStack("stack5").nl()
+//                .ghostStack("stack6").ghostStack("stack7").ghostStack("stack8").nl()
+//                .toggle("starred", "Starred", "If enabled only count items", "in 'starred' inventories", "(mark inventories in storage scanner)")
+//                .block("monitor").nl();
     }
 
     @Override

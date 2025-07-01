@@ -36,7 +36,7 @@ public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, b
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "getinventoryinfo");
     public static final Type<PacketGetInventoryInfo> TYPE = new Type<>(ID);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, PacketGetInventoryInfo> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketGetInventoryInfo> CODEC = StreamCodec.composite(
             ResourceKey.streamCodec(Registries.DIMENSION), PacketGetInventoryInfo::levelId,
             BlockPos.STREAM_CODEC, PacketGetInventoryInfo::pos,
             ByteBufCodecs.BOOL, PacketGetInventoryInfo::doscan,

@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.storage;
 
 import mcjty.lib.worlddata.AbstractWorldData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -59,7 +60,7 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
 
     @Nonnull
     @Override
-    public CompoundTag save(@Nonnull CompoundTag nbt) {
+    public CompoundTag save(@Nonnull CompoundTag nbt, HolderLookup.Provider provider) {
         ListTag storages = new ListTag();
         for (Map.Entry<UUID, StorageEntry> entry : storageEntryMap.entrySet()) {
             storages.add(entry.getValue().write());
