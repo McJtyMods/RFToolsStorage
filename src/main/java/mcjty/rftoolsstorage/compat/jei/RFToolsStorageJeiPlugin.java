@@ -39,7 +39,7 @@ public class RFToolsStorageJeiPlugin implements IModPlugin {
     @Nonnull
     @Override
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(RFToolsStorage.MODID, "rftoolsstorage");
+        return ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "rftoolsstorage");
     }
 
     @Override

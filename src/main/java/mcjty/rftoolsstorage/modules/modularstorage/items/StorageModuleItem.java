@@ -43,7 +43,7 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
 
     private final int tier;
 
-    private final Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
+    private final Lazy<TooltipBuilder> tooltipBuilder = Lazy.of(() -> new TooltipBuilder()
             .info(header(),
                     parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsStringClient),
                     key("message.rftoolsstorage.shiftmessage"))
@@ -51,38 +51,42 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
                     gold(stack -> isRemoteModule()),
                     parameter("info", stack -> !(isRemoteModule()), stack -> Integer.toString(getMax())),
                     parameter("remoteid", stack -> isRemoteModule(), stack -> {
-                        CompoundTag tag = stack.getTag();
-                        if (tag != null && tag.contains("id")) {
-                            int id = tag.getInt("id");
-                            return Integer.toString(id);
-                        } else {
+                        // @todo 1.21 data
+//                        CompoundTag tag = stack.getTag();
+//                        if (tag != null && tag.contains("id")) {
+//                            int id = tag.getInt("id");
+//                            return Integer.toString(id);
+//                        } else {
                             return "<unlinked>";
-                        }
+//                        }
                     }),
                     parameter("uuid", stack -> {
-                        CompoundTag tag = stack.getTag();
-                        if (tag != null && tag.hasUUID("uuid")) {
-                            return tag.getUUID("uuid").toString();
-                        } else {
+                        // @todo 1.21 data
+//                        CompoundTag tag = stack.getTag();
+//                        if (tag != null && tag.hasUUID("uuid")) {
+//                            return tag.getUUID("uuid").toString();
+//                        } else {
                             return "<unset>";
-                        }
+//                        }
                     }),
                     parameter("version", stack -> {
-                        CompoundTag tag = stack.getTag();
-                        if (tag != null) {
-                            return Integer.toString(tag.getInt("version"));
-                        } else {
+                        // @todo 1.21 data
+//                        CompoundTag tag = stack.getTag();
+//                        if (tag != null) {
+//                            return Integer.toString(tag.getInt("version"));
+//                        } else {
                             return "<unset>";
-                        }
+//                        }
                     }),
                     parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsStringClient))
-            .infoAdvanced(parameter("advanced", this::getAdvancedInfoClient));
+            .infoAdvanced(parameter("advanced", this::getAdvancedInfoClient)));
 
     private String getContentsStringClient(ItemStack stack) {
-        if (stack.getTag() != null && stack.getTag().contains("infoAmount")) {
-            int cnt = stack.getTag().getInt("infoAmount");
-            return cnt + "/" + getMax();
-        }
+        // @todo 1.21 data
+//        if (stack.getTag() != null && stack.getTag().contains("infoAmount")) {
+//            int cnt = stack.getTag().getInt("infoAmount");
+//            return cnt + "/" + getMax();
+//        }
         return "<unknown>";
     }
 
@@ -97,10 +101,11 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
                 info += "Unknown creator";
             }
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-            Date creationTime = new Date(stack.getTag().getLong("infoCreateTime"));
-            Date updateTime = new Date(stack.getTag().getLong("infoUpdateTime"));
-            info += ", Creation time " + dateFormat.format(creationTime);
-            info += ", Update time " + dateFormat.format(updateTime);
+// @todo 1.21 data
+//            Date creationTime = new Date(stack.getTag().getLong("infoCreateTime"));
+//            Date updateTime = new Date(stack.getTag().getLong("infoUpdateTime"));
+//            info += ", Creation time " + dateFormat.format(creationTime);
+//            info += ", Update time " + dateFormat.format(updateTime);
             return info;
         }
         return "<unknown>";
@@ -109,10 +114,11 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
 
     /// Client-side version to get storage
     private StorageInfo getStorageClient(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) {
-            return null;
-        }
+        // @todo 1.21 data
+//        CompoundTag tag = stack.getTag();
+//        if (tag == null) {
+//            return null;
+//        }
         return getStorageInfo(stack);
     }
 
@@ -135,10 +141,12 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
     }
 
     private boolean hasUUID(ItemStack stack) {
-        if (!stack.hasTag()) {
-            return false;
-        }
-        return stack.getTag().hasUUID("uuid");
+        // @todo 1.21 data
+        return false;
+//        if (!stack.hasTag()) {
+//            return false;
+//        }
+//        return stack.getTag().hasUUID("uuid");
     }
 
     public StorageModuleItem(int tier) {
@@ -154,38 +162,44 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
 
     @Override
     public void onCraftedBy(@Nonnull ItemStack stack, @Nonnull Level worldIn, @Nonnull Player player) {
-        CompoundTag tag = stack.getOrCreateTag();
-        if (!tag.contains("createdBy")) {
-            tag.putString("createdBy", player.getName().getString());   // @todo 1.16 getFormattedText
-        }
+        // @todo 1.21 data
+//        CompoundTag tag = stack.getOrCreateTag();
+//        if (!tag.contains("createdBy")) {
+//            tag.putString("createdBy", player.getName().getString());   // @todo 1.16 getFormattedText
+//        }
     }
 
     public static UUID getOrCreateUUID(ItemStack stack) {
         if (!(stack.getItem() instanceof StorageModuleItem)) {
             throw new RuntimeException("This is not supposed to happen! Needs to be a storage item!");
         }
-        CompoundTag nbt = stack.getOrCreateTag();
-        if (!nbt.hasUUID("uuid")) {
-            nbt.putUUID("uuid", UUID.randomUUID());
-            nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
-        }
-        return nbt.getUUID("uuid");
+        // @todo 1.21 data
+        return null;
+//        CompoundTag nbt = stack.getOrCreateTag();
+//        if (!nbt.hasUUID("uuid")) {
+//            nbt.putUUID("uuid", UUID.randomUUID());
+//            nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
+//        }
+//        return nbt.getUUID("uuid");
     }
 
     public static String getCreatedBy(ItemStack storageCard) {
-        if (storageCard.hasTag()) {
-            return storageCard.getTag().getString("createdBy");
-        }
+        // @todo 1.21 data
+//        if (storageCard.hasTag()) {
+//            return storageCard.getTag().getString("createdBy");
+//        }
         return null;
     }
 
 
     public static int getVersion(ItemStack stack) {
-        if (stack.hasTag()) {
-            return stack.getTag().getInt("version");
-        } else {
-            return 0;
-        }
+        // @todo 1.21
+        return 0;
+//        if (stack.hasTag()) {
+//            return stack.getTag().getInt("version");
+//        } else {
+//            return 0;
+//        }
     }
 
     public static int getSize(ItemStack storageCard) {
@@ -213,9 +227,9 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flags) {
-        super.appendHoverText(itemStack, worldIn, list, flags);
-        tooltipBuilder.get().makeTooltip(new ResourceLocation(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
+    public void appendHoverText(ItemStack itemStack, TooltipContext context, List<Component> list, TooltipFlag flags) {
+        super.appendHoverText(itemStack, context, list, flags);
+        tooltipBuilder.get().makeTooltip(ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
     }
 
 }

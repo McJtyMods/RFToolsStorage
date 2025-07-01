@@ -5,10 +5,10 @@ import mcjty.lib.setup.DefaultModSetup;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsstorage.compat.rftoolsutility.RFToolsSupport;
 import mcjty.rftoolsstorage.compat.xnet.XNetSupport;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class ModSetup extends DefaultModSetup {
 
@@ -21,7 +21,6 @@ public class ModSetup extends DefaultModSetup {
         e.enqueueWork(() -> {
             CommandHandler.registerCommands();
         });
-        RFToolsStorageMessages.registerMessages();
     }
 
     @Override

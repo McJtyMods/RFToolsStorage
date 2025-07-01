@@ -9,9 +9,7 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -25,19 +23,9 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice.Statu
 
 public class VanillaCraftingDevice implements ICraftingDevice {
 
-    public static final ResourceLocation DEVICE_VANILLA_CRAFTING = new ResourceLocation(RFToolsStorage.MODID, "vanilla_crafting");
+    public static final ResourceLocation DEVICE_VANILLA_CRAFTING = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "vanilla_crafting");
 
-    private final CraftingContainer inventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-        @Override
-        public boolean stillValid(@Nonnull Player playerIn) {
-            return false;
-        }
-
-        @Override
-        public ItemStack quickMoveStack(Player player, int slot) {
-            return ItemStack.EMPTY;
-        }
-    }, 3, 3);
+    List<ItemStack> inventory = new ArrayList<>();
 
     private ItemStack cardStack = ItemStack.EMPTY;
     private Recipe recipe;
@@ -78,13 +66,13 @@ public class VanillaCraftingDevice implements ICraftingDevice {
         if (getStatus() != Status.IDLE) {
             return false;
         }
-        for (int i = 0 ; i < items.size() ; i++) {
-            inventory.setItem(i, items.get(i).copy());
+        inventory.clear();
+        for (ItemStack item : items) {
+            inventory.add(item);
         }
-        if (!recipe.matches(inventory, world)) {
-            for (int i = 0 ; i < inventory.getContainerSize() ; i++) {
-                inventory.setItem(i, ItemStack.EMPTY);
-            }
+        CraftingInput.Positioned inp = CraftingInput.ofPositioned(3, 3, inventory);
+        if (!recipe.matches(inp.input(), world)) {
+            inventory.clear();
             return false;
         }
         ticks = 10;
@@ -93,7 +81,8 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     @Override
     public ItemStack getCraftingItem(Level level) {
-        return BaseRecipe.assemble(recipe, inventory, level);
+        CraftingInput.Positioned inp = CraftingInput.ofPositioned(3, 3, inventory);
+        return BaseRecipe.assemble(recipe, inp.input(), level);
     }
 
     @Override
@@ -101,17 +90,18 @@ public class VanillaCraftingDevice implements ICraftingDevice {
         if (getStatus() == Status.READY) {
             List<ItemStack> result = new ArrayList<>();
             ticks = -1;
-            ItemStack rc = BaseRecipe.assemble(recipe, inventory, level);
+            CraftingInput.Positioned inp = CraftingInput.ofPositioned(3, 3, inventory);
+            ItemStack rc = BaseRecipe.assemble(recipe, inp.input(), level);
             if (!rc.isEmpty()) {
                 result.add(rc);
             }
-            for (Object item : recipe.getRemainingItems(inventory)) {
+            for (Object item : recipe.getRemainingItems(inp.input())) {
                 result.add((ItemStack) item);
             }
 
-            for (int i = 0 ; i < inventory.getContainerSize() ; i++) {
+            for (int i = 0 ; i < inventory.size() ; i++) {
                 // @todo should items left in the work inventory also be put back?
-                inventory.setItem(i, ItemStack.EMPTY);
+                inventory.set(i, ItemStack.EMPTY);
             }
             return result;
         }
@@ -135,15 +125,17 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     @Override
     public void read(CompoundTag tag) {
-        cardStack = ItemStack.of(tag.getCompound("cardStack"));
+        // @todo 1.21 data
+//        cardStack = ItemStack.of(tag.getCompound("cardStack"));
         ticks = tag.getInt("ticks");
     }
 
     @Override
     public void write(CompoundTag tag) {
         tag.putInt("ticks", ticks);
-        CompoundTag compoundNBT = new CompoundTag();
-        cardStack.save(compoundNBT);
-        tag.put("cardStack", compoundNBT);
+        // @todo 1.21 ata
+//        CompoundTag compoundNBT = new CompoundTag();
+//        cardStack.save(compoundNBT);
+//        tag.put("cardStack", compoundNBT);
     }
 }

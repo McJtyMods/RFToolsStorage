@@ -60,9 +60,10 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
                 } else {
                     IItemHandler cardHandler = te.getCardHandler();
                     ItemStack storageModule = cardHandler.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
-                    if (!storageModule.isEmpty() && storageModule.getTag().contains("display")) {
-                        probeInfo.text(CompoundText.createLabelInfo("Module: ", storageModule.getHoverName()));
-                    }
+                    // @todo 1.21 data
+//                    if (!storageModule.isEmpty() && storageModule.getTag().contains("display")) {
+//                        probeInfo.text(CompoundText.createLabelInfo("Module: ", storageModule.getHoverName()));
+//                    }
                     int stacks = te.getNumStacks();
                     if (stacks == -1) {
                         probeInfo.text(CompoundText.createLabelInfo("Maximum size: ", maxSize));

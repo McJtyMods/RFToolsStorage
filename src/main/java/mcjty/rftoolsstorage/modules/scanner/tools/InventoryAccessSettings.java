@@ -1,8 +1,16 @@
 package mcjty.rftoolsstorage.modules.scanner.tools;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mcjty.lib.varia.CompositeStreamCodec;
 import mcjty.lib.varia.ItemStackList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 public class InventoryAccessSettings {
@@ -18,6 +26,51 @@ public class InventoryAccessSettings {
     private boolean nbtMode = false;
     private boolean blacklist = false;
     private final ItemStackList filters = ItemStackList.create(FILTER_SIZE);
+
+    public static final MapCodec<InventoryAccessSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.BOOL.fieldOf("biInGui").forGetter(settings -> settings.blockInputGui),
+            Codec.BOOL.fieldOf("biInAuto").forGetter(settings -> settings.blockInputAuto),
+            Codec.BOOL.fieldOf("biInScreen").forGetter(settings -> settings.blockInputScreen),
+            Codec.BOOL.fieldOf("biOutGui").forGetter(settings -> settings.blockOutputGui),
+            Codec.BOOL.fieldOf("biOutAuto").forGetter(settings -> settings.blockOutputGui),
+            Codec.BOOL.fieldOf("biOutScreen").forGetter(settings -> settings.blockOutputGui),
+            Codec.BOOL.fieldOf("meta").forGetter(settings -> settings.metaMode),
+            Codec.BOOL.fieldOf("comp").forGetter(settings -> settings.nbtMode),
+            Codec.BOOL.fieldOf("blacklist").forGetter(settings -> settings.blacklist),
+            ItemStack.CODEC.listOf().fieldOf("filters").forGetter(settings -> settings.filters)
+    ).apply(instance, InventoryAccessSettings::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, InventoryAccessSettings> STREAM_CODEC = CompositeStreamCodec.composite(
+            ByteBufCodecs.BOOL, settings -> settings.blockInputGui,
+            ByteBufCodecs.BOOL, settings -> settings.blockInputAuto,
+            ByteBufCodecs.BOOL, settings -> settings.blockInputScreen,
+            ByteBufCodecs.BOOL, settings -> settings.blockOutputGui,
+            ByteBufCodecs.BOOL, settings -> settings.blockOutputGui,
+            ByteBufCodecs.BOOL, settings -> settings.blockOutputGui,
+            ByteBufCodecs.BOOL, settings -> settings.metaMode,
+            ByteBufCodecs.BOOL, settings -> settings.nbtMode,
+            ByteBufCodecs.BOOL, settings -> settings.blacklist,
+            ItemStack.LIST_STREAM_CODEC, settings -> settings.filters,
+            InventoryAccessSettings::new
+    );
+
+    public InventoryAccessSettings(boolean blockInputGui, boolean blockInputAuto, boolean blockInputScreen,
+                                   boolean blockOutputGui, boolean blockOutputAuto, boolean blockOutputScreen,
+                                   boolean metaMode, boolean nbtMode, boolean blacklist, List<ItemStack> filters) {
+        this.blockInputGui = blockInputGui;
+        this.blockInputAuto = blockInputAuto;
+        this.blockInputScreen = blockInputScreen;
+        this.blockOutputGui = blockOutputGui;
+        this.blockOutputAuto = blockOutputAuto;
+        this.blockOutputScreen = blockOutputScreen;
+        this.metaMode = metaMode;
+        this.nbtMode = nbtMode;
+        this.blacklist = blacklist;
+        this.filters.clear();
+        this.filters.addAll(filters);
+    }
+
+    public InventoryAccessSettings() {}
 
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;

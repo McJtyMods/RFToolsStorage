@@ -13,7 +13,7 @@ public class DataGenHelper {
 
     public static void generateModularStorage(BaseBlockStateProvider provider) {
         BlockModelBuilder main = provider.models().getBuilder("block/storage/modular_storage")
-                .parent(provider.models().getExistingFile(new ResourceLocation(RFToolsBase.MODID, "block/rftoolsblock")))
+                .parent(provider.models().getExistingFile(ResourceLocation.fromNamespaceAndPath(RFToolsBase.MODID, "block/rftoolsblock")))
                 .texture("front", provider.modLoc("block/machinemodularstorage"))
                 .renderType("cutout");
 

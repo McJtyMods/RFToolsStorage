@@ -25,6 +25,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -59,16 +60,20 @@ public class ModularStorageModule implements IModule {
                     .persistent(ModularStorageData.CODEC)
                     .networkSynchronized(ModularStorageData.STREAM_CODEC));
 
+    public ModularStorageModule(IEventBus bus) {
+        bus.addListener(this::registerMenuScreens);
+    }
+
     @Override
     public void init(FMLCommonSetupEvent event) {
-
     }
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            GuiModularStorage.register();
-        });
+    }
+
+    public void registerMenuScreens(RegisterMenuScreensEvent event) {
+        GuiModularStorage.register(event);
     }
 
     @Override

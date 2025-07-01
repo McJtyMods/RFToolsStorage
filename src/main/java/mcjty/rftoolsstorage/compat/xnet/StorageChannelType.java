@@ -1,11 +1,14 @@
 package mcjty.rftoolsstorage.compat.xnet;
 
+import com.mojang.serialization.MapCodec;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,6 +30,25 @@ public class StorageChannelType implements IChannelType {
         return "Storage";
     }
 
+    @Override
+    public MapCodec<? extends IChannelSettings> getCodec() {
+        return StorageChannelSettings.CODEC;
+    }
+
+    @Override
+    public MapCodec<? extends IConnectorSettings> getConnectorCodec() {
+        return StorageConnectorSettings.CODEC;
+    }
+
+    @Override
+    public StreamCodec<RegistryFriendlyByteBuf, ? extends IChannelSettings> getStreamCodec() {
+        return StorageChannelSettings.STREAM_CODEC;
+    }
+
+    @Override
+    public StreamCodec<RegistryFriendlyByteBuf, ? extends IConnectorSettings> getConnectorStreamCodec() {
+        return StorageConnectorSettings.STREAM_CODEC;
+    }
 
     @Override
     public boolean supportsBlock(@Nonnull Level world, @Nonnull BlockPos pos, @Nullable Direction side) {

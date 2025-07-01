@@ -70,8 +70,8 @@ public class RFToolsStorage {
 
     private void setupModules(IEventBus bus, Dist dist) {
         modules.register(new CraftingManagerModule(bus, dist));
-        modules.register(new ModularStorageModule());
-        modules.register(new StorageScannerModule());
+        modules.register(new ModularStorageModule(bus));
+        modules.register(new StorageScannerModule(bus));
     }
 
     private void onRegisterCapabilities(RegisterCapabilitiesEvent event) {

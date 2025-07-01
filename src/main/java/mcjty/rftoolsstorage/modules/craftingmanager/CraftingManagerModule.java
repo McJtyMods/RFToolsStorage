@@ -21,6 +21,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -40,6 +41,7 @@ public class CraftingManagerModule implements IModule {
 
     public CraftingManagerModule(IEventBus bus, Dist dist) {
         bus.addListener(ClientSetup::modelInit);
+        bus.addListener(this::registerMenuScreens);
     }
 
     @Override
@@ -49,9 +51,10 @@ public class CraftingManagerModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            GuiCraftingManager.register();
-        });
+    }
+
+    public void registerMenuScreens(RegisterMenuScreensEvent event) {
+        GuiCraftingManager.register(event);
     }
 
     @Override

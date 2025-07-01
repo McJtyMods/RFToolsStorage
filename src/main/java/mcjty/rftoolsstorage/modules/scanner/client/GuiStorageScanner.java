@@ -41,6 +41,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -56,8 +57,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static final int STORAGE_MONITOR_WIDTH = 256;
     private static final int STORAGE_MONITOR_HEIGHT = 244;
 
-    private static final ResourceLocation iconLocation = new ResourceLocation(RFToolsStorage.MODID, "textures/gui/storagescanner.png");
-    private static final ResourceLocation guielements = new ResourceLocation(RFToolsBase.MODID, "textures/gui/guielements.png");
+    private static final ResourceLocation iconLocation = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/storagescanner.png");
+    private static final ResourceLocation guielements = ResourceLocation.fromNamespaceAndPath(RFToolsBase.MODID, "textures/gui/guielements.png");
     public static final int LIST_HEIGHT = 86 + 66;
 
     private WidgetList storageList;
@@ -92,8 +93,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     // From server: the contents of an inventory (craftables)
     public static List<ItemStack> fromServer_craftable = new ArrayList<>();
 
-    public GuiStorageScanner(StorageScannerTileEntity te, StorageScannerContainer container, Inventory playerInventory) {
-        super(te, container, playerInventory, StorageScannerModule.STORAGE_SCANNER.get().getManualEntry());
+    public GuiStorageScanner(StorageScannerContainer container, Inventory playerInventory, Component title) {
+        super(container, playerInventory, title, StorageScannerModule.STORAGE_SCANNER.get().getManualEntry());
 
         craftingGrid = new GuiCraftingGrid();
 
@@ -107,13 +108,13 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         mgr.addWindow(craftingGrid.getWindow());
     }
 
-    public static void register() {
-        register(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
+    public static void register(RegisterMenuScreensEvent event) {
+        event.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
         MenuScreens.ScreenConstructor<StorageScannerContainer, GuiStorageScanner> factory = (container, inventory, title) -> {
-            BlockEntity te = container.getTe();
-            return Tools.safeMap(te, (StorageScannerTileEntity tile) -> new GuiStorageScanner(tile, container, inventory), "Invalid tile entity!");
+            BlockEntity te = container.getBe();
+            return Tools.safeMap(te, (StorageScannerTileEntity tile) -> new GuiStorageScanner(container, inventory, ComponentFactory.literal("Remote")), "Invalid tile entity!");
         };
-        MenuScreens.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
+        event.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
     }
 
     @Override
@@ -124,6 +125,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         openViewButton = new ToggleButton().checkMarker(false).text("V")
                 .tooltips("Toggle wide storage list");
+        StorageScannerTileEntity tileEntity = getBE();
         openViewButton.pressed(tileEntity.isOpenWideView());
         openViewButton.event(this::toggleView);
         upButton = button("U").channel("up").tooltips("Move inventory up");
@@ -339,6 +341,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
     private void startSearch(String text) {
         if (!text.isEmpty()) {
+            StorageScannerTileEntity tileEntity = getBE();
             sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_SCANNER_SEARCH,
                     TypedMap.builder()
                             .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimension().location().toString())
@@ -351,6 +354,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private void getInventoryOnServer() {
         BlockPos c = getSelectedContainerPos();
         if (c != null) {
+            StorageScannerTileEntity tileEntity = getBE();
             sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_SCANNER_CONTENTS,
                     TypedMap.builder()
                             .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimension().location().toString())
@@ -382,6 +386,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private void requestListsIfNeeded() {
         listDirty--;
         if (listDirty <= 0) {
+            StorageScannerTileEntity tileEntity = getBE();
             RFToolsStorageMessages.sendToServer(PacketGetInventoryInfo.create(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), false));
             getInventoryOnServer();
             listDirty = 20;
@@ -523,6 +528,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         if (selectedContainerPos == null) {
             return;
         }
+        StorageScannerTileEntity tileEntity = getBE();
         RFToolsStorageMessages.sendToServer(PacketRequestItem.create(tileEntity.getDimension(), tileEntity.getStorageScannerPos(), selectedContainerPos, stack, amount, craftable));
         getInventoryOnServer();
     }
@@ -595,7 +601,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float v, int i, int i2) {
+    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int x, int y) {
         if (!init) {
             return;
         }
@@ -633,6 +639,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             bottomButton.enabled(true);
         }
 
+        StorageScannerTileEntity tileEntity = getBE();
         if (!tileEntity.isDummy()) {
             updateEnergyBar(energyBar);
             exportToStarred.setCurrentChoice(tileEntity.isExportToCurrent() ? 0 : 1);
@@ -646,7 +653,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             exportToStarred.setCurrentChoice(tileEntity.exportToCurrentReceived ? 0 : 1);
         }
 
-        drawWindow(graphics, xxx, xxx, yyy);
+        drawWindow(graphics, partialTicks, x, y);
     }
 
     @Override

@@ -64,7 +64,7 @@ public class StorageScannerContainer extends GenericContainer {
     public boolean stillValid(@Nonnull Player player) {
         // If we are a remote container our canInteractWith should ignore distance
         if (isRemoteContainer()) {
-            return te == null || !te.isRemoved();
+            return be == null || !be.isRemoved();
         } else {
             return super.stillValid(player);
         }
@@ -74,7 +74,7 @@ public class StorageScannerContainer extends GenericContainer {
     public void setupInventories(IItemHandler itemHandler, Inventory inventory) {
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
-        addInventory(CONTAINER_GRID, ((StorageScannerTileEntity) te).getCraftingGrid().getCraftingGridInventory());
+        addInventory(CONTAINER_GRID, ((StorageScannerTileEntity) be).getCraftingGrid().getCraftingGridInventory());
         generateSlots(inventory.player);
     }
 

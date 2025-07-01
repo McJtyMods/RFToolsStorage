@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -48,6 +49,10 @@ public class StorageScannerModule implements IModule {
 
     public static final DeferredItem<TabletItem> TABLET_SCANNER = ITEMS.register("tablet_scanner", tab(TabletItem::new));
 
+    public StorageScannerModule(IEventBus bus) {
+        bus.addListener(this::registerMenuScreens);
+    }
+
     @Override
     public void init(FMLCommonSetupEvent event) {
 
@@ -56,9 +61,12 @@ public class StorageScannerModule implements IModule {
     @Override
     public void initClient(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            GuiStorageScanner.register();
             ClientCommandHandler.registerCommands();
         });
+    }
+
+    public void registerMenuScreens(RegisterMenuScreensEvent event) {
+        GuiStorageScanner.register(event);
     }
 
     @Override

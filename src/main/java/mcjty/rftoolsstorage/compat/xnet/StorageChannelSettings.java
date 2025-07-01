@@ -1,7 +1,7 @@
 package mcjty.rftoolsstorage.compat.xnet;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -17,6 +17,9 @@ import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -39,9 +42,12 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
 
     private int delay = 0;
 
-    public static final MapCodec<StorageChannelSettings> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            //DefaultChannelSettings.CODEC.fields().forGetter(s -> s)
-        ).apply(instance, StorageChannelSettings::new));
+    public static final MapCodec<StorageChannelSettings> CODEC = MapCodec.unit(StorageChannelSettings::new);
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, StorageChannelSettings> STREAM_CODEC = StreamCodec.of(
+            (o, settings) -> {},
+            buf -> new StorageChannelSettings()
+    );
 
     @Override
     public IChannelType getType() {

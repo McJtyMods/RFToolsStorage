@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
@@ -20,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class RemoteStorageScannerRecipeTransferHandler implements IRecipeTransferHandler<RemoteStorageScannerContainer, CraftingRecipe> {
+public class RemoteStorageScannerRecipeTransferHandler implements IRecipeTransferHandler<RemoteStorageScannerContainer, RecipeHolder<CraftingRecipe>> {
 
     public static void register(IRecipeTransferRegistration transferRegistry) {
         transferRegistry.addRecipeTransferHandler(new RemoteStorageScannerRecipeTransferHandler(), RecipeTypes.CRAFTING);
@@ -38,14 +39,14 @@ public class RemoteStorageScannerRecipeTransferHandler implements IRecipeTransfe
     }
 
     @Override
-    public RecipeType<CraftingRecipe> getRecipeType() {
-        return null;
+    public RecipeType<RecipeHolder<CraftingRecipe>> getRecipeType() {
+        return RecipeTypes.CRAFTING;
     }
 
     @Override
     @Nullable
-    public IRecipeTransferError transferRecipe(RemoteStorageScannerContainer container, CraftingRecipe recipe, IRecipeSlotsView recipeLayout, Player player, boolean maxTransfer, boolean doTransfer) {
-        BlockEntity inventory = container.getTe();
+    public IRecipeTransferError transferRecipe(RemoteStorageScannerContainer container, RecipeHolder<CraftingRecipe> recipe, IRecipeSlotsView recipeLayout, Player player, boolean maxTransfer, boolean doTransfer) {
+        BlockEntity inventory = container.getBe();
         BlockPos pos = inventory.getBlockPos();
         List<IRecipeSlotView> slotViews = recipeLayout.getSlotViews();
 

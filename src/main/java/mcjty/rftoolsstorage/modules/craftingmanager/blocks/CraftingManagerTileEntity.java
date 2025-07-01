@@ -15,6 +15,7 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -258,12 +259,12 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
         ItemStack origMimic0 = items.getStackInSlot(0);
         ItemStack origMimic1 = items.getStackInSlot(1);
         ItemStack origMimic2 = items.getStackInSlot(2);
         ItemStack origMimic3 = items.getStackInSlot(3);
-        loadClientDataFromNBT(pkt.getTag());
+        loadClientDataFromNBT(pkt.getTag(), provider);
         ItemStack mimic0 = items.getStackInSlot(0);
         ItemStack mimic1 = items.getStackInSlot(1);
         ItemStack mimic2 = items.getStackInSlot(2);
@@ -293,14 +294,14 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 
 
     @Override
-    public void load(CompoundTag tagCompound) {
-        super.load(tagCompound);
+    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.loadAdditional(tagCompound, provider);
         ListTag deviceList = tagCompound.getList("devices", Tag.TAG_COMPOUND);
         int i = 0;
         for (Tag nbt : deviceList) {
             CompoundTag deviceNBT = (CompoundTag) nbt;
             if (!deviceNBT.isEmpty()) {
-                ResourceLocation deviceId = new ResourceLocation(deviceNBT.getString("deviceId"));
+                ResourceLocation deviceId = ResourceLocation.parse(deviceNBT.getString("deviceId"));
                 Supplier<ICraftingDevice> deviceSupplier = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
                 ICraftingDevice device = deviceSupplier.get();
                 queues[i].setDevice(device);
@@ -311,8 +312,8 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound) {
-        super.saveAdditional(tagCompound);
+    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
+        super.saveAdditional(tagCompound, provider);
         ListTag deviceList = new ListTag();
         for (CraftingQueue queue : queues) {
             CompoundTag deviceNBT = new CompoundTag();
