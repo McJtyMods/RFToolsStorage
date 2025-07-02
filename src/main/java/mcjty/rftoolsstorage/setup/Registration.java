@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.setup;
 
 
+import mcjty.lib.blocks.RBlockRegistry;
 import mcjty.lib.setup.DeferredBlocks;
 import mcjty.lib.setup.DeferredItems;
 import mcjty.rftoolsstorage.RFToolsStorage;
@@ -27,7 +28,7 @@ import static mcjty.rftoolsstorage.RFToolsStorage.MODID;
 
 public class Registration {
 
-    public static final DeferredBlocks BLOCKS = DeferredBlocks.create(MODID);
+    public static final RBlockRegistry RBLOCKS = new RBlockRegistry(MODID, RFToolsStorage.setup::addTabItem);
     public static final DeferredItems ITEMS = DeferredItems.create(MODID);
     public static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID);
     public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
@@ -38,7 +39,7 @@ public class Registration {
     public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
 
     public static void register(IEventBus bus) {
-        BLOCKS.register(bus);
+        RBLOCKS.register(bus);
         ITEMS.register(bus);
         TILES.register(bus);
         CONTAINERS.register(bus);

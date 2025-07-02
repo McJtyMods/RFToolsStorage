@@ -84,7 +84,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     private final GuiCraftingGrid craftingGrid;
 
     public GuiModularStorage(ModularStorageContainer container, Inventory inventory, Component title) {
-        super(container, inventory, title, ModularStorageModule.MODULAR_STORAGE.get().getManualEntry());
+        super(container, inventory, title, ModularStorageModule.MODULAR_STORAGE.block().get().getManualEntry());
 
         craftingGrid = new GuiCraftingGrid();
 

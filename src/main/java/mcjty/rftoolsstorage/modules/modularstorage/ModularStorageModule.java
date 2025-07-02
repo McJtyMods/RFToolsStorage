@@ -1,6 +1,7 @@
 package mcjty.rftoolsstorage.modules.modularstorage;
 
 import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
@@ -11,23 +12,20 @@ import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContaine
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
 import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
+import mcjty.rftoolsstorage.modules.modularstorage.data.StorageModuleData;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
-import mcjty.rftoolsstorage.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -39,9 +37,12 @@ import static mcjty.rftoolsstorage.setup.Registration.*;
 
 public class ModularStorageModule implements IModule {
 
-    public static final DeferredBlock<BaseBlock> MODULAR_STORAGE = BLOCKS.register("modular_storage", ModularStorageBlock::new);
-    public static final DeferredItem<Item> MODULAR_STORAGE_ITEM = ITEMS.register("modular_storage", tab(() -> new BlockItem(MODULAR_STORAGE.get(), Registration.createStandardProperties())));
-    public static final Supplier<BlockEntityType<?>> TYPE_MODULAR_STORAGE = TILES.register("modular_storage", () -> BlockEntityType.Builder.of(ModularStorageTileEntity::new, MODULAR_STORAGE.get()).build(null));
+    public static final RBlock<BaseBlock, BlockItem, ModularStorageTileEntity> MODULAR_STORAGE = RBLOCKS.registerBlock("modular_storage",
+            ModularStorageTileEntity.class,
+            ModularStorageBlock::new,
+            block -> new BlockItem(block.get(), createStandardProperties()),
+            ModularStorageTileEntity::new
+    );
     public static final Supplier<MenuType<ModularStorageContainer>> CONTAINER_MODULAR_STORAGE = CONTAINERS.register("modular_storage", GenericContainer::createContainerType);
 
     public static final DeferredItem<StorageModuleItem> STORAGE_MODULE0 = ITEMS.register("storage_module0", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER1)));
@@ -59,6 +60,12 @@ public class ModularStorageModule implements IModule {
             builder -> builder
                     .persistent(ModularStorageData.CODEC)
                     .networkSynchronized(ModularStorageData.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<StorageModuleData>> ITEM_STORAGE_MODULE_DATA = COMPONENTS.registerComponentType(
+            "storage_module_data",
+            builder -> builder
+                    .persistent(StorageModuleData.CODEC)
+                    .networkSynchronized(StorageModuleData.STREAM_CODEC));
 
     public ModularStorageModule(IEventBus bus) {
         bus.addListener(this::registerMenuScreens);
@@ -86,7 +93,7 @@ public class ModularStorageModule implements IModule {
         dataGen.add(
                 Dob.blockBuilder(MODULAR_STORAGE)
                         .ironPickaxeTags()
-                        .standardLoot() // @todo 1.21 data
+                        .standardLoot(ModularStorageModule.ITEM_MODULAR_STORAGE_DATA.get())
                         .blockState(DataGenHelper::generateModularStorage)
                         .shaped(builder -> builder
                                         .define('q', Items.QUARTZ)

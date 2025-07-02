@@ -138,13 +138,13 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     private ResourceKey<Level> dummyType = null;
 
     public StorageScannerTileEntity(BlockPos pos, BlockState state) {
-        super(StorageScannerModule.TYPE_STORAGE_SCANNER.get(), pos, state);
+        super(StorageScannerModule.STORAGE_SCANNER.be().get(), pos, state);
         radius = (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) ? 0 : 1;
     }
 
     // Used for a dummy tile entity (tablet usage)
     public StorageScannerTileEntity(ResourceKey<Level> type, BlockPos pos) {
-        this(pos, StorageScannerModule.STORAGE_SCANNER.get().defaultBlockState());
+        this(pos, StorageScannerModule.STORAGE_SCANNER.block().get().defaultBlockState());
         dummyType = type;
     }
 

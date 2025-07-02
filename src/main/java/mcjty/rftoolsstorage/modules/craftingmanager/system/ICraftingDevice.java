@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -49,6 +50,6 @@ public interface ICraftingDevice {
     /// Return the current status
     Status getStatus();
 
-    void read(CompoundTag tag);
-    void write(CompoundTag tag);
+    void read(HolderLookup.Provider provider, CompoundTag tag);
+    void write(HolderLookup.Provider provider, CompoundTag tag);
 }

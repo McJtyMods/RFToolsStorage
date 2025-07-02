@@ -4,22 +4,20 @@ import mcjty.lib.crafting.BaseRecipe;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.TransientCraftingContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice.Status;
 
 public class VanillaCraftingDevice implements ICraftingDevice {
 
@@ -124,18 +122,16 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     }
 
     @Override
-    public void read(CompoundTag tag) {
-        // @todo 1.21 data
-//        cardStack = ItemStack.of(tag.getCompound("cardStack"));
+    public void read(HolderLookup.Provider provider, CompoundTag tag) {
+        cardStack = ItemStack.parseOptional(provider, tag.getCompound("cardStack"));
         ticks = tag.getInt("ticks");
     }
 
     @Override
-    public void write(CompoundTag tag) {
+    public void write(HolderLookup.Provider provider, CompoundTag tag) {
         tag.putInt("ticks", ticks);
-        // @todo 1.21 ata
-//        CompoundTag compoundNBT = new CompoundTag();
-//        cardStack.save(compoundNBT);
-//        tag.put("cardStack", compoundNBT);
+        CompoundTag compoundNBT = new CompoundTag();
+        cardStack.save(provider, compoundNBT);
+        tag.put("cardStack", compoundNBT);
     }
 }

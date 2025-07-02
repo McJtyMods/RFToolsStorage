@@ -1,11 +1,15 @@
 package mcjty.rftoolsstorage.modules.scanner;
 
+import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolsbase.modules.various.VariousModule;
+import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerBlock;
+import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.blocks.RemoteStorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerBlock;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
@@ -38,9 +42,12 @@ import static mcjty.rftoolsstorage.setup.Registration.*;
 
 public class StorageScannerModule implements IModule {
 
-    public static final DeferredBlock<StorageScannerBlock> STORAGE_SCANNER = BLOCKS.register("storage_scanner", StorageScannerBlock::new);
-    public static final DeferredItem<Item> STORAGE_SCANNER_ITEM = ITEMS.register("storage_scanner", tab(() -> new BlockItem(STORAGE_SCANNER.get(), Registration.createStandardProperties())));
-    public static final Supplier<BlockEntityType<?>> TYPE_STORAGE_SCANNER = TILES.register("storage_scanner", () -> BlockEntityType.Builder.of(StorageScannerTileEntity::new, STORAGE_SCANNER.get()).build(null));
+    public static final RBlock<BaseBlock, BlockItem, StorageScannerTileEntity> STORAGE_SCANNER = RBLOCKS.registerBlock("storage_scanner",
+            StorageScannerTileEntity.class,
+            StorageScannerBlock::new,
+            block -> new BlockItem(block.get(), createStandardProperties()),
+            StorageScannerTileEntity::new
+    );
     public static final Supplier<MenuType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER = CONTAINERS.register("storage_scanner", GenericContainer::createContainerType);
     public static final Supplier<MenuType<RemoteStorageScannerContainer>> CONTAINER_STORAGE_SCANNER_REMOTE = CONTAINERS.register("storage_scanner_remote",
             () -> GenericContainer.createRemoteContainerType(StorageScannerTileEntity::new, StorageScannerContainer::createRemote, StorageScannerContainer.SLOTS));

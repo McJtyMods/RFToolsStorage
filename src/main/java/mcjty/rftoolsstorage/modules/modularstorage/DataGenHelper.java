@@ -47,7 +47,7 @@ public class DataGenHelper {
                 .end()
                 .texture("overlaya", provider.modLoc("block/overlayamount"));
 
-        provider.getMultipartBuilder(ModularStorageModule.MODULAR_STORAGE.get())
+        provider.getMultipartBuilder(ModularStorageModule.MODULAR_STORAGE.block().get())
                 .part().modelFile(main).addModel().condition(BlockStateProperties.FACING, Direction.NORTH).end()
                 .part().modelFile(main).rotationY(180).addModel().condition(BlockStateProperties.FACING, Direction.SOUTH).end()
                 .part().modelFile(main).rotationY(270).addModel().condition(BlockStateProperties.FACING, Direction.WEST).end()

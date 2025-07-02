@@ -1,5 +1,7 @@
 package mcjty.rftoolsstorage.modules.craftingmanager;
 
+import mcjty.lib.blocks.BaseBlock;
+import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
@@ -10,31 +12,27 @@ import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEn
 import mcjty.rftoolsstorage.modules.craftingmanager.client.ClientSetup;
 import mcjty.rftoolsstorage.modules.craftingmanager.client.GuiCraftingManager;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingDeviceRegistry;
-import mcjty.rftoolsstorage.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
 
-import static mcjty.rftoolsstorage.RFToolsStorage.tab;
 import static mcjty.rftoolsstorage.setup.Registration.*;
 
 public class CraftingManagerModule implements IModule {
 
-    public static final DeferredBlock<Block> CRAFTING_MANAGER = BLOCKS.register("crafting_manager", CraftingManagerBlock::new);
-    public static final DeferredItem<Item> CRAFTING_MANAGER_ITEM = ITEMS.register("crafting_manager", tab(() -> new BlockItem(CRAFTING_MANAGER.get(), Registration.createStandardProperties())));
-    public static final Supplier<BlockEntityType<CraftingManagerTileEntity>> TYPE_CRAFTING_MANAGER = TILES.register("crafting_manager", () -> BlockEntityType.Builder.of(CraftingManagerTileEntity::new, CRAFTING_MANAGER.get()).build(null));
+    public static final RBlock<BaseBlock, BlockItem, CraftingManagerTileEntity> CRAFTING_MANAGER = RBLOCKS.registerBlock("crafting_manager",
+            CraftingManagerTileEntity.class,
+            CraftingManagerBlock::new,
+            block -> new BlockItem(block.get(), createStandardProperties()),
+            CraftingManagerTileEntity::new
+    );
     public static final Supplier<MenuType<CraftingManagerContainer>> CONTAINER_CRAFTING_MANAGER = CONTAINERS.register("crafting_manager", GenericContainer::createContainerType);
 
     public static final CraftingDeviceRegistry CRAFTING_DEVICE_REGISTRY = new CraftingDeviceRegistry();

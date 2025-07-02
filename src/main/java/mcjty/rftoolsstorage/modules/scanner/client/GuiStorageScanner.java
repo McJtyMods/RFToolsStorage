@@ -94,7 +94,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     public static List<ItemStack> fromServer_craftable = new ArrayList<>();
 
     public GuiStorageScanner(StorageScannerContainer container, Inventory playerInventory, Component title) {
-        super(container, playerInventory, title, StorageScannerModule.STORAGE_SCANNER.get().getManualEntry());
+        super(container, playerInventory, title, StorageScannerModule.STORAGE_SCANNER.block().get().getManualEntry());
 
         craftingGrid = new GuiCraftingGrid();
 

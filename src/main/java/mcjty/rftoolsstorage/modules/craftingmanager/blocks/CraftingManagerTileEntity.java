@@ -70,7 +70,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     private boolean devicesDirty = true;
 
     public CraftingManagerTileEntity(BlockPos pos, BlockState state) {
-        super(CraftingManagerModule.TYPE_CRAFTING_MANAGER.get(), pos, state);
+        super(CraftingManagerModule.CRAFTING_MANAGER.be().get(), pos, state);
         for (int i = 0; i < 4; i++) {
             queues[i] = new CraftingQueue();
         }
@@ -305,7 +305,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
                 Supplier<ICraftingDevice> deviceSupplier = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
                 ICraftingDevice device = deviceSupplier.get();
                 queues[i].setDevice(device);
-                device.read(deviceNBT);
+                device.read(provider, deviceNBT);
             }
             i++;
         }
@@ -318,7 +318,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         for (CraftingQueue queue : queues) {
             CompoundTag deviceNBT = new CompoundTag();
             if (queue.hasDevice()) {
-                queue.getDevice().write(deviceNBT);
+                queue.getDevice().write(provider, deviceNBT);
                 deviceNBT.putString("deviceId", queue.getDevice().getID().toString());
             }
             deviceList.add(deviceNBT);

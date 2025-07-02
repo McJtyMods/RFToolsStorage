@@ -1,6 +1,9 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -59,39 +62,37 @@ public class RFCraftingRecipe {
         return world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, inv, world);
     }
 
-    public void readFromNBT(CompoundTag tagCompound) {
-        // @todo 1.21 data
-//        ListTag nbtTagList = tagCompound.getList("Items", Tag.TAG_COMPOUND);
-//        for (int i = 0; i < nbtTagList.size(); i++) {
-//            CompoundTag CompoundNBT = nbtTagList.getCompound(i);
-//            inv.setItem(i, ItemStack.of(CompoundNBT));
-//        }
-//        CompoundTag resultCompound = tagCompound.getCompound("Result");
-//        result = ItemStack.of(resultCompound);
-//        keepOne = tagCompound.getBoolean("Keep");
-//        craftMode = CraftMode.values()[tagCompound.getByte("Int")];
-//        recipePresent = false;
+    public void readFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        ListTag nbtTagList = tagCompound.getList("Items", Tag.TAG_COMPOUND);
+        for (int i = 0; i < nbtTagList.size(); i++) {
+            CompoundTag CompoundNBT = nbtTagList.getCompound(i);
+            inv.set(i, ItemStack.parseOptional(provider, CompoundNBT));
+        }
+        CompoundTag resultCompound = tagCompound.getCompound("Result");
+        result = ItemStack.parseOptional(provider, resultCompound);
+        keepOne = tagCompound.getBoolean("Keep");
+        craftMode = CraftMode.values()[tagCompound.getByte("Int")];
+        recipePresent = false;
     }
 
-    public void writeToNBT(CompoundTag tagCompound) {
-        // @todo 1.21 data
-//        ListTag nbtTagList = new ListTag();
-//        for (int i = 0 ; i < 9 ; i++) {
-//            ItemStack stack = inv.getItem(i);
-//            CompoundTag CompoundNBT = new CompoundTag();
-//            if (!stack.isEmpty()) {
-//                stack.save(CompoundNBT);
-//            }
-//            nbtTagList.add(CompoundNBT);
-//        }
-//        CompoundTag resultCompound = new CompoundTag();
-//        if (!result.isEmpty()) {
-//            result.save(resultCompound);
-//        }
-//        tagCompound.put("Result", resultCompound);
-//        tagCompound.put("Items", nbtTagList);
-//        tagCompound.putBoolean("Keep", keepOne);
-//        tagCompound.putByte("Int", (byte) craftMode.ordinal());
+    public void writeToNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
+        ListTag nbtTagList = new ListTag();
+        for (int i = 0 ; i < 9 ; i++) {
+            ItemStack stack = inv.get(i);
+            CompoundTag CompoundNBT = new CompoundTag();
+            if (!stack.isEmpty()) {
+                stack.save(provider, CompoundNBT);
+            }
+            nbtTagList.add(CompoundNBT);
+        }
+        CompoundTag resultCompound = new CompoundTag();
+        if (!result.isEmpty()) {
+            result.save(provider, resultCompound);
+        }
+        tagCompound.put("Result", resultCompound);
+        tagCompound.put("Items", nbtTagList);
+        tagCompound.putBoolean("Keep", keepOne);
+        tagCompound.putByte("Int", (byte) craftMode.ordinal());
     }
 
     public void setRecipe(ItemStack[] items, ItemStack result) {

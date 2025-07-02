@@ -52,6 +52,7 @@ public class RFToolsStorage {
         bus.addListener(this::onDataGen);
         bus.addListener(this::onRegisterCapabilities);
         bus.addListener(RFToolsStorageMessages::registerMessages);
+        bus.addListener(setup.getBlockCapabilityRegistrar(Registration.RBLOCKS));
 
         if (dist.isClient()) {
             bus.addListener(modules::initClient);
@@ -80,6 +81,6 @@ public class RFToolsStorage {
                 return te.getInfoScreenInfo();
             }
             return null;
-        }, StorageScannerModule.STORAGE_SCANNER.get());
+        }, StorageScannerModule.STORAGE_SCANNER.block().get());
     }
 }

@@ -49,7 +49,7 @@ public class CraftingManagerRenderer implements BlockEntityRenderer<CraftingMana
     }
 
     public static void register(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(CraftingManagerModule.TYPE_CRAFTING_MANAGER.get(), CraftingManagerRenderer::new);
+        event.registerBlockEntityRenderer(CraftingManagerModule.CRAFTING_MANAGER.be().get(), CraftingManagerRenderer::new);
     }
 
 }

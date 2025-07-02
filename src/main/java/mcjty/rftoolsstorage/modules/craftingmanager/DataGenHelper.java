@@ -35,7 +35,7 @@ public class DataGenHelper {
                 .texture("bottom", ResourceLocation.fromNamespaceAndPath(RFToolsBase.MODID, "block/base/machinebottom"))
                 .renderType("cutout");
 
-        MultiPartBlockStateBuilder bld = provider.getMultipartBuilder(CraftingManagerModule.CRAFTING_MANAGER.get());
+        MultiPartBlockStateBuilder bld = provider.getMultipartBuilder(CraftingManagerModule.CRAFTING_MANAGER.block().get());
         bld.part().modelFile(model).addModel();
     }
 

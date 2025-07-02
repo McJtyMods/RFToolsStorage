@@ -18,8 +18,10 @@ import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
+import mcjty.rftoolsstorage.modules.modularstorage.data.StorageModuleData;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
+import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -103,7 +105,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private String filter = "";
 
     public ModularStorageTileEntity(BlockPos pos, BlockState state) {
-        super(ModularStorageModule.TYPE_MODULAR_STORAGE.get(), pos, state);
+        super(ModularStorageModule.MODULAR_STORAGE.be().get(), pos, state);
     }
 
     public IItemHandlerModifiable getItems() {
@@ -221,7 +223,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         viewMode = tagCompound.getString("viewMode");
         groupMode = tagCompound.getBoolean("groupMode");
         filter = tagCompound.getString("filter");
-        craftingGrid.readFromNBT(tagCompound.getCompound("grid"));
+        craftingGrid.readFromNBT(tagCompound.getCompound("grid"), provider);
     }
 
     @Override
@@ -232,7 +234,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         tagCompound.putString("viewMode", viewMode);
         tagCompound.putBoolean("groupMode", groupMode);
         tagCompound.putString("filter", filter);
-        tagCompound.put("grid", craftingGrid.writeToNBT());
+        tagCompound.put("grid", craftingGrid.writeToNBT(provider));
     }
 
     @Override
@@ -298,14 +300,15 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         if (!level.isClientSide) {
             ItemStack card = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
             if (!card.isEmpty()) {
-                // @todo 1.21 data
-//                // Helper for client side tooltip
-//                card.getOrCreateTag().putInt("infoAmount", getNumStacks());
-//                StorageEntry storage = globalWrapper.getStorage();
-//                if (storage != null) {
-//                    card.getOrCreateTag().putLong("infoCreateTime", storage.getCreationTime());
-//                    card.getOrCreateTag().putLong("infoUpdateTime", storage.getUpdateTime());
-//                }
+                StorageModuleData cardData = StorageModuleItem.getData(card);
+                // Helper for client side tooltip
+                cardData = cardData.withInfoAmount(getNumStacks());
+                StorageEntry storage = globalWrapper.getStorage();
+                if (storage != null) {
+                    cardData = cardData.withCreationTime(storage.getCreationTime());
+                    cardData = cardData.withUpdateTime(storage.getUpdateTime());
+                }
+                card.set(ModularStorageModule.ITEM_STORAGE_MODULE_DATA, cardData);
             }
         }
         setChanged();
@@ -432,8 +435,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                 globalWrapper.setListener((version, slot) -> {
                     ItemStack storageSlot = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
                     if (storageSlot.getItem() instanceof StorageModuleItem) {
-                        // @todo 1.21 data
-//                        storageSlot.getOrCreateTag().putInt("version", version);
+                        StorageModuleData data = StorageModuleItem.getData(storageSlot);
+                        data = data.withVersion(version);
+                        storageSlot.set(ModularStorageModule.ITEM_STORAGE_MODULE_DATA, data);
                     }
                     markDirtyQuick();
                 });

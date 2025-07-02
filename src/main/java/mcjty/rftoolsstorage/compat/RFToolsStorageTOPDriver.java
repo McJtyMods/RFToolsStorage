@@ -30,7 +30,7 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
         ResourceLocation id = Tools.getId(blockState);
         if (!drivers.containsKey(id)) {
-            if (blockState.getBlock() == ModularStorageModule.MODULAR_STORAGE.get()) {
+            if (blockState.getBlock() == ModularStorageModule.MODULAR_STORAGE.block().get()) {
                 drivers.put(id, new ModularStorageDriver());
             } else {
                 drivers.put(id, new DefaultDriver());

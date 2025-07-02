@@ -5,10 +5,11 @@ import mcjty.lib.crafting.IComponentsToPreserve;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.storage.IStorageModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
+import mcjty.rftoolsstorage.modules.modularstorage.data.StorageModuleData;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -22,7 +23,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.Lazy;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -51,43 +51,46 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
                     gold(stack -> isRemoteModule()),
                     parameter("info", stack -> !(isRemoteModule()), stack -> Integer.toString(getMax())),
                     parameter("remoteid", stack -> isRemoteModule(), stack -> {
-                        // @todo 1.21 data
-//                        CompoundTag tag = stack.getTag();
-//                        if (tag != null && tag.contains("id")) {
-//                            int id = tag.getInt("id");
-//                            return Integer.toString(id);
-//                        } else {
+                        int id = getData(stack).id();
+                        if (id != -1) {
+                            return Integer.toString(id);
+                        } else {
                             return "<unlinked>";
-//                        }
+                        }
                     }),
                     parameter("uuid", stack -> {
-                        // @todo 1.21 data
-//                        CompoundTag tag = stack.getTag();
-//                        if (tag != null && tag.hasUUID("uuid")) {
-//                            return tag.getUUID("uuid").toString();
-//                        } else {
+                        UUID uuid = getData(stack).uuid();
+                        if (uuid != null) {
+                            return uuid.toString();
+                        } else {
                             return "<unset>";
-//                        }
+                        }
                     }),
                     parameter("version", stack -> {
-                        // @todo 1.21 data
-//                        CompoundTag tag = stack.getTag();
-//                        if (tag != null) {
-//                            return Integer.toString(tag.getInt("version"));
-//                        } else {
+                        int version = getData(stack).version();
+                        if (version != -1) {
+                            return Integer.toString(version);
+                        } else {
                             return "<unset>";
-//                        }
+                        }
                     }),
                     parameter("items", stack -> !isRemoteModule() && hasUUID(stack), this::getContentsStringClient))
             .infoAdvanced(parameter("advanced", this::getAdvancedInfoClient)));
 
     private String getContentsStringClient(ItemStack stack) {
-        // @todo 1.21 data
-//        if (stack.getTag() != null && stack.getTag().contains("infoAmount")) {
-//            int cnt = stack.getTag().getInt("infoAmount");
-//            return cnt + "/" + getMax();
-//        }
+        int cnt = getData(stack).infoAmount();
+        if (cnt != -1) {
+            return cnt + "/" + getMax();
+        }
         return "<unknown>";
+    }
+
+    public static StorageModuleData getData(ItemStack stack) {
+        StorageModuleData data = stack.get(ModularStorageModule.ITEM_STORAGE_MODULE_DATA.get());
+        if (data == null) {
+            data = StorageModuleData.DEFAULT;
+        }
+        return data;
     }
 
     private String getAdvancedInfoClient(ItemStack stack) {
@@ -101,11 +104,10 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
                 info += "Unknown creator";
             }
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-// @todo 1.21 data
-//            Date creationTime = new Date(stack.getTag().getLong("infoCreateTime"));
-//            Date updateTime = new Date(stack.getTag().getLong("infoUpdateTime"));
-//            info += ", Creation time " + dateFormat.format(creationTime);
-//            info += ", Update time " + dateFormat.format(updateTime);
+            Date creationTime = new Date(getData(stack).creationTime());
+            Date updateTime = new Date(getData(stack).updateTime());
+            info += ", Creation time " + dateFormat.format(creationTime);
+            info += ", Update time " + dateFormat.format(updateTime);
             return info;
         }
         return "<unknown>";
@@ -114,11 +116,10 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
 
     /// Client-side version to get storage
     private StorageInfo getStorageClient(ItemStack stack) {
-        // @todo 1.21 data
-//        CompoundTag tag = stack.getTag();
-//        if (tag == null) {
-//            return null;
-//        }
+        StorageModuleData data = getData(stack);
+        if (data.id() == -1) {
+            return null;
+        }
         return getStorageInfo(stack);
     }
 
@@ -141,12 +142,8 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
     }
 
     private boolean hasUUID(ItemStack stack) {
-        // @todo 1.21 data
-        return false;
-//        if (!stack.hasTag()) {
-//            return false;
-//        }
-//        return stack.getTag().hasUUID("uuid");
+        UUID uuid = getData(stack).uuid();
+        return uuid != null;
     }
 
     public StorageModuleItem(int tier) {
@@ -162,44 +159,36 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
 
     @Override
     public void onCraftedBy(@Nonnull ItemStack stack, @Nonnull Level worldIn, @Nonnull Player player) {
-        // @todo 1.21 data
-//        CompoundTag tag = stack.getOrCreateTag();
-//        if (!tag.contains("createdBy")) {
-//            tag.putString("createdBy", player.getName().getString());   // @todo 1.16 getFormattedText
-//        }
+        StorageModuleData data = getData(stack);
+        String createdBy = data.createdBy();
+        if (createdBy != null && !createdBy.isEmpty()) {
+            data = data.withCreatedBy(player.getName().getString());
+            stack.set(ModularStorageModule.ITEM_STORAGE_MODULE_DATA.get(), data);
+        }
     }
 
     public static UUID getOrCreateUUID(ItemStack stack) {
         if (!(stack.getItem() instanceof StorageModuleItem)) {
             throw new RuntimeException("This is not supposed to happen! Needs to be a storage item!");
         }
-        // @todo 1.21 data
-        return null;
-//        CompoundTag nbt = stack.getOrCreateTag();
-//        if (!nbt.hasUUID("uuid")) {
-//            nbt.putUUID("uuid", UUID.randomUUID());
-//            nbt.putInt("version", 0);   // Make sure the version is not up to date (StorageEntry starts at version 1)
-//        }
-//        return nbt.getUUID("uuid");
+        StorageModuleData data = getData(stack);
+        UUID uuid = data.uuid();
+        if (uuid == null) {
+            uuid = UUID.randomUUID();
+            // Make sure the version is not up to date (StorageEntry starts at version 1)
+            data = data.withUuid(uuid).withVersion(0);
+            stack.set(ModularStorageModule.ITEM_STORAGE_MODULE_DATA.get(), data);
+        }
+        return uuid;
     }
 
     public static String getCreatedBy(ItemStack storageCard) {
-        // @todo 1.21 data
-//        if (storageCard.hasTag()) {
-//            return storageCard.getTag().getString("createdBy");
-//        }
-        return null;
+        return getData(storageCard).createdBy();
     }
 
 
     public static int getVersion(ItemStack stack) {
-        // @todo 1.21
-        return 0;
-//        if (stack.hasTag()) {
-//            return stack.getTag().getInt("version");
-//        } else {
-//            return 0;
-//        }
+        return getData(stack).version();
     }
 
     public static int getSize(ItemStack storageCard) {
@@ -212,7 +201,7 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
 
     @Override
     public Collection<DataComponentType<?>> getComponentsToPreserve() {
-        return List.of();   // @todo 1.21 data (preserve uuid)
+        return List.of(ModularStorageModule.ITEM_STORAGE_MODULE_DATA.get());
     }
 
     @Nonnull

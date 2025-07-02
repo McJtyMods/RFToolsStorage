@@ -7,6 +7,8 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mcjty.lib.varia.ComponentFactory;
+import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
+import mcjty.rftoolsstorage.modules.modularstorage.data.StorageModuleData;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageHolder;
@@ -58,8 +60,8 @@ public class CommandRestore implements Command<CommandSourceStack> {
                 context.getSource().sendSuccess(() ->
                         ComponentFactory.literal("Wrong foundEntry module tier! " + finalFoundEntry.getStacks().size() + " stacks are required!").withStyle(style -> style.applyFormat(ChatFormatting.RED)), true);
             } else {
-                // @todo 1.21 data
-//                stack.getOrCreateTag().putUUID("uuid", foundEntry.getUuid());
+                StorageModuleData data = StorageModuleItem.getData(stack).withUuid(foundEntry.getUuid());
+                stack.set(ModularStorageModule.ITEM_STORAGE_MODULE_DATA.get(), data);
                 context.getSource().getPlayerOrException().inventoryMenu.broadcastChanges();
             }
         } else {
