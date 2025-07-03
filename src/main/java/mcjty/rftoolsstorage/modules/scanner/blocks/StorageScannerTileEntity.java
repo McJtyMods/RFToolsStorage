@@ -36,6 +36,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -79,7 +80,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @GuiValue
     public static final Value<?, Integer> VALUE_RADIUS = Value.create("radius", Type.INTEGER, StorageScannerTileEntity::getRadius, StorageScannerTileEntity::setRadius);
     @GuiValue
-    private SortingMode sortMode = SortingMode.NAME;
+//    private SortingMode sortMode = SortingMode.NAME;
 
     // Client side data returned by CMD_SCANNER_INFO
     public long rfReceived = 0;
@@ -101,13 +102,13 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     private final Map<CachedItemKey, CachedItemCount> cachedCounts = new HashMap<>();
     private final Set<BlockPos> routable = new HashSet<>();
-    private int radius = 1;
+//    private int radius = 1;
 
     private BlockPos lastSelectedInventory = null;
 
     // Indicates if for this storage scanner the inventories should be shown wide
     @GuiValue
-    private boolean openWideView = true;
+//    private boolean openWideView = true;
 
     private final Lazy<IInformationScreenInfo> infoScreenInfo = Lazy.of(this::createScreenInfo);
 
@@ -1253,6 +1254,21 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 //        infoTag.putInt("sortMode", sortMode.ordinal());
 //    }
 
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        var data = input.get(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA);
+        if (data != null) {
+            setData(StorageScannerModule.STORAGE_SCANNER_DATA, data);
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        builder.set(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA, getData(StorageScannerModule.STORAGE_SCANNER_DATA));
+    }
 
     @ServerCommand
     public static final Command<?> CMD_CLEARGRID = Command.<StorageScannerTileEntity>create("clearGrid", (te, player, params) -> te.clearGrid());

@@ -1,10 +1,15 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mcjty.lib.varia.ItemStackList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class CraftingGridInventory implements IItemHandlerModifiable {
 
@@ -18,8 +23,24 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
 
     private final ItemStackList stacks = ItemStackList.create(10);
 
+    public static final Codec<CraftingGridInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("stacks").forGetter(s -> s.stacks)
+    ).apply(instance, CraftingGridInventory::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, CraftingGridInventory> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.OPTIONAL_LIST_STREAM_CODEC, s -> s.stacks,
+            CraftingGridInventory::new
+    );
+
     public ItemStack getResult() {
         return stacks.get(SLOT_GHOSTOUTPUT);
+    }
+
+    public CraftingGridInventory() {
+    }
+
+    public CraftingGridInventory(List<ItemStack> stacks) {
+        this.stacks.addAll(stacks);
     }
 
     public ItemStack[] getIngredients() {

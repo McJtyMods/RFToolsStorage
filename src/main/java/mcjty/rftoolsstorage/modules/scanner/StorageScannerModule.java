@@ -10,17 +10,20 @@ import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerBlock;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
+import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
 import mcjty.rftoolsstorage.modules.scanner.blocks.RemoteStorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerBlock;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.client.ClientCommandHandler;
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
+import mcjty.rftoolsstorage.modules.scanner.data.StorageScannerData;
 import mcjty.rftoolsstorage.modules.scanner.items.DumpModuleItem;
 import mcjty.rftoolsstorage.modules.scanner.items.StorageControlModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -30,8 +33,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.function.Supplier;
@@ -56,6 +61,16 @@ public class StorageScannerModule implements IModule {
     public static final DeferredItem<Item> DUMP_MODULE = ITEMS.register("dump_module", tab(DumpModuleItem::new));
 
     public static final DeferredItem<TabletItem> TABLET_SCANNER = ITEMS.register("tablet_scanner", tab(TabletItem::new));
+
+    public static final Supplier<AttachmentType<StorageScannerData>> STORAGE_SCANNER_DATA = ATTACHMENT_TYPES.register(
+            "storage_scanner_data", () -> AttachmentType.builder(() -> StorageScannerData.DEFAULT)
+                    .serialize(StorageScannerData.CODEC)
+                    .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<StorageScannerData>> ITEM_STORAGE_SCANNER_DATA = COMPONENTS.registerComponentType(
+            "storage_scanner_data",
+            builder -> builder
+                    .persistent(StorageScannerData.CODEC)
+                    .networkSynchronized(StorageScannerData.STREAM_CODEC));
 
     public StorageScannerModule(IEventBus bus) {
         bus.addListener(this::registerMenuScreens);
@@ -87,7 +102,7 @@ public class StorageScannerModule implements IModule {
         dataGen.add(
                 Dob.blockBuilder(STORAGE_SCANNER)
                         .ironPickaxeTags()
-                        .standardLoot() // @todo 1.21
+                        .standardLoot(ITEM_STORAGE_SCANNER_DATA.get())
                         .shaped(builder -> builder
                                         .define('g', Items.GOLD_INGOT)
                                         .define('F', VariousModule.MACHINE_FRAME.get())

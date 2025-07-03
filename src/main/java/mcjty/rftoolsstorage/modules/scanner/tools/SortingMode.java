@@ -1,8 +1,10 @@
 package mcjty.rftoolsstorage.modules.scanner.tools;
 
+import com.mojang.serialization.Codec;
 import mcjty.lib.varia.NamedEnum;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 public enum SortingMode implements NamedEnum<SortingMode> {
@@ -12,6 +14,7 @@ public enum SortingMode implements NamedEnum<SortingMode> {
     TAG("Tag", "Sort by most common tag"),
     NAME("Name", "Sort by name");
 
+    public static final Codec<SortingMode> CODEC = StringRepresentable.fromEnum(SortingMode::values);
     public static final StreamCodec<FriendlyByteBuf, SortingMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(SortingMode.class);
 
     private final String description;

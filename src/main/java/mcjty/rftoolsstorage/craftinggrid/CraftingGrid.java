@@ -1,19 +1,41 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CraftingGrid {
 
-    private final CraftingGridInventory craftingGridInventory = new CraftingGridInventory();
+    private final CraftingGridInventory craftingGridInventory;
     private final RFCraftingRecipe[] recipes = new RFCraftingRecipe[6];
 
+    public static final Codec<CraftingGrid> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            CraftingGridInventory.CODEC.fieldOf("inventory").forGetter(CraftingGrid::getCraftingGridInventory),
+            RFCraftingRecipe.CODEC.listOf().fieldOf("recipes").forGetter(grid -> List.of(grid.recipes))
+    ).apply(instance, CraftingGrid::new));
+
     public CraftingGrid() {
+        this.craftingGridInventory = new CraftingGridInventory();
         for (int i = 0 ; i < 6 ; i++) {
             recipes[i] = new RFCraftingRecipe();
+        }
+    }
+
+    public CraftingGrid(CraftingGridInventory craftingGridInventory, List<RFCraftingRecipe> recipes) {
+        this.craftingGridInventory = craftingGridInventory;
+        for (int i = 0 ; i < 6 ; i++) {
+            if (i < recipes.size()) {
+                this.recipes[i] = recipes.get(i);
+            } else {
+                this.recipes[i] = new RFCraftingRecipe();
+            }
         }
     }
 

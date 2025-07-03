@@ -1,15 +1,22 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +29,6 @@ public class RFCraftingRecipe {
             inv.add(ItemStack.EMPTY);
         }
     }
-//    private final CraftingContainer inv = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-//        @Override
-//        public boolean stillValid(@Nonnull Player playerIn) {
-//            return false;
-//        }
-//
-//        @Override
-//        public ItemStack quickMoveStack(Player player, int slot) {
-//            return ItemStack.EMPTY;
-//        }
-//    }, 3, 3);
     private ItemStack result = ItemStack.EMPTY;
 
     private boolean recipePresent = false;
@@ -40,10 +36,20 @@ public class RFCraftingRecipe {
 
     private boolean keepOne = false;
 
-    public enum CraftMode {
+    public static final Codec<RFCraftingRecipe> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("inv").forGetter(r -> r.inv),
+            ItemStack.OPTIONAL_CODEC.fieldOf("result").forGetter(RFCraftingRecipe::getResult),
+            Codec.BOOL.fieldOf("keepOne").forGetter(RFCraftingRecipe::isKeepOne),
+            CraftMode.CODEC.fieldOf("craftMode").forGetter(RFCraftingRecipe::getCraftMode)
+    ).apply(instance, RFCraftingRecipe::new));
+
+    public enum CraftMode implements StringRepresentable {
         EXT("Ext"),
         INT("Int"),
         EXTC("ExtC");
+
+        public static final Codec<CraftMode> CODEC = StringRepresentable.fromEnum(CraftMode::values);
+        public static final StreamCodec<FriendlyByteBuf, CraftMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(CraftMode.class);
 
         private final String description;
 
@@ -54,9 +60,25 @@ public class RFCraftingRecipe {
         public String getDescription() {
             return description;
         }
+
+
+        @Override
+        public String getSerializedName() {
+            return name();
+        }
     }
 
     private CraftMode craftMode = CraftMode.EXT;
+
+    public RFCraftingRecipe() {
+    }
+
+    public RFCraftingRecipe(List<ItemStack> inv, ItemStack result, boolean keepOne, CraftMode craftMode) {
+        this.inv.addAll(inv);
+        this.result = result;
+        this.keepOne = keepOne;
+        this.craftMode = craftMode;
+    }
 
     public static Optional<RecipeHolder<CraftingRecipe>> findRecipe(Level world, CraftingInput inv) {
         return world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, inv, world);
