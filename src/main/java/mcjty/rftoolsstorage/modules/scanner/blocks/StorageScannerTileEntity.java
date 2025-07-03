@@ -28,6 +28,7 @@ import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEn
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
+import mcjty.rftoolsstorage.modules.scanner.data.StorageScannerData;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemCount;
 import mcjty.rftoolsstorage.modules.scanner.tools.CachedItemKey;
 import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
@@ -75,12 +76,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     public static final Key<BlockPos> PARAM_POS = new Key<>("pos", Type.BLOCKPOS);
     public static final Key<Boolean> PARAM_VIEW = new Key<>("view", Type.BOOLEAN);
 
-    @GuiValue(name = "export")
-    private boolean exportToCurrent = false;
+    @GuiValue
+    public static final Value<?, Boolean> EXPORT = Value.create("export", Type.BOOLEAN, StorageScannerTileEntity::isExportToCurrent, StorageScannerTileEntity::setExportToCurrent);
     @GuiValue
     public static final Value<?, Integer> VALUE_RADIUS = Value.create("radius", Type.INTEGER, StorageScannerTileEntity::getRadius, StorageScannerTileEntity::setRadius);
     @GuiValue
-//    private SortingMode sortMode = SortingMode.NAME;
+    public static final Value<StorageScannerTileEntity, String> SORT_MODE = Value.createEnum("sortMode", SortingMode.values(), StorageScannerTileEntity::getSortMode, StorageScannerTileEntity::setSortMode);
 
     // Client side data returned by CMD_SCANNER_INFO
     public long rfReceived = 0;
@@ -102,13 +103,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     private final Map<CachedItemKey, CachedItemCount> cachedCounts = new HashMap<>();
     private final Set<BlockPos> routable = new HashSet<>();
-//    private int radius = 1;
 
     private BlockPos lastSelectedInventory = null;
 
     // Indicates if for this storage scanner the inventories should be shown wide
     @GuiValue
-//    private boolean openWideView = true;
+    public static final Value<?, Boolean> WIDEVIEW = Value.create("openWideView", Type.BOOLEAN, StorageScannerTileEntity::isOpenWideView, StorageScannerTileEntity::setOpenWideView);
 
     private final Lazy<IInformationScreenInfo> infoScreenInfo = Lazy.of(this::createScreenInfo);
 
@@ -140,7 +140,8 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     public StorageScannerTileEntity(BlockPos pos, BlockState state) {
         super(StorageScannerModule.STORAGE_SCANNER.be().get(), pos, state);
-        radius = (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) ? 0 : 1;
+        int radius = (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) ? 0 : 1;
+        setData(StorageScannerModule.STORAGE_SCANNER_DATA, StorageScannerData.DEFAULT.withRadius(radius));
     }
 
     // Used for a dummy tile entity (tablet usage)
@@ -242,7 +243,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             }
 
             ItemStack stack = items.getStackInSlot(StorageScannerContainer.SLOT_IN);
-            stack = injectStackInternal(stack, exportToCurrent, this::isInputFromGui);
+            stack = injectStackInternal(stack, getData(StorageScannerModule.STORAGE_SCANNER_DATA).exportC(), this::isInputFromGui);
             items.setStackInSlot(StorageScannerContainer.SLOT_IN, stack);
 
             consumeEnergy(StorageScannerConfiguration.rfPerInsert.get());
@@ -497,37 +498,39 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     public int getRadius() {
-        return radius;
+        return getData(StorageScannerModule.STORAGE_SCANNER_DATA).radius();
     }
 
     public void setRadius(int v) {
-        radius = v;
+        StorageScannerData data = getData(StorageScannerModule.STORAGE_SCANNER_DATA);
+        data = data.withRadius(v);
         if (StorageScannerConfiguration.xnetRequired.get() && RFToolsStorage.setup.xnet) {
-            radius = 0;
+            data = data.withRadius(0);
         }
-        setChanged();
+        setData(StorageScannerModule.STORAGE_SCANNER_DATA, data);
     }
 
     public boolean isOpenWideView() {
-        return openWideView;
+        return getData(StorageScannerModule.STORAGE_SCANNER_DATA).wideview();
     }
 
     public void setOpenWideView(boolean openWideView) {
-        this.openWideView = openWideView;
-        setChanged();
+        StorageScannerData data = getData(StorageScannerModule.STORAGE_SCANNER_DATA);
+        setData(StorageScannerModule.STORAGE_SCANNER_DATA, data.withWideView(openWideView));
     }
 
     public boolean isExportToCurrent() {
-        return exportToCurrent;
+        return getData(StorageScannerModule.STORAGE_SCANNER_DATA).exportC();
     }
 
     public void setExportToCurrent(boolean exportToCurrent) {
-        this.exportToCurrent = exportToCurrent;
-        setChanged();
+        StorageScannerData data = getData(StorageScannerModule.STORAGE_SCANNER_DATA);
+        setData(StorageScannerModule.STORAGE_SCANNER_DATA, data.withExportC(exportToCurrent));
     }
 
     private void toggleExportRoutable() {
-        exportToCurrent = !exportToCurrent;
+        StorageScannerData data = getData(StorageScannerModule.STORAGE_SCANNER_DATA);
+        setData(StorageScannerModule.STORAGE_SCANNER_DATA, data.withExportC(data.exportC()));
         setChanged();
     }
 
@@ -698,9 +701,12 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     public Stream<BlockPos> findInventories() {
+        StorageScannerData data = getData(StorageScannerModule.STORAGE_SCANNER_DATA);
         if (RFToolsStorage.setup.xnet && StorageScannerConfiguration.xnetRequired.get()) {
-            radius = 0;
+            data = data.withRadius(0);
+            setData(StorageScannerModule.STORAGE_SCANNER_DATA, data);
         }
+        int radius = data.radius();
 
         // Clear the caches
         cachedCounts.clear();
@@ -1154,12 +1160,13 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     public SortingMode getSortMode() {
-        return sortMode;
+        return getData(StorageScannerModule.STORAGE_SCANNER_DATA).sortingMode();
     }
 
     public void setSortMode(SortingMode sortMode) {
-        this.sortMode = sortMode;
-        setChanged();
+        StorageScannerData data = getData(StorageScannerModule.STORAGE_SCANNER_DATA);
+        data = data.withSortingMode(sortMode);
+        setData(StorageScannerModule.STORAGE_SCANNER_DATA, data);
     }
 
     @Override
@@ -1190,34 +1197,6 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         }
     }
 
-    // @todo 1.21 data
-//    @Override
-//    protected void loadInfo(CompoundTag tagCompound) {
-//        super.loadInfo(tagCompound);
-//        if (tagCompound.contains("Info")) {
-//            CompoundTag infoTag = tagCompound.getCompound("Info");
-//            if (infoTag.contains("radius")) {
-//                radius = infoTag.getInt("radius");
-//            }
-//            if (infoTag.contains("exportC")) {
-//                exportToCurrent = infoTag.getBoolean("exportC");
-//            }
-//            if (infoTag.contains("wideview")) {
-//                openWideView = infoTag.getBoolean("wideview");
-//            }
-//            if (infoTag.contains("grid")) {
-//                craftingGrid.readFromNBT(infoTag.getCompound("grid"));
-//            }
-//            if (infoTag.contains("sortMode")) {
-//                int m = infoTag.getInt("sortMode");
-//                sortMode = SortingMode.values()[m];
-//            }
-//        } else {
-//            openWideView = true;
-//            sortMode = SortingMode.NAME;
-//        }
-//    }
-
     @Override
     public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
         super.saveAdditional(tagCompound, provider);
@@ -1242,19 +1221,6 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         tagCompound.put("fromxnet", list);
     }
 
-    // @todo 1.21 data
-//    @Override
-//    protected void saveInfo(CompoundTag tagCompound) {
-//        super.saveInfo(tagCompound);
-//        CompoundTag infoTag = getOrCreateInfo(tagCompound);
-//        infoTag.putInt("radius", radius);
-//        infoTag.putBoolean("exportC", exportToCurrent);
-//        infoTag.putBoolean("wideview", openWideView);
-//        infoTag.put("grid", craftingGrid.writeToNBT());
-//        infoTag.putInt("sortMode", sortMode.ordinal());
-//    }
-
-
     @Override
     protected void applyImplicitComponents(DataComponentInput input) {
         super.applyImplicitComponents(input);
@@ -1262,12 +1228,17 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         if (data != null) {
             setData(StorageScannerModule.STORAGE_SCANNER_DATA, data);
         }
+        var cdata = input.get(StorageScannerModule.ITEM_CRAFTING_GRID_DATA);
+        if (cdata != null) {
+            craftingGrid = cdata;
+        }
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
         builder.set(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA, getData(StorageScannerModule.STORAGE_SCANNER_DATA));
+        builder.set(StorageScannerModule.ITEM_CRAFTING_GRID_DATA, craftingGrid);
     }
 
     @ServerCommand

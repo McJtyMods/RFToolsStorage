@@ -6,6 +6,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -20,6 +23,11 @@ public class CraftingGrid {
             CraftingGridInventory.CODEC.fieldOf("inventory").forGetter(CraftingGrid::getCraftingGridInventory),
             RFCraftingRecipe.CODEC.listOf().fieldOf("recipes").forGetter(grid -> List.of(grid.recipes))
     ).apply(instance, CraftingGrid::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, CraftingGrid> STREAM_CODEC = StreamCodec.composite(
+            CraftingGridInventory.STREAM_CODEC, CraftingGrid::getCraftingGridInventory,
+            RFCraftingRecipe.STREAM_CODEC.apply(ByteBufCodecs.list()), s -> List.of(s.recipes),
+            CraftingGrid::new);
 
     public CraftingGrid() {
         this.craftingGridInventory = new CraftingGridInventory();
@@ -36,6 +44,13 @@ public class CraftingGrid {
             } else {
                 this.recipes[i] = new RFCraftingRecipe();
             }
+        }
+    }
+
+    public void set(CraftingGrid grid) {
+        this.craftingGridInventory.set(grid.craftingGridInventory);
+        for (int i = 0 ; i < 6 ; i++) {
+            this.recipes[i] = grid.recipes[i];
         }
     }
 

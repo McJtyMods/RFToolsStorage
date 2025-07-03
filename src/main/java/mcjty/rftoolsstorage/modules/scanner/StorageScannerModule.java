@@ -8,6 +8,7 @@ import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolsbase.modules.various.VariousModule;
+import mcjty.rftoolsstorage.craftinggrid.CraftingGrid;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerBlock;
 import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
 import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
@@ -71,6 +72,12 @@ public class StorageScannerModule implements IModule {
             builder -> builder
                     .persistent(StorageScannerData.CODEC)
                     .networkSynchronized(StorageScannerData.STREAM_CODEC));
+    // Seperate crafting grid data element for the storage scanner: used for storing with the dropped item
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CraftingGrid>> ITEM_CRAFTING_GRID_DATA = COMPONENTS.registerComponentType(
+            "crafting_grid_data",
+            builder -> builder
+                    .persistent(CraftingGrid.CODEC)
+                    .networkSynchronized(CraftingGrid.STREAM_CODEC));
 
     public StorageScannerModule(IEventBus bus) {
         bus.addListener(this::registerMenuScreens);
@@ -102,7 +109,7 @@ public class StorageScannerModule implements IModule {
         dataGen.add(
                 Dob.blockBuilder(STORAGE_SCANNER)
                         .ironPickaxeTags()
-                        .standardLoot(ITEM_STORAGE_SCANNER_DATA.get())
+                        .standardLoot(ITEM_STORAGE_SCANNER_DATA.get(), ITEM_CRAFTING_GRID_DATA.get())
                         .shaped(builder -> builder
                                         .define('g', Items.GOLD_INGOT)
                                         .define('F', VariousModule.MACHINE_FRAME.get())

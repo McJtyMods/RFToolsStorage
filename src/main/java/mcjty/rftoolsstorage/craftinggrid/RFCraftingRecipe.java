@@ -8,6 +8,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
@@ -42,6 +44,14 @@ public class RFCraftingRecipe {
             Codec.BOOL.fieldOf("keepOne").forGetter(RFCraftingRecipe::isKeepOne),
             CraftMode.CODEC.fieldOf("craftMode").forGetter(RFCraftingRecipe::getCraftMode)
     ).apply(instance, RFCraftingRecipe::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, RFCraftingRecipe> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.OPTIONAL_LIST_STREAM_CODEC, r -> r.inv,
+            ItemStack.OPTIONAL_STREAM_CODEC, r -> r.result,
+            ByteBufCodecs.BOOL, r -> r.keepOne,
+            CraftMode.STREAM_CODEC, r -> r.craftMode,
+            RFCraftingRecipe::new
+    );
 
     public enum CraftMode implements StringRepresentable {
         EXT("Ext"),

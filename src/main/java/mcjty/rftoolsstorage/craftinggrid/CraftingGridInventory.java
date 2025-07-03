@@ -43,6 +43,11 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
         this.stacks.addAll(stacks);
     }
 
+    public void set(CraftingGridInventory inventory) {
+        this.stacks.clear();
+        this.stacks.addAll(inventory.stacks);
+    }
+
     public ItemStack[] getIngredients() {
         ItemStack[] ing = new ItemStack[9];
         for (int i = 0; i < ing.length; i++) {
