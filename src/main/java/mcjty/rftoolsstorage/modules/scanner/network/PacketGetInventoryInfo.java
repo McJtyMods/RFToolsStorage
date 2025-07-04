@@ -106,15 +106,10 @@ public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, b
             displayName = Tools.getReadableName(world, pos);
             BlockEntity storageTe = world.getBlockEntity(pos);
             if (storageTe instanceof ModularStorageTileEntity storage) {
-                String finalDisplayName = displayName;
                 IItemHandlerModifiable h = storage.getItems();
                 ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
                 if (!storageModule.isEmpty()) {
-                    // @todo 1.21 check
                     displayName = storageModule.getDisplayName().getString();
-//                    if (storageModule.hasTag() && storageModule.getTag().contains("display")) {
-//                        displayName = storageModule.getHoverName().getString() /* was getFormattedText() */;
-//                    }
                 }
             }
         }

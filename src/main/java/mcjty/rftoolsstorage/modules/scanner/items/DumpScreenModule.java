@@ -19,22 +19,25 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public record DumpScreenModule(GlobalPos pos, boolean active, List<ItemStack> stacks, boolean matchingTag) implements IScreenModule<DumpScreenModule, IModuleData> {
+public record DumpScreenModule(GlobalPos pos, boolean active, List<ItemStack> stacks, boolean matchingTag, String line, int color) implements IScreenModule<DumpScreenModule, IModuleData> {
 
     public static final int COLS = 7;
     public static final int ROWS = 4;
 
-    public static final DumpScreenModule DEFAULT = new DumpScreenModule(GlobalPos.of(Level.OVERWORLD, BlockPosTools.INVALID),  false, Collections.nCopies(COLS * ROWS, ItemStack.EMPTY), false);
+    public static final DumpScreenModule DEFAULT = new DumpScreenModule(GlobalPos.of(Level.OVERWORLD, BlockPosTools.INVALID),  false, Collections.nCopies(COLS * ROWS, ItemStack.EMPTY), false, "", 0xffffff);
 
     public static final Codec<DumpScreenModule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             GlobalPos.CODEC.fieldOf("pos").forGetter(DumpScreenModule::pos),
             Codec.BOOL.fieldOf("active").forGetter(DumpScreenModule::active),
             ItemStack.CODEC.listOf().fieldOf("stacks").forGetter(DumpScreenModule::stacks),
-            Codec.BOOL.fieldOf("matchingTag").forGetter(DumpScreenModule::matchingTag)
+            Codec.BOOL.fieldOf("matchingTag").forGetter(DumpScreenModule::matchingTag),
+            Codec.STRING.fieldOf("line").forGetter(DumpScreenModule::line),
+            Codec.INT.fieldOf("color").forGetter(DumpScreenModule::color)
     ).apply(instance, DumpScreenModule::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, DumpScreenModule> STREAM_CODEC = StreamCodec.composite(
@@ -42,6 +45,8 @@ public record DumpScreenModule(GlobalPos pos, boolean active, List<ItemStack> st
             ByteBufCodecs.BOOL, DumpScreenModule::active,
             ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), DumpScreenModule::stacks,
             ByteBufCodecs.BOOL, DumpScreenModule::matchingTag,
+            ByteBufCodecs.STRING_UTF8, DumpScreenModule::line,
+            ByteBufCodecs.INT, DumpScreenModule::color,
             DumpScreenModule::new);
 
     @Override
@@ -50,7 +55,25 @@ public record DumpScreenModule(GlobalPos pos, boolean active, List<ItemStack> st
     }
 
     public DumpScreenModule withActive(boolean active) {
-        return new DumpScreenModule(pos, active, stacks, matchingTag);
+        return new DumpScreenModule(pos, active, stacks, matchingTag, line, color);
+    }
+
+    public DumpScreenModule withLine(String line) {
+        return new DumpScreenModule(pos, active, stacks, matchingTag, line, color);
+    }
+
+    public DumpScreenModule withColor(int color) {
+        return new DumpScreenModule(pos, active, stacks, matchingTag, line, color);
+    }
+
+    public DumpScreenModule withMatchingTag(boolean matchingTag) {
+        return new DumpScreenModule(pos, active, stacks, matchingTag, line, color);
+    }
+
+    public DumpScreenModule withStack(int index, ItemStack stack) {
+        List<ItemStack> newstacks = new ArrayList<>(stacks);
+        newstacks.set(index, stack);
+        return new DumpScreenModule(pos, active, newstacks, matchingTag, line, color);
     }
 
     @Override

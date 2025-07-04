@@ -9,9 +9,6 @@ import mcjty.lib.modules.IModule;
 import mcjty.rftoolsbase.modules.tablet.items.TabletItem;
 import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGrid;
-import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerBlock;
-import mcjty.rftoolsstorage.modules.craftingmanager.blocks.CraftingManagerTileEntity;
-import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
 import mcjty.rftoolsstorage.modules.scanner.blocks.RemoteStorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerBlock;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
@@ -20,9 +17,10 @@ import mcjty.rftoolsstorage.modules.scanner.client.ClientCommandHandler;
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
 import mcjty.rftoolsstorage.modules.scanner.data.StorageScannerData;
 import mcjty.rftoolsstorage.modules.scanner.items.DumpModuleItem;
+import mcjty.rftoolsstorage.modules.scanner.items.DumpScreenModule;
 import mcjty.rftoolsstorage.modules.scanner.items.StorageControlModuleItem;
+import mcjty.rftoolsstorage.modules.scanner.items.StorageControlScreenModule;
 import mcjty.rftoolsstorage.setup.Config;
-import mcjty.rftoolsstorage.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.tags.ItemTags;
@@ -30,13 +28,11 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -78,6 +74,19 @@ public class StorageScannerModule implements IModule {
             builder -> builder
                     .persistent(CraftingGrid.CODEC)
                     .networkSynchronized(CraftingGrid.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<DumpScreenModule>> MODULE_DUMP_DATA = COMPONENTS.registerComponentType(
+            "module_dump_data",
+            builder -> builder
+                    .persistent(DumpScreenModule.CODEC)
+                    .networkSynchronized(DumpScreenModule.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<StorageControlScreenModule>> MODULE_CONTROL_DATA = COMPONENTS.registerComponentType(
+            "module_control_data",
+            builder -> builder
+                    .persistent(StorageControlScreenModule.CODEC)
+                    .networkSynchronized(StorageControlScreenModule.STREAM_CODEC));
+
 
     public StorageScannerModule(IEventBus bus) {
         bus.addListener(this::registerMenuScreens);

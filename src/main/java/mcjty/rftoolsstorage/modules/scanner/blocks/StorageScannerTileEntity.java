@@ -806,6 +806,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     private boolean inRange(BlockPos p) {
+        int radius = getRadius();
         return p.getX() >= getBlockPos().getX() - radius && p.getX() <= getBlockPos().getX() + radius && p.getY() >= getBlockPos().getY() - radius && p.getY() <= getBlockPos().getY() + radius && p.getZ() >= getBlockPos().getZ() - radius && p.getZ() <= getBlockPos().getZ() + radius;
     }
 
@@ -1230,7 +1231,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         }
         var cdata = input.get(StorageScannerModule.ITEM_CRAFTING_GRID_DATA);
         if (cdata != null) {
-            craftingGrid = cdata;
+            craftingGrid.set(cdata);
         }
     }
 

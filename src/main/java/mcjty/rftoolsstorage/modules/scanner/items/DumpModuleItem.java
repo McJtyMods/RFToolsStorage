@@ -11,6 +11,7 @@ import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -19,12 +20,13 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public class DumpModuleItem extends GenericModuleItem {
 
@@ -66,8 +68,7 @@ public class DumpModuleItem extends GenericModuleItem {
 
     @Override
     public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
-        // @todo 1.21 data
-        return null;
+        return StorageScannerModule.MODULE_DUMP_DATA.get();
     }
 
     @Override
@@ -85,21 +86,38 @@ public class DumpModuleItem extends GenericModuleItem {
         return "Dump";
     }
 
+    public static DumpScreenModule data(ItemStack stack) {
+        DumpScreenModule data = stack.get(StorageScannerModule.MODULE_DUMP_DATA);
+        if (data == null) {
+            data = DumpScreenModule.DEFAULT;
+        }
+        return data;
+    }
+
+    public static void data(ItemStack stack, Function<DumpScreenModule, DumpScreenModule> setter) {
+        DumpScreenModule data = data(stack);
+        data = setter.apply(data);
+        stack.set(StorageScannerModule.MODULE_DUMP_DATA, data);
+    }
+
+
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        int index = 0;
+        AtomicInteger index = new AtomicInteger(0);
         for (int y = 0 ; y < DumpScreenModule.ROWS ; y++) {
             for (int x = 0 ; x < DumpScreenModule.COLS ; x++) {
-                // @todo 1.21 data
-//                guiBuilder.ghostStack("stack" + index);
-                index++;
+                guiBuilder.ghostStack(
+                        (module, stack) -> data(module, d -> d.withStack(index.get(), stack)),
+                        module -> data(module).stacks().get(index.get()));
+                index.addAndGet(1);
             }
             guiBuilder.nl();
         }
-        // @todo 1.21 data
-//        guiBuilder
-//                .label("Label:").text("text", "Label text").color("color", "Label color").nl()
-//                .toggle("matchingTag", "Matching Tag", "If enabled use common tags", "to match items");
+        guiBuilder
+                .label("Label:")
+                .text((module, text) -> data(module, d -> d.withLine(text)), module -> data(module).line(), "Label text")
+                .color((module, color) -> data(module, d -> d.withColor(color)), module -> data(module).color(), "Label color").nl()
+                .toggle((module, tag) -> data(module, d -> d.withMatchingTag(tag)), module -> data(module).matchingTag(), "Matching Tag", "If enabled use common tags", "to match items");
     }
 
     @Nonnull
@@ -111,9 +129,8 @@ public class DumpModuleItem extends GenericModuleItem {
         BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof IStorageScanner) {
             BlockState state = world.getBlockState(pos);
-            Block block = state.getBlock();
             String name = "<invalid>";
-            if (!world.getBlockState(pos).isAir()) {
+            if (!state.isAir()) {
                 name = Tools.getReadableName(world, pos);
             }
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);

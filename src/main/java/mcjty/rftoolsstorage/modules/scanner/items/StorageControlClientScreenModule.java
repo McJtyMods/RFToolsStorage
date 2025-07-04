@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mcjty.lib.client.CustomRenderTypes;
 import mcjty.lib.client.RenderHelper;
-import mcjty.lib.varia.ItemStackList;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleRenderHelper;
 import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
@@ -12,14 +11,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.List;
+
 public class StorageControlClientScreenModule implements IClientScreenModule<StorageControlScreenModule.ModuleDataStacks> {
-    private final ItemStackList stacks = ItemStackList.create(9);
 
     @Override
     public TransformMode getTransformMode(ItemStack moduleItem) {
@@ -41,6 +38,9 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         if (screenData == null) {
             return;
         }
+
+        StorageControlScreenModule data = StorageControlModuleItem.data(renderInfo.moduleStack);
+        List<ItemStack> stacks = data.stacks();
 
         PoseStack poseStack = graphics.pose();
 
@@ -162,19 +162,6 @@ public class StorageControlClientScreenModule implements IClientScreenModule<Sto
         builder.addVertex((x + width), (y + height), offset).setColor(1.0f, 1.0f, 1.0f, 1.0f).setLight(lightmapValue);
         builder.addVertex((x + width), y, offset).setColor(1.0f, 1.0f, 1.0f, 1.0f).setLight(lightmapValue);
     }
-
-
-//                    // @todo 1.21 data
-//    @Override
-//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-//        if (tagCompound != null) {
-//            for (int i = 0 ; i < stacks.size() ; i++) {
-//                if (tagCompound.contains("stack"+i)) {
-//                    stacks.set(i, ItemStack.of(tagCompound.getCompound("stack" + i)));
-//                }
-//            }
-//        }
-//    }
 
     @Override
     public boolean needsServerData() {

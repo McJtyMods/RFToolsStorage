@@ -28,17 +28,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dirty, List<ItemStack> stacks) implements IScreenModule<StorageControlScreenModule, StorageControlScreenModule.ModuleDataStacks>, ITooltipInfo,
         IScreenModuleUpdater {
-//    private final ItemStackList stacks = ItemStackList.create(9);
-//
-//    protected ResourceKey<Level> dim = Level.OVERWORLD;
-//    protected BlockPos coordinate = BlockPosTools.INVALID;
-//    private boolean starred = false;
-//    private int dirty = -1;
 
     // @todo 1.15 to replace the oredict from the past we might need a way to set a tag here
 
@@ -169,6 +164,15 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
         return StorageScannerConfiguration.STORAGE_CONTROL_RFPERTICK.get();
     }
 
+    public StorageControlScreenModule withStack(int index, ItemStack stack) {
+        List<ItemStack> newStacks = new ArrayList<>(stacks);
+        newStacks.set(index, stack);
+        return new StorageControlScreenModule(pos, starred, dirty, newStacks);
+    }
+
+    public StorageControlScreenModule withStarred(boolean starred) {
+        return new StorageControlScreenModule(pos, starred, dirty, stacks);
+    }
 
     private boolean isShown(ItemStack stack) {
         if (stack.isEmpty()) {
@@ -191,20 +195,19 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
 
 
     @Override
-    public CompoundTag update(CompoundTag tagCompound, Level world, Player player) {
-        // @todo 1.21 data
-//        if (dirty >= 0) {
-//            CompoundTag newCompound = tagCompound.copy();
-//            CompoundTag tc = new CompoundTag();
-//            stacks.get(dirty).save(tc);
-//            newCompound.put("stack" + dirty, tc);
-//            if (player != null) {
-//                SoundTools.playSound(player.getCommandSenderWorld(), SoundEvents.EXPERIENCE_ORB_PICKUP,
-//                        player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(), 1.0f, 1.0f);
-//            }
-//            dirty = -1;
-//            return newCompound;
-//        }
+    public ItemStack update(ItemStack module, Level world, Player player) {
+        if (dirty >= 0) {
+            CompoundTag newCompound = tagCompound.copy();
+            CompoundTag tc = new CompoundTag();
+            stacks.get(dirty).save(tc);
+            newCompound.put("stack" + dirty, tc);
+            if (player != null) {
+                SoundTools.playSound(player.getCommandSenderWorld(), SoundEvents.EXPERIENCE_ORB_PICKUP,
+                        player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(), 1.0f, 1.0f);
+            }
+            dirty = -1;
+            return newCompound;
+        }
         return null;
     }
 

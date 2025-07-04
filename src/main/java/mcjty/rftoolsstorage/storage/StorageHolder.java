@@ -22,16 +22,16 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
     private StorageHolder() {
     }
 
-    private StorageHolder(CompoundTag tag) {
+    private StorageHolder(CompoundTag tag, HolderLookup.Provider provider) {
         ListTag storages = tag.getList("Storages", Tag.TAG_COMPOUND);
         for (Tag storage : storages) {
-            StorageEntry entry = new StorageEntry((CompoundTag) storage);
+            StorageEntry entry = new StorageEntry((CompoundTag) storage, provider);
             storageEntryMap.put(entry.getUuid(), entry);
         }
     }
 
     public static StorageHolder get(Level world) {
-        return getData(world, StorageHolder::new, StorageHolder::new, NAME);
+        return getData(world, tag -> new StorageHolder(tag, world.registryAccess()), StorageHolder::new, NAME);
     }
 
 
@@ -63,7 +63,7 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
     public CompoundTag save(@Nonnull CompoundTag nbt, HolderLookup.Provider provider) {
         ListTag storages = new ListTag();
         for (Map.Entry<UUID, StorageEntry> entry : storageEntryMap.entrySet()) {
-            storages.add(entry.getValue().write());
+            storages.add(entry.getValue().write(provider));
         }
         nbt.put("Storages", storages);
         return nbt;

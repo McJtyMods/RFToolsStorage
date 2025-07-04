@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.storage;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -21,7 +22,7 @@ public class StorageEntry {
     private long updateTime;
     private String createdBy;
 
-    public StorageEntry(CompoundTag nbt) {
+    public StorageEntry(CompoundTag nbt, HolderLookup.Provider provider) {
         int size = nbt.getInt("slots");
         stacks = NonNullList.withSize(size, ItemStack.EMPTY);
         ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
@@ -30,8 +31,7 @@ public class StorageEntry {
             int slot = itemTags.getInt("Slot");
 
             if (slot >= 0 && slot < stacks.size()) {
-                // @todo 1.21 data
-//                stacks.set(slot, ItemStack.of(itemTags));
+                stacks.set(slot, ItemStack.parseOptional(provider, itemTags));
             }
         }
 
@@ -79,7 +79,7 @@ public class StorageEntry {
         return stacks;
     }
 
-    public CompoundTag write() {
+    public CompoundTag write(HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
         nbt.putInt("slots", stacks.size());
         nbt.putInt("version", version);
@@ -92,8 +92,7 @@ public class StorageEntry {
             if (!stacks.get(i).isEmpty()) {
                 CompoundTag itemTag = new CompoundTag();
                 itemTag.putInt("Slot", i);
-                // @todo 1.21 data
-//                stacks.get(i).save(itemTag);
+                stacks.get(i).save(provider, itemTag);
                 nbtTagList.add(itemTag);
             }
         }

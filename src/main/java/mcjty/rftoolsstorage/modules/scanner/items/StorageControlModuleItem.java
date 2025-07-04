@@ -41,6 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 public class StorageControlModuleItem extends GenericModuleItem implements IComponentsToPreserve, ITabletSupport {
 
@@ -134,8 +135,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
 
     @Override
     public @Nullable DataComponentType<? extends IScreenModule<?, ?>> componentType() {
-        // @todo 1.21 implement
-        return null;
+        return StorageScannerModule.MODULE_CONTROL_DATA.get();
     }
 
     @Override
@@ -153,20 +153,44 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
         return "Stor";
     }
 
+    public static StorageControlScreenModule data(ItemStack stack) {
+        StorageControlScreenModule data = stack.get(StorageScannerModule.MODULE_CONTROL_DATA);
+        if (data == null) {
+            data = StorageControlScreenModule.DEFAULT;
+        }
+        return data;
+    }
+
+    public static void data(ItemStack stack, Function<StorageControlScreenModule, StorageControlScreenModule> setter) {
+        StorageControlScreenModule data = data(stack);
+        data = setter.apply(data);
+        stack.set(StorageScannerModule.MODULE_CONTROL_DATA, data);
+    }
+
     @Override
     public void createGui(IModuleGuiBuilder guiBuilder) {
-        // @todo 1.21 data
-//        guiBuilder
-//                .ghostStack("stack0").ghostStack("stack1").ghostStack("stack2").nl()
-//                .ghostStack("stack3").ghostStack("stack4").ghostStack("stack5").nl()
-//                .ghostStack("stack6").ghostStack("stack7").ghostStack("stack8").nl()
-//                .toggle("starred", "Starred", "If enabled only count items", "in 'starred' inventories", "(mark inventories in storage scanner)")
-//                .block("monitor").nl();
+        guiBuilder
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(0, stack)), module -> data(module).stacks().get(0))
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(1, stack)), module -> data(module).stacks().get(1))
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(2, stack)), module -> data(module).stacks().get(2))
+                .nl()
+
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(3, stack)), module -> data(module).stacks().get(3))
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(4, stack)), module -> data(module).stacks().get(4))
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(5, stack)), module -> data(module).stacks().get(5))
+                .nl()
+
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(6, stack)), module -> data(module).stacks().get(6))
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(7, stack)), module -> data(module).stacks().get(7))
+                .ghostStack((module, stack) -> data(module, d -> d.withStack(8, stack)), module -> data(module).stacks().get(8))
+                .nl()
+
+                .toggle((module, starred) -> data(module, d -> d.withStarred(starred)), module -> data(module).starred(), "Starred", "If enabled only count items", "in 'starred' inventories", "(mark inventories in storage scanner)")
+                .block(module -> data(module).pos(), module -> "").nl();
     }
 
     @Override
     public Collection<DataComponentType<?>> getComponentsToPreserve() {
-        // @todo 1.21 implement
-        return List.of();
+        return List.of(StorageScannerModule.MODULE_CONTROL_DATA.get());
     }
 }

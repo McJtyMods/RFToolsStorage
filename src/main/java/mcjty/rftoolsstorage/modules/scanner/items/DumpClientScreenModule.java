@@ -11,15 +11,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
 public class DumpClientScreenModule implements IClientScreenModule<IModuleData> {
-    private String line = "";
-    private int color = 0xffffff;
-    private final ItemStack[] stacks = new ItemStack[DumpScreenModule.COLS * DumpScreenModule.ROWS];
     private final ITextRenderHelper buttonCache = new ScreenTextHelper();
 
     @Override
@@ -39,34 +33,17 @@ public class DumpClientScreenModule implements IClientScreenModule<IModuleData> 
 //        GlStateManager.depthMask(false);
         int xoffset = 7 + 5;
 
+        DumpScreenModule data = DumpModuleItem.data(renderInfo.moduleStack);
+
         RenderHelper.drawBeveledBox(graphics, buffer, xoffset - 5, currenty, 130 - 7, currenty + 12, 0xffeeeeee, 0xff333333, 0xff448866,
                 renderInfo.getLightmapValue());
-        buttonCache.setup(line, 490, renderInfo);
-        buttonCache.renderText(graphics, buffer, xoffset -10, currenty + 2, color, renderInfo);
+        buttonCache.setup(data.line(), 490, renderInfo);
+        buttonCache.renderText(graphics, buffer, xoffset -10, currenty + 2, data.color(), renderInfo);
     }
 
     @Override
     public void mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked) {
     }
-
-
-    // @todo 1.21 data
-//    @Override
-//    public void setupFromNBT(CompoundTag tagCompound, ResourceKey<Level> dim, BlockPos pos) {
-//        if (tagCompound != null) {
-//            line = tagCompound.getString("text");
-//            if (tagCompound.contains("color")) {
-//                color = tagCompound.getInt("color");
-//            } else {
-//                color = 0xffffff;
-//            }
-//            for (int i = 0 ; i < stacks.length ; i++) {
-//                if (tagCompound.contains("stack"+i)) {
-//                    stacks[i] = ItemStack.of(tagCompound.getCompound("stack" + i));
-//                }
-//            }
-//        }
-//    }
 
     @Override
     public boolean needsServerData() {
