@@ -123,18 +123,18 @@ public record DumpScreenModule(GlobalPos pos, boolean active, List<ItemStack> st
     }
 
     @Override
-    public void mouseClick(Level world, int x, int y, boolean clicked, Player player) {
+    public ItemStack mouseClick(ItemStack moduleStack, Level world, int x, int y, boolean clicked, Player player) {
         if ((!clicked) || player == null) {
-            return;
+            return ItemStack.EMPTY;
         }
         if (BlockPosTools.INVALID.equals(pos.pos())) {
             player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
-            return;
+            return ItemStack.EMPTY;
         }
 
         IStorageScanner scannerTileEntity = StorageControlScreenModule.getStorageScanner(world, pos.dimension(), pos.pos());
         if (scannerTileEntity == null) {
-            return;
+            return ItemStack.EMPTY;
         }
         int xoffset = 5;
         if (x >= xoffset) {
@@ -146,6 +146,7 @@ public record DumpScreenModule(GlobalPos pos, boolean active, List<ItemStack> st
             }
             player.containerMenu.broadcastChanges();
         }
+        return ItemStack.EMPTY;
     }
 
     @Override

@@ -12,6 +12,7 @@ import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
+import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -197,32 +198,34 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
     @Override
     public ItemStack update(ItemStack module, Level world, Player player) {
         if (dirty >= 0) {
-            CompoundTag newCompound = tagCompound.copy();
-            CompoundTag tc = new CompoundTag();
-            stacks.get(dirty).save(tc);
-            newCompound.put("stack" + dirty, tc);
+            ItemStack copy = module.copy();
+            StorageControlScreenModule data = copy.get(StorageScannerModule.MODULE_CONTROL_DATA).withStack(dirty, stacks.get(dirty)).withDirty(-1);
+            copy.set(StorageScannerModule.MODULE_CONTROL_DATA, data);
             if (player != null) {
                 SoundTools.playSound(player.getCommandSenderWorld(), SoundEvents.EXPERIENCE_ORB_PICKUP,
                         player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(), 1.0f, 1.0f);
             }
-            dirty = -1;
-            return newCompound;
+            return copy;
         }
-        return null;
+        return ItemStack.EMPTY;
+    }
+
+    private StorageControlScreenModule withDirty(int dirty) {
+        return new StorageControlScreenModule(pos, starred, dirty, stacks);
     }
 
     @Override
-    public void mouseClick(Level world, int hitx, int hity, boolean clicked, Player player) {
+    public ItemStack mouseClick(ItemStack moduleStack, Level world, int hitx, int hity, boolean clicked, Player player) {
         if ((!clicked) || player == null) {
-            return;
+            return ItemStack.EMPTY;
         }
         if (BlockPosTools.INVALID.equals(pos.pos())) {
             player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
-            return;
+            return ItemStack.EMPTY;
         }
         IStorageScanner scannerTileEntity = getStorageScanner(player.level(), pos.dimension(), pos.pos());
         if (scannerTileEntity == null) {
-            return;
+            return ItemStack.EMPTY;
         }
         if (hitx >= 0) {
             boolean insertStackActive = hitx >= 0 && hitx < 60 && hity > 98;
@@ -232,7 +235,7 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
                     player.setItemInHand(InteractionHand.MAIN_HAND, stack);
                 }
                 player.containerMenu.broadcastChanges();
-                return;
+                return ItemStack.EMPTY;
             }
 
             boolean insertAllActive = hitx >= 60 && hity > 98;
@@ -244,7 +247,7 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
                     }
                 }
                 player.containerMenu.broadcastChanges();
-                return;
+                return ItemStack.EMPTY;
             }
 
             int i = getHighlightedStack(hitx, hity);
@@ -252,16 +255,15 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
                 if (stacks.get(i).isEmpty()) {
                     ItemStack heldItem = player.getMainHandItem();
                     if (!heldItem.isEmpty()) {
-                        ItemStack stack = heldItem.copy();
-                        stack.setCount(1);
-                        stacks.set(i, stack);
-                        // @todo 1.21 data
-//                        dirty = i;
+                        StorageControlScreenModule data = withStack(i, heldItem.copy()).withDirty(i);
+                        moduleStack.set(StorageScannerModule.MODULE_CONTROL_DATA, data);
+                        return moduleStack;
                     }
                 } else {
                     scannerTileEntity.giveToPlayerFromScreen(stacks.get(i), player.isShiftKeyDown(), player);
                 }
             }
         }
+        return ItemStack.EMPTY;
     }
 }
