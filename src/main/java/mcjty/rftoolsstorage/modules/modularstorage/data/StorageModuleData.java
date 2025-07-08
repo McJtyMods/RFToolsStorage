@@ -23,8 +23,8 @@ public record StorageModuleData(int id, int version, int infoAmount, UUID uuid,
             UUIDUtil.CODEC.optionalFieldOf("uuid").forGetter(s -> Optional.ofNullable(s.uuid)),
             Codec.LONG.fieldOf("creation").forGetter(StorageModuleData::creationTime),
             Codec.LONG.fieldOf("update").forGetter(StorageModuleData::updateTime),
-            Codec.STRING.fieldOf("createdBy").forGetter(StorageModuleData::createdBy)
-    ).apply(instance, (id, vs, ia, uuid, creation, update, cb) -> new StorageModuleData(id, vs, ia, uuid.orElse(null), creation, update, cb)));
+            Codec.STRING.optionalFieldOf("createdBy").forGetter(s -> Optional.ofNullable(s.createdBy))
+    ).apply(instance, (id, vs, ia, uuid, creation, update, cb) -> new StorageModuleData(id, vs, ia, uuid.orElse(null), creation, update, cb.orElse(null))));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, StorageModuleData> STREAM_CODEC = CompositeStreamCodec.composite(
             ByteBufCodecs.INT, StorageModuleData::id,
@@ -33,8 +33,8 @@ public record StorageModuleData(int id, int version, int infoAmount, UUID uuid,
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), s -> Optional.ofNullable(s.uuid),
             ByteBufCodecs.VAR_LONG, StorageModuleData::creationTime,
             ByteBufCodecs.VAR_LONG, StorageModuleData::updateTime,
-            ByteBufCodecs.STRING_UTF8, StorageModuleData::createdBy,
-            (id, vs, ia, uuid, creation, update, cb) -> new StorageModuleData(id, vs, ia, uuid.orElse(null), creation, update, cb)
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), s -> Optional.ofNullable(s.createdBy),
+            (id, vs, ia, uuid, creation, update, cb) -> new StorageModuleData(id, vs, ia, uuid.orElse(null), creation, update, cb.orElse(null))
     );
 
     public StorageModuleData withId(int id) {

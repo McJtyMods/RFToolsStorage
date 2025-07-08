@@ -30,15 +30,15 @@ public class RFToolsStorageMessages {
                 .optional();
 
         // Server side
-        registrar.playToServer(PacketGridToClient.TYPE, PacketGridToClient.CODEC, PacketGridToClient::handle);
+        registrar.playToServer(PacketGridToServer.TYPE, PacketGridToServer.CODEC, PacketGridToServer::handle);
         registrar.playToServer(PacketSendRecipe.TYPE, PacketSendRecipe.CODEC, PacketSendRecipe::handle);
         registrar.playToServer(PacketCraftTestResultToClient.TYPE, PacketCraftTestResultToClient.CODEC, PacketCraftTestResultToClient::handle);
         registrar.playToServer(PacketGetInventoryInfo.TYPE, PacketGetInventoryInfo.CODEC, PacketGetInventoryInfo::handle);
         registrar.playToServer(PacketRequestItem.TYPE, PacketRequestItem.CODEC, PacketRequestItem::handle);
 
         // Client side
+        registrar.playToClient(PacketGridToClient.TYPE, PacketGridToClient.CODEC, PacketGridToClient::handle);
         registrar.playToClient(PacketStorageInfoToClient.TYPE, PacketStorageInfoToClient.CODEC, PacketStorageInfoToClient::handle);
-        registrar.playToClient(PacketGridToServer.TYPE, PacketGridToServer.CODEC, PacketGridToServer::handle);
         registrar.playToClient(PacketReturnInventoryInfo.TYPE, PacketReturnInventoryInfo.CODEC, PacketReturnInventoryInfo::handle);
     }
 

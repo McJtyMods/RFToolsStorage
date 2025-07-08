@@ -31,12 +31,14 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -53,49 +55,19 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     private final Cached<Predicate<ItemStack>> filterCache = Cached.of(this::createFilterCache);
 
-    private final IItemHandlerModifiable items = createGlobalHandler();
+    private final ItemStackHandler cardHandler = createCardHandler();
+
+    private final Lazy<IItemHandlerModifiable> items = Lazy.of(this::createGlobalHandler);
     @Cap(type = CapType.ITEMS)
-    private static final Function<ModularStorageTileEntity, IItemHandlerModifiable> ITEM_CAP = tile -> tile.items;
+    private static final Function<ModularStorageTileEntity, IItemHandlerModifiable> ITEM_CAP = tile -> tile.items.get();
 
     @Cap(type = CapType.CONTAINER)
     private static final Function<ModularStorageTileEntity, MenuProvider> screenHandler = be -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, be.getBlockPos(), be, player))
-            .itemHandler(() -> be.items)
+            .itemHandler(be.items::get)
             .setupSync(be);
 
     private GlobalStorageItemWrapper globalWrapper;
-    private final ItemStackHandler cardHandler = new ItemStackHandler(3) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            if (slot == SLOT_STORAGE_MODULE) {
-                if (globalWrapper != null) {
-                    StorageInfo info = getStorageInfo();
-                    globalWrapper.setInfo(info);
-                }
-            } else if (slot == SLOT_FILTER_MODULE) {
-                filterCache.clear();
-            }
-            setChanged();
-        }
-
-        @Nonnull
-        @Override
-        public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-            if (isLocked()) {
-                return stack;
-            }
-            return super.insertItem(slot, stack, simulate);
-        }
-
-        @Nonnull
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (isLocked()) {
-                return ItemStack.EMPTY;
-            }
-            return super.extractItem(slot, amount, simulate);
-        }
-    };
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
 
@@ -109,7 +81,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     public IItemHandlerModifiable getItems() {
-        return items;
+        return items.get();
     }
 
     @Override
@@ -145,7 +117,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Nonnull
     public List<Pair<ItemStack, Integer>> craft(Player player, int n, boolean test) {
         InventoriesItemSource itemSource = new InventoriesItemSource().add(new InvWrapper(player.getInventory()), 0);
-        itemSource.add(items, 0);
+        itemSource.add(items.get(), 0);
 
         if (test) {
             return StorageCraftingTools.testCraftItems(player, n, craftingGrid.getActiveRecipe(), itemSource);
@@ -392,6 +364,41 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 
     private Predicate<ItemStack> createFilterCache() {
         return FilterModuleItem.getCache(cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE));
+    }
+
+    private @NotNull ItemStackHandler createCardHandler() {
+        return new ItemStackHandler(3) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                if (slot == SLOT_STORAGE_MODULE) {
+                    if (globalWrapper != null) {
+                        StorageInfo info = getStorageInfo();
+                        globalWrapper.setInfo(info);
+                    }
+                } else if (slot == SLOT_FILTER_MODULE) {
+                    filterCache.clear();
+                }
+                setChanged();
+            }
+
+            @Nonnull
+            @Override
+            public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+                if (isLocked()) {
+                    return stack;
+                }
+                return super.insertItem(slot, stack, simulate);
+            }
+
+            @Nonnull
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if (isLocked()) {
+                    return ItemStack.EMPTY;
+                }
+                return super.extractItem(slot, amount, simulate);
+            }
+        };
     }
 
     @Nonnull

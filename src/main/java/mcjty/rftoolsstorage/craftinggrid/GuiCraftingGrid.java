@@ -213,15 +213,16 @@ public class GuiCraftingGrid {
 //        }, 3, 3);
 
         List<ItemStack> stacks = new ArrayList<>(9);
+        CraftingGridInventory gridInventory = provider.getCraftingGrid().getCraftingGridInventory();
         for (int i = 0; i < 9; i++) {
-            stacks.set(i, provider.getCraftingGrid().getCraftingGridInventory().getStackInSlot(i + 1));
+            stacks.add(gridInventory.getStackInSlot(i + 1));
         }
 
         // Compare current contents to avoid unneeded slot update.
         CraftingInput inv = CraftingInput.ofPositioned(3, 3, stacks).input();
         Optional<RecipeHolder<CraftingRecipe>> recipe = RFCraftingRecipe.findRecipe(mc.level, inv);
         ItemStack newResult = recipe.map(r -> BaseRecipe.assemble(r.value(), inv, level)).orElse(ItemStack.EMPTY);
-        provider.getCraftingGrid().getCraftingGridInventory().setStackInSlot(0, newResult);
+        gridInventory.setStackInSlot(0, newResult);
     }
 
     private void addRecipeLine(ItemStack craftingResult) {
