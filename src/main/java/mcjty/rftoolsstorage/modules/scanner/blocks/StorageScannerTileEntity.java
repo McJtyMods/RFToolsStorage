@@ -10,6 +10,7 @@ import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericItemHandler;
+import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -1171,60 +1172,65 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        craftingSystem.read(tagCompound.getCompound("CS"));
-        ListTag list = tagCompound.getList("inventories", Tag.TAG_COMPOUND);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
+        craftingSystem.read(tag.getCompound("CS"));
+        energyStorage.load(tag, "energy", provider);
+        infusable.load(tag, "infusable");
+        craftingGrid.readFromNBT(tag.getCompound("grid"), provider);
+        ListTag list = tag.getList("inventories", Tag.TAG_COMPOUND);
         inventories.clear();
         craftingInventories = null;
         for (Tag inbt : list) {
-            CompoundTag tag = (CompoundTag) inbt;
-            BlockPos c = BlockPosTools.read(tag, "c");
+            CompoundTag t = (CompoundTag) inbt;
+            BlockPos c = BlockPosTools.read(t, "c");
             inventories.add(c);
         }
-        list = tagCompound.getList("routable", Tag.TAG_COMPOUND);
+        list = tag.getList("routable", Tag.TAG_COMPOUND);
         routable.clear();
         for (Tag inbt : list) {
-            CompoundTag tag = (CompoundTag) inbt;
-            BlockPos c = BlockPosTools.read(tag, "c");
+            CompoundTag t = (CompoundTag) inbt;
+            BlockPos c = BlockPosTools.read(t, "c");
             routable.add(c);
         }
-        list = tagCompound.getList("fromxnet", Tag.TAG_COMPOUND);
+        list = tag.getList("fromxnet", Tag.TAG_COMPOUND);
         inventoriesFromXNet.clear();
         for (Tag inbt : list) {
-            CompoundTag tag = (CompoundTag) inbt;
-            BlockPos c = BlockPosTools.read(tag, "c");
+            CompoundTag t = (CompoundTag) inbt;
+            BlockPos c = BlockPosTools.read(t, "c");
             inventoriesFromXNet.add(c);
         }
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
-        tagCompound.put("CS", craftingSystem.write());
+    public void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("CS", craftingSystem.write());
+        energyStorage.save(tag, "energy", provider);
+        infusable.save(tag, "infusable");
+        tag.put("grid", craftingGrid.writeToNBT(provider));
         ListTag list = new ListTag();
         for (BlockPos c : inventories) {
-            CompoundTag tag = BlockPosTools.write(c);
-            list.add(tag);
+            list.add(BlockPosTools.write(c));
         }
-        tagCompound.put("inventories", list);
+        tag.put("inventories", list);
         list = new ListTag();
         for (BlockPos c : routable) {
-            CompoundTag tag = BlockPosTools.write(c);
-            list.add(tag);
+            list.add(BlockPosTools.write(c));
         }
-        tagCompound.put("routable", list);
+        tag.put("routable", list);
         list = new ListTag();
         for (BlockPos c : inventoriesFromXNet) {
-            CompoundTag tag = BlockPosTools.write(c);
-            list.add(tag);
+            list.add(BlockPosTools.write(c));
         }
-        tagCompound.put("fromxnet", list);
+        tag.put("fromxnet", list);
     }
 
     @Override
     protected void applyImplicitComponents(DataComponentInput input) {
         super.applyImplicitComponents(input);
+        energyStorage.applyImplicitComponents(input.get(Registration.ITEM_ENERGY));
+        infusable.applyImplicitComponents(input.get(Registration.ITEM_INFUSABLE));
         var data = input.get(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA);
         if (data != null) {
             setData(StorageScannerModule.STORAGE_SCANNER_DATA, data);
@@ -1240,6 +1246,8 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         super.collectImplicitComponents(builder);
         builder.set(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA, getData(StorageScannerModule.STORAGE_SCANNER_DATA));
         builder.set(StorageScannerModule.ITEM_CRAFTING_GRID_DATA, craftingGrid);
+        energyStorage.collectImplicitComponents(builder);
+        infusable.collectImplicitComponents(builder);
     }
 
     @ServerCommand

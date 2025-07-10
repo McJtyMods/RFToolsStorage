@@ -97,8 +97,8 @@ public class RFCraftingRecipe {
     public void readFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
         ListTag nbtTagList = tagCompound.getList("Items", Tag.TAG_COMPOUND);
         for (int i = 0; i < nbtTagList.size(); i++) {
-            CompoundTag CompoundNBT = nbtTagList.getCompound(i);
-            inv.set(i, ItemStack.parseOptional(provider, CompoundNBT));
+            CompoundTag tag = nbtTagList.getCompound(i);
+            inv.set(i, ItemStack.parseOptional(provider, tag));
         }
         CompoundTag resultCompound = tagCompound.getCompound("Result");
         result = ItemStack.parseOptional(provider, resultCompound);
@@ -111,17 +111,9 @@ public class RFCraftingRecipe {
         ListTag nbtTagList = new ListTag();
         for (int i = 0 ; i < 9 ; i++) {
             ItemStack stack = inv.get(i);
-            CompoundTag CompoundNBT = new CompoundTag();
-            if (!stack.isEmpty()) {
-                stack.save(provider, CompoundNBT);
-            }
-            nbtTagList.add(CompoundNBT);
+            nbtTagList.add(stack.saveOptional(provider));
         }
-        CompoundTag resultCompound = new CompoundTag();
-        if (!result.isEmpty()) {
-            result.save(provider, resultCompound);
-        }
-        tagCompound.put("Result", resultCompound);
+        tagCompound.put("Result", result.saveOptional(provider));
         tagCompound.put("Items", nbtTagList);
         tagCompound.putBoolean("Keep", keepOne);
         tagCompound.putByte("Int", (byte) craftMode.ordinal());

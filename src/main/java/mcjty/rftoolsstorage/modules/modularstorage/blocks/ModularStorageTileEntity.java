@@ -190,6 +190,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Override
     public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
         super.loadAdditional(tagCompound, provider);
+        for (int i = 0; i < cardHandler.getSlots(); i++) {
+            cardHandler.setStackInSlot(i, ItemStack.parseOptional(provider, tagCompound.getCompound("slot" + i)));
+        }
 
         sortMode = tagCompound.getString("sortMode");
         viewMode = tagCompound.getString("viewMode");
@@ -201,6 +204,9 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Override
     public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
         super.saveAdditional(tagCompound, provider);
+        for (int i = 0; i < cardHandler.getSlots(); i++) {
+            tagCompound.put("slot" + i, cardHandler.getStackInSlot(i).saveOptional(provider));
+        }
 
         tagCompound.putString("sortMode", sortMode);
         tagCompound.putString("viewMode", viewMode);
