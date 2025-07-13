@@ -1,5 +1,4 @@
 {
-  "parent": "minecraft:recipes/root",
   "criteria": {
     "has_the_recipe": {
       "conditions": {
@@ -11,9 +10,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "rftoolsstorage:storage_module2"
-            ]
+            "items": "rftoolsstorage:storage_module2"
           }
         ]
       },
@@ -22,13 +19,14 @@
   },
   "requirements": [
     [
-      "storage",
-      "has_the_recipe"
+      "has_the_recipe",
+      "storage"
     ]
   ],
   "rewards": {
     "recipes": [
       "rftoolsstorage:storage_module3"
     ]
-  }
+  },
+  "sends_telemetry_event": true
 }

@@ -1,19 +1,16 @@
 {
-  "parent": "minecraft:recipes/root",
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolsstorage:dump_module"
+        "recipe": "rftoolsstorage:storage_module1"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "ingot": {
+    "storage": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:iron_ingot"
-            ]
+            "items": "rftoolsstorage:storage_module0"
           }
         ]
       },
@@ -22,13 +19,14 @@
   },
   "requirements": [
     [
-      "ingot",
-      "has_the_recipe"
+      "has_the_recipe",
+      "storage"
     ]
   ],
   "rewards": {
     "recipes": [
-      "rftoolsstorage:dump_module"
+      "rftoolsstorage:storage_module1"
     ]
-  }
+  },
+  "sends_telemetry_event": true
 }

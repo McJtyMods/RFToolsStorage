@@ -5,9 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "rftoolsbase:machine_frame"
-            ]
+            "items": "rftoolsbase:machine_frame"
           }
         ]
       },
@@ -15,20 +13,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolsstorage:storage_scanner"
+        "recipe": "rftoolsstorage:modular_storage"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "frame",
-      "has_the_recipe"
+      "has_the_recipe",
+      "frame"
     ]
   ],
   "rewards": {
     "recipes": [
-      "rftoolsstorage:storage_scanner"
+      "rftoolsstorage:modular_storage"
     ]
   }
 }

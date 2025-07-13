@@ -6,6 +6,7 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -131,7 +132,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
     public void write(HolderLookup.Provider provider, CompoundTag tag) {
         tag.putInt("ticks", ticks);
         CompoundTag compoundNBT = new CompoundTag();
-        cardStack.save(provider, compoundNBT);
-        tag.put("cardStack", compoundNBT);
+        Tag stackTag = cardStack.save(provider, compoundNBT);
+        tag.put("cardStack", stackTag);
     }
 }

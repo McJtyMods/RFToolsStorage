@@ -44,14 +44,14 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
             GlobalPos.CODEC.fieldOf("pos").forGetter(StorageControlScreenModule::pos),
             Codec.BOOL.fieldOf("starred").forGetter(StorageControlScreenModule::starred),
             Codec.INT.fieldOf("dirty").forGetter(StorageControlScreenModule::dirty),
-            ItemStack.CODEC.listOf().fieldOf("stacks").forGetter(StorageControlScreenModule::stacks)
+            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("stacks").forGetter(StorageControlScreenModule::stacks)
     ).apply(instance, StorageControlScreenModule::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, StorageControlScreenModule> STREAM_CODEC = StreamCodec.composite(
             GlobalPos.STREAM_CODEC, StorageControlScreenModule::pos,
             ByteBufCodecs.BOOL, StorageControlScreenModule::starred,
             ByteBufCodecs.INT, StorageControlScreenModule::dirty,
-            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), StorageControlScreenModule::stacks,
+            ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()), StorageControlScreenModule::stacks,
             StorageControlScreenModule::new);
 
     public static class ModuleDataStacks implements IModuleData {
@@ -163,6 +163,10 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
     @Override
     public int getRfPerTick() {
         return StorageScannerConfiguration.STORAGE_CONTROL_RFPERTICK.get();
+    }
+
+    public StorageControlScreenModule withPos(GlobalPos pos) {
+        return new StorageControlScreenModule(pos, starred, dirty, stacks);
     }
 
     public StorageControlScreenModule withStack(int index, ItemStack stack) {

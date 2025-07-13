@@ -1,19 +1,16 @@
 {
-  "parent": "minecraft:recipes/root",
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolsstorage:storage_module0"
+        "recipe": "rftoolsstorage:storage_module2"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "redstone": {
+    "storage": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:redstone"
-            ]
+            "items": "rftoolsstorage:storage_module1"
           }
         ]
       },
@@ -22,13 +19,14 @@
   },
   "requirements": [
     [
-      "redstone",
-      "has_the_recipe"
+      "has_the_recipe",
+      "storage"
     ]
   ],
   "rewards": {
     "recipes": [
-      "rftoolsstorage:storage_module0"
+      "rftoolsstorage:storage_module2"
     ]
-  }
+  },
+  "sends_telemetry_event": true
 }

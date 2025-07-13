@@ -3,17 +3,15 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolsstorage:storage_module2"
+        "recipe": "rftoolsstorage:storage_module0"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "storage": {
+    "redstone": {
       "conditions": {
         "items": [
           {
-            "items": [
-              "rftoolsstorage:storage_module1"
-            ]
+            "items": "minecraft:redstone"
           }
         ]
       },
@@ -22,13 +20,13 @@
   },
   "requirements": [
     [
-      "storage",
-      "has_the_recipe"
+      "has_the_recipe",
+      "redstone"
     ]
   ],
   "rewards": {
     "recipes": [
-      "rftoolsstorage:storage_module2"
+      "rftoolsstorage:storage_module0"
     ]
   }
 }

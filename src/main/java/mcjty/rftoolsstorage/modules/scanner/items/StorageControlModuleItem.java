@@ -3,10 +3,7 @@ package mcjty.rftoolsstorage.modules.scanner.items;
 import com.mojang.serialization.Codec;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.crafting.IComponentsToPreserve;
-import mcjty.lib.varia.ComponentFactory;
-import mcjty.lib.varia.Logging;
-import mcjty.lib.varia.ModuleTools;
-import mcjty.lib.varia.Tools;
+import mcjty.lib.varia.*;
 import mcjty.rftoolsbase.api.screens.IClientScreenModule;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
@@ -19,6 +16,7 @@ import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -103,7 +101,9 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
         Player player = context.getPlayer();
         BlockPos pos = context.getClickedPos();
         BlockEntity te = world.getBlockEntity(pos);
+        StorageControlScreenModule data = data(stack);
         if (te instanceof IStorageScanner) {
+            data = data.withPos(GlobalPos.of(world.dimension(), pos));
             BlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
             String name = "<invalid>";
@@ -115,11 +115,13 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
                 Logging.message(player, "Storage module is set to block '" + name + "'");
             }
         } else {
+            data = data.withPos(GlobalPos.of(Level.OVERWORLD, BlockPosTools.INVALID));
             ModuleTools.clearPositionInModule(stack);
             if (world.isClientSide) {
                 Logging.message(player, "Storage module is cleared");
             }
         }
+        stack.set(StorageScannerModule.MODULE_CONTROL_DATA, data);
         return InteractionResult.SUCCESS;
     }
 

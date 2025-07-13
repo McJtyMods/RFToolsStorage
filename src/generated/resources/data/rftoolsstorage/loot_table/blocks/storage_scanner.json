@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_name",
+              "source": "block_entity"
+            },
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "mcjtylib:item_energy",
+                "mcjtylib:item_inventory",
+                "rftoolsstorage:storage_scanner_data",
+                "rftoolsstorage:crafting_grid_data"
+              ],
+              "source": "block_entity"
+            }
+          ],
+          "name": "rftoolsstorage:storage_scanner"
+        }
+      ],
+      "name": "storage_scanner",
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "rftoolsstorage:blocks/storage_scanner"
+}
