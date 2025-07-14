@@ -1,0 +1,12 @@
+{
+  "name": "Armazenamento Modular",
+  "icon": "rftoolsstorage:modular_storage",
+  "category": "rftoolsbase:category_rftoolsstorage_modularstorage",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "O bloco de Armazenamento Modular é um inventário passivo poderoso que pode armazenar até 500 pilhas (com o módulo de armazenamento adequado)."
+    }
+  ]
+}
