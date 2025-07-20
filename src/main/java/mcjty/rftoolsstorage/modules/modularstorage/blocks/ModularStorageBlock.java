@@ -31,7 +31,7 @@ public class ModularStorageBlock extends BaseBlock {
         super(new BlockBuilder()
                 .topDriver(RFToolsStorageTOPDriver.DRIVER)
                 .tileEntitySupplier(ModularStorageTileEntity::new)
-                .manualEntry(ManualHelper.create("rftoolsstorage:modularstorage/modularstorage"))
+                .manualEntry(ManualHelper.create("rftoolsbase:modularstorage/modularstorage"))
                 .info(key("message.rftoolsstorage.shiftmessage"))
                 .infoShift(header())
         );

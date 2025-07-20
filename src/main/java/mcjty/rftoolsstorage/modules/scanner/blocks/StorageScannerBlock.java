@@ -12,7 +12,7 @@ public class StorageScannerBlock extends BaseBlock {
         super(new BlockBuilder()
                 .tileEntitySupplier(StorageScannerTileEntity::new)
                 .infusable()
-                .manualEntry(ManualHelper.create("rftoolsstorage:scanner/scanner"))
+                .manualEntry(ManualHelper.create("rftoolsbase:scanner/scanner"))
                 .info(key("message.rftoolsstorage.shiftmessage"))
                 .infoShift(header(), gold()));
     }
