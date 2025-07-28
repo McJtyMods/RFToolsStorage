@@ -2,6 +2,8 @@ package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.api.container.ItemInventory;
+import mcjty.lib.bindings.GuiValue;
+import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.setup.Registration;
@@ -64,16 +66,27 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Cap(type = CapType.CONTAINER)
     private static final Function<ModularStorageTileEntity, MenuProvider> screenHandler = be -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, be.getBlockPos(), be, player))
-            .itemHandler(be.items::get)
+            .itemHandler(be.items)
             .setupSync(be);
 
     private GlobalStorageItemWrapper globalWrapper;
 
     private final CraftingGrid craftingGrid = new CraftingGrid();
 
+    @GuiValue
+    public static final Value<?, String> VALUE_SORTMODE = Value.create("sortMode", Type.STRING, ModularStorageTileEntity::getSortMode, ModularStorageTileEntity::setSortMode);
     private String sortMode = "";
+
+    @GuiValue
+    public static final Value<?, String> VALUE_VIEWMODE = Value.create("viewMode", Type.STRING, ModularStorageTileEntity::getViewMode, ModularStorageTileEntity::setViewMode);
     private String viewMode = "";
+
+    @GuiValue
+    public static final Value<?, Boolean> VALUE_GROUPMODE = Value.create("groupMode", Type.BOOLEAN, ModularStorageTileEntity::isGroupMode, ModularStorageTileEntity::setGroupMode);
     private boolean groupMode = false;
+
+    @GuiValue
+    public static final Value<?, String> VALUE_FILTER = Value.create("filter", Type.STRING, ModularStorageTileEntity::getFilter, ModularStorageTileEntity::setFilter);
     private String filter = "";
 
     public ModularStorageTileEntity(BlockPos pos, BlockState state) {
@@ -161,6 +174,12 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     public void setViewMode(String viewMode) {
+        // log to stdout: from view mode: <old view mode> to <new view mode> and client or server
+        if (level.isClientSide) {
+            System.out.println("CLIENT: From view mode: " + this.viewMode + " to " + viewMode);
+        } else {
+            System.out.println("SERVER: From view mode: " + this.viewMode + " to " + viewMode);
+        }
         this.viewMode = viewMode;
         setChanged();
     }
