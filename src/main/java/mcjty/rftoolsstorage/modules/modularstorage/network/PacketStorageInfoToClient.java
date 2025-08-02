@@ -20,8 +20,8 @@ public record PacketStorageInfoToClient(BlockPos pos, String sortMode, String vi
 
     public static final StreamCodec<FriendlyByteBuf, PacketStorageInfoToClient> CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, PacketStorageInfoToClient::pos,
-            ByteBufCodecs.STRING_UTF8, PacketStorageInfoToClient::viewMode,
             ByteBufCodecs.STRING_UTF8, PacketStorageInfoToClient::sortMode,
+            ByteBufCodecs.STRING_UTF8, PacketStorageInfoToClient::viewMode,
             ByteBufCodecs.BOOL, PacketStorageInfoToClient::groupMode,
             ByteBufCodecs.STRING_UTF8, PacketStorageInfoToClient::filter,
             ByteBufCodecs.BOOL, PacketStorageInfoToClient::locked,

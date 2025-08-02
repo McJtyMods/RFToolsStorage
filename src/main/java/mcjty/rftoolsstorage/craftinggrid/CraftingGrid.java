@@ -12,7 +12,9 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class CraftingGrid {
 
@@ -126,5 +128,20 @@ public class CraftingGrid {
             CompoundTag tag = recipeTagList.getCompound(i);
             recipes[i].readFromNBT(tag, provider);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CraftingGrid that = (CraftingGrid) o;
+        return Objects.equals(craftingGridInventory, that.craftingGridInventory) && Arrays.equals(recipes, that.recipes);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(craftingGridInventory);
+        result = 31 * result + Arrays.hashCode(recipes);
+        return result;
     }
 }

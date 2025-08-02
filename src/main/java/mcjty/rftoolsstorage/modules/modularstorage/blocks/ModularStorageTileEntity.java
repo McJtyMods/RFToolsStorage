@@ -13,10 +13,12 @@ import mcjty.lib.tileentity.GenericTileEntity;
 import mcjty.lib.typed.Key;
 import mcjty.lib.typed.Type;
 import mcjty.lib.varia.Cached;
+import mcjty.lib.varia.Sync;
 import mcjty.rftoolsbase.api.compat.JEIRecipeAcceptor;
 import mcjty.rftoolsbase.api.storage.IInventoryTracker;
 import mcjty.rftoolsbase.api.storage.IModularStorage;
 import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.craftinggrid.*;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
@@ -29,6 +31,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -43,9 +46,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -67,6 +68,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private static final Function<ModularStorageTileEntity, MenuProvider> screenHandler = be -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, be.getBlockPos(), be, player))
             .itemHandler(be.items)
+//            .dataListener(Sync.string(ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "settings_viewmode"), be::getViewMode, be::setViewMode))
             .setupSync(be);
 
     private GlobalStorageItemWrapper globalWrapper;
@@ -78,7 +80,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     private String sortMode = "";
 
     @GuiValue
-    public static final Value<?, String> VALUE_VIEWMODE = Value.create("viewMode", Type.STRING, ModularStorageTileEntity::getViewMode, ModularStorageTileEntity::setViewMode);
+    public static final Value<ModularStorageTileEntity, String> VALUE_VIEWMODE = Value.create("viewMode", Type.STRING, ModularStorageTileEntity::getViewMode, ModularStorageTileEntity::setViewMode);
     private String viewMode = "";
 
     @GuiValue
@@ -174,12 +176,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     public void setViewMode(String viewMode) {
-        // log to stdout: from view mode: <old view mode> to <new view mode> and client or server
-        if (level.isClientSide) {
-            System.out.println("CLIENT: From view mode: " + this.viewMode + " to " + viewMode);
-        } else {
-            System.out.println("SERVER: From view mode: " + this.viewMode + " to " + viewMode);
-        }
         this.viewMode = viewMode;
         setChanged();
     }
@@ -212,7 +208,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         for (int i = 0; i < cardHandler.getSlots(); i++) {
             cardHandler.setStackInSlot(i, ItemStack.parseOptional(provider, tagCompound.getCompound("slot" + i)));
         }
-
         sortMode = tagCompound.getString("sortMode");
         viewMode = tagCompound.getString("viewMode");
         groupMode = tagCompound.getBoolean("groupMode");
@@ -226,7 +221,6 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         for (int i = 0; i < cardHandler.getSlots(); i++) {
             tagCompound.put("slot" + i, cardHandler.getStackInSlot(i).saveOptional(provider));
         }
-
         tagCompound.putString("sortMode", sortMode);
         tagCompound.putString("viewMode", viewMode);
         tagCompound.putBoolean("groupMode", groupMode);

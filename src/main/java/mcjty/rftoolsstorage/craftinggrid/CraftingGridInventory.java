@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CraftingGridInventory implements IItemHandlerModifiable {
@@ -21,7 +22,7 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     public static final int GRID_XOFFSET = -GRID_WIDTH - 2 + 7;
     public static final int GRID_YOFFSET = 127;
 
-    private final ItemStackList stacks = ItemStackList.create(10);
+    private final List<ItemStack> stacks = new ArrayList<>();
 
     public static final Codec<CraftingGridInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ItemStack.OPTIONAL_CODEC.listOf().fieldOf("stacks").forGetter(s -> s.stacks)
@@ -40,12 +41,19 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     }
 
     public CraftingGridInventory(List<ItemStack> stacks) {
+        this.stacks.clear();
         this.stacks.addAll(stacks);
+        while (this.stacks.size() < 10) {
+            this.stacks.add(ItemStack.EMPTY);
+        }
     }
 
     public void set(CraftingGridInventory inventory) {
         this.stacks.clear();
         this.stacks.addAll(inventory.stacks);
+        while (this.stacks.size() < 10) {
+            this.stacks.add(ItemStack.EMPTY);
+        }
     }
 
     public ItemStack[] getIngredients() {
@@ -77,6 +85,9 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
 
     @Override
     public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+        while (this.stacks.size() < 10) {
+            this.stacks.add(ItemStack.EMPTY);
+        }
         stacks.set(slot, stack);
     }
 
@@ -93,6 +104,19 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     @Override
     @Nonnull
     public ItemStack getStackInSlot(int index) {
-        return stacks.get(index);
+        return index < stacks.size() ? stacks.get(index) : ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CraftingGridInventory that = (CraftingGridInventory) o;
+        return stacks.equals(that.stacks);
+    }
+
+    @Override
+    public int hashCode() {
+        return stacks.hashCode();
     }
 }
