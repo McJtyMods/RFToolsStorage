@@ -1,4 +1,4 @@
-Upcoming:
+1.21-6.0.2:
 - Fixed the various settings of the modular storage block not remembering when exiting the gui
 - Fixed a crash when breaking the storage scanner
 - Fixed the tablet in combination with the storage scanner
