@@ -23,7 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.List;
@@ -104,14 +104,14 @@ public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, b
             block = null;
         } else {
             displayName = Tools.getReadableName(world, pos);
-            BlockEntity storageTe = world.getBlockEntity(pos);
-            if (storageTe instanceof ModularStorageTileEntity storage) {
-                IItemHandlerModifiable h = storage.getItems();
-                ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
-                if (!storageModule.isEmpty()) {
-                    displayName = storageModule.getDisplayName().getString();
-                }
-            }
+//            BlockEntity storageTe = world.getBlockEntity(pos);
+//            if (storageTe instanceof ModularStorageTileEntity storage) {
+//                IItemHandler h = storage.getCardHandler();
+//                ItemStack storageModule = h.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
+//                if (!storageModule.isEmpty()) {
+//                    displayName = storageModule.getDisplayName().getString();
+//                }
+//            }
         }
         return new PacketReturnInventoryInfo.InventoryInfo(pos, displayName, te.isRoutable(pos), block);
     }
