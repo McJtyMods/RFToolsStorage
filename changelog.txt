@@ -1,4 +1,4 @@
-Upcoming:
+1.21-6.0.3:
 - Fixed the storage scanner showing modular storages as the first item in the storage
 
 1.21-6.0.2:
