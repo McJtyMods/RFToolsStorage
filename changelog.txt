@@ -1,4 +1,4 @@
-Upcoming:
+1.21-6.0.4:
 - Fixed a problem with the integration between XNet and Storage Scanner
 
 1.21-6.0.3:
