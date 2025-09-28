@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class StorageChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/guielements.png");
+    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath("rftoolsbase", "textures/gui/guielements.png");
 
     private List<Pair<SidedConsumer, StorageConnectorSettings>> storageControllers = null;
     private Map<BlockPos, InventoryAccessSettings> access = null;

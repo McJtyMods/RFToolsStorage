@@ -1,3 +1,6 @@
+Upcoming:
+- Fixed a problem with the integration between XNet and Storage Scanner
+
 1.21-6.0.3:
 - Fixed the storage scanner showing modular storages as the first item in the storage
 

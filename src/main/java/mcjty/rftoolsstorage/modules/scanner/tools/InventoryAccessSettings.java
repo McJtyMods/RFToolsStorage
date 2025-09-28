@@ -37,7 +37,7 @@ public class InventoryAccessSettings {
             Codec.BOOL.fieldOf("meta").forGetter(settings -> settings.metaMode),
             Codec.BOOL.fieldOf("comp").forGetter(settings -> settings.nbtMode),
             Codec.BOOL.fieldOf("blacklist").forGetter(settings -> settings.blacklist),
-            ItemStack.CODEC.listOf().fieldOf("filters").forGetter(settings -> settings.filters)
+            ItemStack.OPTIONAL_CODEC.listOf().fieldOf("filters").forGetter(settings -> settings.filters)
     ).apply(instance, InventoryAccessSettings::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, InventoryAccessSettings> STREAM_CODEC = CompositeStreamCodec.composite(
@@ -50,7 +50,7 @@ public class InventoryAccessSettings {
             ByteBufCodecs.BOOL, settings -> settings.metaMode,
             ByteBufCodecs.BOOL, settings -> settings.nbtMode,
             ByteBufCodecs.BOOL, settings -> settings.blacklist,
-            ItemStack.LIST_STREAM_CODEC, settings -> settings.filters,
+            ItemStack.OPTIONAL_LIST_STREAM_CODEC, settings -> settings.filters,
             InventoryAccessSettings::new
     );
 
@@ -67,7 +67,11 @@ public class InventoryAccessSettings {
         this.nbtMode = nbtMode;
         this.blacklist = blacklist;
         this.filters.clear();
-        this.filters.addAll(filters);
+        // Update this.filters with filters without exceeding either limit
+        // Note that this.filters is already the correct size
+        for (int i = 0 ; i < Math.min(this.filters.size(), filters.size()) ; i++) {
+            this.filters.set(i, filters.get(i));
+        }
     }
 
     public InventoryAccessSettings() {}
