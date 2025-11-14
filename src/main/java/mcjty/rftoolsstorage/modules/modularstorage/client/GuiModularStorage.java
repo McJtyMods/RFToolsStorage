@@ -575,7 +575,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             } else {
                 displayName = typeModule.getShortLabel(stack);
             }
-            AbstractWidget<?> label = label(displayName).color(StyleConfig.colorTextInListNormal).horizontalAlignment(HorizontalAlignment.ALIGN_LEFT).desiredWidth(labelWidth).userObject(new Integer(-1));
+            AbstractWidget<?> label = label(displayName).color(StyleConfig.colorTextInListNormal).horizontalAlignment(HorizontalAlignment.ALIGN_LEFT).desiredWidth(labelWidth).userObject(-1);
             panel.children(label);
         }
         currentPos.setValue(currentPos.getValue() + 1);
