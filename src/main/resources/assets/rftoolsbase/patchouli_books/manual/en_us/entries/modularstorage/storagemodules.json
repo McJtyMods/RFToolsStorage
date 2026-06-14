@@ -2,6 +2,13 @@
   "name": "Storage Modules",
   "icon": "rftoolsstorage:storage_module0",
   "category": "rftoolsbase:category_rftoolsstorage_modularstorage",
+  "extra_recipe_mappings": {
+    "rftoolsstorage:storage_module0": 0,
+    "rftoolsstorage:storage_module1": 0,
+    "rftoolsstorage:storage_module2": 0,
+    "rftoolsstorage:storage_module3": 0,
+    "rftoolsstorage:storage_module6": 0
+  },
   "sortnum": 20,
   "pages": [
     {

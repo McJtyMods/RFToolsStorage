@@ -2,6 +2,12 @@
   "name": "Storage Scanner",
   "icon": "rftoolsstorage:storage_scanner",
   "category": "rftoolsbase:category_rftoolsstorage_scanner",
+  "extra_recipe_mappings": {
+    "rftoolsstorage:storage_scanner": 0,
+    "rftoolsstorage:storage_control_module": 0,
+    "rftoolsstorage:dump_module": 0,
+    "rftoolsstorage:tablet_scanner": 0
+  },
   "sortnum": 10,
   "pages": [
     {

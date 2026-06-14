@@ -2,6 +2,10 @@
   "name": "Modular Storage",
   "icon": "rftoolsstorage:modular_storage",
   "category": "rftoolsbase:category_rftoolsstorage_modularstorage",
+  "extra_recipe_mappings": {
+    "rftoolsstorage:modular_storage": 0,
+    "rftoolsstorage:crafting_manager": 0
+  },
   "sortnum": 10,
   "pages": [
     {
