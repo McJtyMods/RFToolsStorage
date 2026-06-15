@@ -2,8 +2,11 @@ package mcjty.rftoolsstorage.modules.modularstorage.items;
 
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.crafting.INBTPreservingIngredient;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.Logging;
 import mcjty.rftoolsbase.api.storage.IStorageModuleItem;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.ChatFormatting;
@@ -31,7 +34,7 @@ import java.util.UUID;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
-public class StorageModuleItem extends Item implements INBTPreservingIngredient, IStorageModuleItem {
+public class StorageModuleItem extends Item implements INBTPreservingIngredient, IStorageModuleItem, ITooltipSettings {
 
     public static final int STORAGE_TIER1 = 0;
     public static final int STORAGE_TIER2 = 1;
@@ -215,6 +218,14 @@ public class StorageModuleItem extends Item implements INBTPreservingIngredient,
     public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable Level worldIn, @Nonnull List<Component> list, @Nonnull TooltipFlag flags) {
         super.appendHoverText(itemStack, worldIn, list, flags);
         tooltipBuilder.get().makeTooltip(new ResourceLocation(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        if (isRemoteModule()) {
+            return ManualHelper.create("rftoolsstorage:modularstorage/remote_module");
+        }
+        return ManualHelper.create("rftoolsstorage:modularstorage/storagemodules");
     }
 
 }

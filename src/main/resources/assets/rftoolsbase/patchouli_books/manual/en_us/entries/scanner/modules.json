@@ -1,0 +1,29 @@
+{
+  "name": "Scanner Modules",
+  "icon": "rftoolsstorage:storage_control_module",
+  "category": "rftoolsbase:category_rftoolsstorage_scanner",
+  "extra_recipe_mappings": {
+    "rftoolsstorage:storage_control_module": 0,
+    "rftoolsstorage:dump_module": 0
+  },
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "text",
+      "text": "Storage Control and Dump modules are Screen modules that work through a linked Storage Scanner. Sneak right-click a scanner with the module to set its target."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolsstorage:storage_control_module",
+      "recipe2": "rftoolsstorage:dump_module"
+    },
+    {
+      "type": "text",
+      "text": "The Storage Control Module watches up to nine item filters and can count all inventories or only starred/routable inventories."
+    },
+    {
+      "type": "text",
+      "text": "The Dump Module pushes matching player inventory items into the linked scanner network. It can use common item tags for broader matching."
+    }
+  ]
+}

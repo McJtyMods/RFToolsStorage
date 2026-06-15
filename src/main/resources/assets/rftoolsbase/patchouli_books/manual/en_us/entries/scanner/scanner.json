@@ -3,16 +3,33 @@
   "icon": "rftoolsstorage:storage_scanner",
   "category": "rftoolsbase:category_rftoolsstorage_scanner",
   "extra_recipe_mappings": {
-    "rftoolsstorage:storage_scanner": 0,
-    "rftoolsstorage:storage_control_module": 0,
-    "rftoolsstorage:dump_module": 0,
-    "rftoolsstorage:tablet_scanner": 0
+    "rftoolsstorage:storage_scanner": 0
   },
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "The Storage Scanner is a powerful block that can search nearby inventories and display items in them. It's also possible to access those items and store them again"
+      "text": "The Storage Scanner scans nearby inventories and shows their contents in one GUI. You can search, request items, and insert items back into connected inventories."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolsstorage:storage_scanner"
+    },
+    {
+      "type": "text",
+      "text": "Use the radius slider and Scan button to find inventories. With XNet integration configured as required, scanner range is controlled by XNet connections instead."
+    },
+    {
+      "type": "text",
+      "text": "The search box filters by item name. Prefix a term with @ to filter by mod id, such as @minecraft or @rftoolsstorage."
+    },
+    {
+      "type": "text",
+      "text": "Inventories can be moved, removed, marked routable, and sorted. Routable inventories are used for automated insert/extract behavior and starred module views."
+    },
+    {
+      "type": "text",
+      "text": "For remote use, link a $(l:rftoolsbase:scanner/modules)Storage Control Module$(/l) to the scanner and install it in a $(l:rftoolsbase:scanner/remote)Tablet Scanner$(/l)."
     }
   ]
 }

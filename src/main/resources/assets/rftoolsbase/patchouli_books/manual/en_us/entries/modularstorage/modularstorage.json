@@ -3,14 +3,25 @@
   "icon": "rftoolsstorage:modular_storage",
   "category": "rftoolsbase:category_rftoolsstorage_modularstorage",
   "extra_recipe_mappings": {
-    "rftoolsstorage:modular_storage": 0,
-    "rftoolsstorage:crafting_manager": 0
+    "rftoolsstorage:modular_storage": 0
   },
   "sortnum": 10,
   "pages": [
     {
       "type": "text",
-      "text": "The Modular Storage block is a powerful passive inventory that can store up to 500 stacks (with the right storage module)"
+      "text": "Modular Storage is a searchable storage block. Insert a $(l:rftoolsbase:modularstorage/storagemodules)Storage Module$(/l) to define how many stacks it can hold."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolsstorage:modular_storage"
+    },
+    {
+      "type": "text",
+      "text": "The block stores items in the module, so the module can keep its contents when moved. Higher tier modules unlock larger inventories."
+    },
+    {
+      "type": "text",
+      "text": "Use the GUI to search, sort, compact, and cycle through visible inventory sizes. The module slot controls the actual storage capacity."
     }
   ]
 }

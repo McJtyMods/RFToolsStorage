@@ -1,11 +1,13 @@
 package mcjty.rftoolsstorage.modules.scanner.items;
 
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.varia.Logging;
 import mcjty.lib.varia.ModuleTools;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import net.minecraft.core.BlockPos;
@@ -59,6 +61,11 @@ public class DumpModuleItem extends GenericModuleItem {
     @Override
     public String getModuleName() {
         return "Dump";
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolsstorage:scanner/modules");
     }
 
     @Override

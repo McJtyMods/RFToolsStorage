@@ -15,6 +15,7 @@ import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.client.ClientCommandHandler;
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
 import mcjty.rftoolsstorage.modules.scanner.items.DumpModuleItem;
+import mcjty.rftoolsstorage.modules.scanner.items.StorageScannerTabletItem;
 import mcjty.rftoolsstorage.modules.scanner.items.StorageControlModuleItem;
 import mcjty.rftoolsstorage.setup.Config;
 import mcjty.rftoolsstorage.setup.Registration;
@@ -46,7 +47,7 @@ public class StorageScannerModule implements IModule {
     public static final DeferredItem<Item> STORAGECONTROL_MODULE = ITEMS.register("storage_control_module", tab(StorageControlModuleItem::new));
     public static final DeferredItem<Item> DUMP_MODULE = ITEMS.register("dump_module", tab(DumpModuleItem::new));
 
-    public static final DeferredItem<TabletItem> TABLET_SCANNER = ITEMS.register("tablet_scanner", tab(TabletItem::new));
+    public static final DeferredItem<TabletItem> TABLET_SCANNER = ITEMS.register("tablet_scanner", tab(StorageScannerTabletItem::new));
 
     @Override
     public void init(FMLCommonSetupEvent event) {

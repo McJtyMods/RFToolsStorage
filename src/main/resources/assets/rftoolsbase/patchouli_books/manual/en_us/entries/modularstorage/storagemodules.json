@@ -6,14 +6,30 @@
     "rftoolsstorage:storage_module0": 0,
     "rftoolsstorage:storage_module1": 0,
     "rftoolsstorage:storage_module2": 0,
-    "rftoolsstorage:storage_module3": 0,
-    "rftoolsstorage:storage_module6": 0
+    "rftoolsstorage:storage_module3": 0
   },
   "sortnum": 20,
   "pages": [
     {
       "type": "text",
-      "text": "There are 4 tiers of storage modules which you can directly use in a Modular Storage block"
+      "text": "Storage Modules are the actual item storage for Modular Storage. Tier 1 holds 100 stacks, Tier 2 holds 200, Tier 3 holds 300, and Tier 4 holds 500."
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolsstorage:storage_module0"
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolsstorage:storage_module1",
+      "recipe2": "rftoolsstorage:storage_module2"
+    },
+    {
+      "type": "crafting",
+      "recipe": "rftoolsstorage:storage_module3"
+    },
+    {
+      "type": "text",
+      "text": "Upgrading with shaped NBT recipes preserves the module contents. Keep backups before moving valuable modules between systems."
     }
   ]
 }

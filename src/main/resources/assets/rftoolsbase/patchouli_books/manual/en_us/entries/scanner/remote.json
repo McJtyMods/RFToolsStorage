@@ -1,0 +1,23 @@
+{
+  "name": "Remote Scanner",
+  "icon": "rftoolsstorage:tablet_scanner",
+  "category": "rftoolsbase:category_rftoolsstorage_scanner",
+  "extra_recipe_mappings": {
+    "rftoolsstorage:tablet_scanner": 0
+  },
+  "sortnum": 30,
+  "pages": [
+    {
+      "type": "text",
+      "text": "A Tablet Scanner is a tablet state used for remote access to a linked Storage Scanner."
+    },
+    {
+      "type": "text",
+      "text": "Link a Storage Control Module to a Storage Scanner, put that module in a tablet, and select it. Right-click opens the remote scanner GUI."
+    },
+    {
+      "type": "text",
+      "text": "Sneak right-click opens the tablet management GUI instead. Remote use consumes FE from the tablet according to the scanner tablet cost."
+    }
+  ]
+}
