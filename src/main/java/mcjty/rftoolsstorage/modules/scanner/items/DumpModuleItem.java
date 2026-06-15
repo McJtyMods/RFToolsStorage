@@ -12,6 +12,8 @@ import mcjty.rftoolsbase.tools.GenericModuleItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -145,4 +147,10 @@ public class DumpModuleItem extends GenericModuleItem {
         }
         return InteractionResult.SUCCESS;
     }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolsstorage:scanner/modules");
+    }
+
 }

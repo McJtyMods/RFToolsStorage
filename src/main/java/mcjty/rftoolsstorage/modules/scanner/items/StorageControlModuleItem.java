@@ -15,6 +15,8 @@ import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponentType;
@@ -195,4 +197,10 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
     public Collection<DataComponentType<?>> getComponentsToPreserve() {
         return List.of(StorageScannerModule.MODULE_CONTROL_DATA.get());
     }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return ManualHelper.create("rftoolsstorage:scanner/modules");
+    }
+
 }

@@ -8,6 +8,9 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.ModularStorageModule;
 import mcjty.rftoolsstorage.modules.modularstorage.data.StorageModuleData;
 import mcjty.rftoolsstorage.storage.StorageInfo;
+import mcjty.lib.tooltips.ITooltipSettings;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
@@ -32,7 +35,7 @@ import java.util.UUID;
 
 import static mcjty.lib.builder.TooltipBuilder.*;
 
-public class StorageModuleItem extends Item implements IComponentsToPreserve, IStorageModuleItem {
+public class StorageModuleItem extends Item implements IComponentsToPreserve, IStorageModuleItem, ITooltipSettings {
 
     public static final int STORAGE_TIER1 = 0;
     public static final int STORAGE_TIER2 = 1;
@@ -219,6 +222,15 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
     public void appendHoverText(ItemStack itemStack, TooltipContext context, List<Component> list, TooltipFlag flags) {
         super.appendHoverText(itemStack, context, list, flags);
         tooltipBuilder.get().makeTooltip(ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
+    }
+
+
+    @Override
+    public ManualEntry getManualEntry() {
+        if (isRemoteModule()) {
+            return ManualHelper.create("rftoolsstorage:modularstorage/remote_module");
+        }
+        return ManualHelper.create("rftoolsstorage:modularstorage/storagemodules");
     }
 
 }

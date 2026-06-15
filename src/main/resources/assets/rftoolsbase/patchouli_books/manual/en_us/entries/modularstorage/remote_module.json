@@ -1,0 +1,19 @@
+{
+  "name": "Remote Module",
+  "icon": "rftoolsstorage:storage_module6",
+  "category": "rftoolsbase:category_rftoolsstorage_modularstorage",
+  "extra_recipe_mappings": {
+    "rftoolsstorage:storage_module6": 0
+  },
+  "sortnum": 30,
+  "pages": [
+    {
+      "type": "text",
+      "text": "The Remote Storage Module is a legacy/internal module in this version and is not part of normal progression."
+    },
+    {
+      "type": "text",
+      "text": "For normal remote access, use a $(l:rftoolsbase:scanner/modules)Storage Control Module$(/l) linked to a Storage Scanner and install it in a tablet."
+    }
+  ]
+}
