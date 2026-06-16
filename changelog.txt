@@ -1,3 +1,6 @@
+1.21-6.0.5:
+- Updated and expanded the Patchouli manual documentation
+
 1.21-6.0.4:
 - Fixed a problem with the integration between XNet and Storage Scanner
 
@@ -198,4 +201,3 @@
 
 0.0.2-alpha:
 - First version of the modular storage block
-
