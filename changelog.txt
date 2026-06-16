@@ -1,3 +1,6 @@
+1.20-5.0.4:
+- Various Patchouli documentation updates and fixes
+
 1.20-5.0.3:
 - Update to latest McJtyLib
 
@@ -183,4 +186,3 @@
 
 0.0.2-alpha:
 - First version of the modular storage block
-
