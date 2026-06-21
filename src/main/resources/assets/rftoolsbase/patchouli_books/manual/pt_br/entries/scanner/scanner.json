@@ -1,0 +1,12 @@
+{
+  "name": "Scanner de Armazenamento",
+  "icon": "rftoolsstorage:storage_scanner",
+  "category": "rftoolsbase:category_rftoolsstorage_scanner",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "O Scanner de Armazenamento é um bloco poderoso que pode procurar inventários próximos e exibir os itens neles. Também é possível acessar esses itens e armazená-los novamente."
+    }
+  ]
+}
