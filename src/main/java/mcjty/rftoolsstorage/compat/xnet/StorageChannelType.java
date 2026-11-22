@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.compat.xnet;
 
+import mcjty.lib.varia.CapabilityTools;
 import com.mojang.serialization.MapCodec;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
@@ -14,7 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -56,7 +56,7 @@ public class StorageChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        IItemHandler h = world.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+        IItemHandler h = CapabilityTools.itemHandler(world.getCapability(Capabilities.Item.BLOCK, pos, null));
         if (h != null && h.getSlots() > 0) {
             return true;
         }

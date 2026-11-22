@@ -1,3 +1,6 @@
+26.2-8.0.0:
+- Ported to Minecraft 26.2 on NeoForge.
+
 1.21-6.0.5:
 - Updated and expanded the Patchouli manual documentation
 

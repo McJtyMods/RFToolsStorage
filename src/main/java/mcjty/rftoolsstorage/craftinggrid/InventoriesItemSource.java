@@ -1,10 +1,10 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import java.util.NoSuchElementException;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +50,9 @@ public class InventoriesItemSource implements IItemSource {
 
             @Override
             public Pair<IItemKey, ItemStack> next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
                 IItemHandler inventory = inventories.get(inventoryIndex).getLeft();
                 ItemKey key = new ItemKey(inventory, slotIndex);
                 Pair<IItemKey, ItemStack> result = Pair.of(key, inventory.getStackInSlot(slotIndex));
@@ -61,42 +64,23 @@ public class InventoriesItemSource implements IItemSource {
 
     @Override
     public ItemStack decrStackSize(IItemKey key, int amount) {
-        ItemKey realKey = (ItemKey) key;
-        ItemStack stack = realKey.inventory().getStackInSlot(realKey.slot());
-        ItemStack result = stack.split(amount);
-        if (stack.isEmpty()) {
-            // @todo 1.14 is this really required?
-//            realKey.getInventory().setInventorySlotContents(realKey.getSlot(), ItemStack.EMPTY);
-        }
-        return result;
+        ItemKey slot = (ItemKey) key;
+        return slot.inventory().extractItem(slot.slot(), amount, false);
     }
 
     @Override
     public boolean insertStack(IItemKey key, ItemStack stack) {
-        ItemKey realKey = (ItemKey) key;
-        IItemHandler inventory = realKey.inventory();
-        ItemStack origStack = inventory.extractItem(realKey.slot(), 64, false);
-        if (!origStack.isEmpty()) {
-            if (ItemStack.isSameItemSameComponents(origStack, stack)) {
-                if ((stack.getCount() + origStack.getCount()) > stack.getMaxStackSize()) {
-                    return false;
-                }
-                stack.grow(origStack.getCount());
-            } else {
-                return false;
-            }
+        ItemKey slot = (ItemKey) key;
+        if (!slot.inventory().insertItem(slot.slot(), stack, true).isEmpty()) {
+            return false;
         }
-        inventory.insertItem(realKey.slot(), stack, false);
-        return true;
+        return slot.inventory().insertItem(slot.slot(), stack, false).isEmpty();
     }
 
     @Override
     public int insertStackAnySlot(IItemKey key, ItemStack stack) {
-        ItemKey realKey = (ItemKey) key;
-        IItemHandler inventory = realKey.inventory();
-        // @todo 1.14
-//        return InventoryHelper.mergeItemStack(inventory, true, stack, 0, inventory.getSizeInventory(), null);
-        return 0;
+        ItemKey slot = (ItemKey) key;
+        return ItemHandlerHelper.insertItem(slot.inventory(), stack, false).getCount();
     }
 
     private record ItemKey(IItemHandler inventory, int slot) implements IItemKey {

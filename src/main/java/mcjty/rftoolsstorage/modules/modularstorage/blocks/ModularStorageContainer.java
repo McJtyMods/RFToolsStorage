@@ -12,14 +12,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
-
 import javax.annotation.Nonnull;
 
 import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
@@ -159,8 +158,8 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     @Override
-    public void clicked(int index, int button, @Nonnull ClickType mode, @Nonnull Player player) {
-        if (index == SLOT_STORAGE_MODULE && !player.getCommandSenderWorld().isClientSide) {
+    public void clicked(int index, int button, @Nonnull ContainerInput mode, @Nonnull Player player) {
+        if (index == SLOT_STORAGE_MODULE && !player.level().isClientSide()) {
             // @todo 1.14
 //            modularStorageTileEntity.copyToModule();
         }
@@ -169,6 +168,8 @@ public class ModularStorageContainer extends GenericContainer {
 
     @Override
     public void broadcastChanges() {
+        ModularStorageTileEntity tile = (ModularStorageTileEntity) getBe();
+        tile.getCraftingGrid().updateResult(tile.getLevel());
         super.broadcastChanges();
 
         ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) be;

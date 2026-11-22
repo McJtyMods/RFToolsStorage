@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
-
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
@@ -9,16 +8,15 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-
 import java.util.List;
 import java.util.Optional;
 
 public record PacketReturnInventoryInfo(List<InventoryInfo> inventories) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "return_inventory_info");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "return_inventory_info");
     public static final CustomPacketPayload.Type<PacketReturnInventoryInfo> TYPE = new Type<>(ID);
 
     public static final StreamCodec<FriendlyByteBuf, PacketReturnInventoryInfo> CODEC = StreamCodec.composite(
@@ -47,7 +45,7 @@ public record PacketReturnInventoryInfo(List<InventoryInfo> inventories) impleme
                 BlockPos.STREAM_CODEC, InventoryInfo::pos,
                 ByteBufCodecs.STRING_UTF8, InventoryInfo::name,
                 ByteBufCodecs.BOOL, InventoryInfo::routable,
-                ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), s -> s.block == null ? Optional.empty() : Optional.of(Tools.getId(s.block)),
+                ByteBufCodecs.optional(Identifier.STREAM_CODEC), s -> s.block == null ? Optional.empty() : Optional.of(Tools.getId(s.block)),
                 (pos, name, routable, blockId) -> new InventoryInfo(
                         pos,
                         name,

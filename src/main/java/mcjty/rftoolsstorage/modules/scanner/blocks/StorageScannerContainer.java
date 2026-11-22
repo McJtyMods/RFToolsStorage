@@ -13,7 +13,6 @@ import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
-
 import javax.annotation.Nonnull;
 
 import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
@@ -76,6 +75,13 @@ public class StorageScannerContainer extends GenericContainer {
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         addInventory(CONTAINER_GRID, ((StorageScannerTileEntity) be).getCraftingGrid().getCraftingGridInventory());
         generateSlots(inventory.player);
+    }
+
+    @Override
+    public void broadcastChanges() {
+        StorageScannerTileEntity tile = (StorageScannerTileEntity) getBe();
+        tile.getCraftingGrid().updateResult(tile.getLevel());
+        super.broadcastChanges();
     }
 
 }

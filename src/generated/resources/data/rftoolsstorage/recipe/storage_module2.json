@@ -1,24 +1,12 @@
 {
   "type": "mcjtylib:copy_components",
   "recipe": {
-    "type": "minecraft:crafting_shaped",
-    "category": "misc",
     "key": {
-      "C": {
-        "tag": "c:chests"
-      },
-      "Q": {
-        "item": "minecraft:quartz_block"
-      },
-      "R": {
-        "item": "minecraft:redstone_block"
-      },
-      "X": {
-        "item": "rftoolsstorage:storage_module1"
-      },
-      "g": {
-        "item": "minecraft:gold_block"
-      }
+      "C": "#c:chests",
+      "Q": "minecraft:quartz_block",
+      "R": "minecraft:redstone_block",
+      "X": "rftoolsstorage:storage_module1",
+      "g": "minecraft:gold_block"
     },
     "pattern": [
       " C ",
@@ -26,7 +14,6 @@
       "QRQ"
     ],
     "result": {
-      "count": 1,
       "id": "rftoolsstorage:storage_module2"
     }
   }

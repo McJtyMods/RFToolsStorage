@@ -8,8 +8,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.Level;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.*;
 
 /**
@@ -123,7 +121,7 @@ public class CraftingSystem {
             // No crafting manager can craft this. Put the request on the error queue
             failedRequests.add(request);
         } else {
-            List<Ingredient> ingredients = bestDevice.craftingManager.getIngredients(bestDevice.queue, request);
+            List<Optional<Ingredient>> ingredients = bestDevice.craftingManager.getIngredients(bestDevice.queue, request);
             List<ItemStack> extractedItems = storage.requestIngredients(ingredients, ingredient -> {
                 // A craft is possible but some items are missing. This consumer is called for every missing ingredient
                 CraftingRequest newRequest = new CraftingRequest(newRequestId(), ingredient, 1, request.id());
@@ -170,12 +168,12 @@ public class CraftingSystem {
      * Called from the storage scanner: request the craft of the given stack
      */
     public void requestCraft(ItemStack stack, int amount) {
-        CraftingRequest request = new CraftingRequest(newRequestId(), Ingredient.of(stack), amount, -1);
+        CraftingRequest request = new CraftingRequest(newRequestId(), Ingredient.of(stack.getItem()), amount, -1);
         queuedRequests.add(request);
     }
 
     public void read(CompoundTag tag) {
-        currentRequestId = tag.getInt("currentRequestId");
+        currentRequestId = tag.getIntOr("currentRequestId", 0);
         // @todo
     }
 
