@@ -1,5 +1,9 @@
 package mcjty.rftoolsstorage.modules.modularstorage.client;
 
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.input.MouseButtonEvent;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.BaseSlot;
@@ -28,21 +32,19 @@ import mcjty.rftoolsstorage.storage.modules.TypeModule;
 import mcjty.rftoolsstorage.storage.sorters.ItemSorter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import mcjty.lib.container.IItemHandlerModifiable;
+import mcjty.lib.container.SlotItemHandler;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.glfw.GLFW;
-
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,9 +65,9 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
     private TypeModule typeModule;
 
-    private static final ResourceLocation iconLocationTop = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/modularstoragetop.png");
-    private static final ResourceLocation iconLocation = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/modularstorage.png");
-    private static final ResourceLocation guiElements = ResourceLocation.fromNamespaceAndPath(RFToolsBase.MODID, "textures/gui/guielements.png");
+    private static final Identifier iconLocationTop = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/modularstoragetop.png");
+    private static final Identifier iconLocation = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/modularstorage.png");
+    private static final Identifier guiElements = Identifier.fromNamespaceAndPath(RFToolsBase.MODID, "textures/gui/guielements.png");
 
     private WidgetList itemList;
     private TextField filter;
@@ -85,21 +87,21 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
         craftingGrid = new GuiCraftingGrid();
 
-        imageWidth = STORAGE_WIDTH;
+        int storageWidth = STORAGE_WIDTH;
 
         double height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 
         if (height > 510) {
-            imageHeight = ModularStorageConfiguration.height3.get();
+            setWindowDimensions(storageWidth, ModularStorageConfiguration.height3.get());
         } else if (height > 340) {
-            imageHeight = ModularStorageConfiguration.height2.get();
+            setWindowDimensions(storageWidth, ModularStorageConfiguration.height2.get());
         } else {
-            imageHeight = ModularStorageConfiguration.height1.get();
+            setWindowDimensions(storageWidth, ModularStorageConfiguration.height1.get());
         }
     }
 
-    public static void register(RegisterMenuScreensEvent event) {
-        event.register(ModularStorageModule.CONTAINER_MODULAR_STORAGE.get(), GuiModularStorage::new);
+    public static void register() {
+        MenuScreens.register(ModularStorageModule.CONTAINER_MODULAR_STORAGE.get(), GuiModularStorage::new);
     }
 
     @Override
@@ -223,10 +225,10 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             // @todo 1.21 data
 //            if (!heldItem.isEmpty() && heldItem.hasTag()) {
 //                CompoundTag tagCompound = heldItem.getTag();
-//                filter.text(ModularStorageConfiguration.clearSearchOnOpen.get() ? "" : tagCompound.getString("filter"));
-//                setViewMode(tagCompound.getString("viewMode"));
-//                setSortMode(tagCompound.getString("sortMode"));
-//                groupMode.setCurrentChoice(tagCompound.getBoolean("groupMode") ? 1 : 0);
+//                filter.text(ModularStorageConfiguration.clearSearchOnOpen.get() ? "" : tagCompound.getStringOr("filter", ""));
+//                setViewMode(tagCompound.getStringOr("viewMode", ""));
+//                setSortMode(tagCompound.getStringOr("sortMode", ""));
+//                groupMode.setCurrentChoice(tagCompound.getBooleanOr("groupMode", false) ? 1 : 0);
 //            }
         }
 
@@ -335,7 +337,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    public Slot findSlot(double x, double y) {
+    public Slot getHoveredSlot(double x, double y) {
         Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
         if (widget != null) {
             Object userObject = widget.getUserObject();
@@ -348,7 +350,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
             }
         }
 
-        return super.findSlot(x, y);
+        return super.getHoveredSlot(x, y);
     }
 
     private void dumpClasses(String name, Object o) {
@@ -365,7 +367,10 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double x = event.x();
+        double y = event.y();
+        int button = event.button();
         // @todo 1.14
 //        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
 //            Slot slot = getSlotAtPosition(x, y);
@@ -380,10 +385,10 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 //                }
 //            }
 //        }
-        boolean r = super.mouseClicked(x, y, button);
+        boolean r = super.mouseClicked(event, doubleClick);
 //        craftingGrid.getWindow().mouseClicked(x, y, button);
         if (button == 1) {
-            Slot slot = findSlot(x, y);
+            Slot slot = getHoveredSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
                 if (getBE() != null) {
                     window.sendServerCommand(CMD_CLEARGRID, TypedMap.EMPTY);
@@ -583,13 +588,15 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
+        int scanCode = event.scancode();
         boolean rc = false;
         if (!window.keyTyped(keyCode, scanCode)) {
             if (keyCode >= GLFW.GLFW_KEY_1 && keyCode <= GLFW.GLFW_KEY_9) {
                 return true;
             }
-            rc = super.keyPressed(keyCode, scanCode, modifiers);
+            rc = super.keyPressed(event);
         }
 
         // @todo 1.14 rc handling is probably not right
@@ -598,7 +605,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int x, int y) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int x, int y) {
         updateList();
 
         ModularStorageTileEntity tileEntity = getBE();
@@ -616,24 +623,24 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
     }
 
     @Override
-    protected void renderTooltip(@Nonnull GuiGraphics graphics, int x, int y) {
-        Slot slot = findSlot(x, y);
+    protected void extractTooltip(@Nonnull GuiGraphicsExtractor graphics, int x, int y) {
+        Slot slot = getHoveredSlot(x, y);
         if (slot instanceof SlotItemHandler && !(slot instanceof BaseSlot) && !(slot instanceof GhostOutputSlot) && !(slot instanceof GhostSlot)) {
             ModularStorageTileEntity tileEntity = getBE();
             if (tileEntity.isLocked()) {
-                graphics.renderTooltip(minecraft.font, ComponentFactory.literal("Unlock to access these slots").withStyle(ChatFormatting.RED), x, y);
+                graphics.setTooltipForNextFrame(minecraft.font, ComponentFactory.literal("Unlock to access these slots").withStyle(ChatFormatting.RED), x, y);
                 return;
             }
         }
-        super.renderTooltip(graphics, x, y);
+        super.extractTooltip(graphics, x, y);
     }
 
     @Override
-    protected void drawStackTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void drawStackTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
     }
 
     @Override
-    protected void renderLabels(@Nonnull GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void extractLabels(@Nonnull GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
 
@@ -646,11 +653,11 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
         if (tileEntity.isLocked()) {
             int offset = 300;
-            graphics.blit(guiElements, 5, imageHeight-79, offset, 96, 96, 16, 16, 256, 256);
-            graphics.blit(guiElements, 5, imageHeight-61, offset, 96, 96, 16, 16, 256, 256);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, guiElements, 5, imageHeight - 79, offset, 96, 16, 16, 256, 256);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, guiElements, 5, imageHeight - 61, offset, 96, 16, 16, 256, 256);
         }
 
-        super.renderLabels(graphics, mouseX, mouseY);
+        super.extractLabels(graphics, mouseX, mouseY);
 
         warningLabel.visible(!tileEntity.isLocked());
         itemList.visible(tileEntity.isLocked());
@@ -660,7 +667,7 @@ public class GuiModularStorage extends GenericGuiContainer<ModularStorageTileEnt
 
 
     @Override
-    protected void drawWindow(GuiGraphics graphics, float partialTicks, int x, int y) {
+    protected void drawWindow(GuiGraphicsExtractor graphics, float partialTicks, int x, int y) {
         super.drawWindow(graphics, partialTicks, x, y);
         craftingGrid.draw(graphics);
     }

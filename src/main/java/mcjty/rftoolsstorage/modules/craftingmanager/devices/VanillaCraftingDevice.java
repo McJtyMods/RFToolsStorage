@@ -1,20 +1,21 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.devices;
 
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import java.util.Optional;
+import mcjty.rftoolsstorage.craftinggrid.CraftingData;
 import mcjty.lib.crafting.BaseRecipe;
 import mcjty.rftoolsbase.modules.crafting.items.CraftingCardItem;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,32 +23,42 @@ import java.util.List;
 
 public class VanillaCraftingDevice implements ICraftingDevice {
 
-    public static final ResourceLocation DEVICE_VANILLA_CRAFTING = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "vanilla_crafting");
+    public static final Identifier DEVICE_VANILLA_CRAFTING = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "vanilla_crafting");
 
     List<ItemStack> inventory = new ArrayList<>();
 
     private ItemStack cardStack = ItemStack.EMPTY;
-    private Recipe recipe;
+    private CraftingRecipe recipe;
     private int ticks = -1;
 
     @Override
-    public ResourceLocation getID() {
+    public Identifier getID() {
         return DEVICE_VANILLA_CRAFTING;
     }
 
     @Override
     public void setupCraft(@Nonnull Level world, @Nonnull ItemStack cardStack) {
         this.cardStack = cardStack;
-        recipe = CraftingCardItem.findRecipe(world, cardStack, getRecipeType());
+        var found = CraftingCardItem.findRecipe(world, cardStack, getRecipeType());
+        recipe = found instanceof CraftingRecipe crafting ? crafting : null;
     }
 
     @Override
-    public List<Ingredient> getIngredients() {
-        if (recipe != null) {
-            return recipe.getIngredients();
-        } else {
-            return Collections.emptyList();
+    public List<Optional<Ingredient>> getIngredients() {
+        if (recipe == null) {
+            return List.of();
         }
+        List<Optional<Ingredient>> ingredients = CraftingData.ingredients(recipe, List.of());
+        if (ingredients.isEmpty()) {
+            return List.of();
+        }
+
+        int width = recipe instanceof ShapedRecipe shaped ? shaped.getWidth() : 3;
+        List<Optional<Ingredient>> grid = new ArrayList<>(Collections.nCopies(9, Optional.empty()));
+        for (int i = 0; i < ingredients.size(); i++) {
+            grid.set((i / width) * 3 + (i % width), ingredients.get(i));
+        }
+        return grid;
     }
 
     @Override
@@ -94,9 +105,7 @@ public class VanillaCraftingDevice implements ICraftingDevice {
             if (!rc.isEmpty()) {
                 result.add(rc);
             }
-            for (Object item : recipe.getRemainingItems(inp.input())) {
-                result.add((ItemStack) item);
-            }
+            result.addAll(recipe.getRemainingItems(inp.input()));
 
             for (int i = 0 ; i < inventory.size() ; i++) {
                 // @todo should items left in the work inventory also be put back?
@@ -124,15 +133,13 @@ public class VanillaCraftingDevice implements ICraftingDevice {
 
     @Override
     public void read(HolderLookup.Provider provider, CompoundTag tag) {
-        cardStack = ItemStack.parseOptional(provider, tag.getCompound("cardStack"));
-        ticks = tag.getInt("ticks");
+        cardStack = CraftingData.readStack(provider, tag.getCompoundOrEmpty("cardStack"));
+        ticks = tag.getIntOr("ticks", 0);
     }
 
     @Override
     public void write(HolderLookup.Provider provider, CompoundTag tag) {
         tag.putInt("ticks", ticks);
-        CompoundTag compoundNBT = new CompoundTag();
-        Tag stackTag = cardStack.save(provider, compoundNBT);
-        tag.put("cardStack", stackTag);
+        tag.put("cardStack", CraftingData.writeStack(provider, cardStack));
     }
 }

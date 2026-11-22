@@ -14,8 +14,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-
+import mcjty.lib.network.StreamCodecs;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class StorageConnectorSettings extends AbstractConnectorSettings {
         STORAGE;
 
         public static final Codec<Mode> CODEC = StringRepresentable.fromEnum(Mode::values);
-        public static final StreamCodec<FriendlyByteBuf, Mode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(Mode.class);
+        public static final StreamCodec<FriendlyByteBuf, Mode> STREAM_CODEC = StreamCodecs.enumCodec(Mode.class);
 
         @Override
         public String getSerializedName() {

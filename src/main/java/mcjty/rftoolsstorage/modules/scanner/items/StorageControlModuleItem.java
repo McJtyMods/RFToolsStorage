@@ -10,7 +10,6 @@ import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.api.various.ITabletSupport;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
@@ -37,7 +36,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
@@ -91,8 +89,8 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
         return ModuleTools.getTargetString(stack);
     }
 
-    public StorageControlModuleItem() {
-        super(RFToolsStorage.setup.defaultProperties().stacksTo(1).durability(1));
+    public StorageControlModuleItem(Properties properties) {
+        super(properties.stacksTo(1).durability(1));
     }
 
     @Nonnull
@@ -113,17 +111,17 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
                 name = Tools.getReadableName(world, pos);
             }
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Storage module is set to block '" + name + "'");
             }
         } else {
             data = data.withPos(GlobalPos.of(Level.OVERWORLD, BlockPosTools.INVALID));
             ModuleTools.clearPositionInModule(stack);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(player, "Storage module is cleared");
             }
         }
-        stack.set(StorageScannerModule.MODULE_CONTROL_DATA, data);
+        stack.set(StorageScannerModule.MODULE_CONTROL_DATA.get(), data);
         return InteractionResult.SUCCESS;
     }
 
@@ -158,7 +156,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
     }
 
     public static StorageControlScreenModule data(ItemStack stack) {
-        StorageControlScreenModule data = stack.get(StorageScannerModule.MODULE_CONTROL_DATA);
+        StorageControlScreenModule data = stack.get(StorageScannerModule.MODULE_CONTROL_DATA.get());
         if (data == null) {
             data = StorageControlScreenModule.DEFAULT;
         }
@@ -168,7 +166,7 @@ public class StorageControlModuleItem extends GenericModuleItem implements IComp
     public static void data(ItemStack stack, Function<StorageControlScreenModule, StorageControlScreenModule> setter) {
         StorageControlScreenModule data = data(stack);
         data = setter.apply(data);
-        stack.set(StorageScannerModule.MODULE_CONTROL_DATA, data);
+        stack.set(StorageScannerModule.MODULE_CONTROL_DATA.get(), data);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.modules.scanner.network;
 
-
 import mcjty.lib.varia.LevelTools;
 import mcjty.lib.varia.Tools;
 import mcjty.rftoolsstorage.RFToolsStorage;
@@ -15,7 +14,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,9 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-
+import mcjty.lib.container.IItemHandler;
+import mcjty.lib.network.PayloadContext;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,7 +31,7 @@ import java.util.stream.Stream;
 
 public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, boolean doscan) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "getinventoryinfo");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "getinventoryinfo");
     public static final Type<PacketGetInventoryInfo> TYPE = new Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PacketGetInventoryInfo> CODEC = StreamCodec.composite(
@@ -51,7 +49,7 @@ public record PacketGetInventoryInfo(ResourceKey<Level> levelId, BlockPos pos, b
         return TYPE;
     }
 
-    public void handle(IPayloadContext ctx) {
+    public void handle(PayloadContext ctx) {
         ctx.enqueueWork(() -> {
             Player player = ctx.player();
             onMessageServer(player).ifPresent(p -> sendReplyToClient(p, (ServerPlayer) player));

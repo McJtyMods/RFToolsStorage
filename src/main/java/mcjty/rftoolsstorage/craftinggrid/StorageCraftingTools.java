@@ -6,19 +6,13 @@ import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.apache.commons.lang3.tuple.Pair;
-
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,20 +25,8 @@ public class StorageCraftingTools {
     @Nonnull
     /// Try a recipe and return what's potentially missing
     private static List<Pair<ItemStack, Integer>> tryRecipe(Player player, RFCraftingRecipe craftingRecipe, int n, IItemSource itemSource) {
-        CraftingContainer workInventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-            @Override
-            public boolean stillValid(@Nonnull Player var1) {
-                return false;
-            }
-
-            @Override
-            public ItemStack quickMoveStack(Player player, int slot) {
-                return ItemStack.EMPTY;
-            }
-        }, 3, 3);
-
-        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
-        List<Ingredient> ingredients = recipe.map(r -> r.value().getIngredients()).orElseGet(() -> NonNullList.withSize(9, Ingredient.EMPTY));
+        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.level());
+        List<Optional<Ingredient>> ingredients = recipe.map(r -> CraftingData.ingredients(r.value(), craftingRecipe.getInventory())).orElseGet(List::of);
 
         List<Pair<ItemStack, Integer>> missing = new ArrayList<>(9);
         for (int i = 0 ; i < 9 ; i++) {
@@ -52,16 +34,11 @@ public class StorageCraftingTools {
         }
         for (int i = 0; i < 9; i++) {
             if (i < ingredients.size()) {
-                Ingredient ingredient = ingredients.get(i);
-                ItemStack[] stacks = ingredient.getItems();
-                if (stacks.length > 0) {
-                    ItemStack stack = stacks[0];
-                    if (!stack.isEmpty()) {
-                        missing.set(i, Pair.of(stack, stack.getCount() * n));
-                    }
+                var item = ingredients.get(i).flatMap(ingredient -> ingredient.items().findFirst());
+                if (item.isPresent()) {
+                    missing.set(i, Pair.of(new ItemStack(item.get()), n));
                 }
             }
-            workInventory.setItem(i, ItemStack.EMPTY);
         }
 
         for (Pair<IItemKey, ItemStack> pair : itemSource.getItems()) {
@@ -70,7 +47,7 @@ public class StorageCraftingTools {
             if (!input.isEmpty()) {
                 for (int i = 0; i < ingredients.size(); i++) {
                     if (missing.get(i).getRight() > 0) {
-                        if (ingredients.get(i).test(input)) {
+                        if (ingredients.get(i).orElseThrow().test(input)) {
                             if (size > missing.get(i).getRight()) {
                                 size -= missing.get(i).getRight();
                                 missing.set(i, Pair.of(ItemStack.EMPTY, 0));
@@ -78,7 +55,6 @@ public class StorageCraftingTools {
                                 missing.set(i, Pair.of(missing.get(i).getLeft(), missing.get(i).getRight() - size));
                                 size = 0;
                             }
-                            workInventory.setItem(i, input.copy());
                         }
                     }
                 }
@@ -89,22 +65,10 @@ public class StorageCraftingTools {
 
     private static List<ItemStack> testAndConsumeCraftingItems(Player player, RFCraftingRecipe craftingRecipe,
                                                                IItemSource itemSource) {
-//        CraftingContainer workInventory = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-//            @Override
-//            public boolean stillValid(@Nonnull Player var1) {
-//                return false;
-//            }
-//
-//            @Override
-//            public ItemStack quickMoveStack(Player player, int slot) {
-//                return ItemStack.EMPTY;
-//            }
-//        }, 3, 3);
-
         List<Pair<IItemKey, ItemStack>> undo = new ArrayList<>();
         List<ItemStack> result = new ArrayList<>();
 
-        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.level());
         return recipe.map(rh -> {
             CraftingRecipe r = rh.value();
             int w = 3;
@@ -113,7 +77,7 @@ public class StorageCraftingTools {
                 w = ((ShapedRecipe) r).getWidth();
                 h = ((ShapedRecipe) r).getHeight();
             }
-            List<Ingredient> ingredients = r.getIngredients();
+            List<Optional<Ingredient>> ingredients = CraftingData.ingredients(r, craftingRecipe.getInventory());
             List<ItemStack> inventory = new ArrayList<>(9);
             for (int i = 0; i < 9; i++) {
                 inventory.add(ItemStack.EMPTY);
@@ -124,26 +88,16 @@ public class StorageCraftingTools {
                     int workIndex = y * 3 + x;
                     inventory.set(workIndex, ItemStack.EMPTY);
                     if (i < ingredients.size()) {
-                        Ingredient ingredient = ingredients.get(i);
-                        ItemStack[] stacks = ingredient.getItems();
-                        if (stacks.length > 0) {
-                            ItemStack stack = stacks[0];
-                            if (!stack.isEmpty()) {
-                                int count = stack.getCount();
-                                count = findMatchingItems(inventory, undo, workIndex, ingredients.get(i), count, itemSource);
-
-                                if (count > 0) {
-                                    // Couldn't find all items.
-                                    undo(player, itemSource, undo);
-                                    return Collections.<ItemStack>emptyList();
-                                }
-                            }
+                        Ingredient ingredient = ingredients.get(i).orElse(null);
+                        if (ingredient != null && !consumeIngredient(inventory, undo, workIndex, ingredient, itemSource)) {
+                            undo(player, itemSource, undo);
+                            return Collections.<ItemStack>emptyList();
                         }
                     }
                 }
             }
             CraftingInput workInventory = CraftingInput.of(3, 3, inventory);
-            if (!r.matches(workInventory, player.getCommandSenderWorld())) {
+            if (!r.matches(workInventory, player.level())) {
                 result.clear();
                 undo(player, itemSource, undo);
                 return result;
@@ -165,35 +119,20 @@ public class StorageCraftingTools {
         }).orElse(result);
     }
 
-    private static int findMatchingItems(List<ItemStack> workInventory,
-                                         List<Pair<IItemKey, ItemStack>> undo, int i,
-                                         @Nonnull Ingredient stack,
-                                         int count, IItemSource itemSource) {
-        for (Pair<IItemKey, ItemStack> pair : itemSource.getItems()) {
-            ItemStack input = pair.getValue();
-            if (!input.isEmpty()) {
-                if (stack.test(input)) {
-                    int ss = count;
-                    if (input.getCount() - ss < 0) {
-                        ss = input.getCount();
-                    }
-                    IItemKey key = pair.getKey();
-                    ItemStack copy = input.copy();
-                    ItemStack actuallyExtracted = itemSource.decrStackSize(key, ss);
-                    if (actuallyExtracted.isEmpty()) {
-                        // Failed
-                    } else {
-                        workInventory.set(i, copy);
-                        count -= ss;
-                        undo.add(Pair.of(key, actuallyExtracted));
-                    }
-                }
+    private static boolean consumeIngredient(List<ItemStack> input, List<Pair<IItemKey, ItemStack>> undo,
+                                             int slot, Ingredient ingredient, IItemSource source) {
+        for (Pair<IItemKey, ItemStack> candidate : source.getItems()) {
+            if (candidate.getValue().isEmpty() || !ingredient.test(candidate.getValue())) {
+                continue;
             }
-            if (count == 0) {
-                break;
+            ItemStack extracted = source.decrStackSize(candidate.getKey(), 1);
+            if (!extracted.isEmpty()) {
+                input.set(slot, extracted.copy());
+                undo.add(Pair.of(candidate.getKey(), extracted));
+                return true;
             }
         }
-        return count;
+        return false;
     }
 
     private static void undo(Player player, IItemSource itemSource, List<Pair<IItemKey, ItemStack>> undo) {
@@ -206,7 +145,9 @@ public class StorageCraftingTools {
                     // We still have left-overs. Spawn them in the player inventory
                     ItemStack copy = stack.copy();
                     copy.setCount(amountLeft);
-                    ItemHandlerHelper.giveItemToPlayer(player, copy);
+                    if (!player.getInventory().add(copy)) {
+                        player.drop(copy, false);
+                    }
                 }
             }
         }
@@ -214,7 +155,7 @@ public class StorageCraftingTools {
     }
 
     public static void craftItems(Player player, int nn, RFCraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.level());
         if (!recipe.isPresent()) {
             // @todo give error?
             return;
@@ -224,7 +165,7 @@ public class StorageCraftingTools {
         recipe.ifPresent(rh -> {
             CraftingRecipe r = rh.value();
 
-            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level());
+            ItemStack recipeResult = r.assemble(CraftingInput.ofPositioned(3, 3, craftingRecipe.getInventory()).input());
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {
                     n[0] = recipeResult.getMaxStackSize();
@@ -246,7 +187,7 @@ public class StorageCraftingTools {
                     }
                     for (ItemStack stack : result) {
                         if (!player.getInventory().add(stack)) {
-                            player.spawnAtLocation(stack, 1.05f);
+                            player.drop(stack, false);
                         }
                     }
                 }
@@ -260,7 +201,7 @@ public class StorageCraftingTools {
      * Return a list of missing items together with how many are missing
      */
     public static List<Pair<ItemStack, Integer>> testCraftItems(Player player, int nn, RFCraftingRecipe craftingRecipe, IItemSource itemSource) {
-        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.getCommandSenderWorld());
+        Optional<RecipeHolder<CraftingRecipe>> recipe = craftingRecipe.getCachedRecipe(player.level());
         if (!recipe.isPresent()) {
             // @todo give error?
             return Collections.emptyList();
@@ -269,7 +210,7 @@ public class StorageCraftingTools {
         final int[] n = {nn};
         return recipe.map(rh -> {
             CraftingRecipe r = rh.value();
-            ItemStack recipeResult = BaseRecipe.getResultItem(r, player.level());
+            ItemStack recipeResult = r.assemble(CraftingInput.ofPositioned(3, 3, craftingRecipe.getInventory()).input());
             if (!recipeResult.isEmpty() && recipeResult.getCount() > 0) {
                 if (n[0] == -1) {
                     n[0] = recipeResult.getMaxStackSize();
@@ -294,7 +235,7 @@ public class StorageCraftingTools {
     public static void craftFromGrid(Player player, int count, boolean test, BlockPos pos, ResourceKey<Level> type) {
 //        player.addStat(StatList.CRAFTING_TABLE_INTERACTION);  // @todo 1.14
         List<Pair<ItemStack, Integer>> testResult = Collections.emptyList();
-        BlockEntity te = LevelTools.getLevel(player.getCommandSenderWorld(), type).getBlockEntity(pos);
+        BlockEntity te = LevelTools.getLevel(player.level(), type).getBlockEntity(pos);
         if (te instanceof CraftingGridProvider provider) {
             testResult = provider.craft(player, count, test);
         }
@@ -304,7 +245,7 @@ public class StorageCraftingTools {
     }
 
     public static void requestGridSync(Player player, BlockPos pos, ResourceKey<Level> type) {
-        Level world = LevelTools.getLevel(player.getCommandSenderWorld(), type);
+        Level world = LevelTools.getLevel(player.level(), type);
         CraftingGridProvider provider = null;
         BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof CraftingGridProvider && te instanceof GenericTileEntity) {

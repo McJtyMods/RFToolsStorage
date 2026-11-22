@@ -1,5 +1,7 @@
 package mcjty.rftoolsstorage.modules.modularstorage.items;
 
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.crafting.IComponentsToPreserve;
 import mcjty.lib.varia.Logging;
@@ -14,17 +16,15 @@ import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.util.Lazy;
-
+import mcjty.lib.varia.Lazy;
 import javax.annotation.Nonnull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -149,10 +149,8 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
         return uuid != null;
     }
 
-    public StorageModuleItem(int tier) {
-        super(RFToolsStorage.setup.defaultProperties()
-                .stacksTo(1)
-                .durability(0));
+    public StorageModuleItem(Properties properties, int tier) {
+        super(properties.stacksTo(1));
         this.tier = tier;
     }
 
@@ -161,7 +159,7 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
     }
 
     @Override
-    public void onCraftedBy(@Nonnull ItemStack stack, @Nonnull Level worldIn, @Nonnull Player player) {
+    public void onCraftedBy(@Nonnull ItemStack stack, @Nonnull Player player) {
         StorageModuleData data = getData(stack);
         String createdBy = data.createdBy();
         if (createdBy != null && !createdBy.isEmpty()) {
@@ -209,19 +207,20 @@ public class StorageModuleItem extends Item implements IComponentsToPreserve, IS
 
     @Nonnull
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        if (!world.isClientSide) {
+    public InteractionResult use(Level world, Player player, @Nonnull InteractionHand hand) {
+        if (!world.isClientSide()) {
             Logging.message(player, ChatFormatting.YELLOW + "Place this module in a storage module tablet to access contents");
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+            return InteractionResult.SUCCESS;
         }
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, TooltipContext context, List<Component> list, TooltipFlag flags) {
-        super.appendHoverText(itemStack, context, list, flags);
-        tooltipBuilder.get().makeTooltip(ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
+    public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flags) {
+        super.appendHoverText(itemStack, context, display, tooltip, flags);
+        List<Component> list = new java.util.ArrayList<>();
+        tooltipBuilder.get().makeTooltip(Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "storage_module"), itemStack, list, flags);
+        list.forEach(tooltip);
     }
 
 

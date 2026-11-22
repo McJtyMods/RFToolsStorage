@@ -16,8 +16,6 @@ import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -28,7 +26,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -203,10 +200,10 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
     public ItemStack update(ItemStack module, Level world, Player player) {
         if (dirty >= 0) {
             ItemStack copy = module.copy();
-            StorageControlScreenModule data = copy.get(StorageScannerModule.MODULE_CONTROL_DATA).withStack(dirty, stacks.get(dirty)).withDirty(-1);
-            copy.set(StorageScannerModule.MODULE_CONTROL_DATA, data);
+            StorageControlScreenModule data = copy.get(StorageScannerModule.MODULE_CONTROL_DATA.get()).withStack(dirty, stacks.get(dirty)).withDirty(-1);
+            copy.set(StorageScannerModule.MODULE_CONTROL_DATA.get(), data);
             if (player != null) {
-                SoundTools.playSound(player.getCommandSenderWorld(), SoundEvents.EXPERIENCE_ORB_PICKUP,
+                SoundTools.playSound(player.level(), SoundEvents.EXPERIENCE_ORB_PICKUP,
                         player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(), 1.0f, 1.0f);
             }
             return copy;
@@ -224,7 +221,7 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
             return ItemStack.EMPTY;
         }
         if (BlockPosTools.INVALID.equals(pos.pos())) {
-            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
+            player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"));
             return ItemStack.EMPTY;
         }
         IStorageScanner scannerTileEntity = getStorageScanner(player.level(), pos.dimension(), pos.pos());
@@ -260,7 +257,7 @@ public record StorageControlScreenModule(GlobalPos pos, boolean starred, int dir
                     ItemStack heldItem = player.getMainHandItem();
                     if (!heldItem.isEmpty()) {
                         StorageControlScreenModule data = withStack(i, heldItem.copy()).withDirty(i);
-                        moduleStack.set(StorageScannerModule.MODULE_CONTROL_DATA, data);
+                        moduleStack.set(StorageScannerModule.MODULE_CONTROL_DATA.get(), data);
                         return moduleStack;
                     }
                 } else {

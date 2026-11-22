@@ -9,7 +9,6 @@ import mcjty.rftoolsbase.api.screens.IModuleGuiBuilder;
 import mcjty.rftoolsbase.api.screens.IScreenModule;
 import mcjty.rftoolsbase.api.storage.IStorageScanner;
 import mcjty.rftoolsbase.tools.GenericModuleItem;
-import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerConfiguration;
 import mcjty.rftoolsstorage.modules.scanner.StorageScannerModule;
 import mcjty.lib.gui.ManualEntry;
@@ -25,15 +24,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class DumpModuleItem extends GenericModuleItem {
 
-    public DumpModuleItem() {
-        super(RFToolsStorage.setup.defaultProperties().durability(1));
+    public DumpModuleItem(Properties properties) {
+        super(properties.durability(1));
     }
 
     @Override
@@ -89,7 +87,7 @@ public class DumpModuleItem extends GenericModuleItem {
     }
 
     public static DumpScreenModule data(ItemStack stack) {
-        DumpScreenModule data = stack.get(StorageScannerModule.MODULE_DUMP_DATA);
+        DumpScreenModule data = stack.get(StorageScannerModule.MODULE_DUMP_DATA.get());
         if (data == null) {
             data = DumpScreenModule.DEFAULT;
         }
@@ -99,7 +97,7 @@ public class DumpModuleItem extends GenericModuleItem {
     public static void data(ItemStack stack, Function<DumpScreenModule, DumpScreenModule> setter) {
         DumpScreenModule data = data(stack);
         data = setter.apply(data);
-        stack.set(StorageScannerModule.MODULE_DUMP_DATA, data);
+        stack.set(StorageScannerModule.MODULE_DUMP_DATA.get(), data);
     }
 
 
@@ -136,12 +134,12 @@ public class DumpModuleItem extends GenericModuleItem {
                 name = Tools.getReadableName(world, pos);
             }
             ModuleTools.setPositionInModule(stack, world.dimension(), pos, name);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(context.getPlayer(), "Storage module is set to block '" + name + "'");
             }
         } else {
             ModuleTools.clearPositionInModule(stack);
-            if (world.isClientSide) {
+            if (world.isClientSide()) {
                 Logging.message(context.getPlayer(), "Storage module is cleared");
             }
         }

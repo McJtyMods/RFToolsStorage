@@ -1,9 +1,8 @@
 package mcjty.rftoolsstorage.setup;
 
-
+import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry;
+import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.lib.modules.Modules;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.Builder;
@@ -29,13 +28,13 @@ public class Config {
     public static ModConfigSpec.IntValue NETHER_ORE_MINY;
     public static ModConfigSpec.IntValue NETHER_ORE_MAXY;
 
-    public static void register(ModContainer container, IEventBus bus, Modules modules) {
-        modules.initConfig(bus);
+    public static void register(Modules modules) {
+        modules.initConfig();
 
         SERVER_CONFIG = SERVER_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
 
-        container.registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
-        container.registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
+        ConfigRegistry.INSTANCE.register(RFToolsStorage.MODID, ModConfig.Type.CLIENT, CLIENT_CONFIG);
+        ConfigRegistry.INSTANCE.register(RFToolsStorage.MODID, ModConfig.Type.SERVER, SERVER_CONFIG);
     }
 }

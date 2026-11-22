@@ -1,37 +1,23 @@
 package mcjty.rftoolsstorage.setup;
 
-import mcjty.lib.compat.MainCompatHandler;
 import mcjty.lib.setup.DefaultModSetup;
-import mcjty.lib.varia.Logging;
-import mcjty.rftoolsstorage.compat.rftoolsutility.RFToolsSupport;
-import mcjty.rftoolsstorage.compat.xnet.XNetSupport;
-import net.neoforged.fml.InterModComms;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import mcjty.rftoolsstorage.commands.ModCommands;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class ModSetup extends DefaultModSetup {
 
-    public boolean xnet = false;
+    public boolean xnet;
 
     @Override
-    public void init(FMLCommonSetupEvent e) {
-        super.init(e);
-        NeoForge.EVENT_BUS.register(new ForgeEventHandlers());
-        e.enqueueWork(() -> {
-            CommandHandler.registerCommands();
-        });
+    public void init() {
+        super.init();
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> ModCommands.register(dispatcher));
+        CommandHandler.registerCommands();
     }
 
     @Override
     protected void setupModCompat() {
-        MainCompatHandler.registerWaila();
-        MainCompatHandler.registerTOP();
-        xnet = ModList.get().isLoaded("xnet");
-        if (xnet) {
-            Logging.log("RFTools Storage Detected XNet: enabling support");
-            InterModComms.sendTo("xnet", "getXNet", XNetSupport.GetXNet::new);
-        }
-        InterModComms.sendTo("rftoolsutility", "getScreenModuleRegistry", RFToolsSupport.GetScreenModuleRegistry::new);
+        xnet = FabricLoader.getInstance().isModLoaded("xnet");
     }
 }
