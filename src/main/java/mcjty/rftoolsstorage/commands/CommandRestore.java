@@ -15,6 +15,7 @@ import mcjty.rftoolsstorage.storage.StorageHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.item.ItemStack;
 
 public class CommandRestore implements Command<CommandSourceStack> {
@@ -23,7 +24,7 @@ public class CommandRestore implements Command<CommandSourceStack> {
 
     public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
         return Commands.literal("restore")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(Commands.argument("uuid", StringArgumentType.word())
                         .executes(CMD));
     }

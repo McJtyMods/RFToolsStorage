@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner;
 
+import com.mojang.serialization.MapCodec;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
@@ -36,7 +37,6 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
-
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
@@ -48,7 +48,7 @@ public class StorageScannerModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, StorageScannerTileEntity> STORAGE_SCANNER = RBLOCKS.registerBlock("storage_scanner",
             StorageScannerTileEntity.class,
             StorageScannerBlock::new,
-            block -> new BlockItem(block.get(), createStandardProperties()),
+            (block, properties) -> new BlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             StorageScannerTileEntity::new
     );
     public static final Supplier<MenuType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER = CONTAINERS.register("storage_scanner", GenericContainer::createContainerType);
@@ -62,7 +62,7 @@ public class StorageScannerModule implements IModule {
 
     public static final Supplier<AttachmentType<StorageScannerData>> STORAGE_SCANNER_DATA = ATTACHMENT_TYPES.register(
             "storage_scanner_data", () -> AttachmentType.builder(() -> StorageScannerData.DEFAULT)
-                    .serialize(StorageScannerData.CODEC)
+                    .serialize(MapCodec.assumeMapUnsafe(StorageScannerData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<StorageScannerData>> ITEM_STORAGE_SCANNER_DATA = COMPONENTS.registerComponentType(
             "storage_scanner_data",

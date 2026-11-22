@@ -1,53 +1,94 @@
 package mcjty.rftoolsstorage.storage;
 
-import mcjty.lib.worlddata.AbstractWorldData;
-import net.minecraft.core.HolderLookup;
+import com.mojang.serialization.Codec;
+import mcjty.rftoolsstorage.RFToolsStorage;
+import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-
-import javax.annotation.Nonnull;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.LevelResource;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class StorageHolder extends AbstractWorldData<StorageHolder> {
+public class StorageHolder extends SavedData {
 
-    public static final String NAME = "RFToolsStorageHolder";
+    private static final String LEGACY_FILE = "RFToolsStorageHolder.dat";
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "storage_holder");
+    private static final Codec<StorageHolder> CODEC = StorageEntry.CODEC.listOf().fieldOf("Storages").codec()
+            .xmap(StorageHolder::new, holder -> new ArrayList<>(holder.storageEntryMap.values()));
+    private static final SavedDataType<StorageHolder> TYPE = new SavedDataType<>(ID, StorageHolder::new, CODEC);
 
     private final Map<UUID, StorageEntry> storageEntryMap = new HashMap<>();
 
     private StorageHolder() {
     }
 
-    private StorageHolder(CompoundTag tag, HolderLookup.Provider provider) {
-        ListTag storages = tag.getList("Storages", Tag.TAG_COMPOUND);
-        for (Tag storage : storages) {
-            StorageEntry entry = new StorageEntry((CompoundTag) storage, provider);
+    private StorageHolder(List<StorageEntry> entries) {
+        for (StorageEntry entry : entries) {
             storageEntryMap.put(entry.getUuid(), entry);
         }
     }
 
     public static StorageHolder get(Level world) {
-        return getData(world, tag -> new StorageHolder(tag, world.registryAccess()), StorageHolder::new, NAME);
-    }
-
-
-    public StorageEntry getOrCreateStorageEntry(UUID uuid, int size, String createdBy) {
-        if (!storageEntryMap.containsKey(uuid)) {
-            StorageEntry entry = new StorageEntry(size, uuid, createdBy);
-            storageEntryMap.put(uuid, entry);
-            save();
-        } else {
-            // Check if the size still matches
-            StorageEntry entry = storageEntryMap.get(uuid);
-            if (size != entry.getStacks().size()) {
-                entry.resize(size, createdBy);
+        if (!(world instanceof ServerLevel level)) {
+            throw new IllegalStateException("Storage cards can only access saved contents on the server");
+        }
+        var server = level.getServer();
+        var data = server.getDataStorage();
+        StorageHolder holder = data.get(TYPE);
+        if (holder != null) {
+            return holder;
+        }
+        var dataFolder = server.getWorldPath(LevelResource.DATA);
+        if (Files.exists(ID.withSuffix(".dat").resolveAgainst(dataFolder))) {
+            throw new IllegalStateException("Could not load RFTools Storage saved data");
+        }
+        var legacyFile = dataFolder.resolve(LEGACY_FILE);
+        if (Files.isRegularFile(legacyFile)) {
+            // Minecraft's old saved-data format used an unnamespaced filename in the world data folder.
+            try {
+                var rawTag = data.readTagFromDisk(legacyFile, null, SharedConstants.getCurrentVersion().dataVersion().version());
+                var tag = rawTag.getCompound("data").orElseThrow(() -> new IOException("Missing saved data"));
+                var entries = new ArrayList<StorageEntry>();
+                for (var entry : tag.getListOrEmpty("Storages")) {
+                    if (entry instanceof CompoundTag compound) {
+                        var storage = new StorageEntry(compound, level.registryAccess());
+                        if (storage.getUuid() != null) {
+                            entries.add(storage);
+                        }
+                    }
+                }
+                holder = new StorageHolder(entries);
+                data.set(TYPE, holder);
+                return holder;
+            } catch (IOException e) {
+                throw new UncheckedIOException("Could not import legacy RFTools Storage saved data", e);
             }
         }
-        return storageEntryMap.get(uuid);
+        return data.computeIfAbsent(TYPE);
+    }
+
+    public StorageEntry getOrCreateStorageEntry(UUID uuid, int size, String createdBy) {
+        StorageEntry entry = storageEntryMap.get(uuid);
+        if (entry == null) {
+            entry = new StorageEntry(size, uuid, createdBy);
+            storageEntryMap.put(uuid, entry);
+            setDirty();
+        } else if (size != entry.getStacks().size()) {
+            entry.resize(size, createdBy);
+            setDirty();
+        }
+        return entry;
     }
 
     public StorageEntry getStorageEntry(UUID uuid) {
@@ -56,16 +97,5 @@ public class StorageHolder extends AbstractWorldData<StorageHolder> {
 
     public Collection<StorageEntry> getStorages() {
         return storageEntryMap.values();
-    }
-
-    @Nonnull
-    @Override
-    public CompoundTag save(@Nonnull CompoundTag nbt, HolderLookup.Provider provider) {
-        ListTag storages = new ListTag();
-        for (Map.Entry<UUID, StorageEntry> entry : storageEntryMap.entrySet()) {
-            storages.add(entry.getValue().write(provider));
-        }
-        nbt.put("Storages", storages);
-        return nbt;
     }
 }

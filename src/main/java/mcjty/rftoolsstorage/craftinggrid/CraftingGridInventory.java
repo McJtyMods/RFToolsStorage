@@ -2,12 +2,10 @@ package mcjty.rftoolsstorage.craftinggrid;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import mcjty.lib.varia.ItemStackList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,7 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     );
 
     public ItemStack getResult() {
-        return stacks.get(SLOT_GHOSTOUTPUT);
+        return getStackInSlot(SLOT_GHOSTOUTPUT);
     }
 
     public CraftingGridInventory() {
@@ -59,7 +57,7 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     public ItemStack[] getIngredients() {
         ItemStack[] ing = new ItemStack[9];
         for (int i = 0; i < ing.length; i++) {
-            ing[i] = stacks.get(i + SLOT_GHOSTINPUT);
+            ing[i] = getStackInSlot(i + SLOT_GHOSTINPUT);
         }
         return ing;
     }
@@ -72,8 +70,7 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     @Nonnull
     @Override
     public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-        // @todo 1.14
-        return ItemStack.EMPTY;
+        return stack;
     }
 
     @Nonnull
