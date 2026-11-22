@@ -8,9 +8,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.core.BlockPos;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
 import javax.annotation.Nonnull;
 
 import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
@@ -41,9 +41,9 @@ public class CraftingManagerContainer extends GenericContainer {
     }
 
     @Override
-    public void setupInventories(IItemHandler itemHandler, Inventory inventory) {
+    public void setupInventories(ResourceHandler<ItemResource> itemHandler, Inventory inventory) {
         addInventory(CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
-        addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
+        addInventory(ContainerFactory.CONTAINER_PLAYER, PlayerInventoryWrapper.of(inventory.player));
         generateSlots(inventory.player);
     }
 }

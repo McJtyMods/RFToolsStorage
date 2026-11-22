@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
+import mcjty.lib.varia.InventoryTools;
 import mcjty.lib.container.*;
 import mcjty.rftoolsbase.modules.filter.items.FilterModuleItem;
 import mcjty.rftoolsstorage.craftinggrid.CraftingGridInventory;
@@ -12,14 +13,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
+import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
 import javax.annotation.Nonnull;
 
 import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
@@ -49,11 +50,11 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     @Override
-    public void setupInventories(IItemHandler itemHandler, Inventory inventory) {
+    public void setupInventories(ResourceHandler<ItemResource> itemHandler, Inventory inventory) {
         ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) be;
         addInventory(CONTAINER_CARDS, modularStorageTileEntity.getCardHandler());        // The three cards
         addInventory(ContainerFactory.CONTAINER_CONTAINER, itemHandler);        // The storage card itemhandler
-        addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
+        addInventory(ContainerFactory.CONTAINER_PLAYER, PlayerInventoryWrapper.of(inventory.player));
         addInventory(CONTAINER_GRID, modularStorageTileEntity.getCraftingGrid().getCraftingGridInventory());
         generateSlots(inventory.player);
     }
@@ -94,11 +95,11 @@ public class ModularStorageContainer extends GenericContainer {
                     }
 
                     @Override
-                    public void set(ItemStack stack) {
+                    protected void setStackCopy(ItemStack stack) {
                         if (!isLocked()) {
                             return;
                         }
-                        super.set(stack);
+                        super.setStackCopy(stack);
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_GHOSTOUT) {
@@ -120,16 +121,17 @@ public class ModularStorageContainer extends GenericContainer {
                     }
 
                     @Override
-                    public void set(@Nonnull ItemStack stack) {
+                    protected void setStackCopy(@Nonnull ItemStack stack) {
                         if (!isLocked()) {
                             return;
                         }
-                        super.set(stack);
+                        super.setStackCopy(stack);
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_SPECIFICITEM) {
                 final SlotDefinition slotDefinition = slotFactory.slotDefinition();
-                slot = new SlotItemHandler(inventories.get(slotFactory.inventoryName()), slotFactory.index(), slotFactory.x(),
+                slot = new ResourceHandlerSlot(inventories.get(slotFactory.inventoryName()),
+                        InventoryTools.modifier(inventories.get(slotFactory.inventoryName())), slotFactory.index(), slotFactory.x(),
                         getAdjustedY(slotFactory.y(), onClient)) {
                     @Override
                     public boolean mayPlace(@Nonnull ItemStack stack) {
@@ -140,7 +142,7 @@ public class ModularStorageContainer extends GenericContainer {
                     }
                 };
             } else if (slotFactory.getSlotType() == SlotType.SLOT_PLAYERINV || slotFactory.getSlotType() == SlotType.SLOT_PLAYERHOTBAR) {
-                slot = new BaseSlot(inventories.get(slotFactory.inventoryName()), be, slotFactory.index(), slotFactory.x(),
+                slot = new Slot(player.getInventory(), slotFactory.index(), slotFactory.x(),
                         getAdjustedY(slotFactory.y(), onClient));
             } else {
                 slot = new BaseSlot(inventories.get(slotFactory.inventoryName()), be, slotFactory.index(), slotFactory.x(),
@@ -150,7 +152,7 @@ public class ModularStorageContainer extends GenericContainer {
                         if (!isLocked()) {
                             return false;
                         }
-                        return getItemHandler().isItemValid((((Slot)this).index) - 3, stack);
+                        return getResourceHandler().isValid(getSlotIndex(), ItemResource.of(stack));
                     }
                 };
             }
@@ -159,8 +161,8 @@ public class ModularStorageContainer extends GenericContainer {
     }
 
     @Override
-    public void clicked(int index, int button, @Nonnull ClickType mode, @Nonnull Player player) {
-        if (index == SLOT_STORAGE_MODULE && !player.getCommandSenderWorld().isClientSide) {
+    public void clicked(int index, int button, @Nonnull ContainerInput mode, @Nonnull Player player) {
+        if (index == SLOT_STORAGE_MODULE && !player.level().isClientSide()) {
             // @todo 1.14
 //            modularStorageTileEntity.copyToModule();
         }
@@ -169,6 +171,8 @@ public class ModularStorageContainer extends GenericContainer {
 
     @Override
     public void broadcastChanges() {
+        ModularStorageTileEntity tile = (ModularStorageTileEntity) getBe();
+        tile.getCraftingGrid().updateResult(tile.getLevel());
         super.broadcastChanges();
 
         ModularStorageTileEntity modularStorageTileEntity = (ModularStorageTileEntity) be;

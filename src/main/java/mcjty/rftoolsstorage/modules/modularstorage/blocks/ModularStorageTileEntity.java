@@ -1,12 +1,15 @@
 package mcjty.rftoolsstorage.modules.modularstorage.blocks;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import mcjty.lib.varia.InventoryTools;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.api.container.ItemInventory;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.bindings.Value;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ServerCommand;
-import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericTileEntity;
@@ -28,23 +31,22 @@ import mcjty.rftoolsstorage.storage.GlobalStorageItemWrapper;
 import mcjty.rftoolsstorage.storage.StorageEntry;
 import mcjty.rftoolsstorage.storage.StorageInfo;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Function;
@@ -53,22 +55,24 @@ import java.util.function.Predicate;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_FILTER_MODULE;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.SLOT_STORAGE_MODULE;
 
+import static mcjty.lib.setup.Registration.ITEM_INVENTORY;
+
 public class ModularStorageTileEntity extends GenericTileEntity implements IInventoryTracker,
         CraftingGridProvider, JEIRecipeAcceptor, IModularStorage {
 
     private final Cached<Predicate<ItemStack>> filterCache = Cached.of(this::createFilterCache);
 
-    private final ItemStackHandler cardHandler = createCardHandler();
+    private final ItemStacksResourceHandler cardHandler = createCardHandler();
 
-    private final Lazy<IItemHandlerModifiable> items = Lazy.of(this::createGlobalHandler);
+    private final Lazy<GlobalStorageItemWrapper> items = Lazy.of(this::createGlobalHandler);
     @Cap(type = CapType.ITEMS)
-    private static final Function<ModularStorageTileEntity, IItemHandlerModifiable> ITEM_CAP = tile -> tile.items.get();
+    private static final Function<ModularStorageTileEntity, GlobalStorageItemWrapper> ITEM_CAP = tile -> tile.items.get();
 
     @Cap(type = CapType.CONTAINER)
     private static final Function<ModularStorageTileEntity, MenuProvider> screenHandler = be -> new DefaultContainerProvider<ModularStorageContainer>("Modular Storage")
             .containerSupplier((windowId, player) -> new ModularStorageContainer(windowId, be.getBlockPos(), be, player))
             .itemHandler(be.items)
-//            .dataListener(Sync.string(ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "settings_viewmode"), be::getViewMode, be::setViewMode))
+//            .dataListener(Sync.string(Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "settings_viewmode"), be::getViewMode, be::setViewMode))
             .setupSync(be);
 
     private GlobalStorageItemWrapper globalWrapper;
@@ -95,7 +99,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         super(ModularStorageModule.MODULAR_STORAGE.be().get(), pos, state);
     }
 
-    public IItemHandlerModifiable getItems() {
+    public GlobalStorageItemWrapper getItems() {
         return items.get();
     }
 
@@ -131,7 +135,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     @Override
     @Nonnull
     public List<Pair<ItemStack, Integer>> craft(Player player, int n, boolean test) {
-        InventoriesItemSource itemSource = new InventoriesItemSource().add(new InvWrapper(player.getInventory()), 0);
+        InventoriesItemSource itemSource = new InventoriesItemSource().add(PlayerInventoryWrapper.of(player), 0);
         itemSource.add(items.get(), 0);
 
         if (test) {
@@ -203,43 +207,50 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
     }
 
     @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        for (int i = 0; i < cardHandler.getSlots(); i++) {
-            cardHandler.setStackInSlot(i, ItemStack.parseOptional(provider, tagCompound.getCompound("slot" + i)));
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        // Client block updates omit the inventories, which are synchronized by the menu.
+        if (level != null && level.isClientSide()) {
+            return;
         }
-        sortMode = tagCompound.getString("sortMode");
-        viewMode = tagCompound.getString("viewMode");
-        groupMode = tagCompound.getBoolean("groupMode");
-        filter = tagCompound.getString("filter");
-        craftingGrid.readFromNBT(tagCompound.getCompound("grid"), provider);
+        for (int i = 0; i < cardHandler.size(); i++) {
+            setCard(i, input.read("slot" + i, ItemStack.CODEC).orElse(ItemStack.EMPTY));
+        }
+        sortMode = input.getStringOr("sortMode", sortMode);
+        viewMode = input.getStringOr("viewMode", viewMode);
+        groupMode = input.getBooleanOr("groupMode", groupMode);
+        filter = input.getStringOr("filter", filter);
+        craftingGrid.readFromNBT(input.read("grid", CompoundTag.CODEC).orElseGet(CompoundTag::new), input.lookup());
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
-        for (int i = 0; i < cardHandler.getSlots(); i++) {
-            tagCompound.put("slot" + i, cardHandler.getStackInSlot(i).saveOptional(provider));
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        for (int i = 0; i < cardHandler.size(); i++) {
+            ItemStack stack = ItemUtil.getStack(cardHandler, i);
+            if (!stack.isEmpty()) {
+                output.store("slot" + i, ItemStack.CODEC, stack);
+            }
         }
-        tagCompound.putString("sortMode", sortMode);
-        tagCompound.putString("viewMode", viewMode);
-        tagCompound.putBoolean("groupMode", groupMode);
-        tagCompound.putString("filter", filter);
-        tagCompound.put("grid", craftingGrid.writeToNBT(provider));
+        output.putString("sortMode", sortMode);
+        output.putString("viewMode", viewMode);
+        output.putBoolean("groupMode", groupMode);
+        output.putString("filter", filter);
+        output.store("grid", CompoundTag.CODEC, craftingGrid.writeToNBT(level.registryAccess()));
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
         var data = input.get(ModularStorageModule.ITEM_MODULAR_STORAGE_DATA);
         if (data != null) {
             setData(ModularStorageModule.MODULAR_STORAGE_DATA, data);
         }
-        var items = input.get(Registration.ITEM_INVENTORY);
+        var items = input.get(ITEM_INVENTORY);
         if (items != null) {
             for (int i = 0; i < items.items().size(); i++) {
                 ItemStack stack = items.items().get(i);
-                cardHandler.setStackInSlot(i, stack);
+                setCard(i, stack);
             }
         }
     }
@@ -249,11 +260,11 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         super.collectImplicitComponents(builder);
         builder.set(ModularStorageModule.ITEM_MODULAR_STORAGE_DATA, getData(ModularStorageModule.MODULAR_STORAGE_DATA));
         List<ItemStack> stacks = new ArrayList<>();
-        for (int i = 0; i < cardHandler.getSlots(); i++) {
-            ItemStack stack = cardHandler.getStackInSlot(i);
+        for (int i = 0; i < cardHandler.size(); i++) {
+            ItemStack stack = ItemUtil.getStack(cardHandler, i);
             stacks.add(stack);
         }
-        builder.set(Registration.ITEM_INVENTORY, new ItemInventory(stacks));
+        builder.set(ITEM_INVENTORY, new ItemInventory(stacks));
     }
 
     public static final Key<String> PARAM_FILTER = new Key<>("filter", Type.STRING);
@@ -288,8 +299,8 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         ModularStorageData data = getData(ModularStorageModule.MODULAR_STORAGE_DATA);
         setData(ModularStorageModule.MODULAR_STORAGE_DATA, data.withLocked(locked));
         // Update the settings on the card
-        if (!level.isClientSide) {
-            ItemStack card = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
+        if (!level.isClientSide()) {
+            ItemStack card = ItemUtil.getStack(cardHandler, SLOT_STORAGE_MODULE);
             if (!card.isEmpty()) {
                 StorageModuleData cardData = StorageModuleItem.getData(card);
                 // Helper for client side tooltip
@@ -300,6 +311,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                     cardData = cardData.withUpdateTime(storage.getUpdateTime());
                 }
                 card.set(ModularStorageModule.ITEM_STORAGE_MODULE_DATA, cardData);
+                setCard(SLOT_STORAGE_MODULE, card);
             }
         }
         setChanged();
@@ -342,18 +354,23 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
             }
         }
         for (ItemStack stack : stacks) {
-            ItemHandlerHelper.insertItem(globalWrapper, stack, false);
+            InventoryTools.insertItem(globalWrapper, stack, false);
         }
         setChanged();
     }
 
     @Nonnull
     public StorageInfo getStorageInfo() {
-        ItemStack storageCard = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
+        ItemStack storageCard = ItemUtil.getStack(cardHandler, SLOT_STORAGE_MODULE);
         if (storageCard.isEmpty()) {
             return StorageInfo.EMPTY;
         }
-        return StorageModuleItem.getStorageInfo(storageCard);
+        var previousUuid = StorageModuleItem.getData(storageCard).uuid();
+        StorageInfo info = StorageModuleItem.getStorageInfo(storageCard);
+        if (previousUuid == null && info.uuid() != null) {
+            setCard(SLOT_STORAGE_MODULE, storageCard);
+        }
+        return info;
     }
 
     @Override
@@ -382,13 +399,17 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
 //    }
 
     private Predicate<ItemStack> createFilterCache() {
-        return FilterModuleItem.getCache(cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE));
+        return FilterModuleItem.getCache(ItemUtil.getStack(cardHandler, ModularStorageContainer.SLOT_FILTER_MODULE));
     }
 
-    private @NotNull ItemStackHandler createCardHandler() {
-        return new ItemStackHandler(3) {
+    private void setCard(int slot, ItemStack stack) {
+        cardHandler.set(slot, ItemResource.of(stack), stack.getCount());
+    }
+
+    private @NotNull ItemStacksResourceHandler createCardHandler() {
+        return new ItemStacksResourceHandler(3) {
             @Override
-            protected void onContentsChanged(int slot) {
+            protected void onContentsChanged(int slot, ItemStack previousContents) {
                 if (slot == SLOT_STORAGE_MODULE) {
                     if (globalWrapper != null) {
                         StorageInfo info = getStorageInfo();
@@ -400,38 +421,30 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                 setChanged();
             }
 
-            @Nonnull
             @Override
-            public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-                if (isLocked()) {
-                    return stack;
-                }
-                return super.insertItem(slot, stack, simulate);
+            public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+                return isLocked() ? 0 : super.insert(slot, resource, amount, transaction);
             }
 
-            @Nonnull
             @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if (isLocked()) {
-                    return ItemStack.EMPTY;
-                }
-                return super.extractItem(slot, amount, simulate);
+            public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+                return isLocked() ? 0 : super.extract(slot, resource, amount, transaction);
             }
         };
     }
 
     @Nonnull
-    private IItemHandlerModifiable createGlobalHandler() {
+    private GlobalStorageItemWrapper createGlobalHandler() {
         StorageInfo info = getStorageInfo();
         if (globalWrapper == null) {
-            globalWrapper = new GlobalStorageItemWrapper(info, level.isClientSide) {
+            globalWrapper = new GlobalStorageItemWrapper(info, level.isClientSide()) {
                 @Override
                 public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
                     boolean rc = super.isItemValid(slot, stack);
                     if (!rc) {
                         return false;
                     }
-                    if (!cardHandler.getStackInSlot(ModularStorageContainer.SLOT_FILTER_MODULE).isEmpty()) {
+                    if (!ItemUtil.getStack(cardHandler, ModularStorageContainer.SLOT_FILTER_MODULE).isEmpty()) {
                         if (filterCache.get() != null) {
                             return filterCache.get().test(stack);
                         }
@@ -457,13 +470,14 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
                     return super.extractItem(slot, amount, simulate);
                 }
             };
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 globalWrapper.setListener((version, slot) -> {
-                    ItemStack storageSlot = cardHandler.getStackInSlot(SLOT_STORAGE_MODULE);
+                    ItemStack storageSlot = ItemUtil.getStack(cardHandler, SLOT_STORAGE_MODULE);
                     if (storageSlot.getItem() instanceof StorageModuleItem) {
                         StorageModuleData data = StorageModuleItem.getData(storageSlot);
                         data = data.withVersion(version);
                         storageSlot.set(ModularStorageModule.ITEM_STORAGE_MODULE_DATA, data);
+                        setCard(SLOT_STORAGE_MODULE, storageSlot);
                     }
                     markDirtyQuick();
                 });
@@ -474,7 +488,7 @@ public class ModularStorageTileEntity extends GenericTileEntity implements IInve
         return globalWrapper;
     }
 
-    public IItemHandler getCardHandler() {
+    public ResourceHandler<ItemResource> getCardHandler() {
         return cardHandler;
     }
 

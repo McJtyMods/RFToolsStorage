@@ -15,24 +15,16 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
 import org.apache.commons.lang3.tuple.Pair;
-
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,12 +33,6 @@ import java.util.function.Supplier;
 
 public class CraftingManagerTileEntity extends GenericTileEntity {
 
-    public static final ModelProperty<BlockState> MIMIC[] = new ModelProperty[]{
-            new ModelProperty<>(),
-            new ModelProperty<>(),
-            new ModelProperty<>(),
-            new ModelProperty<>()
-    };
 
     private final GenericItemHandler items = GenericItemHandler.create(this, CraftingManagerContainer.CONTAINER_FACTORY)
             .onUpdate((slot, stack) -> {
@@ -118,7 +104,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     public boolean canCraft(Ingredient ingredient) {
-        for (int i = 4; i < items.getSlots(); i++) {
+        for (int i = 4; i < items.size(); i++) {
             ItemStack card = items.getStackInSlot(i);
             if (!card.isEmpty()) {
                 ItemStack result = CraftingCardItem.getResult(card);
@@ -132,7 +118,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
 
     public List<ItemStack> getCraftables() {
         List<ItemStack> stacks = new ArrayList<>();
-        for (int i = 4; i < items.getSlots(); i++) {
+        for (int i = 4; i < items.size(); i++) {
             ItemStack card = items.getStackInSlot(i);
             if (!card.isEmpty()) {
                 ItemStack result = CraftingCardItem.getResult(card);
@@ -202,7 +188,7 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
      * Get the list of ingredients for a given request
      */
     @Nonnull
-    public List<Ingredient> getIngredients(int queueIndex, CraftingRequest request) {
+    public List<Optional<Ingredient>> getIngredients(int queueIndex, CraftingRequest request) {
         CraftingQueue queue = queues[queueIndex];
         if (devicesDirty) {
             updateDevices();
@@ -246,8 +232,8 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
         for (int i = 0; i < 4; i++) {
 // @todo THIS IS WRONG! Should not remove devices that are already present because they may be doing something!
             ItemStack stack = items.getStackInSlot(i);
-            ResourceLocation id = Tools.getId(stack);
-            ResourceLocation deviceId = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceForBlock(id);
+            Identifier id = Tools.getId(stack);
+            Identifier deviceId = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceForBlock(id);
             if (deviceId != null) {
                 Supplier<ICraftingDevice> device = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
                 ICraftingDevice craftingDevice = device.get();
@@ -259,70 +245,37 @@ public class CraftingManagerTileEntity extends GenericTileEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        ItemStack origMimic0 = items.getStackInSlot(0);
-        ItemStack origMimic1 = items.getStackInSlot(1);
-        ItemStack origMimic2 = items.getStackInSlot(2);
-        ItemStack origMimic3 = items.getStackInSlot(3);
-        loadClientDataFromNBT(pkt.getTag(), provider);
-        ItemStack mimic0 = items.getStackInSlot(0);
-        ItemStack mimic1 = items.getStackInSlot(1);
-        ItemStack mimic2 = items.getStackInSlot(2);
-        ItemStack mimic3 = items.getStackInSlot(3);
-        if (!ItemStack.isSameItem(origMimic0, mimic0) || !ItemStack.isSameItem(origMimic1, mimic1) || !ItemStack.isSameItem(origMimic2, mimic2) || !ItemStack.isSameItem(origMimic3, mimic3)) {
-            requestModelDataUpdate();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        }
-    }
-
-
-    @Nonnull
-    @Override
-    public ModelData getModelData() {
-        BlockState mimic0 = items.getStackInSlot(0).isEmpty() ? null : ((BlockItem) items.getStackInSlot(0).getItem()).getBlock().defaultBlockState();
-        BlockState mimic1 = items.getStackInSlot(1).isEmpty() ? null : ((BlockItem) items.getStackInSlot(1).getItem()).getBlock().defaultBlockState();
-        BlockState mimic2 = items.getStackInSlot(2).isEmpty() ? null : ((BlockItem) items.getStackInSlot(2).getItem()).getBlock().defaultBlockState();
-        BlockState mimic3 = items.getStackInSlot(3).isEmpty() ? null : ((BlockItem) items.getStackInSlot(3).getItem()).getBlock().defaultBlockState();
-
-        return ModelData.builder()
-                .with(MIMIC[0], mimic0)
-                .with(MIMIC[1], mimic1)
-                .with(MIMIC[2], mimic2)
-                .with(MIMIC[3], mimic3)
-                .build();
-    }
-
-
-    @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        ListTag deviceList = tagCompound.getList("devices", Tag.TAG_COMPOUND);
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         int i = 0;
-        for (Tag nbt : deviceList) {
-            CompoundTag deviceNBT = (CompoundTag) nbt;
-            if (!deviceNBT.isEmpty()) {
-                ResourceLocation deviceId = ResourceLocation.parse(deviceNBT.getString("deviceId"));
-                Supplier<ICraftingDevice> deviceSupplier = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
-                ICraftingDevice device = deviceSupplier.get();
-                queues[i].setDevice(device);
-                device.read(provider, deviceNBT);
+        for (CompoundTag deviceTag : input.listOrEmpty("devices", CompoundTag.CODEC)) {
+            if (i >= queues.length) {
+                break;
+            }
+            Identifier deviceId = Identifier.tryParse(deviceTag.getStringOr("deviceId", ""));
+            if (!deviceTag.isEmpty() && deviceId != null) {
+                Supplier<ICraftingDevice> supplier = CraftingManagerModule.CRAFTING_DEVICE_REGISTRY.getDeviceSupplier(deviceId);
+                if (supplier != null) {
+                    ICraftingDevice device = supplier.get();
+                    queues[i].setDevice(device);
+                    device.read(input.lookup(), deviceTag);
+                }
             }
             i++;
         }
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
-        ListTag deviceList = new ListTag();
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        var devices = output.list("devices", CompoundTag.CODEC);
         for (CraftingQueue queue : queues) {
-            CompoundTag deviceNBT = new CompoundTag();
+            CompoundTag deviceTag = new CompoundTag();
             if (queue.hasDevice()) {
-                queue.getDevice().write(provider, deviceNBT);
-                deviceNBT.putString("deviceId", queue.getDevice().getID().toString());
+                queue.getDevice().write(level.registryAccess(), deviceTag);
+                deviceTag.putString("deviceId", queue.getDevice().getID().toString());
             }
-            deviceList.add(deviceNBT);
+            devices.add(deviceTag);
         }
-        tagCompound.put("devices", deviceList);
     }
 }

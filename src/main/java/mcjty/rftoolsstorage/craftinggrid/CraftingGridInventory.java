@@ -1,18 +1,19 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import mcjty.lib.varia.ItemStackList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CraftingGridInventory implements IItemHandlerModifiable {
+public class CraftingGridInventory implements ResourceHandler<ItemResource>, IndexModifier<ItemResource> {
 
     public static final int SLOT_GHOSTOUTPUT = 0;
     public static final int SLOT_GHOSTINPUT = 1;
@@ -34,7 +35,7 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     );
 
     public ItemStack getResult() {
-        return stacks.get(SLOT_GHOSTOUTPUT);
+        return getStackInSlot(SLOT_GHOSTOUTPUT);
     }
 
     public CraftingGridInventory() {
@@ -59,31 +60,55 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
     public ItemStack[] getIngredients() {
         ItemStack[] ing = new ItemStack[9];
         for (int i = 0; i < ing.length; i++) {
-            ing[i] = stacks.get(i + SLOT_GHOSTINPUT);
+            ing[i] = getStackInSlot(i + SLOT_GHOSTINPUT);
         }
         return ing;
     }
 
     @Override
+    public int size() {
+        return getSlots();
+    }
+
+    @Override
+    public ItemResource getResource(int slot) {
+        return ItemResource.of(getStackInSlot(slot));
+    }
+
+    @Override
+    public long getAmountAsLong(int slot) {
+        return getStackInSlot(slot).getCount();
+    }
+
+    @Override
+    public long getCapacityAsLong(int slot, ItemResource resource) {
+        return 0;
+    }
+
+    @Override
+    public boolean isValid(int slot, ItemResource resource) {
+        return false;
+    }
+
+    @Override
+    public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+        return 0;
+    }
+
+    @Override
+    public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+        return 0;
+    }
+
+    @Override
+    public void set(int slot, ItemResource resource, int amount) {
+        setStackInSlot(slot, resource.toStack(amount));
+    }
+
     public int getSlots() {
         return 10;
     }
 
-    @Nonnull
-    @Override
-    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-        // @todo 1.14
-        return ItemStack.EMPTY;
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        // @todo 1.14
-        return ItemStack.EMPTY;
-    }
-
-    @Override
     public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
         while (this.stacks.size() < 10) {
             this.stacks.add(ItemStack.EMPTY);
@@ -91,17 +116,6 @@ public class CraftingGridInventory implements IItemHandlerModifiable {
         stacks.set(slot, stack);
     }
 
-    @Override
-    public int getSlotLimit(int slot) {
-        return 0;
-    }
-
-    @Override
-    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return false;
-    }
-
-    @Override
     @Nonnull
     public ItemStack getStackInSlot(int index) {
         return index < stacks.size() ? stacks.get(index) : ItemStack.EMPTY;

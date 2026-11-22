@@ -18,7 +18,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -128,7 +127,7 @@ public record DumpScreenModule(GlobalPos pos, boolean active, List<ItemStack> st
             return ItemStack.EMPTY;
         }
         if (BlockPosTools.INVALID.equals(pos.pos())) {
-            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"), false);
+            player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.RED + "Module is not linked to storage scanner!"));
             return ItemStack.EMPTY;
         }
 

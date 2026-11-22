@@ -1,11 +1,8 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GenericContainer;
-import mcjty.lib.crafting.BaseRecipe;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.events.DefaultSelectionEvent;
@@ -17,22 +14,16 @@ import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer.CONTAINER_GRID;
@@ -40,7 +31,7 @@ import static mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageC
 
 public class GuiCraftingGrid {
 
-    private static final ResourceLocation GUI = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/craftinggrid.png");
+    private static final Identifier GUI = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/craftinggrid.png");
 
     private Window craftWindow;
     private Button craft1Button;
@@ -150,11 +141,10 @@ public class GuiCraftingGrid {
         }
     }
 
-    public void draw(GuiGraphics graphics) {
+    public void draw(GuiGraphicsExtractor graphics) {
         int selected = recipeList.getSelected();
         storeButton.enabled(selected != -1);
         populateList();
-        testRecipe(mc.level);
 
         int x = GuiTools.getRelativeX(gui);
         int y = GuiTools.getRelativeY(gui);
@@ -176,9 +166,9 @@ public class GuiCraftingGrid {
         craftWindow.draw(graphics);
 
         if (testResultFromServer != null && !testResultFromServer.isEmpty()) {
-            PoseStack matrixStack = graphics.pose();
-            matrixStack.pushPose();
-            matrixStack.translate(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
+            var matrixStack = graphics.pose();
+            matrixStack.pushMatrix();
+            matrixStack.translate(gui.getLeftPos(), gui.getTopPos());
             for (Pair<ItemStack, Integer> pair : testResultFromServer) {
                 AbstractContainerMenu container = gui.getMenu();
                 if (container instanceof GenericContainer) {
@@ -186,7 +176,6 @@ public class GuiCraftingGrid {
                         for (int i = 0; i < 9; i++) {
                             Slot slot = ((GenericContainer) container).getSlotByInventoryAndIndex(CONTAINER_GRID, CraftingGridInventory.SLOT_GHOSTINPUT + i);
                             if (slot != null && ItemStack.isSameItemSameComponents(slot.getItem(), pair.getLeft())) {
-                                GlStateManager._colorMask(true, true, true, false);
                                 int xPos = slot.x;
                                 int yPos = slot.y;
                                 graphics.fill(xPos, yPos, xPos + 16, yPos + 16, 0xffff0000);
@@ -195,34 +184,8 @@ public class GuiCraftingGrid {
                     }
                 }
             }
-            matrixStack.popPose();
+            matrixStack.popMatrix();
         }
-    }
-
-    private void testRecipe(Level level) {
-//        CraftingContainer inv = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-//            @Override
-//            public boolean stillValid(@Nonnull Player var1) {
-//                return false;
-//            }
-//
-//            @Override
-//            public ItemStack quickMoveStack(Player player, int pos) {
-//                return ItemStack.EMPTY;
-//            }
-//        }, 3, 3);
-
-        List<ItemStack> stacks = new ArrayList<>(9);
-        CraftingGridInventory gridInventory = provider.getCraftingGrid().getCraftingGridInventory();
-        for (int i = 0; i < 9; i++) {
-            stacks.add(gridInventory.getStackInSlot(i + 1));
-        }
-
-        // Compare current contents to avoid unneeded slot update.
-        CraftingInput inv = CraftingInput.ofPositioned(3, 3, stacks).input();
-        Optional<RecipeHolder<CraftingRecipe>> recipe = RFCraftingRecipe.findRecipe(mc.level, inv);
-        ItemStack newResult = recipe.map(r -> BaseRecipe.assemble(r.value(), inv, level)).orElse(ItemStack.EMPTY);
-        gridInventory.setStackInSlot(0, newResult);
     }
 
     private void addRecipeLine(ItemStack craftingResult) {

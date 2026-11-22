@@ -1,19 +1,21 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import mcjty.lib.varia.InventoryTools;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import java.util.NoSuchElementException;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class InventoriesItemSource implements IItemSource {
 
-    private final List<Pair<IItemHandler, Integer>> inventories = new ArrayList<>();
+    private final List<Pair<ResourceHandler<ItemResource>, Integer>> inventories = new ArrayList<>();
 
-    public InventoriesItemSource add(IItemHandler inventory, int offset) {
+    public InventoriesItemSource add(ResourceHandler<ItemResource> inventory, int offset) {
         inventories.add(Pair.of(inventory, offset));
         return this;
     }
@@ -29,12 +31,12 @@ public class InventoriesItemSource implements IItemSource {
                     if (inventoryIndex >= inventories.size()) {
                         return false;
                     }
-                    IItemHandler inventory = inventories.get(inventoryIndex).getLeft();
+                    ResourceHandler<ItemResource> inventory = inventories.get(inventoryIndex).getLeft();
                     int offset = inventories.get(inventoryIndex).getRight();
                     if (slotIndex < offset) {
                         slotIndex = offset;
                     }
-                    if (slotIndex < inventory.getSlots()) {
+                    if (slotIndex < inventory.size()) {
                         return true;
                     } else {
                         slotIndex = 0;
@@ -50,9 +52,12 @@ public class InventoriesItemSource implements IItemSource {
 
             @Override
             public Pair<IItemKey, ItemStack> next() {
-                IItemHandler inventory = inventories.get(inventoryIndex).getLeft();
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                ResourceHandler<ItemResource> inventory = inventories.get(inventoryIndex).getLeft();
                 ItemKey key = new ItemKey(inventory, slotIndex);
-                Pair<IItemKey, ItemStack> result = Pair.of(key, inventory.getStackInSlot(slotIndex));
+                Pair<IItemKey, ItemStack> result = Pair.of(key, ItemUtil.getStack(inventory, slotIndex));
                 slotIndex++;
                 return result;
             }
@@ -61,44 +66,25 @@ public class InventoriesItemSource implements IItemSource {
 
     @Override
     public ItemStack decrStackSize(IItemKey key, int amount) {
-        ItemKey realKey = (ItemKey) key;
-        ItemStack stack = realKey.inventory().getStackInSlot(realKey.slot());
-        ItemStack result = stack.split(amount);
-        if (stack.isEmpty()) {
-            // @todo 1.14 is this really required?
-//            realKey.getInventory().setInventorySlotContents(realKey.getSlot(), ItemStack.EMPTY);
-        }
-        return result;
+        ItemKey slot = (ItemKey) key;
+        return InventoryTools.extractItem(slot.inventory(), slot.slot(), amount, false);
     }
 
     @Override
     public boolean insertStack(IItemKey key, ItemStack stack) {
-        ItemKey realKey = (ItemKey) key;
-        IItemHandler inventory = realKey.inventory();
-        ItemStack origStack = inventory.extractItem(realKey.slot(), 64, false);
-        if (!origStack.isEmpty()) {
-            if (ItemStack.isSameItemSameComponents(origStack, stack)) {
-                if ((stack.getCount() + origStack.getCount()) > stack.getMaxStackSize()) {
-                    return false;
-                }
-                stack.grow(origStack.getCount());
-            } else {
-                return false;
-            }
+        ItemKey slot = (ItemKey) key;
+        if (!InventoryTools.insertItem(slot.inventory(), slot.slot(), stack, true).isEmpty()) {
+            return false;
         }
-        inventory.insertItem(realKey.slot(), stack, false);
-        return true;
+        return InventoryTools.insertItem(slot.inventory(), slot.slot(), stack, false).isEmpty();
     }
 
     @Override
     public int insertStackAnySlot(IItemKey key, ItemStack stack) {
-        ItemKey realKey = (ItemKey) key;
-        IItemHandler inventory = realKey.inventory();
-        // @todo 1.14
-//        return InventoryHelper.mergeItemStack(inventory, true, stack, 0, inventory.getSizeInventory(), null);
-        return 0;
+        ItemKey slot = (ItemKey) key;
+        return InventoryTools.insertItem(slot.inventory(), stack, false).getCount();
     }
 
-    private record ItemKey(IItemHandler inventory, int slot) implements IItemKey {
+    private record ItemKey(ResourceHandler<ItemResource> inventory, int slot) implements IItemKey {
     }
 }

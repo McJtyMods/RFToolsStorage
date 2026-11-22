@@ -1,6 +1,6 @@
 package mcjty.rftoolsstorage.compat.xnet;
 
-import com.mojang.serialization.Codec;
+import mcjty.lib.varia.CapabilityTools;
 import com.mojang.serialization.MapCodec;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
@@ -11,7 +11,6 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
-import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.tools.InventoryAccessSettings;
 import net.minecraft.core.BlockPos;
@@ -19,14 +18,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.codec.StreamEncoder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.apache.commons.lang3.tuple.Pair;
-
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +33,7 @@ import java.util.Map;
 
 public class StorageChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath("rftoolsbase", "textures/gui/guielements.png");
+    public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath("rftoolsbase", "textures/gui/guielements.png");
 
     private List<Pair<SidedConsumer, StorageConnectorSettings>> storageControllers = null;
     private Map<BlockPos, InventoryAccessSettings> access = null;
@@ -102,7 +100,7 @@ public class StorageChannelSettings extends DefaultChannelSettings implements IC
             BlockPos pos = consumerPos.relative(side);
             BlockEntity te = context.getControllerWorld().getBlockEntity(pos);
             if (te != null) {
-                IItemHandler handler = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), null);
+                ResourceHandler<ItemResource> handler = CapabilityTools.itemHandler(te.getLevel().getCapability(Capabilities.Item.BLOCK, te.getBlockPos(), null));
                 if (handler != null) {
                     return pos;
                 }

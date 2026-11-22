@@ -1,6 +1,5 @@
 package mcjty.rftoolsstorage.setup;
 
-
 import mcjty.lib.modules.Modules;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -36,6 +35,6 @@ public class Config {
         CLIENT_CONFIG = CLIENT_BUILDER.build();
 
         container.registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
-        container.registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
+        container.registerConfig(ModConfig.Type.SYNCED, SERVER_CONFIG, "rftoolsstorage-server.toml");
     }
 }

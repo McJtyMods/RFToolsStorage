@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.compat;
 
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import mcjty.lib.compat.theoneprobe.McJtyLibTOPDriver;
 import mcjty.lib.compat.theoneprobe.TOPDriver;
 import mcjty.lib.varia.Tools;
@@ -10,10 +11,10 @@ import mcjty.theoneprobe.api.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.IItemHandler;
-
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,11 +25,11 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
 
     public static final RFToolsStorageTOPDriver DRIVER = new RFToolsStorageTOPDriver();
 
-    private final Map<ResourceLocation, TOPDriver> drivers = new HashMap<>();
+    private final Map<Identifier, TOPDriver> drivers = new HashMap<>();
 
     @Override
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, BlockState blockState, IProbeHitData data) {
-        ResourceLocation id = Tools.getId(blockState);
+        Identifier id = Tools.getId(blockState);
         if (!drivers.containsKey(id)) {
             if (blockState.getBlock() == ModularStorageModule.MODULAR_STORAGE.block().get()) {
                 drivers.put(id, new ModularStorageDriver());
@@ -58,8 +59,8 @@ public class RFToolsStorageTOPDriver implements TOPDriver {
                 if (maxSize == 0) {
                     probeInfo.text(CompoundText.create().style(WARNING).text("No storage module!"));
                 } else {
-                    IItemHandler cardHandler = te.getCardHandler();
-                    ItemStack storageModule = cardHandler.getStackInSlot(ModularStorageContainer.SLOT_STORAGE_MODULE);
+                    ResourceHandler<ItemResource> cardHandler = te.getCardHandler();
+                    ItemStack storageModule = ItemUtil.getStack(cardHandler, ModularStorageContainer.SLOT_STORAGE_MODULE);
                     // @todo 1.21 data
 //                    if (!storageModule.isEmpty() && storageModule.getTag().contains("display")) {
 //                        probeInfo.text(CompoundText.createLabelInfo("Module: ", storageModule.getHoverName()));

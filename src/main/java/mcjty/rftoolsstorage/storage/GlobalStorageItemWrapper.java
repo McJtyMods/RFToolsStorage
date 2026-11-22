@@ -1,14 +1,101 @@
 package mcjty.rftoolsstorage.storage;
 
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import java.util.List;
 import mcjty.lib.varia.LevelTools;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
+public class GlobalStorageItemWrapper implements ResourceHandler<ItemResource>, IndexModifier<ItemResource> {
+
+    private final SnapshotJournal<List<ItemStack>> transfers = new SnapshotJournal<>() {
+
+        @Override
+        protected List<ItemStack> createSnapshot() {
+            return getStacks().stream().map(ItemStack::copy).toList();
+        }
+
+        @Override
+        protected void revertToSnapshot(List<ItemStack> snapshot) {
+            for (int slot = 0; slot < snapshot.size(); slot++) {
+                getStacks().set(slot, snapshot.get(slot));
+            }
+        }
+
+        @Override
+        protected void onRootCommit(List<ItemStack> before) {
+            for (int slot = 0; slot < before.size(); slot++) {
+                if (!ItemStack.matches(before.get(slot), getStackInSlot(slot))) {
+                    onContentsChanged(slot);
+                }
+            }
+        }
+    };
+
+    @Override
+    public void set(int slot, ItemResource resource, int amount) {
+        setStackInSlot(slot, resource.toStack(amount));
+    }
+
+    @Override
+    public int size() {
+        return getSlots();
+    }
+
+    @Override
+    public ItemResource getResource(int slot) {
+        return ItemResource.of(getStackInSlot(slot));
+    }
+
+    @Override
+    public long getAmountAsLong(int slot) {
+        return getStackInSlot(slot).getCount();
+    }
+
+    @Override
+    public long getCapacityAsLong(int slot, ItemResource resource) {
+        return resource.isEmpty() ? getSlotLimit(slot) : getStackLimit(slot, resource.toStack());
+    }
+
+    @Override
+    public boolean isValid(int slot, ItemResource resource) {
+        return !resource.isEmpty() && isItemValid(slot, resource.toStack());
+    }
+
+    @Override
+    public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+        if (amount <= 0 || !isValid(slot, resource)) {
+            return 0;
+        }
+        ItemStack candidate = resource.toStack(amount);
+        int moved = amount - insertItem(slot, candidate, true).getCount();
+        if (moved > 0) {
+            transfers.updateSnapshots(transaction);
+            getStacks().set(slot, resource.toStack(getStackInSlot(slot).getCount() + moved));
+        }
+        return moved;
+    }
+
+    @Override
+    public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+        ItemStack current = getStackInSlot(slot);
+        if (amount <= 0 || resource.isEmpty() || !resource.matches(current)) {
+            return 0;
+        }
+        int moved = extractItem(slot, amount, true).getCount();
+        if (moved > 0) {
+            transfers.updateSnapshots(transaction);
+            getStacks().set(slot, current.copyWithCount(current.getCount() - moved));
+        }
+        return moved;
+    }
+
 
     @Nonnull private StorageInfo info;
     private StorageEntry storage;
@@ -39,7 +126,7 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
     }
 
     private void createStorage() {
-        if (storage == null && info.uuid() != null) {
+        if (storage == null && !info.isEmpty()) {
             if (!remote) {
                 storage = StorageHolder.get(LevelTools.getOverworld()).getOrCreateStorageEntry(info.uuid(), info.size(), info.createdBy());
             }
@@ -61,7 +148,6 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         return storage;
     }
 
-    @Override
     public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
         if (info.isEmpty()) {
             return;
@@ -83,17 +169,15 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
                     listener.onContentsChanged(storage.getVersion(), slot);
                 }
             }
-            StorageHolder.get(LevelTools.getOverworld()).save();
+            StorageHolder.get(LevelTools.getOverworld()).setDirty();
         }
     }
 
-    @Override
     public int getSlots() {
         return getStacks().size();
     }
 
     @Nonnull
-    @Override
     public ItemStack getStackInSlot(int slot) {
 //        validateSlotIndex(slot);
         NonNullList<ItemStack> stacks = getStacks();
@@ -109,7 +193,6 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
 
 
     @Nonnull
-    @Override
     public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
         if (info.isEmpty()) {
             return stack;
@@ -160,7 +243,6 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
     }
 
     @Nonnull
-    @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (amount == 0 || info.isEmpty()) {
             return ItemStack.EMPTY;
@@ -196,12 +278,10 @@ public class GlobalStorageItemWrapper implements IItemHandlerModifiable {
         }
     }
 
-    @Override
     public int getSlotLimit(int slot) {
         return 64;
     }
 
-    @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
         if (info.isEmpty()) {
             return false;

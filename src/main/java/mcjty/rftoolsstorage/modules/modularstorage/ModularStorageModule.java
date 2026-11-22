@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage;
 
+import com.mojang.serialization.MapCodec;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
@@ -28,7 +29,6 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
-
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
@@ -40,20 +40,20 @@ public class ModularStorageModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, ModularStorageTileEntity> MODULAR_STORAGE = RBLOCKS.registerBlock("modular_storage",
             ModularStorageTileEntity.class,
             ModularStorageBlock::new,
-            block -> new BlockItem(block.get(), createStandardProperties()),
+            (block, properties) -> new BlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             ModularStorageTileEntity::new
     );
     public static final Supplier<MenuType<ModularStorageContainer>> CONTAINER_MODULAR_STORAGE = CONTAINERS.register("modular_storage", GenericContainer::createContainerType);
 
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE0 = ITEMS.register("storage_module0", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER1)));
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE1 = ITEMS.register("storage_module1", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER2)));
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE2 = ITEMS.register("storage_module2", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER3)));
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE3 = ITEMS.register("storage_module3", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER4)));
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE6 = ITEMS.register("storage_module6", () -> new StorageModuleItem(StorageModuleItem.STORAGE_REMOTE));   // @todo no tab yet
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE0 = ITEMS.register("storage_module0", tab(properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_TIER1)));
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE1 = ITEMS.register("storage_module1", tab(properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_TIER2)));
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE2 = ITEMS.register("storage_module2", tab(properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_TIER3)));
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE3 = ITEMS.register("storage_module3", tab(properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_TIER4)));
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE6 = ITEMS.register("storage_module6", properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_REMOTE));   // @todo no tab yet
 
     public static final Supplier<AttachmentType<ModularStorageData>> MODULAR_STORAGE_DATA = ATTACHMENT_TYPES.register(
             "modular_storage_data", () -> AttachmentType.builder(() -> new ModularStorageData(false))
-                    .serialize(ModularStorageData.CODEC)
+                    .serialize(MapCodec.assumeMapUnsafe(ModularStorageData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ModularStorageData>> ITEM_MODULAR_STORAGE_DATA = COMPONENTS.registerComponentType(
             "modular_storage_data",
@@ -94,7 +94,6 @@ public class ModularStorageModule implements IModule {
                 Dob.blockBuilder(MODULAR_STORAGE)
                         .ironPickaxeTags()
                         .standardLoot(ModularStorageModule.ITEM_MODULAR_STORAGE_DATA.get())
-                        .blockState(DataGenHelper::generateModularStorage)
                         .shaped(builder -> builder
                                         .define('q', Items.QUARTZ)
                                         .define('C', Tags.Items.CHESTS)

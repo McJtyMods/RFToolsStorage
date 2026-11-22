@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolsstorage:storage_control_module"
+        "recipes": "rftoolsstorage:storage_control_module"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

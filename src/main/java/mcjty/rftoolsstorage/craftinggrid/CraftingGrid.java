@@ -1,5 +1,8 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderLookup;
@@ -10,8 +13,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +20,7 @@ import java.util.Objects;
 public class CraftingGrid {
 
     private final CraftingGridInventory craftingGridInventory;
+    private ItemStack[] lastPreviewInputs;
     private final RFCraftingRecipe[] recipes = new RFCraftingRecipe[6];
 
     public static final Codec<CraftingGrid> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -71,11 +73,7 @@ public class CraftingGrid {
     }
 
     public void setRecipe(int index, ItemStack[] stacks) {
-        RFCraftingRecipe recipe = recipes[index];
-        recipe.setResult(stacks[0]);
-        for (int i = 0 ; i < 9 ; i++) {
-            recipe.getInventory().set(i, stacks[i+1]);
-        }
+        recipes[index].setRecipe(Arrays.copyOfRange(stacks, 1, 10), stacks[0]);
     }
 
     public void storeRecipe(int index) {
@@ -91,12 +89,28 @@ public class CraftingGrid {
         }
     }
 
+    public void updateResult(Level level) {
+        if (!(level instanceof ServerLevel)) {
+            return;
+        }
+        ItemStack[] ingredients = craftingGridInventory.getIngredients();
+        if (lastPreviewInputs != null && ItemStack.listMatches(List.of(lastPreviewInputs), List.of(ingredients))) {
+            return;
+        }
+        lastPreviewInputs = Arrays.stream(ingredients).map(ItemStack::copy).toArray(ItemStack[]::new);
+        CraftingInput input = CraftingInput.ofPositioned(3, 3, List.of(ingredients)).input();
+        ItemStack result = RFCraftingRecipe.findRecipe(level, input)
+                .map(recipe -> recipe.value().assemble(input))
+                .orElse(ItemStack.EMPTY);
+        craftingGridInventory.setStackInSlot(CraftingGridInventory.SLOT_GHOSTOUTPUT, result);
+    }
+
     public CompoundTag writeToNBT(HolderLookup.Provider provider) {
         CompoundTag tagCompound = new CompoundTag();
         ListTag bufferTagList = new ListTag();
         for (int i = 0 ; i < craftingGridInventory.getSlots() ; i++) {
             ItemStack stack = craftingGridInventory.getStackInSlot(i);
-            Tag tag = stack.saveOptional(provider);
+            Tag tag = CraftingData.writeStack(provider, stack);
             bufferTagList.add(tag);
         }
         tagCompound.put("grid", bufferTagList);
@@ -116,16 +130,16 @@ public class CraftingGrid {
         if (tagCompound == null) {
             return;
         }
-        ListTag bufferTagList = tagCompound.getList("grid", Tag.TAG_COMPOUND);
+        ListTag bufferTagList = tagCompound.getListOrEmpty("grid");
         for (int i = 0 ; i < craftingGridInventory.getSlots() ; i++) {
-            CompoundTag tag = bufferTagList.getCompound(i);
-            craftingGridInventory.setStackInSlot(i, ItemStack.parseOptional(provider, tag));
+            CompoundTag tag = bufferTagList.getCompoundOrEmpty(i);
+            craftingGridInventory.setStackInSlot(i, CraftingData.readStack(provider, tag));
         }
 
-        ListTag recipeTagList = tagCompound.getList("recipes", Tag.TAG_COMPOUND);
-        for (int i = 0 ; i < recipeTagList.size() ; i++) {
+        ListTag recipeTagList = tagCompound.getListOrEmpty("recipes");
+        for (int i = 0 ; i < Math.min(recipes.length, recipeTagList.size()) ; i++) {
             recipes[i] = new RFCraftingRecipe();
-            CompoundTag tag = recipeTagList.getCompound(i);
+            CompoundTag tag = recipeTagList.getCompoundOrEmpty(i);
             recipes[i].readFromNBT(tag, provider);
         }
     }

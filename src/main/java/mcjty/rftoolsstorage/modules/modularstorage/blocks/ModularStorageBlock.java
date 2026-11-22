@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -27,8 +26,9 @@ public class ModularStorageBlock extends BaseBlock {
     public static final EnumProperty<ModularTypeModule> TYPEMODULE = EnumProperty.create("type", ModularTypeModule.class);
     public static final EnumProperty<ModularAmountOverlay> AMOUNT = EnumProperty.create("amount", ModularAmountOverlay.class);
 
-    public ModularStorageBlock() {
+    public ModularStorageBlock(Properties properties) {
         super(new BlockBuilder()
+                .properties(properties)
                 .topDriver(RFToolsStorageTOPDriver.DRIVER)
                 .tileEntitySupplier(ModularStorageTileEntity::new)
                 .manualEntry(ManualHelper.create("rftoolsbase:modularstorage/modularstorage"))

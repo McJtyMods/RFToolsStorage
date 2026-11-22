@@ -2,7 +2,6 @@ package mcjty.rftoolsstorage.modules.modularstorage;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,10 +43,10 @@ public class ModularStorageConfiguration {
 
         groupBackground = CLIENT_BUILDER
                 .comment("Background color for group lines")
-                .defineInRange("groupBackground", 0xffeedd33, 0, Integer.MAX_VALUE);
+                .defineInRange("groupBackground", 0xffeedd33, Integer.MIN_VALUE, Integer.MAX_VALUE);
         groupForeground = CLIENT_BUILDER
                 .comment("Foreground color for group lines")
-                .defineInRange("groupForeground", 0xff000000, 0, Integer.MAX_VALUE);
+                .defineInRange("groupForeground", 0xff000000, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
         REMOTE_MAXENERGY = COMMON_BUILDER
                 .comment("Maximum RF storage that the remote storage block can hold")

@@ -19,7 +19,6 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-
 import javax.annotation.Nonnull;
 
 public class RFToolsStorageMessages {
@@ -55,6 +54,6 @@ public class RFToolsStorageMessages {
     }
 
     public static <T extends CustomPacketPayload> void sendToServer(T packet) {
-        PacketDistributor.sendToServer(packet);
+        Networking.sendToServer(packet);
     }
 }
