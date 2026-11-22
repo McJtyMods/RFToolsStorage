@@ -1,3 +1,6 @@
+1.20-5.0.5:
+- Use with RFTools Utility 1.20-6.0.9 or later to display Storage Scanner modules correctly on linked tablets.
+
 1.20-5.0.4:
 - Various Patchouli documentation updates and fixes
 
