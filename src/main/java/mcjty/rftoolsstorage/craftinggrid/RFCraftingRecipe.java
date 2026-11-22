@@ -1,12 +1,11 @@
 package mcjty.rftoolsstorage.craftinggrid;
 
+import net.minecraft.server.level.ServerLevel;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -18,8 +17,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-
+import mcjty.lib.network.StreamCodecs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +57,7 @@ public class RFCraftingRecipe {
         EXTC("ExtC");
 
         public static final Codec<CraftMode> CODEC = StringRepresentable.fromEnum(CraftMode::values);
-        public static final StreamCodec<FriendlyByteBuf, CraftMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(CraftMode.class);
+        public static final StreamCodec<FriendlyByteBuf, CraftMode> STREAM_CODEC = StreamCodecs.enumCodec(CraftMode.class);
 
         private final String description;
 
@@ -84,26 +82,32 @@ public class RFCraftingRecipe {
     }
 
     public RFCraftingRecipe(List<ItemStack> inv, ItemStack result, boolean keepOne, CraftMode craftMode) {
-        this.inv.addAll(inv);
+        for (int i = 0; i < Math.min(this.inv.size(), inv.size()); i++) {
+            this.inv.set(i, inv.get(i));
+        }
         this.result = result;
         this.keepOne = keepOne;
         this.craftMode = craftMode;
     }
 
     public static Optional<RecipeHolder<CraftingRecipe>> findRecipe(Level world, CraftingInput inv) {
-        return world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, inv, world);
+        if (world instanceof ServerLevel server) {
+            return server.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, inv, world);
+        }
+        return Optional.empty();
     }
 
     public void readFromNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        ListTag nbtTagList = tagCompound.getList("Items", Tag.TAG_COMPOUND);
-        for (int i = 0; i < nbtTagList.size(); i++) {
-            CompoundTag tag = nbtTagList.getCompound(i);
-            inv.set(i, ItemStack.parseOptional(provider, tag));
+        ListTag nbtTagList = tagCompound.getListOrEmpty("Items");
+        for (int i = 0; i < Math.min(inv.size(), nbtTagList.size()); i++) {
+            CompoundTag tag = nbtTagList.getCompoundOrEmpty(i);
+            inv.set(i, CraftingData.readStack(provider, tag));
         }
-        CompoundTag resultCompound = tagCompound.getCompound("Result");
-        result = ItemStack.parseOptional(provider, resultCompound);
-        keepOne = tagCompound.getBoolean("Keep");
-        craftMode = CraftMode.values()[tagCompound.getByte("Int")];
+        CompoundTag resultCompound = tagCompound.getCompoundOrEmpty("Result");
+        result = CraftingData.readStack(provider, resultCompound);
+        keepOne = tagCompound.getBooleanOr("Keep", false);
+        int mode = tagCompound.getByteOr("Int", (byte) 0);
+        craftMode = mode >= 0 && mode < CraftMode.values().length ? CraftMode.values()[mode] : CraftMode.EXT;
         recipePresent = false;
     }
 
@@ -111,9 +115,9 @@ public class RFCraftingRecipe {
         ListTag nbtTagList = new ListTag();
         for (int i = 0 ; i < 9 ; i++) {
             ItemStack stack = inv.get(i);
-            nbtTagList.add(stack.saveOptional(provider));
+            nbtTagList.add(CraftingData.writeStack(provider, stack));
         }
-        tagCompound.put("Result", result.saveOptional(provider));
+        tagCompound.put("Result", CraftingData.writeStack(provider, result));
         tagCompound.put("Items", nbtTagList);
         tagCompound.putBoolean("Keep", keepOne);
         tagCompound.putByte("Int", (byte) craftMode.ordinal());

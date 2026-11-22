@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "rftoolsstorage",
+  "version": "${version}",
+  "name": "RFToolsStorage",
+  "description": "Modular Storage, Storage Scanner, and Crafting Manager",
+  "authors": [
+    "McJty"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mcjty.rftoolsstorage.RFToolsStorage"
+    ],
+    "client": [
+      "mcjty.rftoolsstorage.setup.ClientSetup"
+    ],
+    "fabric-datagen": [
+      "mcjty.rftoolsstorage.datagen.FabricDataGen"
+    ],
+    "xnet": [
+      "mcjty.rftoolsstorage.compat.xnet.XNetSupport"
+    ],
+    "rftoolsutility": [
+      "mcjty.rftoolsstorage.compat.rftoolsutility.RFToolsSupport::register"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "=26.1.2",
+    "java": ">=25",
+    "fabric-api": ">=0.155.3+26.1.2",
+    "forgeconfigapiport": ">=26.1.5",
+    "mcjtylib": ">=26.1.2-10.0.3-fabric",
+    "rftoolsbase": ">=26.1.2-7.0.0-fabric"
+  },
+  "suggests": {
+    "theoneprobe": "*",
+    "jei": "*",
+    "xnet": "*",
+    "rftoolsutility": "*"
+  },
+  "accessWidener": "rftoolsstorage.accesswidener"
+}

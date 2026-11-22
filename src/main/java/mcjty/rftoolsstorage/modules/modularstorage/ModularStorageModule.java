@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.modularstorage;
 
+import net.minecraft.resources.Identifier;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
@@ -10,7 +11,6 @@ import mcjty.rftoolsbase.modules.various.VariousModule;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageBlock;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageContainer;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
-import mcjty.rftoolsstorage.modules.modularstorage.client.GuiModularStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.data.ModularStorageData;
 import mcjty.rftoolsstorage.modules.modularstorage.data.StorageModuleData;
 import mcjty.rftoolsstorage.modules.modularstorage.items.StorageModuleItem;
@@ -20,15 +20,11 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
+import mcjty.lib.setup.DeferredHolder;
+import mcjty.lib.setup.DeferredItem;
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
@@ -40,21 +36,20 @@ public class ModularStorageModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, ModularStorageTileEntity> MODULAR_STORAGE = RBLOCKS.registerBlock("modular_storage",
             ModularStorageTileEntity.class,
             ModularStorageBlock::new,
-            block -> new BlockItem(block.get(), createStandardProperties()),
+            (block, properties) -> new BlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             ModularStorageTileEntity::new
     );
     public static final Supplier<MenuType<ModularStorageContainer>> CONTAINER_MODULAR_STORAGE = CONTAINERS.register("modular_storage", GenericContainer::createContainerType);
 
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE0 = ITEMS.register("storage_module0", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER1)));
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE1 = ITEMS.register("storage_module1", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER2)));
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE2 = ITEMS.register("storage_module2", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER3)));
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE3 = ITEMS.register("storage_module3", tab(() -> new StorageModuleItem(StorageModuleItem.STORAGE_TIER4)));
-    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE6 = ITEMS.register("storage_module6", () -> new StorageModuleItem(StorageModuleItem.STORAGE_REMOTE));   // @todo no tab yet
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE0 = ITEMS.register("storage_module0", tab(properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_TIER1)));
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE1 = ITEMS.register("storage_module1", tab(properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_TIER2)));
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE2 = ITEMS.register("storage_module2", tab(properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_TIER3)));
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE3 = ITEMS.register("storage_module3", tab(properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_TIER4)));
+    public static final DeferredItem<StorageModuleItem> STORAGE_MODULE6 = ITEMS.register("storage_module6", properties -> new StorageModuleItem(properties, StorageModuleItem.STORAGE_REMOTE));   // @todo no tab yet
 
-    public static final Supplier<AttachmentType<ModularStorageData>> MODULAR_STORAGE_DATA = ATTACHMENT_TYPES.register(
-            "modular_storage_data", () -> AttachmentType.builder(() -> new ModularStorageData(false))
-                    .serialize(ModularStorageData.CODEC)
-                    .build());
+    public static final AttachmentType<ModularStorageData> MODULAR_STORAGE_DATA = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("rftoolsstorage", "modular_storage_data"),
+            builder -> builder.initializer(() -> new ModularStorageData(false)).persistent(ModularStorageData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ModularStorageData>> ITEM_MODULAR_STORAGE_DATA = COMPONENTS.registerComponentType(
             "modular_storage_data",
             builder -> builder
@@ -67,24 +62,16 @@ public class ModularStorageModule implements IModule {
                     .persistent(StorageModuleData.CODEC)
                     .networkSynchronized(StorageModuleData.STREAM_CODEC));
 
-    public ModularStorageModule(IEventBus bus) {
-        bus.addListener(this::registerMenuScreens);
+    @Override
+    public void init() {
     }
 
     @Override
-    public void init(FMLCommonSetupEvent event) {
+    public void initClient() {
     }
 
     @Override
-    public void initClient(FMLClientSetupEvent event) {
-    }
-
-    public void registerMenuScreens(RegisterMenuScreensEvent event) {
-        GuiModularStorage.register(event);
-    }
-
-    @Override
-    public void initConfig(IEventBus bus) {
+    public void initConfig() {
         ModularStorageConfiguration.init(Config.SERVER_BUILDER, Config.CLIENT_BUILDER);
     }
 
@@ -94,31 +81,30 @@ public class ModularStorageModule implements IModule {
                 Dob.blockBuilder(MODULAR_STORAGE)
                         .ironPickaxeTags()
                         .standardLoot(ModularStorageModule.ITEM_MODULAR_STORAGE_DATA.get())
-                        .blockState(DataGenHelper::generateModularStorage)
                         .shaped(builder -> builder
                                         .define('q', Items.QUARTZ)
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('C', ConventionalItemTags.CHESTS)
                                         .define('F', VariousModule.MACHINE_FRAME.get())
                                         .unlockedBy("frame", has(VariousModule.MACHINE_FRAME.get())),
                                 "rCr", "qFq", "rqr"),
                 Dob.itemBuilder(STORAGE_MODULE0)
                         .shaped(builder -> builder
                                         .define('q', Items.QUARTZ)
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('C', ConventionalItemTags.CHESTS)
                                         .define('g', Items.GOLD_NUGGET)
                                         .unlockedBy("redstone", has(Items.REDSTONE)),
                                 " C ", "gig", "qrq"),
                 Dob.itemBuilder(STORAGE_MODULE1)
                         .shapedComponentPreserve(builder -> builder
                                         .define('q', Items.QUARTZ)
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('C', ConventionalItemTags.CHESTS)
                                         .define('g', Items.GOLD_INGOT)
                                         .define('X', STORAGE_MODULE0.get())
                                         .unlockedBy("storage", has(STORAGE_MODULE0.get())),
                                 " C ", "gXg", "qrq"),
                 Dob.itemBuilder(STORAGE_MODULE2)
                         .shapedComponentPreserve(builder -> builder
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('C', ConventionalItemTags.CHESTS)
                                         .define('g', Items.GOLD_BLOCK)
                                         .define('X', STORAGE_MODULE1.get())
                                         .define('Q', Items.QUARTZ_BLOCK)
@@ -126,7 +112,7 @@ public class ModularStorageModule implements IModule {
                                 " C ", "gXg", "QRQ"),
                 Dob.itemBuilder(STORAGE_MODULE3)
                         .shapedComponentPreserve(builder -> builder
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('C', ConventionalItemTags.CHESTS)
                                         .define('Q', Items.QUARTZ_BLOCK)
                                         .define('g', Items.DIAMOND_BLOCK)
                                         .define('t', VariousModule.INFUSED_DIAMOND.get())

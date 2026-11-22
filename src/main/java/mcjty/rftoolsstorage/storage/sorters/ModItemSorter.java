@@ -1,13 +1,12 @@
 package mcjty.rftoolsstorage.storage.sorters;
 
 import mcjty.lib.varia.Tools;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.Comparator;
 
 public class ModItemSorter implements ItemSorter {
@@ -54,7 +53,7 @@ public class ModItemSorter implements ItemSorter {
     }
 
     public static String getModidForBlock(Block block) {
-        ResourceLocation nameForObject = Tools.getId(block);
+        Identifier nameForObject = Tools.getId(block);
         if (nameForObject == null) {
             return "?";
         }
@@ -62,7 +61,7 @@ public class ModItemSorter implements ItemSorter {
     }
 
     public static String getModidForItem(Item item) {
-        ResourceLocation nameForObject = Tools.getId(item);
+        Identifier nameForObject = Tools.getId(item);
         if (nameForObject == null) {
             return "?";
         }

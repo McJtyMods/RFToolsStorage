@@ -25,7 +25,6 @@
           "name": "rftoolsstorage:storage_scanner"
         }
       ],
-      "name": "storage_scanner",
       "rolls": 1.0
     }
   ],

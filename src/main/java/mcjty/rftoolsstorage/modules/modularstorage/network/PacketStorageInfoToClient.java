@@ -3,19 +3,18 @@ package mcjty.rftoolsstorage.modules.modularstorage.network;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsstorage.RFToolsStorage;
 import mcjty.rftoolsstorage.modules.modularstorage.blocks.ModularStorageTileEntity;
-import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import mcjty.lib.network.PayloadContext;
 
 public record PacketStorageInfoToClient(BlockPos pos, String sortMode, String viewMode, Boolean groupMode, String filter, Boolean locked) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "storageinfotoclient");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "storageinfotoclient");
     public static final CustomPacketPayload.Type<PacketStorageInfoToClient> TYPE = new Type<>(ID);
 
     public static final StreamCodec<FriendlyByteBuf, PacketStorageInfoToClient> CODEC = StreamCodec.composite(
@@ -38,7 +37,7 @@ public record PacketStorageInfoToClient(BlockPos pos, String sortMode, String vi
         return new PacketStorageInfoToClient(pos, sortMode, viewMode, groupMode, filter, locked);
     }
 
-    public void handle(IPayloadContext ctx) {
+    public void handle(PayloadContext ctx) {
         ctx.enqueueWork(() -> {
             BlockEntity te = SafeClientTools.getClientWorld().getBlockEntity(pos);
             if (te instanceof ModularStorageTileEntity storage) {

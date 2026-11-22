@@ -1,19 +1,13 @@
 package mcjty.rftoolsstorage.compat.rftoolsutility;
 
 import mcjty.rftoolsbase.api.screens.IScreenModuleRegistry;
+import mcjty.rftoolsbase.api.teleportation.ITeleportationManager;
 import mcjty.rftoolsstorage.modules.scanner.items.StorageControlScreenModule;
-
-import javax.annotation.Nullable;
-import java.util.function.Function;
 
 public class RFToolsSupport {
 
-    public static class GetScreenModuleRegistry implements Function<IScreenModuleRegistry, Void> {
-        @Nullable
-        @Override
-        public Void apply(IScreenModuleRegistry manager) {
-            manager.registerModuleDataFactory(StorageControlScreenModule.ModuleDataStacks.ID, StorageControlScreenModule.ModuleDataStacks::new);
-            return null;
-        }
+    public static void register(ITeleportationManager teleportationManager, IScreenModuleRegistry registry) {
+        registry.registerModuleDataFactory(StorageControlScreenModule.ModuleDataStacks.ID,
+                StorageControlScreenModule.ModuleDataStacks::new);
     }
 }

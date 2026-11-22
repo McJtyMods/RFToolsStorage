@@ -7,6 +7,6 @@ public record StorageInfo(UUID uuid, int version, int size, String createdBy) {
     public static final StorageInfo EMPTY = new StorageInfo(null, -1, 0, null);
 
     public boolean isEmpty() {
-        return uuid == null;
+        return uuid == null || size <= 0;
     }
 }

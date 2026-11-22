@@ -8,8 +8,9 @@ import static mcjty.lib.builder.TooltipBuilder.*;
 
 public class StorageScannerBlock extends BaseBlock {
 
-    public StorageScannerBlock() {
+    public StorageScannerBlock(Properties properties) {
         super(new BlockBuilder()
+                .properties(properties)
                 .tileEntitySupplier(StorageScannerTileEntity::new)
                 .infusable()
                 .manualEntry(ManualHelper.create("rftoolsbase:scanner/scanner"))

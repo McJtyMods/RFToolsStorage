@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner.client;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GhostOutputSlot;
@@ -29,22 +30,20 @@ import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import mcjty.rftoolsstorage.setup.CommandHandler;
 import mcjty.rftoolsstorage.setup.RFToolsStorageMessages;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
@@ -57,8 +56,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static final int STORAGE_MONITOR_WIDTH = 256;
     private static final int STORAGE_MONITOR_HEIGHT = 244;
 
-    private static final ResourceLocation iconLocation = ResourceLocation.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/storagescanner.png");
-    private static final ResourceLocation guielements = ResourceLocation.fromNamespaceAndPath(RFToolsBase.MODID, "textures/gui/guielements.png");
+    private static final Identifier iconLocation = Identifier.fromNamespaceAndPath(RFToolsStorage.MODID, "textures/gui/storagescanner.png");
+    private static final Identifier guielements = Identifier.fromNamespaceAndPath(RFToolsBase.MODID, "textures/gui/guielements.png");
     public static final int LIST_HEIGHT = 86 + 66;
 
     private WidgetList storageList;
@@ -98,8 +97,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
 
         craftingGrid = new GuiCraftingGrid();
 
-        imageWidth = STORAGE_MONITOR_WIDTH;
-        imageHeight = STORAGE_MONITOR_HEIGHT;
+        setWindowDimensions(STORAGE_MONITOR_WIDTH, STORAGE_MONITOR_HEIGHT);
     }
 
     @Override
@@ -108,13 +106,13 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
         mgr.addWindow(craftingGrid.getWindow());
     }
 
-    public static void register(RegisterMenuScreensEvent event) {
-        event.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
+    public static void register() {
+        MenuScreens.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER.get(), GuiStorageScanner::new);
         MenuScreens.ScreenConstructor<StorageScannerContainer, GuiStorageScanner> factory = (container, inventory, title) -> {
             BlockEntity te = container.getBe();
             return Tools.safeMap(te, (StorageScannerTileEntity tile) -> new GuiStorageScanner(container, inventory, ComponentFactory.literal("Remote")), "Invalid tile entity!");
         };
-        event.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
+        MenuScreens.register(StorageScannerModule.CONTAINER_STORAGE_SCANNER_REMOTE.get(), factory);
     }
 
     @Override
@@ -276,11 +274,14 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
-        boolean r = super.mouseClicked(x, y, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double x = event.x();
+        double y = event.y();
+        int button = event.button();
+        boolean r = super.mouseClicked(event, doubleClick);
 //        craftingGrid.getWindow().mouseClicked(x, y, button);
         if (button == 1) {
-            Slot slot = findSlot(x, y);
+            Slot slot = getHoveredSlot(x, y);
             if (slot instanceof GhostOutputSlot) {
                 window.sendServerCommand(CMD_CLEARGRID, TypedMap.EMPTY);
             }
@@ -344,7 +345,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             StorageScannerTileEntity tileEntity = getBE();
             sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_SCANNER_SEARCH,
                     TypedMap.builder()
-                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimension().location().toString())
+                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimension().identifier().toString())
                             .put(CommandHandler.PARAM_SCANNER_POS, tileEntity.getStorageScannerPos())
                             .put(CommandHandler.PARAM_SEARCH_TEXT, text)
                             .build());
@@ -357,7 +358,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             StorageScannerTileEntity tileEntity = getBE();
             sendServerCommand(RFToolsStorage.MODID, CommandHandler.CMD_REQUEST_SCANNER_CONTENTS,
                     TypedMap.builder()
-                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimension().location().toString())
+                            .put(CommandHandler.PARAM_SCANNER_DIM, tileEntity.getDimension().identifier().toString())
                             .put(CommandHandler.PARAM_SCANNER_POS, tileEntity.getStorageScannerPos())
                             .put(CommandHandler.PARAM_INV_POS, c)
                             .build());
@@ -394,7 +395,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Nonnull
-    private static ResourceLocation findLargestTag(ItemStack stack) {
+    private static Identifier findLargestTag(ItemStack stack) {
         Collection<TagKey<Item>> tags = TagTools.getTags(stack.getItem());
         if (tags.isEmpty()) {
             return Tools.getId(stack);
@@ -419,8 +420,8 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     private static int compareByTag(ItemStack s1, ItemStack s2) {
-        ResourceLocation largest1 = findLargestTag(s1);
-        ResourceLocation largest2 = findLargestTag(s2);
+        Identifier largest1 = findLargestTag(s1);
+        Identifier largest2 = findLargestTag(s2);
         int rc = largest1.compareTo(largest2);
         if (rc == 0) {
             return s1.getHoverName().getString() /* was getFormattedText() */.compareTo(s2.getHoverName().getString());
@@ -601,7 +602,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int x, int y) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int x, int y) {
         if (!init) {
             return;
         }
@@ -657,7 +658,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     }
 
     @Override
-    protected void renderLabels(@Nonnull GuiGraphics graphics, int i1, int i2) {
+    protected void extractLabels(@Nonnull GuiGraphicsExtractor graphics, int i1, int i2) {
         if (!init) {
             return;
         }
@@ -669,11 +670,11 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
             drawHoveringText(graphics, tooltips, window.getTooltipItems(), x - leftPos, y - topPos, minecraft.font);
         }
 
-        super.renderLabels(graphics, i1, i2);
+        super.extractLabels(graphics, i1, i2);
     }
 
     @Override
-    protected void drawStackTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void drawStackTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (init) {
             super.drawStackTooltips(graphics, mouseX, mouseY);
         }
@@ -701,7 +702,7 @@ public class GuiStorageScanner extends GenericGuiContainer<StorageScannerTileEnt
     private static long lastTime = 0;
 
     @Override
-    protected void drawWindow(GuiGraphics matrixStack, float partialTicks, int x, int y) {
+    protected void drawWindow(GuiGraphicsExtractor matrixStack, float partialTicks, int x, int y) {
         if (!init) {
             return;
         }

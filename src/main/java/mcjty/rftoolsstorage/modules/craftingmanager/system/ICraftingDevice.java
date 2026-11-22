@@ -1,13 +1,13 @@
 package mcjty.rftoolsstorage.modules.craftingmanager.system;
 
+import java.util.Optional;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
-
 import javax.annotation.Nonnull;
 import java.util.List;
 
@@ -20,7 +20,7 @@ public interface ICraftingDevice {
     }
 
     /// Get the ID of this crafting device
-    ResourceLocation getID();
+    Identifier getID();
 
     /// Do one crafting tick. If the craft has finished the device will be put in READY mode
     void tick();
@@ -28,7 +28,7 @@ public interface ICraftingDevice {
     /// Setup this device for a crafting operation
     void setupCraft(@Nonnull Level world, @Nonnull ItemStack cardStack);
 
-    List<Ingredient> getIngredients();
+    List<Optional<Ingredient>> getIngredients();
 
     /**
      * Return the main item that this device will craft

@@ -9,11 +9,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
-import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-
+import mcjty.lib.varia.Lazy;
+import mcjty.lib.container.IItemHandler;
+import mcjty.lib.container.IItemHandlerModifiable;
+import mcjty.lib.container.InvWrapper;
 import javax.annotation.Nonnull;
 
 import static mcjty.lib.container.ContainerFactory.CONTAINER_CONTAINER;
@@ -76,6 +75,13 @@ public class StorageScannerContainer extends GenericContainer {
         addInventory(ContainerFactory.CONTAINER_PLAYER, new InvWrapper(inventory));
         addInventory(CONTAINER_GRID, ((StorageScannerTileEntity) be).getCraftingGrid().getCraftingGridInventory());
         generateSlots(inventory.player);
+    }
+
+    @Override
+    public void broadcastChanges() {
+        StorageScannerTileEntity tile = (StorageScannerTileEntity) getBe();
+        tile.getCraftingGrid().updateResult(tile.getLevel());
+        super.broadcastChanges();
     }
 
 }
