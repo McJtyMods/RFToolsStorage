@@ -1,3 +1,6 @@
+1.21-6.0.6:
+- Use with RFTools Utility 1.21-7.0.14 or later to display Storage Scanner modules correctly on linked tablets.
+
 1.21-6.0.5:
 - Updated and expanded the Patchouli manual documentation
 
