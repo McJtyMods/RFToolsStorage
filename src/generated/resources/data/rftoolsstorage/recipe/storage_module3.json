@@ -1,27 +1,13 @@
 {
   "type": "mcjtylib:copy_components",
   "recipe": {
-    "type": "minecraft:crafting_shaped",
-    "category": "misc",
     "key": {
-      "C": {
-        "tag": "c:chests"
-      },
-      "Q": {
-        "item": "minecraft:quartz_block"
-      },
-      "R": {
-        "item": "minecraft:redstone_block"
-      },
-      "X": {
-        "item": "rftoolsstorage:storage_module2"
-      },
-      "g": {
-        "item": "minecraft:diamond_block"
-      },
-      "t": {
-        "item": "rftoolsbase:infused_diamond"
-      }
+      "C": "#c:chests",
+      "Q": "minecraft:quartz_block",
+      "R": "minecraft:redstone_block",
+      "X": "rftoolsstorage:storage_module2",
+      "g": "minecraft:diamond_block",
+      "t": "rftoolsbase:infused_diamond"
     },
     "pattern": [
       "tCt",
@@ -29,7 +15,6 @@
       "QRQ"
     ],
     "result": {
-      "count": 1,
       "id": "rftoolsstorage:storage_module3"
     }
   }

@@ -6,6 +6,10 @@ import mcjty.rftoolsbase.tools.ManualHelper;
 
 public class StorageScannerTabletItem extends TabletItem {
 
+    public StorageScannerTabletItem(Properties properties) {
+        super(properties);
+    }
+
     @Override
     public ManualEntry getManualEntry() {
         return ManualHelper.create("rftoolsstorage:scanner/remote");

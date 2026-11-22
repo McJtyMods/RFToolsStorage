@@ -1,22 +1,11 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
-    "C": {
-      "tag": "c:chests"
-    },
-    "g": {
-      "item": "minecraft:gold_nugget"
-    },
-    "i": {
-      "tag": "c:ingots/iron"
-    },
-    "q": {
-      "item": "minecraft:quartz"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "C": "#c:chests",
+    "g": "minecraft:gold_nugget",
+    "i": "#c:ingots/iron",
+    "q": "minecraft:quartz",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     " C ",
@@ -24,7 +13,6 @@
     "qrq"
   ],
   "result": {
-    "count": 1,
     "id": "rftoolsstorage:storage_module0"
   }
 }

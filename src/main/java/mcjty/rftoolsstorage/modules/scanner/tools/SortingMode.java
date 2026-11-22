@@ -5,7 +5,7 @@ import mcjty.lib.varia.NamedEnum;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import mcjty.lib.network.StreamCodecs;
 
 public enum SortingMode implements NamedEnum<SortingMode> {
     AMOUNT_ASCENDING("Amount+", "Sort by amount (ascending)"),
@@ -15,7 +15,7 @@ public enum SortingMode implements NamedEnum<SortingMode> {
     NAME("Name", "Sort by name");
 
     public static final Codec<SortingMode> CODEC = StringRepresentable.fromEnum(SortingMode::values);
-    public static final StreamCodec<FriendlyByteBuf, SortingMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(SortingMode.class);
+    public static final StreamCodec<FriendlyByteBuf, SortingMode> STREAM_CODEC = StreamCodecs.enumCodec(SortingMode.class);
 
     private final String description;
     private final String tooltip;

@@ -1,5 +1,7 @@
 package mcjty.rftoolsstorage.modules.scanner.blocks;
 
+import net.minecraft.server.level.ServerLevel;
+import mcjty.lib.varia.CapabilityTools;
 import com.google.common.base.Function;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.api.infusable.DefaultInfusable;
@@ -10,7 +12,6 @@ import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ResultCommand;
 import mcjty.lib.blockcommands.ServerCommand;
 import mcjty.lib.container.GenericItemHandler;
-import mcjty.lib.setup.Registration;
 import mcjty.lib.tileentity.Cap;
 import mcjty.lib.tileentity.CapType;
 import mcjty.lib.tileentity.GenericEnergyStorage;
@@ -37,30 +38,29 @@ import mcjty.rftoolsstorage.modules.scanner.tools.SortingMode;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import mcjty.lib.varia.Lazy;
+import mcjty.lib.container.IItemHandler;
+import mcjty.lib.container.ItemHandlerHelper;
+import mcjty.lib.container.InvWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
@@ -70,6 +70,10 @@ import java.util.stream.Stream;
 
 import static mcjty.lib.container.GenericItemHandler.slot;
 import static mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer.CONTAINER_FACTORY;
+
+import static mcjty.lib.setup.Registration.ITEM_ENERGY;
+
+import static mcjty.lib.setup.Registration.ITEM_INFUSABLE;
 
 public class StorageScannerTileEntity extends TickingTileEntity implements CraftingGridProvider, JEIRecipeAcceptor, IStorageScanner {
 
@@ -185,7 +189,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
 
     @Nonnull
     public List<Pair<ItemStack, Integer>> craft(Player player, int n, boolean test, RFCraftingRecipe activeRecipe) {
-        TileEntityItemSource itemSource = new TileEntityItemSource()
+        InventoriesItemSource itemSource = new InventoriesItemSource()
                 .add(new InvWrapper(player.getInventory()), 0);
         inventories.stream()
                 .filter(p -> isOutputFromGui(p) && isRoutable(p))
@@ -194,7 +198,10 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                     if (tileEntity instanceof CraftingManagerTileEntity) {
                         // @todo crafting manager
                     } else if (tileEntity != null && !(tileEntity instanceof StorageScannerTileEntity)) {
-                        itemSource.add(tileEntity, 0);
+                        var handler = CapabilityTools.getItemCapabilitySafe(tileEntity);
+                        if (handler != null) {
+                            itemSource.add(handler, 0);
+                        }
                     }
                 });
 
@@ -265,11 +272,11 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @Override
     public ItemStack injectStackFromScreen(ItemStack stack, Player player) {
         if (getStoredPower() < StorageScannerConfiguration.rfPerInsert.get()) {
-            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Not enough power to insert items!"), false);
+            player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.RED + "Not enough power to insert items!"));
             return stack;
         }
         if (!checkForRoutableInventories()) {
-            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "There are no routable inventories!"), false);
+            player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.RED + "There are no routable inventories!"));
             return stack;
         }
         stack = injectStackInternal(stack, false, this::isInputFromScreen);
@@ -327,7 +334,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             return;
         }
         if (getStoredPower() < StorageScannerConfiguration.rfPerRequest.get()) {
-            player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + "Not enough power to request items!"), false);
+            player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.RED + "Not enough power to request items!"));
             return;
         }
 
@@ -367,7 +374,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
             return false;
         }
         if (!player.getInventory().add(stack)) {
-            player.spawnAtLocation(stack, 1.05f);
+            player.drop(stack, false, Prediction.SERVER_ONLY);
         }
         return true;
     }
@@ -693,7 +700,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         if (StorageScannerConfiguration.scannerNoRestrictions.get()) {
             return true;
         }
-        return level.getBlockState(p).canEntityDestroy(level, p, fakePlayer);
+        return level instanceof ServerLevel server && server.mayInteract(fakePlayer, p);
     }
 
     @Override
@@ -734,7 +741,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                                 oldAdded.add(p);
                             }
                         } else {
-                            IItemHandler h = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), null);
+                            IItemHandler h = CapabilityTools.itemHandler(ItemStorage.SIDED.find(te.getLevel(), te.getBlockPos(), null));
                             if (h != null) {
                                 if (seenPositions.add(p)) {
                                     inventories.add(p);
@@ -794,7 +801,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                             craftingInventories.add(p);
                         }
                     } else if (!inventories.contains(p)) {
-                        IItemHandler h = te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, p, null);
+                        IItemHandler h = CapabilityTools.itemHandler(ItemStorage.SIDED.find(te.getLevel(), p, null));
                         if (h != null) {
                             if (seenPositions.add(p)) {
                                 inventories.add(p);
@@ -811,7 +818,6 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
         return p.getX() >= getBlockPos().getX() - radius && p.getX() <= getBlockPos().getX() + radius && p.getY() >= getBlockPos().getY() - radius && p.getY() <= getBlockPos().getY() + radius && p.getZ() >= getBlockPos().getZ() - radius && p.getZ() <= getBlockPos().getZ() + radius;
     }
 
-    private static final ItemStack DUMMY = new ItemStack(Items.BEDROCK, 666);
 
     @Override
     public ItemStack requestItem(Predicate<ItemStack> matcher, boolean simulate, int amount, boolean doRoutable) {
@@ -836,9 +842,9 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
                             }
                         }
                     }
-                    return DUMMY;
+                    return ItemStack.EMPTY;
                 })
-                .filter(s -> s != DUMMY)
+                .filter(stack -> !stack.isEmpty())
                 .findFirst()
                 .orElse(ItemStack.EMPTY);
     }
@@ -901,7 +907,7 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @Nullable
     private static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), intSide);
+            return CapabilityTools.itemHandler(ItemStorage.SIDED.find(te.getLevel(), te.getBlockPos(), intSide));
         } else {
             return null;
         }
@@ -984,22 +990,19 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
      * nothing happens (and an empty list will be returned or null)
      */
     @Nullable
-    public List<ItemStack> requestIngredients(List<Ingredient> ingredients, Consumer<Ingredient> missingIngredientConsumer, boolean extract) {
+    public List<ItemStack> requestIngredients(List<Optional<Ingredient>> ingredients, Consumer<Ingredient> missingIngredientConsumer, boolean extract) {
         List<Ingredient> missing = new ArrayList<>();
-        for (Ingredient ingredient : ingredients) {
-            ItemStack stack = requestItem(ingredient, true, 1, true);
-            // If the stack is empty but it matches the ingredient it is not considered a failure
-            if (stack.isEmpty() && !ingredient.test(stack)) {
-                missing.add(ingredient);
+        for (var entry : ingredients) {
+            if (entry.isPresent() && requestItem(entry.get(), true, 1, true).isEmpty()) {
+                missing.add(entry.get());
             }
         }
         if (missing.isEmpty()) {
             // Nothing is missing. Really extract
             if (extract) {
                 List<ItemStack> stacks = new ArrayList<>();
-                for (Ingredient ingredient : ingredients) {
-                    ItemStack stack = requestItem(ingredient, false, 1, true);
-                    stacks.add(stack);
+                for (var ingredient : ingredients) {
+                    stacks.add(ingredient.map(value -> requestItem(value, false, 1, true)).orElse(ItemStack.EMPTY));
                 }
                 return stacks;
             } else {
@@ -1172,70 +1175,54 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        craftingSystem.read(tag.getCompound("CS"));
-        energyStorage.load(tag, "energy", provider);
-        infusable.load(tag, "infusable");
-        craftingGrid.readFromNBT(tag.getCompound("grid"), provider);
-        ListTag list = tag.getList("inventories", Tag.TAG_COMPOUND);
-        inventories.clear();
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        craftingSystem.read(input.read("CS", CompoundTag.CODEC).orElseGet(CompoundTag::new));
+        energyStorage.setEnergy(input.getLongOr("energy", 0L));
+        infusable.setInfused(input.getIntOr("infusable", 0));
+        craftingGrid.readFromNBT(input.read("grid", CompoundTag.CODEC).orElseGet(CompoundTag::new), input.lookup());
+        readPositions(input, "inventories", inventories);
+        readPositions(input, "routable", routable);
+        readPositions(input, "fromxnet", inventoriesFromXNet);
         craftingInventories = null;
-        for (Tag inbt : list) {
-            CompoundTag t = (CompoundTag) inbt;
-            BlockPos c = BlockPosTools.read(t, "c");
-            inventories.add(c);
-        }
-        list = tag.getList("routable", Tag.TAG_COMPOUND);
-        routable.clear();
-        for (Tag inbt : list) {
-            CompoundTag t = (CompoundTag) inbt;
-            BlockPos c = BlockPosTools.read(t, "c");
-            routable.add(c);
-        }
-        list = tag.getList("fromxnet", Tag.TAG_COMPOUND);
-        inventoriesFromXNet.clear();
-        for (Tag inbt : list) {
-            CompoundTag t = (CompoundTag) inbt;
-            BlockPos c = BlockPosTools.read(t, "c");
-            inventoriesFromXNet.add(c);
+    }
+
+    private static void readPositions(ValueInput input, String key, Collection<BlockPos> positions) {
+        positions.clear();
+        for (CompoundTag tag : input.listOrEmpty(key, CompoundTag.CODEC)) {
+            positions.add(BlockPosTools.read(tag, "c"));
         }
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("CS", craftingSystem.write());
-        energyStorage.save(tag, "energy", provider);
-        infusable.save(tag, "infusable");
-        tag.put("grid", craftingGrid.writeToNBT(provider));
-        ListTag list = new ListTag();
-        for (BlockPos c : inventories) {
-            list.add(BlockPosTools.write(c));
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.store("CS", CompoundTag.CODEC, craftingSystem.write());
+        output.putLong("energy", energyStorage.getEnergy());
+        output.putInt("infusable", infusable.getInfused());
+        output.store("grid", CompoundTag.CODEC, craftingGrid.writeToNBT(level.registryAccess()));
+        writePositions(output, "inventories", inventories);
+        writePositions(output, "routable", routable);
+        writePositions(output, "fromxnet", inventoriesFromXNet);
+    }
+
+    private static void writePositions(ValueOutput output, String key, Collection<BlockPos> positions) {
+        var list = output.list(key, CompoundTag.CODEC);
+        for (BlockPos pos : positions) {
+            list.add(BlockPosTools.write(pos));
         }
-        tag.put("inventories", list);
-        list = new ListTag();
-        for (BlockPos c : routable) {
-            list.add(BlockPosTools.write(c));
-        }
-        tag.put("routable", list);
-        list = new ListTag();
-        for (BlockPos c : inventoriesFromXNet) {
-            list.add(BlockPosTools.write(c));
-        }
-        tag.put("fromxnet", list);
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(DataComponentGetter input) {
         super.applyImplicitComponents(input);
-        energyStorage.applyImplicitComponents(input.get(Registration.ITEM_ENERGY));
-        infusable.applyImplicitComponents(input.get(Registration.ITEM_INFUSABLE));
-        var data = input.get(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA);
+        energyStorage.applyImplicitComponents(input.get(ITEM_ENERGY.get()));
+        infusable.applyImplicitComponents(input.get(ITEM_INFUSABLE.get()));
+        var data = input.get(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA.get());
         if (data != null) {
             setData(StorageScannerModule.STORAGE_SCANNER_DATA, data);
         }
-        var cdata = input.get(StorageScannerModule.ITEM_CRAFTING_GRID_DATA);
+        var cdata = input.get(StorageScannerModule.ITEM_CRAFTING_GRID_DATA.get());
         if (cdata != null) {
             craftingGrid.set(cdata);
         }
@@ -1244,8 +1231,8 @@ public class StorageScannerTileEntity extends TickingTileEntity implements Craft
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
-        builder.set(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA, getData(StorageScannerModule.STORAGE_SCANNER_DATA));
-        builder.set(StorageScannerModule.ITEM_CRAFTING_GRID_DATA, craftingGrid);
+        builder.set(StorageScannerModule.ITEM_STORAGE_SCANNER_DATA.get(), getData(StorageScannerModule.STORAGE_SCANNER_DATA));
+        builder.set(StorageScannerModule.ITEM_CRAFTING_GRID_DATA.get(), craftingGrid);
         energyStorage.collectImplicitComponents(builder);
         infusable.collectImplicitComponents(builder);
     }

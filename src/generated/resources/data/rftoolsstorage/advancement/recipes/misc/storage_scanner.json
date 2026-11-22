@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "rftoolsstorage:storage_scanner"
+        "recipes": "rftoolsstorage:storage_scanner"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

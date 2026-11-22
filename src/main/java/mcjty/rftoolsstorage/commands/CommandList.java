@@ -11,7 +11,7 @@ import mcjty.rftoolsstorage.storage.StorageHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-
+import net.minecraft.server.permissions.Permissions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,7 +22,7 @@ public class CommandList implements Command<CommandSourceStack> {
 
     public static ArgumentBuilder<CommandSourceStack, ?> register(CommandDispatcher<CommandSourceStack> dispatcher) {
         return Commands.literal("list")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(CMD);
     }
 

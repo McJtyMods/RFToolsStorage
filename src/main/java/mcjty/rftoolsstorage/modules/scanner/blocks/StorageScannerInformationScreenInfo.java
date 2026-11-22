@@ -13,14 +13,13 @@ import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingRequest;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.CraftingSystem;
 import mcjty.rftoolsstorage.modules.craftingmanager.system.ICraftingDevice;
 import mcjty.rftoolsstorage.modules.scanner.client.StorageScannerInformationRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.tuple.Pair;
-
 import javax.annotation.Nonnull;
 import java.util.List;
 
@@ -105,9 +104,9 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
                 if (idx >= CRAFT_KEYS.length) {
                     break;
                 }
-                ItemStack[] stacks = request.ingredient().getItems();
-                if (stacks.length > 0) {
-                    add(builder, idx++, stacks[0], "Missing");
+                var item = request.ingredient().items().findFirst();
+                if (item.isPresent()) {
+                    add(builder, idx++, new ItemStack(item.get()), "Missing");
                 }
             }
             return builder.build();
@@ -120,7 +119,7 @@ public class StorageScannerInformationScreenInfo implements IInformationScreenIn
     }
 
     @Override
-    public void render(int mode, PoseStack matrixStack, MultiBufferSource buffer, @Nonnull TypedMap data, Direction orientation, double scale) {
+    public void render(int mode, PoseStack matrixStack, SubmitNodeCollector buffer, @Nonnull TypedMap data, Direction orientation, double scale) {
         if (mode == MODE_POWER) {
             DefaultPowerInformationRenderer.renderDefault(matrixStack, buffer, data, orientation, scale);
         } else if (mode == MODE_POWER_GRAPHICAL) {

@@ -1,5 +1,6 @@
 package mcjty.rftoolsstorage.modules.scanner;
 
+import net.minecraft.resources.Identifier;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
@@ -14,7 +15,6 @@ import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerBlock;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerContainer;
 import mcjty.rftoolsstorage.modules.scanner.blocks.StorageScannerTileEntity;
 import mcjty.rftoolsstorage.modules.scanner.client.ClientCommandHandler;
-import mcjty.rftoolsstorage.modules.scanner.client.GuiStorageScanner;
 import mcjty.rftoolsstorage.modules.scanner.data.StorageScannerData;
 import mcjty.rftoolsstorage.modules.scanner.items.DumpModuleItem;
 import mcjty.rftoolsstorage.modules.scanner.items.DumpScreenModule;
@@ -29,14 +29,10 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import mcjty.lib.setup.DeferredHolder;
+import mcjty.lib.setup.DeferredItem;
 import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
@@ -48,7 +44,7 @@ public class StorageScannerModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, StorageScannerTileEntity> STORAGE_SCANNER = RBLOCKS.registerBlock("storage_scanner",
             StorageScannerTileEntity.class,
             StorageScannerBlock::new,
-            block -> new BlockItem(block.get(), createStandardProperties()),
+            (block, properties) -> new BlockItem(block.get(), properties.useBlockDescriptionPrefix()),
             StorageScannerTileEntity::new
     );
     public static final Supplier<MenuType<StorageScannerContainer>> CONTAINER_STORAGE_SCANNER = CONTAINERS.register("storage_scanner", GenericContainer::createContainerType);
@@ -60,10 +56,9 @@ public class StorageScannerModule implements IModule {
 
     public static final DeferredItem<TabletItem> TABLET_SCANNER = ITEMS.register("tablet_scanner", tab(StorageScannerTabletItem::new));
 
-    public static final Supplier<AttachmentType<StorageScannerData>> STORAGE_SCANNER_DATA = ATTACHMENT_TYPES.register(
-            "storage_scanner_data", () -> AttachmentType.builder(() -> StorageScannerData.DEFAULT)
-                    .serialize(StorageScannerData.CODEC)
-                    .build());
+    public static final AttachmentType<StorageScannerData> STORAGE_SCANNER_DATA = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath("rftoolsstorage", "storage_scanner_data"),
+            builder -> builder.initializer(() -> StorageScannerData.DEFAULT).persistent(StorageScannerData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<StorageScannerData>> ITEM_STORAGE_SCANNER_DATA = COMPONENTS.registerComponentType(
             "storage_scanner_data",
             builder -> builder
@@ -89,28 +84,18 @@ public class StorageScannerModule implements IModule {
                     .networkSynchronized(StorageControlScreenModule.STREAM_CODEC));
 
 
-    public StorageScannerModule(IEventBus bus) {
-        bus.addListener(this::registerMenuScreens);
-    }
-
     @Override
-    public void init(FMLCommonSetupEvent event) {
+    public void init() {
 
     }
 
     @Override
-    public void initClient(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> {
-            ClientCommandHandler.registerCommands();
-        });
-    }
-
-    public void registerMenuScreens(RegisterMenuScreensEvent event) {
-        GuiStorageScanner.register(event);
+    public void initClient() {
+        ClientCommandHandler.registerCommands();
     }
 
     @Override
-    public void initConfig(IEventBus bus) {
+    public void initConfig() {
         StorageScannerConfiguration.init(Config.SERVER_BUILDER, Config.CLIENT_BUILDER);
     }
 

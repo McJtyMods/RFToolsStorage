@@ -8,8 +8,8 @@ import mcjty.rftoolsbase.api.screens.ModuleRenderInfo;
 import mcjty.rftoolsbase.api.screens.data.IModuleData;
 import mcjty.rftoolsbase.tools.ScreenTextHelper;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -27,7 +27,7 @@ public class DumpClientScreenModule implements IClientScreenModule<IModuleData> 
     }
 
     @Override
-    public void render(GuiGraphics graphics, MultiBufferSource buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, IModuleData screenData, ModuleRenderInfo renderInfo) {
+    public void render(GuiGraphicsExtractor graphics, SubmitNodeCollector buffer, IModuleRenderHelper renderHelper, Font fontRenderer, int currenty, IModuleData screenData, ModuleRenderInfo renderInfo) {
 //        GlStateManager.disableLighting();
 //        GlStateManager.enableDepthTest();
 //        GlStateManager.depthMask(false);
@@ -35,8 +35,7 @@ public class DumpClientScreenModule implements IClientScreenModule<IModuleData> 
 
         DumpScreenModule data = DumpModuleItem.data(renderInfo.moduleStack);
 
-        RenderHelper.drawBeveledBox(graphics, buffer, xoffset - 5, currenty, 130 - 7, currenty + 12, 0xffeeeeee, 0xff333333, 0xff448866,
-                renderInfo.getLightmapValue());
+        RenderHelper.drawBeveledBox(graphics, xoffset - 5, currenty, 130 - 7, currenty + 12, 0xffeeeeee, 0xff333333, 0xff448866);
         buttonCache.setup(data.line(), 490, renderInfo);
         buttonCache.renderText(graphics, buffer, xoffset -10, currenty + 2, data.color(), renderInfo);
     }
