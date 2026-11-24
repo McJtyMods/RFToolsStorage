@@ -30,7 +30,10 @@ public record PacketStorageInfoToClient(BlockPos pos, String sortMode, String vi
     }
 
     public static PacketStorageInfoToClient create(FriendlyByteBuf buf) {
-        return new PacketStorageInfoToClient(buf.readBlockPos(), buf.readUtf(32767), buf.readUtf(32767), buf.readBoolean(), buf.readUtf(32767), buf.readBoolean());
+        BlockPos pos = buf.readBlockPos();
+        String viewMode = buf.readUtf(32767);
+        String sortMode = buf.readUtf(32767);
+        return new PacketStorageInfoToClient(pos, sortMode, viewMode, buf.readBoolean(), buf.readUtf(32767), buf.readBoolean());
     }
 
     public static PacketStorageInfoToClient create(BlockPos pos,
